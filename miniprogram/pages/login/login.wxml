@@ -1,0 +1,79 @@
+<view class="login-page">
+  <view wx:if="{{sessionPhase === 'checking'}}" class="login-checking">
+    <view class="login-checking-dot" aria-hidden="true" />
+    <text class="login-checking-text">正在确认身份…</text>
+  </view>
+
+  <scroll-view
+    wx:elif="{{sessionPhase === 'needProfile'}}"
+    class="login-scroll"
+    scroll-y
+    type="list"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <!-- type="list" 下列表项须为直接子节点；单容器包裹整页内容，避免卡片 padding 等布局被列表项裁切或表现异常 -->
+    <view class="login-scroll-body">
+      <view class="login-hero">
+        <view class="login-hero-decor" aria-hidden="true">
+          <text>╋</text>
+          <text class="login-hero-decor-dot">✿</text>
+        </view>
+        <text class="login-brand">Moilike</text>
+        <text class="login-tagline">只属于两个人的小宇宙</text>
+        <text class="login-hero-title">完善资料</text>
+        <text class="login-hero-desc">选择头像与昵称即可开始使用。</text>
+      </view>
+
+      <view class="login-card">
+        <view class="login-section">
+          <view class="login-section-head login-section-head--stack">
+            <text class="login-section-title">头像</text>
+            <text class="login-section-hint">轻触选择，可与微信头像一致</text>
+          </view>
+          <view class="login-avatar-row">
+            <view class="login-avatar-btn-wrap">
+              <image class="login-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+              <button
+                class="login-avatar-hit"
+                hover-class="none"
+                open-type="chooseAvatar"
+                bind:chooseavatar="onChooseAvatar"
+                aria-label="选择头像"
+              />
+            </view>
+          </view>
+        </view>
+
+        <view class="login-divider" />
+
+        <view class="login-section">
+          <text class="login-section-title">昵称</text>
+          <view class="login-field-shell">
+            <input
+              class="login-input"
+              type="nickname"
+              placeholder="输入昵称，或从键盘使用微信昵称"
+              placeholder-class="login-placeholder"
+              value="{{nickName}}"
+              bindinput="onNickNameInput"
+            />
+          </view>
+        </view>
+      </view>
+
+      <view class="login-submit-wrap">
+        <button
+          class="login-submit"
+          bind:tap="onSubmit"
+          disabled="{{submitting}}"
+          aria-label="进入 Moilike"
+        >
+          {{submitting ? '登录中…' : '进入 Moilike'}}
+        </button>
+      </view>
+
+      <text class="login-footnote">已注册过的用户会自动进入；仅首次使用需在此填写头像与昵称。</text>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,9 @@
+{
+  "name": "user",
+  "version": "1.0.0",
+  "description": "用户资料：云数据库集合 users（文档 _id 为 openid）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~3.0.1"
+  }
+}

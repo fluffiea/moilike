@@ -1,3 +1,5 @@
+import { redirectIfNotAuthed } from '../../utils/auth-guard'
+
 type MainModule = 'daily' | 'report'
 type ReportFilter = 'pending' | 'all' | 'mine'
 
@@ -92,6 +94,11 @@ function filterReports(list: ReportItem[], f: ReportFilter): ReportItem[] {
 }
 
 Component({
+  pageLifetimes: {
+    show() {
+      redirectIfNotAuthed()
+    },
+  },
   data: {
     mainModule: 'daily',
     reportFilter: 'all',

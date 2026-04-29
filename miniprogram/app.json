@@ -1,5 +1,7 @@
 {
+  "cloud": true,
   "pages": [
+    "pages/login/login",
     "pages/milestones/milestones",
     "pages/chronicle/chronicle",
     "pages/echo/echo",
