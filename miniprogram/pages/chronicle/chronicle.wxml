@@ -1,6 +1,107 @@
-<scroll-view class="page-scroll" scroll-y type="list">
-  <view class="placeholder">
-    <text class="placeholder-title">见证</text>
-    <text class="placeholder-desc">日常记录与报备（待开发）</text>
+<view class="chronicle-page">
+  <view class="chronicle-toolbar">
+    <view class="chronicle-segment">
+      <view
+        class="chronicle-segment-item {{mainModule === 'daily' ? 'chronicle-segment-item-active' : ''}}"
+        data-mode="daily"
+        bind:tap="onMainTab"
+      >
+        日常
+      </view>
+      <view
+        class="chronicle-segment-item {{mainModule === 'report' ? 'chronicle-segment-item-active' : ''}}"
+        data-mode="report"
+        bind:tap="onMainTab"
+      >
+        报备
+      </view>
+    </view>
   </view>
-</scroll-view>
+
+  <block wx:if="{{mainModule === 'report'}}">
+    <view class="chronicle-subtabs">
+      <view
+        class="chronicle-subtab {{reportFilter === 'pending' ? 'chronicle-subtab-active' : ''}}"
+        data-filter="pending"
+        bind:tap="onReportFilter"
+      >
+        待阅读
+      </view>
+      <view
+        class="chronicle-subtab {{reportFilter === 'all' ? 'chronicle-subtab-active' : ''}}"
+        data-filter="all"
+        bind:tap="onReportFilter"
+      >
+        全部
+      </view>
+      <view
+        class="chronicle-subtab {{reportFilter === 'mine' ? 'chronicle-subtab-active' : ''}}"
+        data-filter="mine"
+        bind:tap="onReportFilter"
+      >
+        我的
+      </view>
+    </view>
+  </block>
+
+  <scroll-view class="chronicle-scroll" scroll-y type="list" enhanced show-scrollbar="{{false}}">
+    <block wx:if="{{mainModule === 'daily'}}">
+      <view wx:for="{{dailyList}}" wx:key="id" class="feed-card">
+        <view class="feed-card-head">
+          <image class="feed-avatar" src="/images/default.png" mode="aspectFill" />
+          <view class="feed-head-text">
+            <text class="feed-name">{{item.userName}}</text>
+            <text class="feed-time">{{item.time}}</text>
+          </view>
+          <view class="feed-tag feed-tag-{{item.tagTone}}">{{item.tag}}</view>
+        </view>
+        <text class="feed-snippet">{{item.snippet}}</text>
+        <view wx:if="{{item.media === 'loading'}}" class="feed-media feed-media-single">
+          <text class="feed-media-placeholder">加载中</text>
+        </view>
+        <view wx:elif="{{item.media === 'double'}}" class="feed-media feed-media-double">
+          <view class="feed-media-half"><text class="feed-media-placeholder">加载中</text></view>
+          <view class="feed-media-half"><text class="feed-media-placeholder">加载中</text></view>
+        </view>
+        <view class="feed-foot">
+          <text class="feed-foot-main">{{item.footUser}}：{{item.footText}}</text>
+          <text class="feed-foot-time">{{item.footTime}}</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view wx:for="{{reportDisplayList}}" wx:key="id" class="report-card">
+        <view class="report-card-head">
+          <view class="report-head-main">
+            <text class="report-name">{{item.userName}}</text>
+            <text class="report-name-suffix"> 的报备</text>
+          </view>
+          <view class="report-tag">{{item.tag}}</view>
+        </view>
+        <text class="report-publish">发布 {{item.publishTime}}</text>
+        <view class="report-media">
+          <text class="feed-media-placeholder">加载中</text>
+        </view>
+        <view class="report-body-wrap">
+          <text class="report-body">{{item.body}}</text>
+          <view wx:if="{{item.readByMe}}" class="report-stamp">已阅</view>
+        </view>
+        <view wx:if="{{item.comments.length}}" class="report-comments">
+          <block wx:for="{{item.comments}}" wx:key="index" wx:for-item="c">
+            <text class="report-comment-line">{{c.user}}：{{c.text}}</text>
+          </block>
+        </view>
+      </view>
+      <view wx:if="{{reportDisplayList.length === 0}}" class="chronicle-empty">
+        <text>暂无内容</text>
+      </view>
+    </block>
+
+    <view class="chronicle-scroll-pad" />
+  </scroll-view>
+
+  <view class="chronicle-fab" bind:tap="onFabTap" aria-role="button" aria-label="新建">
+    <text class="chronicle-fab-icon">+</text>
+  </view>
+</view>
