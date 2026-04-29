@@ -1,0 +1,6 @@
+<scroll-view class="page-scroll" scroll-y type="list">
+  <view class="placeholder">
+    <text class="placeholder-title">独白</text>
+    <text class="placeholder-desc">个人资料与设置（待开发）</text>
+  </view>
+</scroll-view>

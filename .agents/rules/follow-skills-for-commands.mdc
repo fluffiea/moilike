@@ -1,0 +1,22 @@
+---
+description: 执行终端命令前遵循仓库 .agents/skills 中相关 SKILL 规范
+alwaysApply: true
+---
+
+# 执行命令遵循 skills 规范
+
+## 适用范围
+
+- **Skills 位置**：以仓库内 `.agents/skills/<skill-name>/SKILL.md` 为主规范；该 skill 目录下的 `references/`、`AGENTS.md` 等引用材料与 SKILL 正文具有同等约束力（以 SKILL 的指引为准阅读）。
+- **「执行命令」**：主要指终端/Shell 命令（安装依赖、构建、预览、CLI、项目脚本等）。与某条 skill 中的步骤、工具链或禁止项冲突时，**以 SKILL 为准**，不得凭习惯替代。
+
+## 操作流程
+
+1. 根据当前任务判断涉及的领域（如 Skyline 配置、组件、WXSS、路由、worklet 等），**在运行可能受影响的命令之前**，先读取对应的 `SKILL.md`（至少覆盖与命令/工具链/配置相关的章节）。
+2. 若 SKILL 规定了固定命令顺序、推荐 CLI、环境或配置项，按文档执行。
+3. 全局 Cursor skills（用户目录下 `skills-cursor` 等）与项目 skills 同时适用时，**以本仓库 `.agents/skills` 为优先**。
+
+## 示例
+
+- 需要改 `app.json` / 页面 json / `project.config.json` 时，先对照 `skyline-config` 的 SKILL。
+- 涉及滚动 API、DraggableSheet 程序化控制时，先对照 `skyline-scroll-api` 的 SKILL 再写脚本或命令行操作。

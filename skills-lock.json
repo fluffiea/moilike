@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "ios-design-guidelines": {
+      "source": "ehmo/platform-design-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ios/SKILL.md",
+      "computedHash": "7b00786cd29d773c9b02b0d8a75729b86926c01fe5feca67c375dea5924f58af"
+    },
+    "skyline-components": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-components/SKILL.md",
+      "computedHash": "68666d2751efe2119448c6fd953a67872f8b3e8f30d2bbf157e2e2bcd9ed1658"
+    },
+    "skyline-config": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-config/SKILL.md",
+      "computedHash": "4675ccbed4460a6bd55e980d794dec690ff08291167f29708f0f69d2ea1f4384"
+    },
+    "skyline-overview": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-overview/SKILL.md",
+      "computedHash": "0add0cd530f29731e027497cfd53131492c998283b19b0af4c2a261cc58655d5"
+    },
+    "skyline-route": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-route/SKILL.md",
+      "computedHash": "304f98a5cc85698588c3b13ab24153fd364cc1f36067b1771fdcd47573a62a37"
+    },
+    "skyline-scroll-api": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-scroll-api/SKILL.md",
+      "computedHash": "9fb1aaf0faa8f905a7701cde26a018c240e8eba4ff03b01d88a1805f1e342327"
+    },
+    "skyline-worklet": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-worklet/SKILL.md",
+      "computedHash": "df7af1fea386788dc3edcda9fe4d3afa9247968cf1adf80b271c76555719e346"
+    },
+    "skyline-wxss": {
+      "source": "wechat-miniprogram/skyline-skills",
+      "sourceType": "github",
+      "skillPath": "skills/skyline-wxss/SKILL.md",
+      "computedHash": "1dd040782e02bd90fca4b3fbf17ed6c09ac9b2b6b57c049c6b871349399d68f5"
+    }
+  }
+}

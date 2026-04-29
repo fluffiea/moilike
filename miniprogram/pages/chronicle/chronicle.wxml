@@ -1,0 +1,6 @@
+<scroll-view class="page-scroll" scroll-y type="list">
+  <view class="placeholder">
+    <text class="placeholder-title">见证</text>
+    <text class="placeholder-desc">日常记录与报备（待开发）</text>
+  </view>
+</scroll-view>

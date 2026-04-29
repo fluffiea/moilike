@@ -1,0 +1,6 @@
+<scroll-view class="page-scroll" scroll-y type="list">
+  <view class="placeholder">
+    <text class="placeholder-title">分包占位页</text>
+    <text class="placeholder-desc">详情、表单等非 Tab 页面可放在 subpackages/extra 下</text>
+  </view>
+</scroll-view>

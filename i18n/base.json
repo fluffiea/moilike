@@ -1,0 +1,11 @@
+{
+	"ios": {
+		"name": "moilike"
+	},
+	"android": {
+		"name": "moilike"
+	},
+	"common": {
+		"name": "moilike"
+	}
+}

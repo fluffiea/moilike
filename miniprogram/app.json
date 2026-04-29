@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/milestones/milestones",
+    "pages/chronicle/chronicle",
+    "pages/echo/echo",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "Moilike",
+    "navigationBarBackgroundColor": "#ffffff"
+  },
+  "tabBar": {
+    "color": "#C3B59F",
+    "selectedColor": "#668F80",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/milestones/milestones",
+        "text": "朝夕",
+        "iconPath": "images/tabbar/milestones.png",
+        "selectedIconPath": "images/tabbar/milestones-active.png"
+      },
+      {
+        "pagePath": "pages/chronicle/chronicle",
+        "text": "见证",
+        "iconPath": "images/tabbar/chronicle.png",
+        "selectedIconPath": "images/tabbar/chronicle-active.png"
+      },
+      {
+        "pagePath": "pages/echo/echo",
+        "text": "回响",
+        "iconPath": "images/tabbar/echo.png",
+        "selectedIconPath": "images/tabbar/echo-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "独白",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile-active.png"
+      }
+    ],
+    "position": "bottom"
+  },
+  "subpackages": [
+    {
+      "root": "subpackages/extra",
+      "name": "extra",
+      "pages": [
+        "index/index"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/milestones/milestones": {
+      "network": "all",
+      "packages": [
+        "extra"
+      ]
+    }
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents",
+  "miniApp": {
+    "useAuthorizePage": true
+  }
+}

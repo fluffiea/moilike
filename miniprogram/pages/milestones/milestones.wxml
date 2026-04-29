@@ -1,0 +1,6 @@
+<scroll-view class="page-scroll" scroll-y type="list">
+  <view class="placeholder">
+    <text class="placeholder-title">朝夕</text>
+    <text class="placeholder-desc">纪念日与重要日子（待开发）</text>
+  </view>
+</scroll-view>

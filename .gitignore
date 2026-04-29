@@ -1,0 +1,81 @@
+# ========== 依赖（pnpm / npm / yarn）==========
+node_modules/
+
+# pnpm
+.pnpm-debug.log*
+pnpm-debug.log*
+
+# 若团队固定只用 pnpm，可取消下一行注释，避免误提交 npm 锁文件
+# package-lock.json
+
+# npm / yarn 日志与缓存
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.stylelintcache
+
+# ========== 微信小程序：npm 构建产物 ==========
+# 开发者工具「构建 npm」后在小程序目录生成，勿提交
+miniprogram/miniprogram_npm/
+**/miniprogram_npm/
+
+# ========== 构建与临时输出（多端 / 各类打包工具常见目录）==========
+dist/
+build/
+unpackage/
+.output/
+.temp/
+tmp/
+temp/
+*.tmp
+*.temp
+
+# TypeScript 增量信息
+*.tsbuildinfo
+
+# ========== 环境变量与密钥（勿提交）==========
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ========== 微信开发者工具私有配置（可选）==========
+# 个人本机设置会写进此文件；若希望仓库内统一 libVersion 等，请删除下一行
+# project.private.config.json
+
+# ========== 测试与覆盖率 ==========
+coverage/
+.nyc_output/
+*.lcov
+
+# ========== 操作系统 ==========
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ========== 编辑器与 IDE ==========
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# VS Code：个人本地设置（若需共享工作区配置，可改为只忽略指定文件）
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ========== 其他 ===========
+*.log
+logs/
