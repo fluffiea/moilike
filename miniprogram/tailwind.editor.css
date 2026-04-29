@@ -1,0 +1,4 @@
+/* 仅给 VS Code Tailwind IntelliSense 用，勿在 app 中引入。见 https://tw.icebreaker.top/docs/quick-start/v4#智能提示 */
+@import "tailwindcss";
+@source "./**/*.{wxml,ts}";
+@source not "../node_modules";

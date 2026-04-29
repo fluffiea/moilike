@@ -76,6 +76,8 @@ Desktop.ini
 !.vscode/extensions.json
 !.vscode/settings.json
 
-# ========== 其他 ===========
-*.log
-logs/
+# weapp-vite 遗留（已不用）
+.weapp-vite/
+
+node_modules/.cache/
+
