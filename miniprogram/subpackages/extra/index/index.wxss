@@ -3,8 +3,17 @@ page {
   background-color: #fafafa;
 }
 
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
 .page-scroll {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   box-sizing: border-box;
 }
 

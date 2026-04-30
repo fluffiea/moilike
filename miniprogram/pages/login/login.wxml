@@ -1,4 +1,5 @@
 <view class="login-page">
+  <app-nav title="登录" bg="#ebe3d7" />
   <view wx:if="{{sessionPhase === 'checking'}}" class="login-checking">
     <view class="login-checking-dot" aria-hidden="true" />
     <text class="login-checking-text">正在确认身份…</text>

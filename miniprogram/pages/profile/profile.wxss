@@ -5,7 +5,17 @@ page {
   background-color: #f7f4f0;
 }
 
+.profile-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  background-color: #f7f4f0;
+}
+
 .page-scroll {
+  flex: 1;
+  min-height: 0;
   padding-bottom: 48rpx;
 }
 

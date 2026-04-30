@@ -12,6 +12,17 @@
     "navigationBarTitleText": "Moilike",
     "navigationBarBackgroundColor": "#ffffff"
   },
+  "renderer": "skyline",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "enableScrollViewAutoSize": true,
+      "keyframeStyleIsolation": "legacy",
+      "disableABTest": true
+    }
+  },
   "tabBar": {
     "color": "#C3B59F",
     "selectedColor": "#668F80",

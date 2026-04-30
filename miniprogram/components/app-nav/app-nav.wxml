@@ -1,0 +1,7 @@
+<view class="app-nav-root" style="background-color: {{bg}};">
+  <view class="app-nav-safe" style="padding-top: env(safe-area-inset-top);">
+    <view class="app-nav-bar">
+      <text class="app-nav-title">{{title}}</text>
+    </view>
+  </view>
+</view>

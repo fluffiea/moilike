@@ -1,4 +1,5 @@
 <view class="chronicle-page">
+  <app-nav title="见证" bg="#ebe3d7" />
   <view class="chronicle-toolbar">
     <view class="chronicle-segment">
       <view
