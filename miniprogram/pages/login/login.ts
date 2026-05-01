@@ -1,6 +1,7 @@
 import type { UserCloudResult } from '../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../types/cloud'
 import type { MoUser } from '../../types/user'
+import { TAB_MILESTONES } from '../../constants/paths'
 import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../utils/cloud-invoke'
 import moSession from '../../utils/session'
 
@@ -33,7 +34,7 @@ Component({
 
       if (!wx.cloud) {
         if (isRegisteredUser(local) && !waitExplicit) {
-          wx.switchTab({ url: '/pages/milestones/milestones' })
+          wx.switchTab({ url: TAB_MILESTONES })
           return
         }
         this.setData({ sessionPhase: 'needProfile' })
@@ -65,7 +66,7 @@ Component({
               return
             }
             moSession.saveMoUser(serverUser)
-            wx.switchTab({ url: '/pages/milestones/milestones' })
+            wx.switchTab({ url: TAB_MILESTONES })
             return
           }
           this.applyPrefill(serverUser)
@@ -74,7 +75,7 @@ Component({
         }
       } catch (err) {
         if (isRegisteredUser(local) && !waitExplicit) {
-          wx.switchTab({ url: '/pages/milestones/milestones' })
+          wx.switchTab({ url: TAB_MILESTONES })
           return
         }
         showCloudInvokeErrorToast(err)
@@ -94,7 +95,7 @@ Component({
       }
       moSession.clearWaitExplicitRelogin()
       moSession.saveMoUser(u)
-      wx.switchTab({ url: '/pages/milestones/milestones' })
+      wx.switchTab({ url: TAB_MILESTONES })
     },
 
     applyPrefill(u: MoUser) {
@@ -182,7 +183,7 @@ Component({
         }
         moSession.saveMoUser(result.user)
         moSession.clearWaitExplicitRelogin()
-        wx.switchTab({ url: '/pages/milestones/milestones' })
+        wx.switchTab({ url: TAB_MILESTONES })
       } catch (err) {
         showCloudInvokeErrorToast(err)
       } finally {

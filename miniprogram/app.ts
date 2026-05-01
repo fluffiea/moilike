@@ -14,10 +14,6 @@ App<IAppOption>({
     if (cached) {
       this.globalData.moUser = cached
     }
-    // 展示本地存储能力
-    const logs = wx.getStorageSync('logs') || []
-    logs.unshift(Date.now())
-    wx.setStorageSync('logs', logs)
 
     setTimeout(() => {
       if (typeof wx.preloadSkylineView === 'function') {

@@ -1,6 +1,7 @@
 import { redirectIfNotAuthed } from '../../utils/auth-guard'
 import type { UserCloudResult } from '../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../types/cloud'
+import { PAGE_LOGIN } from '../../constants/paths'
 import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'changePassword' | 'preferences'
@@ -9,6 +10,20 @@ const SETTING_TITLES: Record<SettingId, string> = {
   editProfile: '编辑资料',
   changePassword: '修改密码',
   preferences: '偏好设置',
+}
+
+const SETTINGS_ITEMS: { id: SettingId; icon: string }[] = [
+  { id: 'editProfile', icon: '✨' },
+  { id: 'changePassword', icon: '🔒' },
+  { id: 'preferences', icon: '☰' },
+]
+
+function buildSettingsRows(): { id: SettingId; label: string; icon: string }[] {
+  return SETTINGS_ITEMS.map((row) => ({
+    id: row.id,
+    icon: row.icon,
+    label: SETTING_TITLES[row.id],
+  }))
 }
 
 Component({
@@ -24,11 +39,7 @@ Component({
     nickName: '未设置昵称',
     signature: '写点什么介绍自己吧。',
     tagLine: 'Moilike，只属于我们两个人',
-    settingsRows: [
-      { id: 'editProfile', label: '编辑资料', icon: '✨' },
-      { id: 'changePassword', label: '修改密码', icon: '🔒' },
-      { id: 'preferences', label: '偏好设置', icon: '☰' },
-    ],
+    settingsRows: buildSettingsRows(),
   },
   methods: {
     applyLocalUser() {
@@ -57,7 +68,7 @@ Component({
         // 服务端无档案但本地仍有缓存（例如库被清空）：视为会话失效
         if (moSession.loadMoUser()) {
           moSession.clearMoUser()
-          wx.reLaunch({ url: '/pages/login/login' })
+          wx.reLaunch({ url: PAGE_LOGIN })
         }
       } catch {
         // 离线时忽略
@@ -85,7 +96,7 @@ Component({
     performLogout() {
       moSession.clearMoUser()
       moSession.setWaitExplicitRelogin()
-      wx.reLaunch({ url: '/pages/login/login' })
+      wx.reLaunch({ url: PAGE_LOGIN })
     },
   },
 })

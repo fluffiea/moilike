@@ -1,7 +1,15 @@
-import { redirectIfNotAuthed } from '../../utils/auth-guard'
+import requireAuth from '../../behaviors/require-auth'
 
 type MainModule = 'daily' | 'report'
 type ReportFilter = 'pending' | 'all' | 'mine'
+
+const SWIPER_INDEX = { DAILY: 0, REPORT: 1 } as const
+
+const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
+  pending: 0,
+  all: 1,
+  mine: 2,
+}
 
 /** 首评（列表展示一条，可省略） */
 type DailyFirstComment = {
@@ -142,17 +150,11 @@ function filterReports(list: ReportItem[], f: ReportFilter): ReportItem[] {
 }
 
 function reportFilterToIndex(f: ReportFilter): number {
-  if (f === 'pending') return 0
-  if (f === 'all') return 1
-  return 2
+  return REPORT_FILTER_TO_INDEX[f]
 }
 
 Component({
-  pageLifetimes: {
-    show() {
-      redirectIfNotAuthed()
-    },
-  },
+  behaviors: [requireAuth],
   data: {
     /** 与横向 swiper 同步：0 日常 / 1 报备 */
     swiperCurrent: 0,
@@ -178,23 +180,31 @@ Component({
         reportDisplayList: filterReports(reportListAll, reportFilter),
       })
     },
+
+    /** 进入报备模块时刷新列表（swiper / Tab 两处共用） */
+    syncReportListIfNeeded(mainModule: MainModule) {
+      if (mainModule === 'report') {
+        this.applyReportFilter()
+      }
+    },
+
     onMainTab(e: WechatMiniprogram.TouchEvent) {
       const mode = e.currentTarget.dataset.mode as MainModule
       if (!mode) return
-      const next = mode === 'daily' ? 0 : 1
+      const next = mode === 'daily' ? SWIPER_INDEX.DAILY : SWIPER_INDEX.REPORT
       if (next === this.data.swiperCurrent && mode === this.data.mainModule) return
 
       this.setData({ swiperCurrent: next, mainModule: mode })
-      if (mode === 'report') this.applyReportFilter()
+      this.syncReportListIfNeeded(mode)
     },
 
     onSwiperChange(e: WechatMiniprogram.SwiperChange) {
       const cur = e.detail.current
-      const mainModule: MainModule = cur === 0 ? 'daily' : 'report'
+      const mainModule: MainModule = cur === SWIPER_INDEX.DAILY ? 'daily' : 'report'
       if (mainModule === this.data.mainModule && cur === this.data.swiperCurrent) return
 
       this.setData({ swiperCurrent: cur, mainModule })
-      if (mainModule === 'report') this.applyReportFilter()
+      this.syncReportListIfNeeded(mainModule)
     },
     onReportFilter(e: WechatMiniprogram.TouchEvent) {
       const filter = e.currentTarget.dataset.filter as ReportFilter

@@ -7,23 +7,31 @@
     enhanced
     show-scrollbar="{{false}}"
   >
-    <!-- type="list"：单容器包裹，避免多子项布局裁切 padding -->
     <view class="profile-scroll-body">
+      <!-- L1 身份卡：§2.3 + 极淡角向 wash（§1.3） -->
       <view class="profile-identity-card">
-        <view class="profile-decor" aria-hidden="true">
-          <text class="profile-decor-dot">✿</text>
-          <text class="profile-decor-cross">╋</text>
-        </view>
-        <view class="profile-avatar-ring">
-          <view class="profile-avatar-inner">
-            <image class="profile-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+        <view class="profile-identity-card__wash" aria-hidden="true" />
+        <view class="profile-hero">
+          <view class="profile-avatar-stack">
+            <view class="profile-avatar-glow" aria-hidden="true" />
+            <view class="profile-avatar-ring">
+              <view class="profile-avatar-inner">
+                <image class="profile-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+              </view>
+            </view>
+          </view>
+          <view class="profile-identity-text">
+            <text class="profile-nick">{{nickName}}</text>
+            <view class="profile-sign-wrap">
+              <text class="profile-sign">{{signature}}</text>
+            </view>
           </view>
         </view>
-        <text class="profile-nick">{{nickName}}</text>
-        <text class="profile-sign">{{signature}}</text>
       </view>
 
+      <!-- L1 设置组 -->
       <view class="profile-settings-card">
+        <view class="profile-settings-heading" aria-hidden="true">账户与偏好</view>
         <view
           wx:for="{{settingsRows}}"
           wx:key="id"
@@ -35,7 +43,9 @@
           aria-role="button"
           aria-label="{{item.label}}，敬请期待"
         >
-          <text class="profile-settings-icon" aria-hidden="true">{{item.icon}}</text>
+          <view class="profile-settings-icon-wrap" aria-hidden="true">
+            <text class="profile-settings-icon">{{item.icon}}</text>
+          </view>
           <text class="profile-settings-label">{{item.label}}</text>
           <text class="profile-settings-chevron" aria-hidden="true">›</text>
         </view>

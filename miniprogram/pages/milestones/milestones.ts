@@ -1,11 +1,7 @@
-import { redirectIfNotAuthed } from '../../utils/auth-guard'
+import requireAuth from '../../behaviors/require-auth'
 
 Component({
-  pageLifetimes: {
-    show() {
-      redirectIfNotAuthed()
-    },
-  },
+  behaviors: [requireAuth],
   data: {},
   methods: {},
 })
