@@ -1,5 +1,8 @@
-<view class="app-nav-root" style="background-color: {{bg}};">
-  <view class="app-nav-safe" style="padding-top: env(safe-area-inset-top);">
+<view
+  class="app-nav-root {{variant === 'glass' ? 'app-nav-root--glass' : ''}}"
+  style="{{variant === 'glass' ? '' : 'background-color: ' + bg + ';'}}"
+>
+  <view class="app-nav-safe" style="padding-top: {{safePaddingTop}}px;">
     <view class="app-nav-bar">
       <text class="app-nav-title">{{title}}</text>
     </view>

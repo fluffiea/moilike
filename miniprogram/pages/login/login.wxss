@@ -44,6 +44,143 @@ page {
   color: rgba(74, 95, 82, 0.85);
 }
 
+/* reenter：L0 阶底 + L1 白卡（§2.3）；主区垂直居中；卡片为 flex 列以便 chip 真正水平居中 */
+.login-reenter {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 32rpx 40rpx calc(40rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #ebe3d7 0%, #f0eef5 18%, #f2f2f7 42%, #f2f2f7 100%);
+}
+
+.login-reenter-body {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 686rpx;
+  margin: 0 auto;
+}
+
+.login-reenter-card {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 40rpx 40rpx 48rpx;
+  border-radius: 56rpx;
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.login-reenter-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  margin-bottom: 24rpx;
+}
+
+.login-reenter-brand-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #668f80;
+}
+
+.login-reenter-brand-line {
+  display: block;
+  width: 48rpx;
+  height: 6rpx;
+  margin-top: 12rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #d6a2ad 0%, #a0af84 45%, #668f80 100%);
+}
+
+/* 胶囊状态条：在 flex 列上 shrink 宽度并水平居中 */
+.login-reenter-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-direction: row;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  margin-bottom: 24rpx;
+  padding: 8rpx 28rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  color: #4a6670;
+  background-color: rgba(160, 175, 132, 0.2);
+}
+
+.login-reenter-heading {
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 1.32;
+  color: #1c1c1e;
+  letter-spacing: 0.02em;
+}
+
+.login-reenter-copy {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 28rpx;
+  padding: 0;
+}
+
+.login-reenter-line {
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+  font-size: 27rpx;
+  line-height: 1.62;
+  color: #8e8e93;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.login-reenter-line + .login-reenter-line {
+  margin-top: 12rpx;
+}
+
+.login-reenter-btn {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin-top: 48rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  padding: 0;
+  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22), 0 8rpx 24rpx rgba(74, 102, 112, 0.28);
+}
+
+.login-reenter-btn::after {
+  border: none;
+}
+
+.login-submit--pressed {
+  transform: scale(0.97);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .login-scroll {
   box-sizing: border-box;
   width: 100%;
@@ -305,6 +442,7 @@ page {
   border: none;
   padding: 0;
   box-shadow: 0 8rpx 22rpx rgba(102, 143, 128, 0.28);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .login-submit::after {

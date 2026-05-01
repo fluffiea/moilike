@@ -2,7 +2,7 @@ import type { UserCloudResult } from '../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../types/cloud'
 import type { MoUser } from '../../types/user'
 import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../utils/cloud-invoke'
-import { clearMoUser, loadMoUser, saveMoUser } from '../../utils/session'
+import moSession from '../../utils/session'
 
 /** 服务端已有昵称则视为已注册，可直接进主流程 */
 function isRegisteredUser(u: MoUser | null | undefined): boolean {
@@ -11,8 +11,9 @@ function isRegisteredUser(u: MoUser | null | undefined): boolean {
 
 Component({
   data: {
-    /** checking：正在拉会话；needProfile：需补全头像+昵称 */
-    sessionPhase: 'checking' as 'checking' | 'needProfile',
+    /** checking | needProfile | reenter（退出后须点「重新进入」） */
+    sessionPhase: 'checking' as 'checking' | 'needProfile' | 'reenter',
+    pendingUser: null as MoUser | null,
     nickName: '',
     avatarUrl: '/images/default.png',
     hasChosenAvatar: false,
@@ -27,10 +28,11 @@ Component({
     /** 已注册：进 Tab；未注册或换机无缓存：展示表单（仅头像+昵称） */
     async bootstrapEntry() {
       this.setData({ sessionPhase: 'checking' })
-      const local = loadMoUser()
+      const local = moSession.loadMoUser()
+      const waitExplicit = moSession.loadWaitExplicitRelogin()
 
       if (!wx.cloud) {
-        if (isRegisteredUser(local)) {
+        if (isRegisteredUser(local) && !waitExplicit) {
           wx.switchTab({ url: '/pages/milestones/milestones' })
           return
         }
@@ -46,7 +48,8 @@ Component({
         const result = res.result as UserCloudResult | undefined
 
         if (result && result.ok === true && !result.user) {
-          clearMoUser()
+          moSession.clearMoUser()
+          moSession.clearWaitExplicitRelogin()
           this.setData({ sessionPhase: 'needProfile' })
           return
         }
@@ -54,7 +57,14 @@ Component({
         if (result && result.ok === true && result.user) {
           const serverUser = result.user
           if (isRegisteredUser(serverUser)) {
-            saveMoUser(serverUser)
+            if (waitExplicit) {
+              this.setData({
+                sessionPhase: 'reenter',
+                pendingUser: serverUser,
+              })
+              return
+            }
+            moSession.saveMoUser(serverUser)
             wx.switchTab({ url: '/pages/milestones/milestones' })
             return
           }
@@ -63,7 +73,7 @@ Component({
           return
         }
       } catch (err) {
-        if (isRegisteredUser(local)) {
+        if (isRegisteredUser(local) && !waitExplicit) {
           wx.switchTab({ url: '/pages/milestones/milestones' })
           return
         }
@@ -74,6 +84,17 @@ Component({
         this.applyPrefill(local)
       }
       this.setData({ sessionPhase: 'needProfile' })
+    },
+
+    onConfirmReenter() {
+      const u = this.data.pendingUser
+      if (!u || !isRegisteredUser(u)) {
+        this.setData({ sessionPhase: 'needProfile', pendingUser: null })
+        return
+      }
+      moSession.clearWaitExplicitRelogin()
+      moSession.saveMoUser(u)
+      wx.switchTab({ url: '/pages/milestones/milestones' })
     },
 
     applyPrefill(u: MoUser) {
@@ -159,7 +180,8 @@ Component({
           wx.showToast({ title: '同步后未返回用户数据', icon: 'none' })
           return
         }
-        saveMoUser(result.user)
+        moSession.saveMoUser(result.user)
+        moSession.clearWaitExplicitRelogin()
         wx.switchTab({ url: '/pages/milestones/milestones' })
       } catch (err) {
         showCloudInvokeErrorToast(err)

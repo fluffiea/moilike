@@ -1,4 +1,0 @@
-/* Tailwind 入口：仅给 pnpm build:tw 读取，勿删 */
-@import "weapp-tailwindcss/index.css";
-@source "./**/*.{wxml,ts}";
-@source not "../node_modules";

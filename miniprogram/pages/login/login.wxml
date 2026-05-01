@@ -1,8 +1,33 @@
 <view class="login-page">
-  <app-nav title="登录" bg="#ebe3d7" />
+  <app-nav title="{{sessionPhase === 'reenter' ? '重新进入' : '登录'}}" bg="#ebe3d7" />
   <view wx:if="{{sessionPhase === 'checking'}}" class="login-checking">
     <view class="login-checking-dot" aria-hidden="true" />
     <text class="login-checking-text">正在确认身份…</text>
+  </view>
+
+  <view wx:elif="{{sessionPhase === 'reenter'}}" class="login-reenter">
+    <view class="login-reenter-body">
+      <view class="login-reenter-card" aria-labelledby="reenter-heading">
+        <view class="login-reenter-brand" aria-hidden="true">
+          <text class="login-reenter-brand-name">Moilike</text>
+          <text class="login-reenter-brand-line" />
+        </view>
+        <view class="login-reenter-chip" aria-hidden="true">云端仍有你的资料</view>
+        <view id="reenter-heading" class="login-reenter-heading">你已在本机退出登录</view>
+        <view class="login-reenter-copy">
+          <view class="login-reenter-line">当前微信号在云里仍有档案，本机会话已清除。</view>
+          <view class="login-reenter-line">点下方按钮后，会在本机恢复登录并进入应用。</view>
+        </view>
+        <button
+          class="login-submit login-reenter-btn"
+          hover-class="login-submit--pressed"
+          bind:tap="onConfirmReenter"
+          aria-label="重新进入 Moilike"
+        >
+          重新进入 Moilike
+        </button>
+      </view>
+    </view>
   </view>
 
   <scroll-view
@@ -66,6 +91,7 @@
       <view class="login-submit-wrap">
         <button
           class="login-submit"
+          hover-class="login-submit--pressed"
           bind:tap="onSubmit"
           disabled="{{submitting}}"
           aria-label="进入 Moilike"
@@ -74,7 +100,7 @@
         </button>
       </view>
 
-      <text class="login-footnote">已注册过的用户会自动进入；仅首次使用需在此填写头像与昵称。</text>
+      <text class="login-footnote">首次使用需填写头像与昵称；若在「独白」中退出登录，返回后需点「重新进入」才会再次进入应用。</text>
     </view>
   </scroll-view>
 </view>

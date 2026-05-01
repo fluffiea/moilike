@@ -1,44 +1,58 @@
 <view class="profile-shell">
-  <app-nav title="独白" bg="#ebe3d7" />
-  <scroll-view class="page-scroll" scroll-y type="list" enhanced show-scrollbar="{{false}}">
-    <view class="hero relative">
-      <view class="hero-decor flex flex-row items-center" aria-hidden="true">
-        <text class="hero-decor-flower">✿</text>
-        <text class="hero-decor-cross">╋</text>
+  <app-nav title="独白" variant="glass" />
+  <scroll-view
+    class="profile-scroll"
+    scroll-y
+    type="list"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <!-- type="list"：单容器包裹，避免多子项布局裁切 padding -->
+    <view class="profile-scroll-body">
+      <view class="profile-identity-card">
+        <view class="profile-decor" aria-hidden="true">
+          <text class="profile-decor-dot">✿</text>
+          <text class="profile-decor-cross">╋</text>
+        </view>
+        <view class="profile-avatar-ring">
+          <view class="profile-avatar-inner">
+            <image class="profile-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+          </view>
+        </view>
+        <text class="profile-nick">{{nickName}}</text>
+        <text class="profile-sign">{{signature}}</text>
       </view>
-      <view class="avatar-ring">
-        <image class="avatar-img block h-full w-full" src="{{avatarUrl}}" mode="aspectFill" />
-      </view>
-      <text class="hero-nick block text-center font-bold">{{nickName}}</text>
-      <text class="hero-handle block text-center font-medium">{{handle}}</text>
-      <text class="hero-sign block text-center font-normal">{{signature}}</text>
-    </view>
 
-    <view class="settings-card">
+      <view class="profile-settings-card">
+        <view
+          wx:for="{{settingsRows}}"
+          wx:key="id"
+          class="profile-settings-row {{index < settingsRows.length - 1 ? 'profile-settings-row--line' : ''}}"
+          data-id="{{item.id}}"
+          bind:tap="onSettingTap"
+          hover-class="profile-settings-row-hover"
+          hover-stay-time="70"
+          aria-role="button"
+          aria-label="{{item.label}}，敬请期待"
+        >
+          <text class="profile-settings-icon" aria-hidden="true">{{item.icon}}</text>
+          <text class="profile-settings-label">{{item.label}}</text>
+          <text class="profile-settings-chevron" aria-hidden="true">›</text>
+        </view>
+      </view>
+
       <view
-        wx:for="{{settingsRows}}"
-        wx:key="id"
-        class="settings-row flex flex-row items-center {{index < settingsRows.length - 1 ? 'settings-row-line' : ''}}"
-        data-id="{{item.id}}"
-        bind:tap="onSettingTap"
+        class="profile-logout"
+        bind:tap="onLogoutTap"
+        hover-class="profile-logout-hover"
+        hover-stay-time="70"
         aria-role="button"
-        aria-label="{{item.label}}，敬请期待"
+        aria-label="退出登录"
       >
-        <text class="settings-icon shrink-0 text-center" aria-hidden="true">{{item.icon}}</text>
-        <text class="settings-label min-w-0 flex-1 font-medium">{{item.label}}</text>
-        <text class="settings-chevron shrink-0 font-normal" aria-hidden="true">›</text>
+        退出登录
       </view>
-    </view>
 
-    <view
-      class="logout-btn box-border text-center font-semibold"
-      bind:tap="onLogoutTap"
-      aria-role="button"
-      aria-label="退出登录"
-    >
-      退出登录
+      <text class="profile-footer">{{tagLine}}</text>
     </view>
-
-    <text class="footer-tag block text-center font-medium">{{tagLine}}</text>
   </scroll-view>
 </view>

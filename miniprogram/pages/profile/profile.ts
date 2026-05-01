@@ -1,7 +1,7 @@
 import { redirectIfNotAuthed } from '../../utils/auth-guard'
-import { clearMoUser, loadMoUser, saveMoUser } from '../../utils/session'
 import type { UserCloudResult } from '../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../types/cloud'
+import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'changePassword' | 'preferences'
 
@@ -22,9 +22,8 @@ Component({
   data: {
     avatarUrl: '/images/default.png',
     nickName: '未设置昵称',
-    handle: '@未设置',
     signature: '写点什么介绍自己吧。',
-    tagLine: '✦ Moilike · 只属于我们两个人 ✦',
+    tagLine: 'Moilike，只属于我们两个人',
     settingsRows: [
       { id: 'editProfile', label: '编辑资料', icon: '✨' },
       { id: 'changePassword', label: '修改密码', icon: '🔒' },
@@ -33,14 +32,11 @@ Component({
   },
   methods: {
     applyLocalUser() {
-      const u = loadMoUser()
+      const u = moSession.loadMoUser()
       if (!u) return
-      const compact = (u.nickName != null ? u.nickName : '').replace(/\s/g, '')
-      const handle = compact ? `@${compact.slice(0, 12)}` : '@未设置'
       this.setData({
         avatarUrl: u.avatarUrl || '/images/default.png',
         nickName: u.nickName || '未设置昵称',
-        handle,
         signature: u.signature || '写点什么介绍自己吧。',
       })
     },
@@ -54,13 +50,13 @@ Component({
         const result = res.result as UserCloudResult
         if (!result || result.ok !== true) return
         if (result.user) {
-          saveMoUser(result.user)
+          moSession.saveMoUser(result.user)
           this.applyLocalUser()
           return
         }
         // 服务端无档案但本地仍有缓存（例如库被清空）：视为会话失效
-        if (loadMoUser()) {
-          clearMoUser()
+        if (moSession.loadMoUser()) {
+          moSession.clearMoUser()
           wx.reLaunch({ url: '/pages/login/login' })
         }
       } catch {
@@ -73,7 +69,22 @@ Component({
       wx.showToast({ title: `${title}，敬请期待`, icon: 'none' })
     },
     onLogoutTap() {
-      clearMoUser()
+      wx.showModal({
+        title: '退出登录',
+        content: '确定要退出吗？',
+        confirmText: '退出',
+        cancelText: '取消',
+        confirmColor: '#4A6670',
+        success: (res) => {
+          if (res.confirm) {
+            this.performLogout()
+          }
+        },
+      })
+    },
+    performLogout() {
+      moSession.clearMoUser()
+      moSession.setWaitExplicitRelogin()
       wx.reLaunch({ url: '/pages/login/login' })
     },
   },

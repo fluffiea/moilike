@@ -20,10 +20,6 @@
     "strictPropertyInitialization": true,
     "typeRoots": ["./typings"]
   },
-  "include": [
-    "miniprogram/**/*.ts",
-    "typings/**/*.d.ts",
-    "tailwindcss-mangle.config.ts"
-  ],
+  "include": ["miniprogram/**/*.ts", "typings/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

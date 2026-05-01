@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+/* L2 玻璃顶栏：与 moilike-ui §2.2 一致（blur 20px + 半透明底 + hairline） */
+.app-nav-root--glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* padding-top 由 app-nav.ts 写入 safePaddingTop（px），兼容 Skyline + 自定义导航在真机上 env(safe-area) 不可靠的情况 */
 .app-nav-safe {
   box-sizing: border-box;
 }
@@ -15,14 +23,14 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0 32rpx;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+  padding: 0 40rpx;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
 }
 
 .app-nav-title {
   font-size: 34rpx;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.88);
+  color: #1c1c1e;
   max-width: 70%;
   overflow: hidden;
   text-overflow: ellipsis;

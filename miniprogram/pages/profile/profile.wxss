@@ -1,8 +1,13 @@
-/* 独白页：米杏 / 鼠尾草绿；布局类配合 Tailwind（无 [] 任意值，避免 WXML 与转义 WXSS 不一致） */
+/**
+ * 独白页 · moilike-ui
+ * [Layering] L0 页底 #F2F2F7 + 极轻品牌浸润；L1 白卡 + §2.3 双层 px 阴影；顶栏 L2 玻璃在 app-nav。
+ * [Spacing] 水平 40rpx 起跳；卡块间距 32rpx；8rpx 微调。
+ * [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌 #668F80 仅作头像环与点缀。
+ */
 
 page {
   height: 100vh;
-  background-color: #f7f4f0;
+  background-color: #f2f2f7;
 }
 
 .profile-shell {
@@ -10,117 +15,201 @@ page {
   flex-direction: column;
   height: 100vh;
   box-sizing: border-box;
-  background-color: #f7f4f0;
+  background-color: #f2f2f7;
+  background-image: radial-gradient(120% 72% at 50% -8%, rgba(102, 143, 128, 0.05) 0%, transparent 52%);
 }
 
-.page-scroll {
+.profile-scroll {
   flex: 1;
   min-height: 0;
-  padding-bottom: 48rpx;
+  box-sizing: border-box;
 }
 
-.hero {
-  padding: 56rpx 40rpx 48rpx;
-  background: linear-gradient(180deg, #ebe3d7 0%, #d6c9b5 45%, #ddd4c8 100%);
+.profile-scroll-body {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  /* Tab 页：底部需预留 tabBar 高度，否则页脚文案会被挡在栏下看起来像「没展示」 */
+  padding: 24rpx 0 calc(32rpx + 120rpx + env(safe-area-inset-bottom));
 }
 
-.hero-decor {
+/* L1 身份卡 */
+.profile-identity-card {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0 40rpx 32rpx;
+  padding: 48rpx 40rpx 44rpx;
+  border-radius: 56rpx;
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.profile-decor {
   position: absolute;
-  top: 36rpx;
-  right: 40rpx;
-  gap: 20rpx;
-  opacity: 0.45;
+  top: 28rpx;
+  right: 32rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  opacity: 0.4;
+  pointer-events: none;
 }
 
-.hero-decor-flower,
-.hero-decor-cross {
-  font-size: 28rpx;
-  color: #6d8a78;
+.profile-decor-dot {
+  font-size: 26rpx;
+  color: #668f80;
+  margin-right: 12rpx;
 }
 
-.avatar-ring {
+.profile-decor-cross {
+  font-size: 24rpx;
+  color: #668f80;
+}
+
+.profile-avatar-ring {
+  box-sizing: border-box;
   width: 200rpx;
   height: 200rpx;
   margin: 0 auto;
   padding: 8rpx;
   border-radius: 50%;
-  border: 6rpx solid #8da399;
+  border: 6rpx solid #668f80;
   background-color: #ffffff;
 }
 
-.avatar-img {
+.profile-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
 }
 
-.hero-nick {
+.profile-nick {
+  display: block;
   margin-top: 32rpx;
+  text-align: center;
   font-size: 40rpx;
-  color: #5a7360;
+  font-weight: 700;
+  color: #1c1c1e;
+  letter-spacing: 0.5rpx;
 }
 
-.hero-handle {
-  margin-top: 12rpx;
-  font-size: 26rpx;
-  color: #8da399;
-}
-
-.hero-sign {
+.profile-sign {
+  display: block;
   margin-top: 16rpx;
+  text-align: center;
   font-size: 26rpx;
-  color: rgba(40, 38, 36, 0.55);
-  padding: 0 32rpx;
+  line-height: 1.55;
+  font-weight: 400;
+  color: #8e8e93;
+  padding: 0 8rpx;
 }
 
-.settings-card {
-  margin: 24rpx 28rpx 32rpx;
+/* L1 设置列表 */
+.profile-settings-card {
+  box-sizing: border-box;
+  margin: 0 40rpx 32rpx;
   padding: 8rpx 0;
-  border-radius: 24rpx;
+  border-radius: 48rpx;
   background-color: #ffffff;
-  box-shadow: 0 8rpx 32rpx rgba(90, 80, 70, 0.08);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.settings-row {
+.profile-settings-row {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   min-height: 96rpx;
-  padding: 0 32rpx;
+  padding: 0 40rpx;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.settings-row-line {
-  border-bottom: 1rpx solid rgba(141, 163, 153, 0.22);
+.profile-settings-row-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.settings-icon {
+.profile-settings-row--line {
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.profile-settings-icon {
+  flex-shrink: 0;
   width: 48rpx;
-  margin-right: 20rpx;
-  font-size: 34rpx;
+  margin-right: 16rpx;
+  font-size: 32rpx;
+  text-align: center;
+  color: #668f80;
 }
 
-.settings-label {
+.profile-settings-label {
+  flex: 1;
+  min-width: 0;
   font-size: 30rpx;
-  color: rgba(40, 38, 36, 0.88);
+  font-weight: 500;
+  color: #1c1c1e;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.settings-chevron {
+.profile-settings-chevron {
+  flex-shrink: 0;
+  margin-left: 12rpx;
   font-size: 32rpx;
-  color: rgba(141, 163, 153, 0.65);
+  font-weight: 400;
+  color: #8e8e93;
 }
 
-.logout-btn {
+/* 次级操作：浅底 + 轻描边，不用荧光红 */
+.profile-logout {
+  box-sizing: border-box;
   margin: 0 40rpx 32rpx;
   height: 88rpx;
   line-height: 88rpx;
-  border-radius: 999rpx;
+  text-align: center;
   font-size: 30rpx;
-  color: #c97b8f;
-  background-color: #f5e6e6;
-  border: 2rpx solid #e8c4ce;
+  font-weight: 600;
+  color: #1c1c1e;
+  border-radius: 28rpx;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.footer-tag {
+.profile-logout-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-footer {
+  display: block;
+  box-sizing: border-box;
+  margin-top: 8rpx;
+  padding: 0 48rpx;
+  text-align: center;
   font-size: 22rpx;
-  color: rgba(141, 163, 153, 0.85);
-  letter-spacing: 2rpx;
-  padding: 0 32rpx;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #8e8e93;
+  letter-spacing: 1rpx;
+  /* 避免与装饰性 Unicode 混排时整段落到无中文的字重，导致中文变方框 */
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    sans-serif;
 }
