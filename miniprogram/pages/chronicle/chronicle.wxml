@@ -105,15 +105,20 @@
         bounces="{{true}}"
         enable-passive="{{true}}"
         cache-extent="320"
+        refresher-enabled="{{true}}"
+        refresher-triggered="{{dailyRefreshing}}"
+        bindrefresherrefresh="onDailyRefresh"
+        bindscrolltolower="onDailyScrollToLower"
+        lower-threshold="{{120}}"
       >
         <view class="chronicle-scroll-body chronicle-daily-feed">
           <view
             wx:for="{{dailyList}}"
             wx:key="id"
             list-item
-            class="daily-post {{ item.firstComment ? '' : 'daily-post--no-foot' }}"
+            class="daily-post daily-post--no-foot"
             data-id="{{item.id}}"
-            bind:tap="onDailyPostTap"
+            bind:longpress="onDailyPostLongPress"
             hover-class="daily-post-hover"
             hover-stay-time="70"
           >
@@ -143,66 +148,74 @@
                   </view>
                 </view>
                 <view
-                  wx:if="{{ item.snippet || item.images.length || item.placeholderTone || (item.placeholderTones && item.placeholderTones.length) }}"
+                  wx:if="{{ item.snippet || item.images.length }}"
                   class="daily-post__content"
                 >
                   <view wx:if="{{item.snippet}}" class="daily-post__prose">
                     <text class="daily-post__text">{{item.snippet}}</text>
                   </view>
-                  <view
-                    wx:if="{{ item.images.length || item.placeholderTone || (item.placeholderTones && item.placeholderTones.length) }}"
-                    class="daily-post__media"
-                  >
-                  <block wx:if="{{ item.images.length === 1 }}">
-                    <view class="daily-post__img-wrap daily-post__img-wrap--{{ item.imageLayout || 'normal' }}">
-                      <image class="daily-post__img" src="{{ item.images[0] }}" mode="aspectFill" />
-                    </view>
-                  </block>
-                  <block wx:elif="{{ item.images.length > 1 }}">
-                    <view class="daily-post__img-grid">
-                      <view wx:for="{{ item.images }}" wx:for-item="imgUrl" wx:key="*this" class="daily-post__img-cell">
-                        <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
-                      </view>
-                    </view>
-                  </block>
-                  <block wx:elif="{{ item.placeholderTone }}">
-                    <view
-                      class="daily-post__img-wrap daily-post__img-wrap--{{ item.imageLayout || 'normal' }} daily-post__ph daily-post__ph--{{ item.placeholderTone }}"
-                      aria-hidden="true"
-                    >
-                      <view class="daily-post__ph-shine" />
-                    </view>
-                  </block>
-                  <block wx:elif="{{ item.placeholderTones && item.placeholderTones.length }}">
-                    <view class="daily-post__img-grid">
+                  <view wx:if="{{ item.images.length }}" class="daily-post__media">
+                    <block wx:if="{{ item.images.length === 1 }}">
                       <view
-                        wx:for="{{ item.placeholderTones }}"
-                        wx:for-item="tone"
-                        wx:key="*this"
-                        class="daily-post__img-cell daily-post__ph daily-post__ph--{{ tone }}"
-                        aria-hidden="true"
+                        class="daily-post__img-wrap daily-post__img-wrap--{{ item.imageLayout || 'normal' }}"
+                        data-post-id="{{item.id}}"
+                        data-img-index="{{0}}"
+                        catch:tap="onDailyImageTap"
+                        hover-class="daily-post__img-hit-hover"
+                        hover-stay-time="70"
                       >
-                        <view class="daily-post__ph-shine" />
+                        <image class="daily-post__img" src="{{ item.images[0] }}" mode="aspectFill" />
                       </view>
-                    </view>
-                  </block>
-                </view>
-                </view>
-              </view>
-              <view wx:if="{{item.firstComment}}" class="daily-post__foot">
-                <view class="daily-post__foot-content">
-                  <view class="daily-post__foot-text-wrap">
-                    <text class="daily-post__foot-text">{{item.firstComment.user}}：{{item.firstComment.text}}</text>
-                  </view>
-                  <view wx:if="{{item.firstComment.time}}" class="daily-post__foot-meta">
-                    <text class="daily-post__foot-time">{{item.firstComment.time}}</text>
+                    </block>
+                    <block wx:else>
+                      <view
+                        class="daily-post__img-grid daily-post__img-grid--{{ item.images.length === 2 ? 'dual' : 'multi' }}"
+                      >
+                        <view
+                          wx:for="{{ item.images }}"
+                          wx:for-item="imgUrl"
+                          wx:for-index="imgIdx"
+                          wx:key="imgIdx"
+                          class="daily-post__img-cell"
+                          data-post-id="{{item.id}}"
+                          data-img-index="{{imgIdx}}"
+                          catch:tap="onDailyImageTap"
+                          hover-class="daily-post__img-hit-hover"
+                          hover-stay-time="70"
+                        >
+                          <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
+                        </view>
+                      </view>
+                    </block>
                   </view>
                 </view>
               </view>
             </view>
           </view>
-          <view wx:if="{{dailyList.length === 0}}" class="chronicle-empty">
-            <text>暂无动态</text>
+          <view wx:if="{{dailyLoadingMore}}" class="chronicle-load-more">
+            <text class="chronicle-load-more-text">加载中…</text>
+          </view>
+          <view wx:if="{{!dailyHasMore && dailyList.length > 0}}" class="chronicle-load-more chronicle-load-more--muted">
+            <text class="chronicle-load-more-text">没有更多了</text>
+          </view>
+          <view wx:if="{{dailyBootstrapping && dailyList.length === 0}}" class="chronicle-load-more">
+            <text class="chronicle-load-more-text">加载中…</text>
+          </view>
+          <view
+            wx:if="{{dailyList.length === 0 && !dailyBootstrapping && !dailyRefreshing}}"
+            class="chronicle-empty chronicle-empty--daily"
+          >
+            <text class="chronicle-empty-title">还没有日常动态</text>
+            <text class="chronicle-empty-hint">记录一条此刻的心情或影像</text>
+            <view
+              class="chronicle-empty-cta"
+              bind:tap="onEmptyComposeTap"
+              hover-class="chronicle-empty-cta-hover"
+              hover-stay-time="70"
+              aria-role="button"
+            >
+              <text class="chronicle-empty-cta-label">写一条</text>
+            </view>
           </view>
         </view>
       </scroll-view>
@@ -252,14 +265,15 @@
   </swiper>
 
   <view
+    wx:if="{{mainModule === 'daily'}}"
     class="chronicle-fab"
     bind:tap="onFabTap"
     hover-class="chronicle-fab-hover"
     hover-stay-time="70"
     aria-role="button"
-    aria-label="新建"
+    aria-label="写日常"
   >
-    <text class="chronicle-fab-icon">+</text>
+    <text class="chronicle-fab-icon" aria-hidden="true">✎</text>
   </view>
 
 </view>

@@ -37,7 +37,8 @@ Component({
   methods: {
     loadFormFromSession() {
       const u = moSession.loadMoUser()
-      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(u?.preferences)
+      const prefs = u ? u.preferences : undefined
+      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(prefs)
       this.setData({
         chronicleMainTab: mainModule,
         chronicleReportFilter: reportFilter,

@@ -28,9 +28,15 @@ function syncGlobalMoUser(user: MoUser | undefined): void {
 
 export function saveMoUser(user: MoUser): void {
   const prev = loadMoUser()
-  wx.setStorageSync(STORAGE_KEY, user)
+  try {
+    wx.setStorageSync(STORAGE_KEY, user)
+  } catch {
+    return
+  }
   syncGlobalMoUser(user)
-  if (prefsSignature(prev?.openId, prev?.preferences) !== prefsSignature(user.openId, user.preferences)) {
+  const prevOpenId = prev ? prev.openId : undefined
+  const prevPrefs = prev ? prev.preferences : undefined
+  if (prefsSignature(prevOpenId, prevPrefs) !== prefsSignature(user.openId, user.preferences)) {
     invalidateChroniclePrefsApplyCache()
   }
 }

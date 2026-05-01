@@ -14,3 +14,6 @@ export const PAGE_EDIT_PROFILE = '/subpackages/user/edit-profile/edit-profile' a
 
 /** 偏好设置（独白入口 navigateTo · 分包 user） */
 export const PAGE_PREFERENCES = '/subpackages/user/preferences/preferences' as const
+
+/** 写日常 / 编辑日常（见证入口 navigateTo · 分包 chronicle） */
+export const PAGE_DAILY_COMPOSE = '/subpackages/chronicle/daily-compose/daily-compose' as const

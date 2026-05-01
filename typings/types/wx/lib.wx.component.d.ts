@@ -362,6 +362,11 @@ declare namespace WechatMiniprogram.Component {
     }
 
     interface PageLifetimes {
+        /** 页面生命周期回调—监听页面加载（页面级 Component 接收路由 query，与 Page.onLoad 一致）
+         *
+         * @since 基础库 2.7.1
+         */
+        onLoad?(query: Readonly<Record<string, string | undefined>>): void
         /** 页面生命周期回调—监听页面显示
          *
          * 页面显示/切入前台时触发。

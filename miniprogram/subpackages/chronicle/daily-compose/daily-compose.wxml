@@ -1,0 +1,123 @@
+<!--
+  [Layering] L0 #F2F2F7 + 极淡顶区浸润 · L1 单张主表单卡 §2.3（内部区块 + 1rpx 分隔）· 顶栏 L2 app-nav · 底栏 L2 §2.2 玻璃
+  [Spacing] 水平 40rpx · 卡内统一 36rpx · 区块间距 32rpx · 内部分隔前后各贴齐 8rpx 网格
+  [Palette 6-3-1] 中性灰与白卡为主 · 标签/辅助字 #8E8E93 · 品牌色仅主 CTA + 极轻数值 chip
+-->
+<view class="daily-compose-page">
+  <view class="daily-compose-bg" aria-hidden="true">
+    <view class="daily-compose-bg-wash" />
+  </view>
+
+  <view class="daily-compose-stack">
+    <app-nav
+      title="{{navTitle}}"
+      variant="glass"
+      show-back="{{true}}"
+      bind:back="onNavBack"
+    />
+
+    <scroll-view class="daily-compose-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}" bounces="{{true}}">
+      <view class="daily-compose-scroll-inner">
+        <!-- 单卡：避免双卡 + 大标题与导航重复层级 -->
+        <view class="daily-compose-sheet">
+          <text class="daily-compose-kicker">{{heroKicker}}</text>
+
+          <view class="daily-compose-block">
+            <view class="daily-compose-row">
+              <text class="daily-compose-label">正文</text>
+              <text class="daily-compose-meta-inline">{{text.length}} / 2000</text>
+            </view>
+            <view class="daily-compose-field-shell">
+              <textarea
+                id="{{textareaMountKey}}"
+                class="daily-compose-textarea"
+                placeholder="想说的话写在这里…"
+                placeholder-class="daily-compose-placeholder"
+                maxlength="{{2000}}"
+                model:value="{{text}}"
+                bindinput="onTextInput"
+                auto-height
+                show-confirm-bar="{{false}}"
+                cursor-spacing="{{24}}"
+              />
+            </view>
+          </view>
+
+          <view class="daily-compose-rule" aria-hidden="true" />
+
+          <view class="daily-compose-block daily-compose-block--flush">
+            <view class="daily-compose-row">
+              <text class="daily-compose-label">配图</text>
+              <view class="daily-compose-chip">
+                <text class="daily-compose-chip-text">{{images.length}} / 9</text>
+              </view>
+            </view>
+            <text class="daily-compose-hint">可选 · 轻点相册 / 长按拍摄</text>
+
+            <view class="daily-compose-grid" aria-label="配图网格">
+              <view
+                wx:for="{{images}}"
+                wx:for-index="imgIdx"
+                wx:key="imgIdx"
+                class="daily-compose-cell daily-compose-cell--pic"
+              >
+                <image class="daily-compose-thumb" src="{{item}}" mode="aspectFill" />
+                <view
+                  class="daily-compose-remove"
+                  data-index="{{imgIdx}}"
+                  catch:tap="onRemoveImage"
+                  hover-class="daily-compose-remove-hover"
+                  hover-stay-time="70"
+                  aria-role="button"
+                  aria-label="删除此图"
+                >
+                  <text class="daily-compose-remove-x">×</text>
+                </view>
+              </view>
+
+              <view
+                wx:if="{{images.length < 9}}"
+                class="daily-compose-cell daily-compose-cell--add"
+              >
+                <view
+                  class="daily-compose-add-fill"
+                  bind:tap="onAddImagesFromAlbum"
+                  bind:longpress="onAddImagesFromCamera"
+                  hover-class="daily-compose-add-fill-hover"
+                  hover-stay-time="70"
+                  aria-role="button"
+                  aria-label="添加图片，轻点相册或长按拍摄"
+                >
+                  <text class="daily-compose-add-plus">+</text>
+                  <text class="daily-compose-add-line">添加</text>
+                  <text class="daily-compose-add-guide">轻点相册 · 长按拍摄</text>
+                  <text class="daily-compose-add-sub">还可 {{9 - images.length}} 张</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="daily-compose-scroll-pad" />
+      </view>
+    </scroll-view>
+
+    <view class="daily-compose-footer">
+      <view wx:if="{{!canSubmit}}" class="daily-compose-footer-hint">
+        <text class="daily-compose-footer-hint-text">填写文字或添加图片后即可发布</text>
+      </view>
+      <view class="daily-compose-footer-inner">
+        <view
+          class="daily-compose-publish {{canSubmit ? '' : 'daily-compose-publish--disabled'}}"
+          bind:tap="onPublish"
+          hover-class="{{canSubmit ? 'daily-compose-publish-hover' : 'daily-compose-publish-static'}}"
+          hover-stay-time="70"
+          aria-role="button"
+          aria-label="{{editId ? '保存修改' : '发布动态'}}"
+        >
+          <text class="daily-compose-publish-label">{{editId ? '保存修改' : '发布动态'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

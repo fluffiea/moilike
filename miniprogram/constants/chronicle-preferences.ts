@@ -16,8 +16,8 @@ export function resolveChronicleEntryPrefs(
   reportFilter: 'pending' | 'all' | 'mine'
 } {
   const main =
-    prefs?.chronicleDefaultMainTab === 'report' ? 'report' : DEFAULT_CHRONICLE_MAIN_TAB
-  const rf = prefs?.chronicleReportFilter
+    prefs != null && prefs.chronicleDefaultMainTab === 'report' ? 'report' : DEFAULT_CHRONICLE_MAIN_TAB
+  const rf = prefs != null ? prefs.chronicleReportFilter : undefined
   const reportFilter =
     rf === 'pending' || rf === 'all' || rf === 'mine' ? rf : DEFAULT_CHRONICLE_REPORT_FILTER
   return { mainModule: main, reportFilter }
@@ -32,7 +32,7 @@ export function prefsSignature(
   prefs: MoPreferences | null | undefined,
 ): string {
   const { mainModule, reportFilter } = resolveChronicleEntryPrefs(prefs)
-  return `${openId ?? ''}:${mainModule}:${reportFilter}`
+  return `${openId != null ? openId : ''}:${mainModule}:${reportFilter}`
 }
 
 /** 上次已在见证页同步过的偏好签名；设置页保存成功后应 invalidate，以便下次进入见证立即按新偏好展示 */

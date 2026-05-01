@@ -1,0 +1,354 @@
+/** 写日常 / 编辑日常 · moilike-ui · Skyline — 单卡表单 + 内部节律 */
+
+page {
+  height: 100vh;
+  background-color: #f2f2f7;
+}
+
+.daily-compose-page {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f2f2f7;
+}
+
+.daily-compose-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 更轻的顶区浸润，避免与卡片抢视线 */
+.daily-compose-bg-wash {
+  position: absolute;
+  left: -15%;
+  top: -8%;
+  width: 130%;
+  height: 48%;
+  background: radial-gradient(
+    ellipse 75% 65% at 50% 0%,
+    rgba(102, 143, 128, 0.045) 0%,
+    rgba(242, 242, 247, 0) 70%
+  );
+}
+
+.daily-compose-stack {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.daily-compose-scroll {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.daily-compose-scroll-inner {
+  box-sizing: border-box;
+  padding: 28rpx 40rpx 24rpx;
+}
+
+/* —— L1 单卡 §2.3 —— */
+.daily-compose-sheet {
+  box-sizing: border-box;
+  padding: 36rpx 36rpx 40rpx;
+  border-radius: 56rpx;
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.daily-compose-kicker {
+  display: block;
+  margin-bottom: 32rpx;
+  padding: 0 4rpx;
+  font-size: 26rpx;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #8e8e93;
+}
+
+.daily-compose-block {
+  box-sizing: border-box;
+}
+
+.daily-compose-block--flush {
+  margin-bottom: 0;
+}
+
+.daily-compose-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.daily-compose-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1c1c1e;
+}
+
+.daily-compose-meta-inline {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  line-height: 1.2;
+  color: #8e8e93;
+}
+
+.daily-compose-field-shell {
+  box-sizing: border-box;
+  padding: 24rpx 28rpx;
+  border-radius: 28rpx;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.daily-compose-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 260rpx;
+  padding: 0;
+  font-size: 30rpx;
+  line-height: 1.55;
+  color: #1c1c1e;
+}
+
+.daily-compose-placeholder {
+  color: #8e8e93;
+}
+
+.daily-compose-rule {
+  height: 1rpx;
+  margin: 32rpx 0;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.daily-compose-hint {
+  display: block;
+  margin-bottom: 20rpx;
+  margin-top: -8rpx;
+  padding: 0 2rpx;
+  font-size: 24rpx;
+  line-height: 1.35;
+  color: #8e8e93;
+}
+
+/* 中性 chip，与正文计数同一语义权重 */
+.daily-compose-chip {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  border-radius: 24rpx;
+  background-color: rgba(60, 60, 67, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.daily-compose-chip-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8e8e93;
+}
+
+.daily-compose-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.daily-compose-cell {
+  position: relative;
+  box-sizing: border-box;
+  width: calc((100% - 32rpx) / 3);
+  padding-bottom: calc((100% - 32rpx) / 3);
+  height: 0;
+  border-radius: 28rpx;
+  overflow: hidden;
+}
+
+.daily-compose-cell--pic {
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.daily-compose-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.daily-compose-remove {
+  position: absolute;
+  right: 8rpx;
+  top: 8rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background-color: rgba(28, 28, 30, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-remove-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-remove-x {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1;
+}
+
+/* 外框仅占位成正方形，不参与缩放与描边，避免圆角处分层重影 */
+.daily-compose-cell--add {
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* 内层面域：实线细描边 + 纯色底，按压缩放于内层，圆角与外层对齐（略 inset） */
+.daily-compose-add-fill {
+  position: absolute;
+  left: 2rpx;
+  top: 2rpx;
+  right: 2rpx;
+  bottom: 2rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 12rpx 8rpx;
+  border-radius: 26rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.08);
+  background-color: #fbfbfd;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-add-fill-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-add-plus {
+  font-size: 48rpx;
+  font-weight: 300;
+  line-height: 1;
+  color: #668f80;
+}
+
+.daily-compose-add-line {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.daily-compose-add-guide {
+  margin-top: 4rpx;
+  padding: 0 8rpx;
+  font-size: 20rpx;
+  line-height: 1.35;
+  color: #8e8e93;
+  text-align: center;
+}
+
+.daily-compose-add-sub {
+  font-size: 20rpx;
+  line-height: 1.35;
+  color: rgba(142, 142, 147, 0.9);
+  text-align: center;
+}
+
+.daily-compose-scroll-pad {
+  height: 24rpx;
+}
+
+/* L2 底栏：§2.2 玻璃三件套 */
+.daily-compose-footer {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding-top: 16rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.05);
+}
+
+.daily-compose-footer-hint {
+  padding: 0 48rpx 12rpx;
+  text-align: center;
+}
+
+.daily-compose-footer-hint-text {
+  font-size: 24rpx;
+  line-height: 1.4;
+  color: #8e8e93;
+}
+
+.daily-compose-footer-inner {
+  box-sizing: border-box;
+  padding: 0 40rpx;
+}
+
+.daily-compose-publish {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 96rpx;
+  padding: 24rpx 32rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.35);
+  box-shadow:
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.02),
+    0 12px 28px rgba(74, 102, 112, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-publish-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-compose-publish-static {
+  transition: none;
+}
+
+.daily-compose-publish--disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.daily-compose-publish-label {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.03em;
+}

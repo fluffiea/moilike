@@ -71,6 +71,13 @@
         "edit-profile/edit-profile",
         "preferences/preferences"
       ]
+    },
+    {
+      "root": "subpackages/chronicle",
+      "name": "chronicle_pack",
+      "pages": [
+        "daily-compose/daily-compose"
+      ]
     }
   ],
   "preloadRule": {
@@ -84,6 +91,12 @@
       "network": "all",
       "packages": [
         "user"
+      ]
+    },
+    "pages/chronicle/chronicle": {
+      "network": "all",
+      "packages": [
+        "chronicle_pack"
       ]
     }
   },

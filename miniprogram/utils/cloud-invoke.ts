@@ -9,14 +9,17 @@ function rawErrMsg(err: unknown): string {
 }
 
 /** 将 wx.cloud.callFunction 的失败转成可读说明（含未部署云函数） */
-export function getCloudInvokeErrorMessage(err: unknown): string {
+export function getCloudInvokeErrorMessage(
+  err: unknown,
+  cloudFunctionName: string = USER_CLOUD_FUNCTION,
+): string {
   const raw = rawErrMsg(err)
   if (
     raw.includes('FUNCTION_NOT_FOUND') ||
     raw.includes('-501000') ||
     raw.includes('FunctionName parameter could not be found')
   ) {
-    return `请部署云函数「${USER_CLOUD_FUNCTION}」：开发者工具左侧 cloudfunctions/user 右键 → 上传并部署（含依赖），并与当前云环境一致`
+    return `请部署云函数「${cloudFunctionName}」：开发者工具左侧 cloudfunctions/${cloudFunctionName} 右键 → 上传并部署（含依赖），并与当前云环境一致`
   }
   if (raw.includes('fail')) {
     return raw.length > 60 ? `${raw.slice(0, 57)}…` : raw
@@ -24,12 +27,22 @@ export function getCloudInvokeErrorMessage(err: unknown): string {
   return '网络或云开发异常，请稍后重试'
 }
 
-export function showCloudInvokeErrorToast(err: unknown, duration = 4200): void {
+export function showCloudInvokeErrorToast(
+  err: unknown,
+  duration = 4200,
+  cloudFunctionName: string = USER_CLOUD_FUNCTION,
+): void {
   wx.showToast({
-    title: getCloudInvokeErrorMessage(err),
+    title: getCloudInvokeErrorMessage(err, cloudFunctionName),
     icon: 'none',
     duration,
   })
+}
+
+/** 日常云函数业务错误（非 HTTP 层） */
+export function formatDailyCloudBizError(message: string | undefined): string {
+  if (!message) return '操作失败'
+  return message.length > 40 ? `${message.slice(0, 37)}…` : message
 }
 
 /** 云函数已执行但返回 ok:false 时的 error 文案 */

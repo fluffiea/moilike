@@ -1,4 +1,12 @@
 import requireAuth from '../../behaviors/require-auth'
+import { PAGE_DAILY_COMPOSE } from '../../constants/paths'
+import type { DailyPostPublic } from '../../types/cloud'
+import {
+  dailyDeleteDaily,
+  dailyListDaily,
+} from '../../utils/daily-api'
+import { setDailyEditStaging } from '../../utils/daily-edit-staging'
+import { formatDailyCloudBizError } from '../../utils/cloud-invoke'
 import moSession from '../../utils/session'
 import {
   DEFAULT_CHRONICLE_MAIN_TAB,
@@ -23,36 +31,7 @@ const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
 const DEFAULT_MAIN_MODULE: MainModule = DEFAULT_CHRONICLE_MAIN_TAB
 const DEFAULT_REPORT_FILTER: ReportFilter = DEFAULT_CHRONICLE_REPORT_FILTER
 
-/** 首评（列表展示一条，可省略） */
-type DailyFirstComment = {
-  user: string
-  text: string
-  time?: string
-}
-
-/** 无实拍图时的清新渐变占位（品牌五色延伸，低饱和） */
-type DailyPlaceholderTone = 'mist' | 'dew' | 'bloom' | 'meadow'
-
-/** 日常帖：头像、昵称、时间、文案；实拍图为 images，无图时用渐变占位 */
-type DailyItem = {
-  id: string
-  userName: string
-  time: string
-  avatarUrl?: string
-  /** 无头像图时与媒体占位一致的渐变 tone */
-  avatarTone?: DailyPlaceholderTone
-  /** 正文，可与媒体二选一或并存 */
-  snippet: string
-  /** 实拍图 URL；与 placeholder* 二选一展示媒体区 */
-  images: string[]
-  /** 单图渐变占位 + 高度档 */
-  placeholderTone?: DailyPlaceholderTone
-  /** 多图渐变占位（宫格） */
-  placeholderTones?: DailyPlaceholderTone[]
-  /** 单图封面高度档（实拍或单块渐变） */
-  imageLayout?: 'short' | 'normal' | 'tall'
-  firstComment?: DailyFirstComment
-}
+type DailyItem = DailyPostPublic
 
 type ReportItem = {
   id: string
@@ -64,96 +43,6 @@ type ReportItem = {
   isMine: boolean
   comments: { user: string; text: string }[]
 }
-
-const DAILY_MOCK: DailyItem[] = [
-  {
-    id: 'd1',
-    userName: '对方',
-    time: '04-24 22:40',
-    avatarTone: 'mist',
-    snippet: '今晚做了番茄炖牛腩，厨房香了一整晚。',
-    images: [],
-    placeholderTone: 'mist',
-    imageLayout: 'tall',
-    firstComment: { user: '对方', text: '想吃', time: '04-24 22:41' },
-  },
-  {
-    id: 'd2',
-    userName: '对方',
-    time: '04-23 18:20',
-    avatarTone: 'dew',
-    snippet: '和同事约了轻食～',
-    images: [],
-    placeholderTones: ['dew', 'bloom'],
-    firstComment: { user: '对方', text: '明天继续', time: '04-23 19:02' },
-  },
-  {
-    id: 'd3',
-    userName: '我',
-    time: '04-20 10:00',
-    avatarTone: 'bloom',
-    snippet:
-      '今天也要好好吃饭，记得喝水、拉伸一下肩颈。晚上想早点睡，把闹钟往前调了十五分钟。',
-    images: [],
-    firstComment: { user: '我', text: '记下', time: '04-20 10:01' },
-  },
-  {
-    id: 'd4',
-    userName: '萌萌',
-    time: '04-19 16:08',
-    avatarTone: 'meadow',
-    snippet: '',
-    images: [],
-    placeholderTone: 'meadow',
-    imageLayout: 'short',
-    firstComment: { user: '萌萌', text: 'OK', time: '04-19 16:09' },
-  },
-  {
-    id: 'd5',
-    userName: '我',
-    time: '04-18 09:30',
-    avatarTone: 'bloom',
-    snippet:
-      '周末去公园走了走，风很舒服。拍了几张落叶，回头整理成小相册。顺便在便利店买了热饮。',
-    images: [],
-    placeholderTone: 'bloom',
-    imageLayout: 'normal',
-    firstComment: { user: '对方', text: '羡慕', time: '04-18 10:02' },
-  },
-]
-
-const REPORT_MOCK: ReportItem[] = [
-  {
-    id: 'r1',
-    userName: '我',
-    publishTime: '04-23 23:44',
-    tag: '干饭222',
-    body: '哈哈哈哈',
-    readByMe: true,
-    isMine: true,
-    comments: [{ user: '萌萌', text: 'hchchh' }],
-  },
-  {
-    id: 'r2',
-    userName: '我',
-    publishTime: '04-22 12:10',
-    tag: '外出',
-    body: '中午和同事出去干饭，大概 1h 回来',
-    readByMe: false,
-    isMine: true,
-    comments: [{ user: '我', text: '收到' }],
-  },
-  {
-    id: 'r3',
-    userName: '萌萌',
-    publishTime: '04-21 09:00',
-    tag: '报备',
-    body: '今日行程已更新',
-    readByMe: false,
-    isMine: false,
-    comments: [],
-  },
-]
 
 function filterReports(list: ReportItem[], f: ReportFilter): ReportItem[] {
   if (f === 'pending') return list.filter((x) => !x.readByMe)
@@ -171,8 +60,18 @@ type ChroniclePageData = {
   reportFilter: ReportFilter
   reportFilterIndex: number
   dailyList: DailyItem[]
+  dailyRefreshing: boolean
+  dailyBootstrapping: boolean
+  dailyLoadingMore: boolean
+  dailyHasMore: boolean
+  dailyNextOffset: number
   reportListAll: ReportItem[]
   reportDisplayList: ReportItem[]
+}
+
+type DailyPublishedPayload = {
+  mode: 'create' | 'edit'
+  post: DailyPostPublic
 }
 
 Component({
@@ -180,21 +79,25 @@ Component({
   pageLifetimes: {
     show() {
       this.applyChroniclePreferencesFromSession()
+      this.bootstrapDailyIfNeeded()
     },
   },
   data: {
-    /** 与横向 swiper 同步：0 日常 / 1 报备 */
     swiperCurrent: 0,
     mainModule: DEFAULT_MAIN_MODULE,
     reportFilter: DEFAULT_REPORT_FILTER,
     reportFilterIndex: reportFilterToIndex(DEFAULT_REPORT_FILTER),
-    dailyList: DAILY_MOCK,
-    reportListAll: REPORT_MOCK,
-    reportDisplayList: filterReports(REPORT_MOCK, DEFAULT_REPORT_FILTER),
+    dailyList: [],
+    dailyRefreshing: false,
+    dailyBootstrapping: false,
+    dailyLoadingMore: false,
+    dailyHasMore: true,
+    dailyNextOffset: 0,
+    reportListAll: [],
+    reportDisplayList: [],
   } as ChroniclePageData,
   lifetimes: {
     attached() {
-      // 新实例挂载时 data 会回到初始值，若模块级签名仍命中则不会 setData，Tab 会错；故先失效缓存
       invalidateChroniclePrefsApplyCache()
       this.applyReportFilter()
     },
@@ -203,8 +106,10 @@ Component({
     /** 按用户云端偏好恢复 Tab；偏好未改时不重复 setData，保留用户在现场切换的位置 */
     applyChroniclePreferencesFromSession() {
       const u = moSession.loadMoUser()
-      if (!consumeChroniclePrefsApplyIfNeeded(u?.openId, u?.preferences)) return
-      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(u?.preferences)
+      const openId = u ? u.openId : undefined
+      const prefs = u ? u.preferences : undefined
+      if (!consumeChroniclePrefsApplyIfNeeded(openId, prefs)) return
+      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(prefs)
       const swiperCurrent = mainModule === 'daily' ? SWIPER_INDEX.DAILY : SWIPER_INDEX.REPORT
       this.setData({
         mainModule,
@@ -213,6 +118,80 @@ Component({
         reportFilterIndex: reportFilterToIndex(reportFilter),
       })
       this.applyReportFilter()
+      this.bootstrapDailyIfNeeded()
+    },
+
+    bootstrapDailyIfNeeded() {
+      const { mainModule, dailyList } = this.data as ChroniclePageData
+      if (mainModule !== 'daily') return
+      if (dailyList.length > 0) return
+      void this.loadDailyList({ reset: true, useRefresher: false })
+    },
+
+    async loadDailyList(opts: { reset: boolean; useRefresher?: boolean }) {
+      if (!wx.cloud) {
+        wx.showToast({ title: '当前环境不支持云开发', icon: 'none' })
+        return
+      }
+      const reset = opts.reset
+      const useRefresher = opts.useRefresher === true
+      if (reset) {
+        if (useRefresher) {
+          if (this.data.dailyRefreshing) return
+          this.setData({ dailyRefreshing: true })
+        } else {
+          if (this.data.dailyBootstrapping) return
+          this.setData({ dailyBootstrapping: true })
+        }
+        try {
+          const r = await dailyListDaily(0)
+          if (!r) return
+          if (!r.ok) {
+            wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+            return
+          }
+          this.setData({
+            dailyList: r.list,
+            dailyHasMore: r.hasMore,
+            dailyNextOffset: r.nextOffset,
+          })
+        } finally {
+          if (useRefresher) {
+            this.setData({ dailyRefreshing: false })
+          } else {
+            this.setData({ dailyBootstrapping: false })
+          }
+        }
+        return
+      }
+
+      if (this.data.dailyLoadingMore || !this.data.dailyHasMore) return
+      this.setData({ dailyLoadingMore: true })
+      try {
+        const off = this.data.dailyNextOffset
+        const r = await dailyListDaily(off)
+        if (!r) return
+        if (!r.ok) {
+          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          return
+        }
+        const merged = [...this.data.dailyList, ...r.list]
+        this.setData({
+          dailyList: merged,
+          dailyHasMore: r.hasMore,
+          dailyNextOffset: r.nextOffset,
+        })
+      } finally {
+        this.setData({ dailyLoadingMore: false })
+      }
+    },
+
+    onDailyRefresh() {
+      void this.loadDailyList({ reset: true, useRefresher: true })
+    },
+
+    onDailyScrollToLower() {
+      void this.loadDailyList({ reset: false })
     },
 
     applyReportFilter() {
@@ -225,8 +204,14 @@ Component({
       })
     },
 
-    /** 进入报备模块时刷新列表（swiper / Tab 两处共用） */
-    syncReportListIfNeeded(mainModule: MainModule) {
+    /** 进入对应模块时的副作用（日常首屏 / 报备筛选） */
+    syncMainModuleSideEffects(mainModule: MainModule) {
+      if (mainModule === 'daily') {
+        const { dailyList } = this.data as ChroniclePageData
+        if (dailyList.length === 0) {
+          void this.loadDailyList({ reset: true, useRefresher: false })
+        }
+      }
       if (mainModule === 'report') {
         this.applyReportFilter()
       }
@@ -239,7 +224,7 @@ Component({
       if (next === this.data.swiperCurrent && mode === this.data.mainModule) return
 
       this.setData({ swiperCurrent: next, mainModule: mode })
-      this.syncReportListIfNeeded(mode)
+      this.syncMainModuleSideEffects(mode)
     },
 
     onSwiperChange(e: WechatMiniprogram.SwiperChange) {
@@ -248,7 +233,7 @@ Component({
       if (mainModule === this.data.mainModule && cur === this.data.swiperCurrent) return
 
       this.setData({ swiperCurrent: cur, mainModule })
-      this.syncReportListIfNeeded(mainModule)
+      this.syncMainModuleSideEffects(mainModule)
     },
     onReportFilter(e: WechatMiniprogram.TouchEvent) {
       const filter = e.currentTarget.dataset.filter as ReportFilter
@@ -256,13 +241,133 @@ Component({
       this.setData({ reportFilter: filter, reportFilterIndex: reportFilterToIndex(filter) })
       this.applyReportFilter()
     },
-    onDailyPostTap(e: WechatMiniprogram.TouchEvent) {
+
+    /** 点击图片：原生全屏预览（不冒泡，避免触发卡片长按菜单） */
+    onDailyImageTap(e: WechatMiniprogram.TouchEvent) {
+      const postId = e.currentTarget.dataset.postId as string | undefined
+      if (!postId) return
+      const rawIdx = e.currentTarget.dataset.imgIndex
+      let imgIndex = 0
+      if (rawIdx !== undefined && rawIdx !== null && rawIdx !== '') {
+        const n = Number(rawIdx)
+        if (!Number.isNaN(n)) imgIndex = Math.floor(n)
+      }
+      const daily = this.data.dailyList.find((x) => x.id === postId)
+      if (!daily || !daily.images || daily.images.length === 0) return
+      const urls = daily.images
+      const max = urls.length - 1
+      const idx = imgIndex < 0 ? 0 : imgIndex > max ? max : imgIndex
+      const cur = urls[idx]
+      if (typeof cur !== 'string' || cur.length === 0) return
+      wx.previewImage({
+        current: cur,
+        urls,
+      })
+    },
+
+    /** 长按自己的日常卡片：原生 ActionSheet → 编辑 / 删除 */
+    onDailyPostLongPress(e: WechatMiniprogram.TouchEvent) {
       const id = e.currentTarget.dataset.id as string | undefined
       if (!id) return
-      wx.showToast({ title: '详情页敬请期待', icon: 'none' })
+      const item = this.data.dailyList.find((x) => x.id === id)
+      if (!item) return
+      if (!item.isMine) {
+        wx.showToast({ title: '仅可操作自己发布的日常', icon: 'none' })
+        return
+      }
+      wx.showActionSheet({
+        itemList: ['编辑', '删除'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            this.openDailyComposeEdit(item)
+          } else if (res.tapIndex === 1) {
+            wx.showModal({
+              title: '删除日常',
+              content: '确定删除这条日常？删除后无法恢复。',
+              confirmText: '删除',
+              cancelText: '取消',
+              confirmColor: '#4A6670',
+              success: (m) => {
+                if (m.confirm) {
+                  void this.confirmDeleteDaily(id)
+                }
+              },
+            })
+          }
+        },
+      })
     },
+
+    async confirmDeleteDaily(id: string) {
+      wx.showLoading({ title: '删除中', mask: true })
+      try {
+        const r = await dailyDeleteDaily(id)
+        wx.hideLoading()
+        if (!r) return
+        if (!r.ok) {
+          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          return
+        }
+        const list = this.data.dailyList.filter((x) => x.id !== id)
+        this.setData({ dailyList: list })
+        wx.showToast({ title: '已删除', icon: 'success' })
+      } catch {
+        wx.hideLoading()
+      }
+    },
+
+    openDailyComposeEdit(item: DailyItem) {
+      setDailyEditStaging({
+        postId: item.id,
+        text: typeof item.snippet === 'string' ? item.snippet : '',
+        images: Array.isArray(item.images) ? item.images.slice() : [],
+      })
+      wx.navigateTo({
+        url: `${PAGE_DAILY_COMPOSE}?id=${encodeURIComponent(item.id)}`,
+        events: {
+          dailyPublished: (payload: DailyPublishedPayload) => this.applyDailyPublished(payload),
+        },
+        success: (res) => {
+          res.eventChannel.emit('composeInit', {
+            text: typeof item.snippet === 'string' ? item.snippet : '',
+            images: Array.isArray(item.images) ? item.images.slice() : [],
+          })
+        },
+      })
+    },
+
+    onEmptyComposeTap() {
+      this.navigateToDailyCompose()
+    },
+
     onFabTap() {
-      wx.showToast({ title: '敬请期待', icon: 'none' })
+      if (this.data.mainModule !== 'daily') return
+      this.navigateToDailyCompose()
+    },
+
+    navigateToDailyCompose() {
+      wx.navigateTo({
+        url: PAGE_DAILY_COMPOSE,
+        events: {
+          dailyPublished: (payload: DailyPublishedPayload) => this.applyDailyPublished(payload),
+        },
+      })
+    },
+
+    applyDailyPublished(payload: DailyPublishedPayload) {
+      const post = payload.post
+      const list = [...this.data.dailyList]
+      if (payload.mode === 'edit') {
+        const idx = list.findIndex((x) => x.id === post.id)
+        if (idx >= 0) {
+          list[idx] = post
+        } else {
+          list.unshift(post)
+        }
+      } else {
+        list.unshift(post)
+      }
+      this.setData({ dailyList: list })
     },
   },
 })
