@@ -17,6 +17,7 @@
 }
 
 .app-nav-bar {
+  position: relative;
   box-sizing: border-box;
   height: 88rpx;
   display: flex;
@@ -27,12 +28,59 @@
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
 }
 
+.app-nav-leading {
+  position: absolute;
+  left: 16rpx;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 96rpx;
+  z-index: 1;
+}
+
+.app-nav-back {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  margin-left: 4rpx;
+  border-radius: 22rpx;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-nav-back-hover {
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-nav-back-icon {
+  font-size: 48rpx;
+  font-weight: 300;
+  line-height: 1;
+  color: #4a6670;
+}
+
 .app-nav-title {
   font-size: 34rpx;
   font-weight: 600;
   color: #1c1c1e;
-  max-width: 70%;
+  max-width: 58%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
+}
+
+.app-nav-trailing {
+  position: absolute;
+  right: 16rpx;
+  top: 0;
+  bottom: 0;
+  width: 96rpx;
 }

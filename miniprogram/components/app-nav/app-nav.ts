@@ -42,5 +42,15 @@ Component({
       type: String,
       value: 'solid',
     },
+    /** 显示左侧返回；点击触发 `back` 事件（由页面内 wx.navigateBack） */
+    showBack: {
+      type: Boolean,
+      value: false,
+    },
+  },
+  methods: {
+    onBackTap() {
+      this.triggerEvent('back')
+    },
   },
 })

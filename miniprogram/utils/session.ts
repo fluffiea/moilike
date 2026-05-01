@@ -1,4 +1,5 @@
 import type { MoUser } from '../types/user'
+import { invalidateChroniclePrefsApplyCache, prefsSignature } from '../constants/chronicle-preferences'
 
 const STORAGE_KEY = 'mo_user'
 /** 用户主动退出后置位：登录页不得再根据云端资料自动恢复会话 */
@@ -26,8 +27,12 @@ function syncGlobalMoUser(user: MoUser | undefined): void {
 }
 
 export function saveMoUser(user: MoUser): void {
+  const prev = loadMoUser()
   wx.setStorageSync(STORAGE_KEY, user)
   syncGlobalMoUser(user)
+  if (prefsSignature(prev?.openId, prev?.preferences) !== prefsSignature(user.openId, user.preferences)) {
+    invalidateChroniclePrefsApplyCache()
+  }
 }
 
 export function clearMoUser(): void {
@@ -37,6 +42,7 @@ export function clearMoUser(): void {
     // ignore
   }
   syncGlobalMoUser(undefined)
+  invalidateChroniclePrefsApplyCache()
 }
 
 export function setWaitExplicitRelogin(): void {

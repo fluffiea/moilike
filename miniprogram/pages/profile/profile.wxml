@@ -41,7 +41,7 @@
           hover-class="profile-settings-row-hover"
           hover-stay-time="70"
           aria-role="button"
-          aria-label="{{item.label}}，敬请期待"
+          aria-label="{{item.id == 'editProfile' || item.id == 'preferences' ? item.label : item.label + '，敬请期待'}}"
         >
           <view class="profile-settings-icon-wrap" aria-hidden="true">
             <text class="profile-settings-icon">{{item.icon}}</text>

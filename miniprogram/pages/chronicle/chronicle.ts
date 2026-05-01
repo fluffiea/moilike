@@ -1,4 +1,12 @@
 import requireAuth from '../../behaviors/require-auth'
+import moSession from '../../utils/session'
+import {
+  DEFAULT_CHRONICLE_MAIN_TAB,
+  DEFAULT_CHRONICLE_REPORT_FILTER,
+  consumeChroniclePrefsApplyIfNeeded,
+  invalidateChroniclePrefsApplyCache,
+  resolveChronicleEntryPrefs,
+} from '../../constants/chronicle-preferences'
 
 type MainModule = 'daily' | 'report'
 type ReportFilter = 'pending' | 'all' | 'mine'
@@ -10,6 +18,10 @@ const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
   all: 1,
   mine: 2,
 }
+
+/** 与偏好默认值一致（用于初始 data；单一来源见 chronicle-preferences） */
+const DEFAULT_MAIN_MODULE: MainModule = DEFAULT_CHRONICLE_MAIN_TAB
+const DEFAULT_REPORT_FILTER: ReportFilter = DEFAULT_CHRONICLE_REPORT_FILTER
 
 /** 首评（列表展示一条，可省略） */
 type DailyFirstComment = {
@@ -153,24 +165,56 @@ function reportFilterToIndex(f: ReportFilter): number {
   return REPORT_FILTER_TO_INDEX[f]
 }
 
+type ChroniclePageData = {
+  swiperCurrent: number
+  mainModule: MainModule
+  reportFilter: ReportFilter
+  reportFilterIndex: number
+  dailyList: DailyItem[]
+  reportListAll: ReportItem[]
+  reportDisplayList: ReportItem[]
+}
+
 Component({
   behaviors: [requireAuth],
+  pageLifetimes: {
+    show() {
+      this.applyChroniclePreferencesFromSession()
+    },
+  },
   data: {
     /** 与横向 swiper 同步：0 日常 / 1 报备 */
     swiperCurrent: 0,
-    mainModule: 'daily' as MainModule,
-    reportFilter: 'all',
-    reportFilterIndex: 1,
+    mainModule: DEFAULT_MAIN_MODULE,
+    reportFilter: DEFAULT_REPORT_FILTER,
+    reportFilterIndex: reportFilterToIndex(DEFAULT_REPORT_FILTER),
     dailyList: DAILY_MOCK,
     reportListAll: REPORT_MOCK,
-    reportDisplayList: REPORT_MOCK,
-  },
+    reportDisplayList: filterReports(REPORT_MOCK, DEFAULT_REPORT_FILTER),
+  } as ChroniclePageData,
   lifetimes: {
     attached() {
+      // 新实例挂载时 data 会回到初始值，若模块级签名仍命中则不会 setData，Tab 会错；故先失效缓存
+      invalidateChroniclePrefsApplyCache()
       this.applyReportFilter()
     },
   },
   methods: {
+    /** 按用户云端偏好恢复 Tab；偏好未改时不重复 setData，保留用户在现场切换的位置 */
+    applyChroniclePreferencesFromSession() {
+      const u = moSession.loadMoUser()
+      if (!consumeChroniclePrefsApplyIfNeeded(u?.openId, u?.preferences)) return
+      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(u?.preferences)
+      const swiperCurrent = mainModule === 'daily' ? SWIPER_INDEX.DAILY : SWIPER_INDEX.REPORT
+      this.setData({
+        mainModule,
+        swiperCurrent,
+        reportFilter,
+        reportFilterIndex: reportFilterToIndex(reportFilter),
+      })
+      this.applyReportFilter()
+    },
+
     applyReportFilter() {
       const { reportListAll, reportFilter } = this.data as {
         reportListAll: ReportItem[]

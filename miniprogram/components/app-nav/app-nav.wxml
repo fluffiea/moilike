@@ -4,7 +4,20 @@
 >
   <view class="app-nav-safe" style="padding-top: {{safePaddingTop}}px;">
     <view class="app-nav-bar">
+      <view wx:if="{{showBack}}" class="app-nav-leading">
+        <view
+          class="app-nav-back"
+          bind:tap="onBackTap"
+          hover-class="app-nav-back-hover"
+          hover-stay-time="70"
+          aria-role="button"
+          aria-label="返回"
+        >
+          <text class="app-nav-back-icon" aria-hidden="true">‹</text>
+        </view>
+      </view>
       <text class="app-nav-title">{{title}}</text>
+      <view class="app-nav-trailing" aria-hidden="true" />
     </view>
   </view>
 </view>

@@ -11,6 +11,31 @@ function stripDoc(doc) {
   return copy
 }
 
+/** @param {Record<string, unknown>} raw */
+function sanitizePreferences(raw) {
+  if (!raw || typeof raw !== 'object') return {}
+  /** @type {{ chronicleDefaultMainTab?: string, chronicleReportFilter?: string }} */
+  const out = {}
+  const main = raw.chronicleDefaultMainTab
+  if (main === 'daily' || main === 'report') {
+    out.chronicleDefaultMainTab = main
+  }
+  const rf = raw.chronicleReportFilter
+  if (rf === 'pending' || rf === 'all' || rf === 'mine') {
+    out.chronicleReportFilter = rf
+  }
+  return out
+}
+
+/** @param {Record<string, unknown>} incoming @param {Record<string, unknown>|undefined} existing */
+function mergePreferences(incoming, existing) {
+  const base =
+    existing && typeof existing === 'object' ? sanitizePreferences(existing) : {}
+  if (!incoming || typeof incoming !== 'object') return base
+  const inc = sanitizePreferences(incoming)
+  return { ...base, ...inc }
+}
+
 function toPublicUser(doc, openIdFallback) {
   const row = stripDoc(doc)
   if (!row) return null
@@ -38,6 +63,13 @@ function toPublicUser(doc, openIdFallback) {
     }
   }
 
+  const preferencesRaw = row.preferences
+  const preferences =
+    preferencesRaw && typeof preferencesRaw === 'object'
+      ? sanitizePreferences(preferencesRaw)
+      : {}
+  const hasPrefs = Object.keys(preferences).length > 0
+
   return {
     openId,
     nickName: typeof row.nickName === 'string' ? row.nickName : '',
@@ -45,6 +77,7 @@ function toPublicUser(doc, openIdFallback) {
     avatarUrl: typeof row.avatarUrl === 'string' ? row.avatarUrl : '',
     partnerOpenId: row.partnerOpenId != null ? row.partnerOpenId : null,
     partner,
+    ...(hasPrefs ? { preferences } : {}),
   }
 }
 
@@ -62,7 +95,13 @@ function isDocNotFound(err) {
 }
 
 /**
- * @param {{ action?: string, nickName?: string, signature?: string, avatarUrl?: string }} event
+ * @param {{
+ *   action?: string,
+ *   nickName?: string,
+ *   signature?: string,
+ *   avatarUrl?: string,
+ *   preferences?: Record<string, unknown>,
+ * }} event
  */
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
@@ -117,6 +156,56 @@ exports.main = async (event) => {
             ...patch,
             partnerOpenId: null,
             partner: null,
+            createdAt: db.serverDate(),
+          },
+        })
+      }
+
+      const saved = await users.doc(OPENID).get()
+      const user = toPublicUser(saved.data, OPENID)
+      if (!user) {
+        return { ok: false, error: '写入后读取用户失败' }
+      }
+      return { ok: true, user }
+    }
+
+    if (event.action === 'syncPreferences') {
+      const incoming =
+        event.preferences && typeof event.preferences === 'object' ? event.preferences : {}
+
+      let existing = null
+      try {
+        const r = await users.doc(OPENID).get()
+        existing = r.data
+      } catch (e) {
+        if (!isDocNotFound(e)) throw e
+      }
+
+      const merged = mergePreferences(
+        incoming,
+        existing && existing.preferences && typeof existing.preferences === 'object'
+          ? existing.preferences
+          : undefined,
+      )
+
+      const patch = {
+        preferences: merged,
+        updatedAt: db.serverDate(),
+      }
+
+      if (existing) {
+        await users.doc(OPENID).update({ data: patch })
+      } else {
+        await users.doc(OPENID).set({
+          data: {
+            _openid: OPENID,
+            openId: OPENID,
+            nickName: '',
+            signature: '',
+            avatarUrl: '',
+            partnerOpenId: null,
+            partner: null,
+            ...patch,
             createdAt: db.serverDate(),
           },
         })

@@ -6,6 +6,14 @@ export type MoPartner = {
   signature?: string
 }
 
+/** 与见证页 / 报备筛选文案一致；保存在云端 users.preferences */
+export type MoPreferences = {
+  /** 进入见证页默认主 Tab */
+  chronicleDefaultMainTab?: 'daily' | 'report'
+  /** 进入报备模块时的默认筛选 */
+  chronicleReportFilter?: 'pending' | 'all' | 'mine'
+}
+
 export type MoUser = {
   openId: string
   nickName: string
@@ -14,4 +22,6 @@ export type MoUser = {
   avatarUrl?: string
   partnerOpenId?: string | null
   partner: MoPartner | null
+  /** 偏好设置（按用户持久化） */
+  preferences?: MoPreferences | null
 }

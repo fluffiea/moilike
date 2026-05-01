@@ -63,6 +63,14 @@
       "pages": [
         "index/index"
       ]
+    },
+    {
+      "root": "subpackages/user",
+      "name": "user",
+      "pages": [
+        "edit-profile/edit-profile",
+        "preferences/preferences"
+      ]
     }
   ],
   "preloadRule": {
@@ -70,6 +78,12 @@
       "network": "all",
       "packages": [
         "extra"
+      ]
+    },
+    "pages/profile/profile": {
+      "network": "all",
+      "packages": [
+        "user"
       ]
     }
   },

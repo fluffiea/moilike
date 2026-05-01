@@ -1,7 +1,7 @@
 import { redirectIfNotAuthed } from '../../utils/auth-guard'
 import type { UserCloudResult } from '../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../types/cloud'
-import { PAGE_LOGIN } from '../../constants/paths'
+import { PAGE_EDIT_PROFILE, PAGE_LOGIN, PAGE_PREFERENCES } from '../../constants/paths'
 import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'changePassword' | 'preferences'
@@ -76,6 +76,14 @@ Component({
     },
     onSettingTap(e: WechatMiniprogram.TouchEvent) {
       const id = e.currentTarget.dataset.id as SettingId | undefined
+      if (id === 'editProfile') {
+        wx.navigateTo({ url: PAGE_EDIT_PROFILE })
+        return
+      }
+      if (id === 'preferences') {
+        wx.navigateTo({ url: PAGE_PREFERENCES })
+        return
+      }
       const title = id && id in SETTING_TITLES ? SETTING_TITLES[id] : '该功能'
       wx.showToast({ title: `${title}，敬请期待`, icon: 'none' })
     },

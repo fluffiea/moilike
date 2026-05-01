@@ -1,0 +1,81 @@
+<view class="edit-shell">
+  <app-nav
+    title="编辑资料"
+    variant="glass"
+    show-back="{{true}}"
+    bind:back="onNavBack"
+  />
+  <scroll-view
+    class="edit-scroll"
+    scroll-y
+    type="list"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="edit-scroll-body">
+      <view class="edit-avatar-card">
+        <view class="edit-avatar-card__wash" aria-hidden="true" />
+        <view class="edit-avatar-row">
+          <view class="edit-avatar-stack">
+            <view class="edit-avatar-glow" aria-hidden="true" />
+            <view class="edit-avatar-ring">
+              <view class="edit-avatar-inner">
+                <image class="edit-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+                <button
+                  class="edit-avatar-hit"
+                  hover-class="none"
+                  open-type="chooseAvatar"
+                  bind:chooseavatar="onChooseAvatar"
+                  aria-label="更换头像"
+                />
+              </view>
+            </view>
+          </view>
+        </view>
+        <text class="edit-avatar-tip">轻触头像更换，可与微信头像一致</text>
+      </view>
+
+      <view class="edit-form-card">
+        <view class="edit-field edit-field--line">
+          <text class="edit-label">昵称</text>
+          <view class="edit-field-body">
+            <input
+              class="edit-input"
+              type="text"
+              maxlength="32"
+              placeholder="填写昵称"
+              placeholder-class="edit-placeholder"
+              value="{{nickName}}"
+              bindinput="onNickInput"
+            />
+          </view>
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">个性签名</text>
+          <textarea
+            class="edit-textarea"
+            maxlength="120"
+            placeholder="写点什么介绍自己吧"
+            placeholder-class="edit-placeholder"
+            value="{{signature}}"
+            bindinput="onSignatureInput"
+            auto-height
+            show-confirm-bar="{{false}}"
+          />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="edit-footer">
+    <button
+      class="edit-save"
+      hover-class="edit-save-hover"
+      bind:tap="onSave"
+      disabled="{{submitting}}"
+      loading="{{submitting}}"
+      aria-label="保存资料"
+    >
+      {{submitting ? '保存中…' : '保存'}}
+    </button>
+  </view>
+</view>
