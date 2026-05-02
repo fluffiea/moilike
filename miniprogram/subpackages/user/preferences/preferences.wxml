@@ -29,8 +29,6 @@
                 class="pref-slider-cell {{chronicleMainTab === 'daily' ? 'pref-slider-cell--on' : ''}}"
                 data-tab="daily"
                 bind:tap="onPickMainTab"
-                hover-class="pref-slider-cell-hover"
-                hover-stay-time="70"
                 aria-role="tab"
                 aria-selected="{{chronicleMainTab === 'daily'}}"
               >
@@ -40,8 +38,6 @@
                 class="pref-slider-cell {{chronicleMainTab === 'report' ? 'pref-slider-cell--on' : ''}}"
                 data-tab="report"
                 bind:tap="onPickMainTab"
-                hover-class="pref-slider-cell-hover"
-                hover-stay-time="70"
                 aria-role="tab"
                 aria-selected="{{chronicleMainTab === 'report'}}"
               >
@@ -68,8 +64,6 @@
                 class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'pending' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="pending"
                 bind:tap="onPickReportFilter"
-                hover-class="pref-slider-cell-hover"
-                hover-stay-time="70"
                 aria-role="tab"
                 aria-selected="{{chronicleReportFilter === 'pending'}}"
               >
@@ -79,8 +73,6 @@
                 class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="all"
                 bind:tap="onPickReportFilter"
-                hover-class="pref-slider-cell-hover"
-                hover-stay-time="70"
                 aria-role="tab"
                 aria-selected="{{chronicleReportFilter === 'all'}}"
               >
@@ -90,8 +82,6 @@
                 class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="mine"
                 bind:tap="onPickReportFilter"
-                hover-class="pref-slider-cell-hover"
-                hover-stay-time="70"
                 aria-role="tab"
                 aria-selected="{{chronicleReportFilter === 'mine'}}"
               >
@@ -108,7 +98,6 @@
   <view class="pref-footer">
     <button
       class="pref-save"
-      hover-class="pref-save-hover"
       bind:tap="onSave"
       disabled="{{submitting}}"
       loading="{{submitting}}"

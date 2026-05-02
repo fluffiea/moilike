@@ -188,12 +188,6 @@ page {
   align-items: center;
   min-height: 104rpx;
   padding: 12rpx 36rpx;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.profile-settings-row-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-settings-row--line {
@@ -257,12 +251,6 @@ page {
     0 4px 12px rgba(0, 0, 0, 0.02),
     0 12px 32px rgba(0, 0, 0, 0.04),
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.8);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.profile-logout-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-footer {

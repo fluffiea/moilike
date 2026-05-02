@@ -8,8 +8,6 @@
         <view
           class="app-nav-back"
           bind:tap="onBackTap"
-          hover-class="app-nav-back-hover"
-          hover-stay-time="70"
           aria-role="button"
           aria-label="返回"
         >

@@ -20,7 +20,6 @@
         </view>
         <button
           class="login-submit login-reenter-btn"
-          hover-class="login-submit--pressed"
           bind:tap="onConfirmReenter"
           aria-label="重新进入 Moilike"
         >
@@ -91,7 +90,6 @@
       <view class="login-submit-wrap">
         <button
           class="login-submit"
-          hover-class="login-submit--pressed"
           bind:tap="onSubmit"
           disabled="{{submitting}}"
           aria-label="进入 Moilike"

@@ -38,8 +38,6 @@
           class="profile-settings-row {{index < settingsRows.length - 1 ? 'profile-settings-row--line' : ''}}"
           data-id="{{item.id}}"
           bind:tap="onSettingTap"
-          hover-class="profile-settings-row-hover"
-          hover-stay-time="70"
           aria-role="button"
           aria-label="{{item.id == 'editProfile' || item.id == 'preferences' ? item.label : item.label + '，敬请期待'}}"
         >
@@ -54,8 +52,6 @@
       <view
         class="profile-logout"
         bind:tap="onLogoutTap"
-        hover-class="profile-logout-hover"
-        hover-stay-time="70"
         aria-role="button"
         aria-label="退出登录"
       >

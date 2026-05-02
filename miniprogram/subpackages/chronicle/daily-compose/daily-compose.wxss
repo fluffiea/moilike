@@ -206,12 +206,6 @@ page {
   align-items: center;
   justify-content: center;
   z-index: 2;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.daily-compose-remove-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .daily-compose-remove-x {
@@ -245,12 +239,6 @@ page {
   border: 1rpx solid rgba(0, 0, 0, 0.08);
   background-color: #fbfbfd;
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.daily-compose-add-fill-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .daily-compose-add-plus {
@@ -329,16 +317,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.daily-compose-publish-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.daily-compose-publish-static {
-  transition: none;
+  transform-origin: center;
 }
 
 .daily-compose-publish--disabled {

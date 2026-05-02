@@ -66,8 +66,6 @@
                   class="daily-compose-remove"
                   data-index="{{imgIdx}}"
                   catch:tap="onRemoveImage"
-                  hover-class="daily-compose-remove-hover"
-                  hover-stay-time="70"
                   aria-role="button"
                   aria-label="删除此图"
                 >
@@ -83,8 +81,6 @@
                   class="daily-compose-add-fill"
                   bind:tap="onAddImagesFromAlbum"
                   bind:longpress="onAddImagesFromCamera"
-                  hover-class="daily-compose-add-fill-hover"
-                  hover-stay-time="70"
                   aria-role="button"
                   aria-label="添加图片，轻点相册或长按拍摄"
                 >
@@ -110,8 +106,6 @@
         <view
           class="daily-compose-publish {{canSubmit ? '' : 'daily-compose-publish--disabled'}}"
           bind:tap="onPublish"
-          hover-class="{{canSubmit ? 'daily-compose-publish-hover' : 'daily-compose-publish-static'}}"
-          hover-stay-time="70"
           aria-role="button"
           aria-label="{{editId ? '保存修改' : '发布动态'}}"
         >

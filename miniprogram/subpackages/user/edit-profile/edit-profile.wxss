@@ -245,16 +245,11 @@ page {
   box-shadow:
     0 4px 12px rgba(74, 102, 112, 0.18),
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
 }
 
 .edit-save::after {
   border: none;
-}
-
-.edit-save-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .edit-save[disabled] {

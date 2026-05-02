@@ -196,18 +196,12 @@ page {
   border-radius: 28rpx;
   border: 1rpx solid transparent;
   background-color: transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pref-slider-cell--compact {
   min-height: 52rpx;
   padding: 6rpx 10rpx;
   border-radius: 22rpx;
-}
-
-.pref-slider-cell-hover {
-  transform: scale(0.97);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pref-slider-cell-text {
@@ -259,16 +253,11 @@ page {
   box-shadow:
     0 4px 12px rgba(74, 102, 112, 0.18),
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
 }
 
 .pref-save::after {
   border: none;
-}
-
-.pref-save-hover {
-  transform: scale(0.97);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pref-save[disabled] {

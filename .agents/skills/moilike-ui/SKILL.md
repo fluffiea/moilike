@@ -1,6 +1,6 @@
 ---
 name: moilike-ui
-description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS). One file, no other skills required. Locked glass, dual px shadows, neutrals, spring press, safe-area; default five-color palette (replaceable per project) and optional Liquid Glass flourishes. Copy this SKILL.md to any repo’s .cursor/skills/<folder>/.
+description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS). One file, no other skills required. Locked glass, dual px shadows, neutrals, safe-area; default five-color palette (replaceable per project) and optional Liquid Glass flourishes. Moilike default — no press micro-interactions; keep segment-thumb `transition: transform` only. Copy this SKILL.md to any repo’s .cursor/skills/<folder>/.
 ---
 
 # Apple 质感小程序 UI 规范（自包含 · 可移植）
@@ -18,8 +18,9 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 
 **全项目锁定（不可为「换肤」而改数值）**
 
-- **§1–§2.3、§2.1 中性色、§3.1 按压**：**`backdrop-filter` 的 `blur(20px)`**、**§2.3 双层 `box-shadow`（px）**、**L0 灰底**、**`#1C1C1E` / `#8E8E93`**、**`hover-class` 的 `scale(0.97)` 与 `cubic-bezier(0.4, 0, 0.2, 1)`** —— 为**质感与一致性真源**。
-- 若与外部设计稿冲突，**以本文件为准**验收，或整体改设计 tokens 并**全项目统一替换**（不要混用两套 blur/阴影/按压）。
+- **§1–§2.3、§2.1 中性色**：**`backdrop-filter` 的 `blur(20px)`**、**§2.3 双层 `box-shadow`（px）**、**L0 灰底**、**`#1C1C1E` / `#8E8E93`** —— 为**材质与可读性真源**。
+- **Moilike 当前交互基线**：不为列表行、导航、主按钮等添加 **`hover-class` 按压缩放**或 **Worklet 触摸缩放**，减少与业务手势冲突。若移植项目需要按压反馈，按 **§3.1 可选规范**在全项目统一启用即可。
+- 若与外部设计稿冲突，**以本文件为准**验收，或整体改设计 tokens 并**全项目统一替换**（不要混用两套 blur/阴影）。
 
 **可定制部分（移植时常见）**
 
@@ -113,21 +114,29 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 
 ## 3. 交互质感
 
-### 3.1 按压（锁定，全项目统一）
+### 3.1 触动反馈（Moilike 基线 + 可选）
 
-可点击区域 **`hover-class` 必须**包含：
+**基线（Moilike 仓库）**
 
-`transform: scale(0.97);`  
-`transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);`
+- **不写**通用 **`hover-class` 按压缩放**，**不写** **`bindtouchstart` / `touchend` 驱动 CTA 缩放**。
+- **须保留**：**双格 / 三格分段控件**上 **拇指层**（如见证页 `.chronicle-mode-thumb`、`.chronicle-report-thumb`，偏好 `.pref-slider-thumb--dual` / `--triple`）在切换选项时 **`transition: transform`** + **`translateX`**（或等价位移动画）；缓动可用 **`cubic-bezier(0.23, 1, 0.32, 1)`** 一类；**勿**再给分段格子本身叠按压缩放，以免与拇指动画打架。
 
-- 基类与 **`hover-class` 同名**样式**都要写 `transition`**，避免松手闪烁。
-- **默认不要**在整块可点容器上 **`opacity` + `scale` 叠乘**。
-- **可访问性**：缩放保持轻微；若元素已有 `transform` 动画，**合并**过渡规则避免闪烁。
+**可选（移植或其它产品需要按压感时，全项目统一启用）**
 
-### 3.2 次级动效（可选，不替代 §3.1）
+可点击区域 **`hover-class`**（或 Skyline **`wx.worklet.shared` + `spring`** 绑定 **`transform: scale`**）可参考：
 
-- **缓动默认值**：**`cubic-bezier(0.4, 0, 0.2, 1)`**；**禁止**全页仅 **`ease-in-out`** 作为唯一缓动。
-- **入场 / 展开 / 非按压过渡**：可选用 **`cubic-bezier(0.23, 1, 0.32, 1)`**（用于**非 hover-class 主按压**的动画），与 §3.1 区分用途即可。
+`transform: scale(0.97);`（缩略图格等极密区域可用 **`scale(0.98)`**，须全列表一致）  
+`transition: transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1);`
+
+- **WXML**：若使用 `hover-class`，须 **`hover-start-time="{{0}}"`**；**`hover-stay-time`** 建议 **`70`** 或更短。
+- **基类与 `hover-class` 同名**样式写**同一 `transform` 过渡**；**禁止 `transition: all`**。
+- **大卡列表**：**外层**固定 **§2.3**，**内层**可单独承担 **`hover-class` + `scale`**。
+- **不要**在整块可点容器上 **`opacity` + `scale` 叠乘**；若节点已有拇指位 **`transform` 动画**，避免再叠按压缩放。
+
+### 3.2 次级动效（可选）
+
+- **缓动默认值**（入场、Tab 拇指等非按压主过渡）：**`cubic-bezier(0.4, 0, 0.2, 1)`**；**禁止**全页仅 **`ease-in-out`** 作为唯一缓动。
+- **入场 / 展开 / 非按压过渡**：可选用 **`cubic-bezier(0.23, 1, 0.32, 1)`**（与 §3.1 拇指滑动、可选按压区分用途即可）。
 - **交错进场（可选）**：首屏模块 **`50ms`（0.05s）** 级差做 `opacity` / `translateY`；须兼容系统减弱动态。
 
 ---
@@ -142,7 +151,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 
 然后做 **像素与语义自检**：`#000`、除 §2.2 允许的 **`0.5px` hairline** 外的 **`1px` 粗线**、单层重阴影、缺失 **safe-area**。
 
-**在 WXSS 中**：为 **`hover-class`** 定义**同名 class**，列表项、主按钮、卡片点击区均应绑定。
+**在 WXSS 中**：若本页启用了 **`hover-class`**，须为 **同名 class** 写齐 **§3.1 可选**中的 **`transform` 过渡**；Moilike 默认页面可不绑按压态。
 
 ---
 
@@ -159,7 +168,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 - [ ] **无 `#000`**；标题 **`#1C1C1E`**，次要 **`#8E8E93`**；品牌实色块字色符合 **§2.4 对比规则**  
 - [ ] L0 **`#F2F2F7` / `#FBFBFD`**；L1 **§2.3**；L2 **§2.2 `blur(20px)`**  
 - [ ] 品牌渐变/浅底符合 **§2.4**；无荧光色；**强调色不替代**正文灰阶语义  
-- [ ] 可点击 **`hover-class`**：**`scale(0.97)`** + **`cubic-bezier(0.4,0,0.2,1)`**；无 **`opacity`+`scale` 脏叠**  
+- [ ] 若启用按压：**`hover-class`** 或 Worklet 与 **§3.1 可选**一致；**`hover-start-time` 为 0**；无 **`transition: all`**；无 **`opacity`+`scale` 脏叠**；分段控件 **拇指**仍有 **§3.1 基线**的 **`transform` 滑动过渡**  
 - [ ] 分割线与卡片描边 **`1rpx`**；顶栏玻璃底边允许 **§2.2 的 `0.5px`**；无其它 **`1px`** 粗硬描边  
 - [ ] **safe-area** 已处理；可选高光/锐边/浸润未破坏对比（L1 内装饰层符合 **§1.3**）  
 
@@ -176,4 +185,4 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 1. 仅复制 **本文件** 至目标项目 **`.cursor/skills/<自定义目录>/SKILL.md`**。  
 2. 按需修改 YAML **`name` / `description`**（可选）。  
 3. 若品牌不同：编辑 **§2.4 表格 Hex** 与文案中的示例渐变方向说明，并做一次 **对比度与实底字色** 核对。  
-4. **勿删 §0–§3 的锁定数值**；若必须调整 blur/阴影，应在项目内**统一替换全文约定**，避免混用。
+4. **勿删 §0–§2.3 的材质锁定**（blur/阴影/灰阶）；**分段滑块拇指**的 **`transform` 位移动画**须保留或与见证/偏好页一致迁移。若启用按压，**§3.1 可选**参数应在项目内**统一替换**，避免混用两套按压曲线。

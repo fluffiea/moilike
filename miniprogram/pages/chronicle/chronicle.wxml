@@ -15,8 +15,6 @@
               class="chronicle-mode-cell {{mainModule === 'daily' ? 'chronicle-mode-cell--on' : ''}}"
               data-mode="daily"
               bind:tap="onMainTab"
-              hover-class="chronicle-mode-cell-hover"
-              hover-stay-time="70"
               aria-role="tab"
               aria-selected="{{mainModule === 'daily'}}"
             >
@@ -26,8 +24,6 @@
               class="chronicle-mode-cell {{mainModule === 'report' ? 'chronicle-mode-cell--on' : ''}}"
               data-mode="report"
               bind:tap="onMainTab"
-              hover-class="chronicle-mode-cell-hover"
-              hover-stay-time="70"
               aria-role="tab"
               aria-selected="{{mainModule === 'report'}}"
             >
@@ -49,8 +45,6 @@
                     class="chronicle-report-tab {{reportFilter === 'pending' ? 'chronicle-report-tab--active' : ''}}"
                     data-filter="pending"
                     bind:tap="onReportFilter"
-                    hover-class="chronicle-report-tab-hover"
-                    hover-stay-time="70"
                     aria-role="tab"
                     aria-selected="{{reportFilter === 'pending'}}"
                   >
@@ -60,8 +54,6 @@
                     class="chronicle-report-tab {{reportFilter === 'all' ? 'chronicle-report-tab--active' : ''}}"
                     data-filter="all"
                     bind:tap="onReportFilter"
-                    hover-class="chronicle-report-tab-hover"
-                    hover-stay-time="70"
                     aria-role="tab"
                     aria-selected="{{reportFilter === 'all'}}"
                   >
@@ -71,8 +63,6 @@
                     class="chronicle-report-tab {{reportFilter === 'mine' ? 'chronicle-report-tab--active' : ''}}"
                     data-filter="mine"
                     bind:tap="onReportFilter"
-                    hover-class="chronicle-report-tab-hover"
-                    hover-stay-time="70"
                     aria-role="tab"
                     aria-selected="{{reportFilter === 'mine'}}"
                   >
@@ -119,8 +109,6 @@
             class="daily-post daily-post--no-foot"
             data-id="{{item.id}}"
             bind:longpress="onDailyPostLongPress"
-            hover-class="daily-post-hover"
-            hover-stay-time="70"
           >
             <view class="daily-post__body">
               <view class="daily-post__main">
@@ -161,8 +149,6 @@
                         data-post-id="{{item.id}}"
                         data-img-index="{{0}}"
                         catch:tap="onDailyImageTap"
-                        hover-class="daily-post__img-hit-hover"
-                        hover-stay-time="70"
                       >
                         <image class="daily-post__img" src="{{ item.images[0] }}" mode="aspectFill" />
                       </view>
@@ -180,8 +166,6 @@
                           data-post-id="{{item.id}}"
                           data-img-index="{{imgIdx}}"
                           catch:tap="onDailyImageTap"
-                          hover-class="daily-post__img-hit-hover"
-                          hover-stay-time="70"
                         >
                           <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
                         </view>
@@ -210,8 +194,6 @@
             <view
               class="chronicle-empty-cta"
               bind:tap="onEmptyComposeTap"
-              hover-class="chronicle-empty-cta-hover"
-              hover-stay-time="70"
               aria-role="button"
             >
               <text class="chronicle-empty-cta-label">写一条</text>
@@ -268,8 +250,6 @@
     wx:if="{{mainModule === 'daily'}}"
     class="chronicle-fab"
     bind:tap="onFabTap"
-    hover-class="chronicle-fab-hover"
-    hover-stay-time="70"
     aria-role="button"
     aria-label="写日常"
   >

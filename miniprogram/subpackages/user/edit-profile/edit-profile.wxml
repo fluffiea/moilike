@@ -69,7 +69,6 @@
   <view class="edit-footer">
     <button
       class="edit-save"
-      hover-class="edit-save-hover"
       bind:tap="onSave"
       disabled="{{submitting}}"
       loading="{{submitting}}"
