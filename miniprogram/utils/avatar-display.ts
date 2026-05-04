@@ -1,55 +1,89 @@
-/**
- * 头像展示 URL：云存储 fileID 在 <image> 上直连往往偏慢，本会话内 download 到临时路径后复用，减轻反复闪默认图。
- * 用户资料里的 fileID 仍由 moSession 保存；此处只做展示侧解析。
- */
+import type { AvatarTempUrlsCloudResult } from '../types/cloud'
+import { USER_CLOUD_FUNCTION } from '../types/cloud'
 
-const fileIdToTempPath = new Map<string, string>()
+/** 与页面默认头像路径一致 */
+export const DEFAULT_AVATAR_PATH = '/images/default.png'
 
-/** 临时文件是否仍存在（被系统清理则重新拉取） */
-function tempPathStillValid(path: string): boolean {
-  try {
-    wx.getFileSystemManager().accessSync(path)
-    return true
-  } catch {
-    return false
-  }
+const AVATAR_CLOUD_PREFIX = '/avatars/'
+const TEMP_URL_BATCH_SIZE = 20
+
+function isAvatarCloudFileId(s: string): boolean {
+  return s.startsWith('cloud://') && s.includes(AVATAR_CLOUD_PREFIX)
 }
 
 /**
- * @param avatarUrl 会话中的 avatarUrl（cloud / https / 本地临时路径等）
- * @returns 可直接赋给 <image src> 的地址；失败时回退为原始值或默认图
+ * Skyline 下 `<image src>` 不可直接使用 `cloud://`（DevTools 会拼成 `.../pages/xxx/cloud://...` 去请求，返回 500）。
+ * 在 `resolveAvatarForDisplay` 换到临时 HTTPS 之前，用默认图占位。
  */
-export async function resolveAvatarDisplayUrl(
-  avatarUrl: string | undefined | null,
-): Promise<string> {
-  const raw = typeof avatarUrl === 'string' ? avatarUrl.trim() : ''
-  if (!raw || raw === '/images/default.png') {
-    return '/images/default.png'
-  }
-  if (!raw.startsWith('cloud://')) {
-    return raw
-  }
-  if (!wx.cloud) {
-    return raw
-  }
+export function avatarImageSrcWhileCloudPending(ref: string | undefined | null): string {
+  const s = typeof ref === 'string' ? ref.trim() : ''
+  if (!s || s === DEFAULT_AVATAR_PATH) return DEFAULT_AVATAR_PATH
+  if (isAvatarCloudFileId(s)) return DEFAULT_AVATAR_PATH
+  return s
+}
 
-  const cached = fileIdToTempPath.get(raw)
-  if (cached && tempPathStillValid(cached)) {
-    return cached
-  }
-  if (cached) {
-    fileIdToTempPath.delete(raw)
-  }
-
+/**
+ * 经云函数 user.getTempFileURLs 换临时 HTTPS（服务端权限，避免读对方 avatars 时 STORAGE_EXCEED_AUTHORITY）。
+ * 仅提交路径含 `/avatars/` 的 fileID，与登录/资料页上传路径一致。
+ */
+async function fetchAvatarTempUrlsViaUserFn(fileList: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  const unique = [
+    ...new Set(fileList.filter((x): x is string => typeof x === 'string' && isAvatarCloudFileId(x))),
+  ]
+  if (unique.length === 0 || !wx.cloud) return out
   try {
-    const res = await wx.cloud.downloadFile({ fileID: raw })
-    const p = res.tempFilePath
-    if (p) {
-      fileIdToTempPath.set(raw, p)
-      return p
+    const res = await wx.cloud.callFunction({
+      name: USER_CLOUD_FUNCTION,
+      data: { action: 'getTempFileURLs', fileIDs: unique.slice(0, TEMP_URL_BATCH_SIZE) },
+    })
+    const body = res.result as AvatarTempUrlsCloudResult
+    if (!body || body.ok !== true || !body.urls) return out
+    for (const [fid, url] of Object.entries(body.urls)) {
+      if (typeof url === 'string' && url) out.set(fid, url)
     }
   } catch {
-    // 回落为 cloud://，由原生组件再试
+    // ignore
   }
-  return raw
+  return out
+}
+
+/**
+ * 将头像引用转为 `<image>` 可用的 src：cloud:// 经云函数换临时 HTTPS（客户端 getTempFileURL 对非本人文件会权限失败）。
+ */
+export async function resolveAvatarForDisplay(ref: string | undefined | null): Promise<string> {
+  const s = typeof ref === 'string' ? ref.trim() : ''
+  if (!s || s === DEFAULT_AVATAR_PATH) return DEFAULT_AVATAR_PATH
+  if (s.startsWith('cloud://')) {
+    if (!wx.cloud) return DEFAULT_AVATAR_PATH
+    if (!isAvatarCloudFileId(s)) return DEFAULT_AVATAR_PATH
+    const m = await fetchAvatarTempUrlsViaUserFn([s])
+    return m.get(s) || DEFAULT_AVATAR_PATH
+  }
+  if (/^https?:\/\//i.test(s)) return s
+  if (s.startsWith('wxfile://')) return s
+  return DEFAULT_AVATAR_PATH
+}
+
+/**
+ * 批量解析 cloud://（每批最多 TEMP_URL_BATCH_SIZE 条，与云函数上限一致）。
+ */
+export async function resolveAvatarForDisplayList(refs: (string | undefined)[]): Promise<string[]> {
+  const normalized = refs.map((r) => (typeof r === 'string' ? r.trim() : ''))
+  const cloudIds = [...new Set(normalized.filter((x) => isAvatarCloudFileId(x)))]
+  const map = new Map<string, string>()
+  for (let i = 0; i < cloudIds.length; i += TEMP_URL_BATCH_SIZE) {
+    const chunk = cloudIds.slice(i, i + TEMP_URL_BATCH_SIZE)
+    const part = await fetchAvatarTempUrlsViaUserFn(chunk)
+    for (const [k, v] of part) {
+      map.set(k, v)
+    }
+  }
+  return normalized.map((s) => {
+    if (!s || s === DEFAULT_AVATAR_PATH) return DEFAULT_AVATAR_PATH
+    if (s.startsWith('cloud://')) return map.get(s) || DEFAULT_AVATAR_PATH
+    if (/^https?:\/\//i.test(s)) return s
+    if (s.startsWith('wxfile://')) return s
+    return DEFAULT_AVATAR_PATH
+  })
 }

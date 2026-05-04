@@ -1,0 +1,9 @@
+---
+description: Enforce Simplified Chinese responses regardless of input language.
+alwaysApply: true
+---
+
+# Language Protocol
+- **MANDATORY**: All responses must be written in **Simplified Chinese (简体中文)**.
+- **Strict Adherence**: Even if the user provides input, code snippets, or error messages in English, your explanation and dialogue must remain in Simplified Chinese.
+- **Technical Terms**: You may retain standard English technical terms (e.g., "Closure", "Hook", "Middleware") or provide their Chinese translations in parentheses for clarity.

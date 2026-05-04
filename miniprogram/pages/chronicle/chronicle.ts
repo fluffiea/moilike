@@ -79,7 +79,7 @@ Component({
   pageLifetimes: {
     show() {
       this.applyChroniclePreferencesFromSession()
-      this.bootstrapDailyIfNeeded()
+      this.ensureDailyFirstPageIfEmpty(this.data.mainModule as MainModule)
     },
   },
   data: {
@@ -118,12 +118,13 @@ Component({
         reportFilterIndex: reportFilterToIndex(reportFilter),
       })
       this.applyReportFilter()
-      this.bootstrapDailyIfNeeded()
+      this.ensureDailyFirstPageIfEmpty(this.data.mainModule as MainModule)
     },
 
-    bootstrapDailyIfNeeded() {
-      const { mainModule, dailyList } = this.data as ChroniclePageData
+    /** 当前为「日常」且无列表时拉首屏（onShow / 偏好切换 / 切回日常 Tab） */
+    ensureDailyFirstPageIfEmpty(mainModule: MainModule) {
       if (mainModule !== 'daily') return
+      const { dailyList } = this.data as ChroniclePageData
       if (dailyList.length > 0) return
       void this.loadDailyList({ reset: true, useRefresher: false })
     },
@@ -207,10 +208,7 @@ Component({
     /** 进入对应模块时的副作用（日常首屏 / 报备筛选） */
     syncMainModuleSideEffects(mainModule: MainModule) {
       if (mainModule === 'daily') {
-        const { dailyList } = this.data as ChroniclePageData
-        if (dailyList.length === 0) {
-          void this.loadDailyList({ reset: true, useRefresher: false })
-        }
+        this.ensureDailyFirstPageIfEmpty(mainModule)
       }
       if (mainModule === 'report') {
         this.applyReportFilter()

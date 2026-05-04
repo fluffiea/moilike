@@ -1,7 +1,7 @@
 {
   "name": "user",
   "version": "1.0.0",
-  "description": "用户资料：云数据库集合 users（文档 _id 为 openid）",
+  "description": "用户资料 + 绑定对象；users 建议文档 _id=openid 且含 openId/_openid；bind_requests 仅云函数写。云控制台 users 勿设「仅创建者可写」直连写他人档（应仅用 callFunction）。",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "~3.0.1"

@@ -3,11 +3,12 @@ import type { UserCloudResult } from '../../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../../types/cloud'
 import { PAGE_LOGIN, TAB_PROFILE } from '../../../constants/paths'
 import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../../utils/cloud-invoke'
-import { resolveAvatarDisplayUrl } from '../../../utils/avatar-display'
 import moSession from '../../../utils/session'
-
-/** 并发解析头像展示 URL 时只采纳最后一次结果 */
-let avatarResolveSeq = 0
+import {
+  DEFAULT_AVATAR_PATH,
+  avatarImageSrcWhileCloudPending,
+  resolveAvatarForDisplay,
+} from '../../../utils/avatar-display'
 
 function isPersistedRemoteAvatarRef(ref: string): boolean {
   const s = ref.trim()
@@ -33,7 +34,7 @@ Component({
     nickName: '',
     signature: '',
     avatarUrl: '/images/default.png',
-    /** 与 moSession 中一致的云 fileID / https，保存未换头像时用；展示可能是本地下载缓存路径 */
+    /** 与 moSession 中一致的云 fileID / https；展示与保存均直连 */
     avatarPersistedRef: '',
     hasChosenAvatar: false,
     submitting: false,
@@ -43,22 +44,32 @@ Component({
       const u = moSession.loadMoUser()
       if (!u) return
       const raw = typeof u.avatarUrl === 'string' ? u.avatarUrl.trim() : ''
+      let display = DEFAULT_AVATAR_PATH
+      if (raw && raw !== DEFAULT_AVATAR_PATH) {
+        display = avatarImageSrcWhileCloudPending(raw)
+      }
       this.setData({
         nickName: u.nickName != null ? u.nickName : '',
         signature: u.signature != null ? u.signature : '',
         hasChosenAvatar: false,
         avatarPersistedRef: raw,
+        avatarUrl: display,
       })
-      void this.resolveAvatarDisplay(raw)
+      void this.resolvePersistedAvatarForDisplay(raw)
     },
 
-    async resolveAvatarDisplay(raw: string) {
+    async resolvePersistedAvatarForDisplay(rawPersisted: string) {
+      if (!rawPersisted || rawPersisted === DEFAULT_AVATAR_PATH) return
+      if (!rawPersisted.startsWith('cloud://')) return
       if (this.data.hasChosenAvatar) return
-      const seq = ++avatarResolveSeq
-      const url = await resolveAvatarDisplayUrl(raw || undefined)
-      if (seq !== avatarResolveSeq) return
-      if (this.data.hasChosenAvatar) return
-      this.setData({ avatarUrl: url })
+      try {
+        const url = await resolveAvatarForDisplay(rawPersisted)
+        if (url && url !== DEFAULT_AVATAR_PATH) {
+          this.setData({ avatarUrl: url })
+        }
+      } catch {
+        // 保持占位默认图
+      }
     },
 
     async refreshFromCloud() {

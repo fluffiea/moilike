@@ -1,3 +1,8 @@
+<!--
+  [Layering] L0 #F2F2F7 + 极淡顶区浸润 · L1 身份卡/设置/对象区 §2.3 · 顶栏 L2 app-nav glass
+  [Spacing] 水平 40rpx；分栏下卡间距 32–36rpx；8rpx 阶梯
+  [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅 Tab 拇指、主按钮
+-->
 <view class="profile-shell">
   <app-nav title="独白" variant="glass" />
   <scroll-view
@@ -8,57 +13,207 @@
     show-scrollbar="{{false}}"
   >
     <view class="profile-scroll-body">
-      <!-- L1 身份卡：§2.3 + 极淡角向 wash（§1.3） -->
-      <view class="profile-identity-card">
-        <view class="profile-identity-card__wash" aria-hidden="true" />
-        <view class="profile-hero">
-          <view class="profile-avatar-stack">
-            <view class="profile-avatar-glow" aria-hidden="true" />
-            <view class="profile-avatar-ring">
-              <view class="profile-avatar-inner">
-                <image class="profile-avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+      <view class="profile-tab-bar-wrap">
+        <view class="profile-tab-split" aria-label="独白分区">
+          <view
+            class="profile-tab-thumb {{profileMainTab === 'partner' ? 'profile-tab-thumb--right' : ''}}"
+            aria-hidden="true"
+          />
+          <view class="profile-tab-cells">
+            <view
+              class="profile-tab-cell {{profileMainTab === 'me' ? 'profile-tab-cell--on' : ''}}"
+              data-tab="me"
+              bind:tap="onProfileMainTab"
+              aria-role="tab"
+              aria-selected="{{profileMainTab === 'me'}}"
+            >
+              <text class="profile-tab-name">我</text>
+            </view>
+            <view
+              class="profile-tab-cell {{profileMainTab === 'partner' ? 'profile-tab-cell--on' : ''}}"
+              data-tab="partner"
+              bind:tap="onProfileMainTab"
+              aria-role="tab"
+              aria-selected="{{profileMainTab === 'partner'}}"
+            >
+              <text class="profile-tab-name">对象</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{profileMainTab === 'me'}}" class="profile-me-stack">
+        <!-- L1 身份卡：§2.3 + 极淡角向 wash（§1.3） -->
+        <view class="profile-identity-card">
+          <view class="profile-identity-card__wash" aria-hidden="true" />
+          <view class="profile-hero">
+            <view class="profile-avatar-stack">
+              <view class="profile-avatar-glow" aria-hidden="true" />
+              <view class="profile-avatar-ring">
+                <view class="profile-avatar-inner">
+                  <image
+                    class="profile-avatar-img"
+                    src="{{avatarUrl}}"
+                    mode="aspectFill"
+                    binderror="onMyAvatarError"
+                  />
+                </view>
+              </view>
+            </view>
+            <view class="profile-identity-text">
+              <text class="profile-nick">{{nickName}}</text>
+              <view class="profile-sign-wrap">
+                <text class="profile-sign">{{signature}}</text>
               </view>
             </view>
           </view>
-          <view class="profile-identity-text">
-            <text class="profile-nick">{{nickName}}</text>
-            <view class="profile-sign-wrap">
-              <text class="profile-sign">{{signature}}</text>
+        </view>
+
+        <!-- L1 设置组 -->
+        <view class="profile-settings-card">
+          <view class="profile-settings-heading" aria-hidden="true">账户与偏好</view>
+          <view
+            wx:for="{{settingsRows}}"
+            wx:key="id"
+            class="profile-settings-row {{index < settingsRows.length - 1 ? 'profile-settings-row--line' : ''}}"
+            data-id="{{item.id}}"
+            bind:tap="onSettingTap"
+            aria-role="button"
+            aria-label="{{item.id == 'editProfile' || item.id == 'preferences' ? item.label : item.label + '，敬请期待'}}"
+          >
+            <view class="profile-settings-icon-wrap" aria-hidden="true">
+              <text class="profile-settings-icon">{{item.icon}}</text>
+            </view>
+            <text class="profile-settings-label">{{item.label}}</text>
+            <text class="profile-settings-chevron" aria-hidden="true">›</text>
+          </view>
+        </view>
+
+        <view
+          class="profile-logout"
+          bind:tap="onLogoutTap"
+          aria-role="button"
+          aria-label="退出登录"
+        >
+          退出登录
+        </view>
+
+        <text class="profile-footer">{{tagLine}}</text>
+      </view>
+
+      <view wx:else class="profile-partner-stack">
+        <view wx:if="{{partnerLoading}}" class="profile-partner-loading">
+          <text class="profile-partner-loading-text">加载中…</text>
+        </view>
+
+        <block wx:elif="{{partner && partner.openId}}">
+          <view class="profile-partner-card">
+            <view class="profile-partner-card__wash" aria-hidden="true" />
+            <view class="profile-partner-hero">
+              <view class="profile-partner-avatar-ring">
+                <image
+                  class="profile-partner-avatar-img"
+                  src="{{partner.avatarUrl || defaultAvatar}}"
+                  mode="aspectFill"
+                  binderror="onPartnerAvatarError"
+                />
+              </view>
+              <text class="profile-partner-nick">{{partner.nickName}}</text>
+              <view class="profile-partner-sign-wrap">
+                <text class="profile-partner-sign">{{partner.signature || '暂无签名'}}</text>
+              </view>
             </view>
           </view>
-        </view>
-      </view>
+          <text class="profile-partner-hint">已与 Ta 建立恋爱关系</text>
+        </block>
 
-      <!-- L1 设置组 -->
-      <view class="profile-settings-card">
-        <view class="profile-settings-heading" aria-hidden="true">账户与偏好</view>
-        <view
-          wx:for="{{settingsRows}}"
-          wx:key="id"
-          class="profile-settings-row {{index < settingsRows.length - 1 ? 'profile-settings-row--line' : ''}}"
-          data-id="{{item.id}}"
-          bind:tap="onSettingTap"
-          aria-role="button"
-          aria-label="{{item.id == 'editProfile' || item.id == 'preferences' ? item.label : item.label + '，敬请期待'}}"
-        >
-          <view class="profile-settings-icon-wrap" aria-hidden="true">
-            <text class="profile-settings-icon">{{item.icon}}</text>
+        <block wx:else>
+          <view class="profile-partner-section">
+            <view class="profile-partner-section-head">
+              <text class="profile-partner-section-title">收到的申请</text>
+            </view>
+            <view wx:if="{{inboundList.length === 0}}" class="profile-partner-empty">
+              <text class="profile-partner-empty-text">暂无待处理申请</text>
+            </view>
+            <view wx:for="{{inboundList}}" wx:key="id" class="profile-inbound-row">
+              <image
+                class="profile-inbound-avatar"
+                src="{{item.fromAvatarUrl || defaultAvatar}}"
+                mode="aspectFill"
+                data-index="{{index}}"
+                binderror="onInboundAvatarError"
+              />
+              <view class="profile-inbound-main">
+                <text class="profile-inbound-name">{{item.fromNickName}}</text>
+                <text wx:if="{{item.timeLabel}}" class="profile-inbound-time">{{item.timeLabel}}</text>
+              </view>
+              <view class="profile-inbound-actions">
+                <view
+                  class="profile-inbound-btn profile-inbound-btn--ghost"
+                  data-id="{{item.id}}"
+                  data-kind="reject"
+                  catch:tap="onRespondBind"
+                  aria-role="button"
+                  aria-label="拒绝 {{item.fromNickName}} 的申请"
+                >
+                  <text class="profile-inbound-btn-text">拒绝</text>
+                </view>
+                <view
+                  class="profile-inbound-btn profile-inbound-btn--ok"
+                  data-id="{{item.id}}"
+                  data-kind="accept"
+                  catch:tap="onRespondBind"
+                  aria-role="button"
+                  aria-label="同意与 {{item.fromNickName}} 建立关系"
+                >
+                  <text class="profile-inbound-btn-text profile-inbound-btn-text--light">同意</text>
+                </view>
+              </view>
+            </view>
           </view>
-          <text class="profile-settings-label">{{item.label}}</text>
-          <text class="profile-settings-chevron" aria-hidden="true">›</text>
-        </view>
-      </view>
 
-      <view
-        class="profile-logout"
-        bind:tap="onLogoutTap"
-        aria-role="button"
-        aria-label="退出登录"
-      >
-        退出登录
-      </view>
+          <view wx:if="{{outboundPending}}" class="profile-outbound-banner">
+            <text class="profile-outbound-title">等待对方同意</text>
+            <text class="profile-outbound-desc">已向「{{outboundPending.toNickName}}」发送绑定申请{{outboundPending.timeLabel ? ' · ' + outboundPending.timeLabel : ''}}</text>
+          </view>
 
-      <text class="profile-footer">{{tagLine}}</text>
+          <view class="profile-bind-card">
+            <text class="profile-bind-label">我的绑定码</text>
+            <view class="profile-bind-code-row">
+              <text class="profile-bind-code" selectable="true">{{myBindCode || '—'}}</text>
+              <view
+                class="profile-bind-copy"
+                bind:tap="onCopyBindCode"
+                aria-role="button"
+                aria-label="复制绑定码"
+              >
+                <text class="profile-bind-copy-text">复制</text>
+              </view>
+            </view>
+            <text class="profile-bind-tip">把绑定码发给对方，对方在「对象」里输入即可发起申请</text>
+          </view>
+
+          <view class="profile-bind-card">
+            <text class="profile-bind-label">向对方发起绑定</text>
+            <input
+              class="profile-bind-input"
+              value="{{bindCodeDraft}}"
+              bindinput="onBindCodeInput"
+              placeholder="输入对方的绑定码"
+              placeholder-class="profile-bind-ph"
+              maxlength="16"
+            />
+            <view
+              class="profile-bind-submit {{outboundPending ? 'profile-bind-submit--disabled' : ''}}"
+              bind:tap="onRequestBindTap"
+              aria-role="button"
+              aria-label="发送绑定申请"
+            >
+              <text class="profile-bind-submit-text">发送申请</text>
+            </view>
+          </view>
+        </block>
+      </view>
     </view>
   </scroll-view>
 </view>

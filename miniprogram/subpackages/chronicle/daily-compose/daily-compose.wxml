@@ -1,6 +1,6 @@
 <!--
   [Layering] L0 #F2F2F7 + 极淡顶区浸润 · L1 单张主表单卡 §2.3（内部区块 + 1rpx 分隔）· 顶栏 L2 app-nav · 底栏 L2 §2.2 玻璃
-  [Spacing] 水平 40rpx · 卡内统一 36rpx · 区块间距 32rpx · 内部分隔前后各贴齐 8rpx 网格
+  [Spacing] 水平 40rpx · 卡内 36rpx（底 48rpx 配图下留白）· 区块间距 32rpx · 内部分隔前后各贴齐 8rpx 网格
   [Palette 6-3-1] 中性灰与白卡为主 · 标签/辅助字 #8E8E93 · 品牌色仅主 CTA + 极轻数值 chip
 -->
 <view class="daily-compose-page">
@@ -69,7 +69,7 @@
                   aria-role="button"
                   aria-label="删除此图"
                 >
-                  <text class="daily-compose-remove-x">×</text>
+                  <view class="daily-compose-remove-x">×</view>
                 </view>
               </view>
 
@@ -86,7 +86,6 @@
                 >
                   <text class="daily-compose-add-plus">+</text>
                   <text class="daily-compose-add-line">添加</text>
-                  <text class="daily-compose-add-guide">轻点相册 · 长按拍摄</text>
                   <text class="daily-compose-add-sub">还可 {{9 - images.length}} 张</text>
                 </view>
               </view>
