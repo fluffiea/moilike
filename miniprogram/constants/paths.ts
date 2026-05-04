@@ -20,3 +20,6 @@ export const PAGE_PARTNER_HUB = '/subpackages/user/partner-hub/partner-hub' as c
 
 /** 写日常 / 编辑日常（见证入口 navigateTo · 分包 chronicle） */
 export const PAGE_DAILY_COMPOSE = '/subpackages/chronicle/daily-compose/daily-compose' as const
+
+/** 日常详情（列表卡片 navigateTo · 分包 chronicle） */
+export const PAGE_DAILY_DETAIL = '/subpackages/chronicle/daily-detail/daily-detail' as const

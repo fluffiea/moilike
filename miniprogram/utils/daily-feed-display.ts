@@ -31,6 +31,15 @@ export async function enrichDailyPostsForDisplay(posts: DailyPostPublic[]): Prom
       const u = avatarMap.get(rawAv)
       avatarUrl = u != null && u.length > 0 ? u : ''
     }
-    return { ...p, avatarUrl, images: mapPostImagesWithTempUrls(p.images, imageMap) }
+    const nRaw = p.commentCount
+    const n =
+      typeof nRaw === 'number' && !Number.isNaN(nRaw) && nRaw > 0 ? Math.floor(nRaw) : 0
+    const commentCountLabel = n > 0 ? `共 ${n} 条评论` : ''
+    return {
+      ...p,
+      avatarUrl,
+      images: mapPostImagesWithTempUrls(p.images, imageMap),
+      commentCountLabel,
+    }
   })
 }

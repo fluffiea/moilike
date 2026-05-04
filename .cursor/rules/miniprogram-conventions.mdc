@@ -1,0 +1,48 @@
+---
+description: 小程序脚本与表现层约定（TS 工具链兼容、Skyline/WXML 中文与 text 排版）
+globs:
+  - miniprogram/**/*.ts
+  - miniprogram/**/*.wxml
+alwaysApply: false
+---
+
+# 小程序脚本与表现层约定（可扩展）
+
+规则位置：**`.cursor/rules/`**。面向 `miniprogram/` 下由**微信开发者工具**编译的脚本（`project.config.json` 中 `useCompilerPlugins: ["typescript"]`）及同目录 **WXML**（Skyline 页面/组件）。**保持一节一个主题**，便于维护。
+
+---
+
+## TS 语法与工具链兼容（必选）
+
+工具链对**可选链 `?.`** 支持不完整时，可能导致**单文件编译失败**，进而**不生成**对应的 `*.js`，表现为子包/页面在 `app.json` 中报错「找不到 `xxx.js`」等。
+
+- **在 `miniprogram/**/*.ts` 中避免使用可选链 `?.`**，改用显式判空（`obj && obj.prop`、三元、`if` 收窄等）。与仓库内 `components/app-nav/app-nav.ts` 顶部注释「避免 `?.` 以兼容工具链」一致。
+- **避免空值合并 `??`**：在 `project.config.json` 的 **`"es6": false`** 等配置下，**上传 / 真机校验**可能对输出 JS 按较旧语法解析，出现 `Unexpected token ?`（与 `chronicle.js` 一类报错）。请改用 `a != null ? a : b` 或 `typeof x !== 'undefined' && x !== null ? x : fallback` 等显式写法。
+
+```typescript
+// ❌ 易触发工具链编译失败 → 无 .js → app.json 子包页报错
+const id = typeof options?.id === 'string' ? options.id.trim() : ''
+showToast({ title: formatErr(res?.error) })
+
+// ✅ 显式判断
+const id = options && typeof options.id === 'string' ? options.id.trim() : ''
+showToast({ title: formatErr(!res || res.ok ? undefined : res.error) })
+```
+
+**自检**：新增或修改 TS 后若出现「找不到对应 `*.js`」或**上传报 `Unexpected token ?`**，在**该文件**搜索 `?.`、`??` 并改为显式逻辑，再重新编译 / 上传。
+
+---
+
+## Skyline / WXML：中文旁勿用「多行 `<text>` + 缩进空白 + 插值」（推荐）
+
+在 **Skyline** 下，`<text>` 标签内**换行 + 与标签对齐的大量前导空格**，再与 **`{{ }}` 插值**、中文混排时，部分真机/模拟器会在**首字或插值前**出现 **□（豆腐块）**，易被误认为缺图标字体。
+
+- **`<text>` 内文案与插值写在同一行**，且**不要**在正文前保留与 WXML 缩进对齐的空格；或改用 **`<view>`** 承载纯展示文案（无需 `text` 特有能力时）。
+- 类似 **「共 {{n}} 条」** 的整句，优先在 **TS 里拼好一条字符串**（如 `commentsCountStr`），WXML 只绑定 **`{{commentsCountStr}}`**，减少分段渲染问题。
+- 若仍有个别机型中文发虚/占位，在对应页/组件根类上保留 **中文字体栈**（如 `PingFang SC` / `Microsoft YaHei` / `Noto Sans SC`），与 `daily-detail` 等页一致即可。
+
+---
+
+## 后续扩展（占位）
+
+在此文件末尾追加新小节即可（例如：云函数 `callFunction` 命名、`Component` 与页面生命周期混用注意点等），并保持每节简短、可执行。

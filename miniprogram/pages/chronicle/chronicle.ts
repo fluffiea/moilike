@@ -1,14 +1,15 @@
 import requireAuth from '../../behaviors/require-auth'
-import { PAGE_DAILY_COMPOSE } from '../../constants/paths'
+import { PAGE_DAILY_COMPOSE, PAGE_DAILY_DETAIL } from '../../constants/paths'
 import type { DailyPostPublic } from '../../types/cloud'
 import {
   dailyDeleteDaily,
+  dailyGetDailyFeedItem,
   dailyListDaily,
 } from '../../utils/daily-api'
 import { setDailyEditStaging } from '../../utils/daily-edit-staging'
 import { formatDailyCloudBizError } from '../../utils/cloud-invoke'
 import { enrichDailyPostsForDisplay } from '../../utils/daily-feed-display'
-import moSession from '../../utils/session'
+import moSession, { moUserProfileDisplayStamp } from '../../utils/session'
 import {
   DEFAULT_CHRONICLE_MAIN_TAB,
   DEFAULT_CHRONICLE_REPORT_FILTER,
@@ -77,6 +78,8 @@ type DailyPublishedPayload = {
 
 /** 用于日常列表：伴侣关系变化时清空本地列表并重新拉取（避免仍只缓存「仅自己」的旧数据） */
 const CHRONICLE_DAILY_COUPLE_SCOPE_KEY = '_chronicleDailyCoupleScopeKey'
+/** 本地会话昵称/头像相对上次页面 show 有变时清空日常列表并重拉（与云函数 listDaily 的 users 合并展示一致） */
+const CHRONICLE_DAILY_PROFILE_STAMP_KEY = '_chronicleDailyProfileStamp'
 
 function dailyCoupleScopeKeyFromSession(): string {
   const u = moSession.loadMoUser()
@@ -99,6 +102,7 @@ Component({
   pageLifetimes: {
     show() {
       this.syncDailyListCoupleScope()
+      this.syncDailyListProfileStamp()
       this.applyChroniclePreferencesFromSession()
       this.ensureDailyFirstPageIfEmpty(this.data.mainModule as MainModule)
     },
@@ -130,6 +134,19 @@ Component({
       const ext = this as WechatMiniprogram.IAnyObject
       if (ext[CHRONICLE_DAILY_COUPLE_SCOPE_KEY] === key) return
       ext[CHRONICLE_DAILY_COUPLE_SCOPE_KEY] = key
+      this.setData({
+        dailyList: [],
+        dailyHasMore: true,
+        dailyNextOffset: 0,
+      })
+    },
+
+    /** 个人资料（昵称/头像）在本地会话中更新后：清空日常列表并由 ensureDailyFirstPageIfEmpty 重拉 */
+    syncDailyListProfileStamp() {
+      const stamp = moUserProfileDisplayStamp()
+      const ext = this as WechatMiniprogram.IAnyObject
+      if (ext[CHRONICLE_DAILY_PROFILE_STAMP_KEY] === stamp) return
+      ext[CHRONICLE_DAILY_PROFILE_STAMP_KEY] = stamp
       this.setData({
         dailyList: [],
         dailyHasMore: true,
@@ -223,6 +240,29 @@ Component({
       }
     },
 
+    /** 从日常详情返回后仅合并一条列表项（不重拉整页、不重置分页）。 */
+    async patchDailyListItemFromDetail(rawPostId: string | undefined) {
+      const postId = typeof rawPostId === 'string' ? rawPostId.trim() : ''
+      if (!postId || !wx.cloud) return
+      const items = this.data.dailyList as DailyItem[]
+      const idx = items.findIndex((x) => x.id === postId)
+      if (idx < 0) return
+      const r = await dailyGetDailyFeedItem(postId)
+      if (!r) return
+      if (!r.ok) {
+        const err = typeof r.error === 'string' ? r.error : ''
+        if (err === '不存在' || err === '无权查看') {
+          this.setData({ dailyList: items.filter((x) => x.id !== postId) })
+        }
+        return
+      }
+      const enriched = await enrichDailyPostsForDisplay([r.post])
+      const post = enriched[0] != null ? enriched[0] : r.post
+      const list = [...items]
+      list[idx] = post
+      this.setData({ dailyList: list })
+    },
+
     onDailyRefresh() {
       void this.loadDailyList({ reset: true, useRefresher: true })
     },
@@ -277,6 +317,21 @@ Component({
     },
 
     /** 点击图片：原生全屏预览（不冒泡，避免触发卡片长按菜单） */
+    onDailyPostTap(e: WechatMiniprogram.TouchEvent) {
+      const id = e.currentTarget.dataset.id as string | undefined
+      if (!id) return
+      wx.navigateTo({
+        url: `${PAGE_DAILY_DETAIL}?id=${encodeURIComponent(id)}`,
+        events: {
+          dailyListNeedRefreshFromDetail: (payload: { postId?: string }) => {
+            const pid =
+              payload && typeof payload.postId === 'string' ? payload.postId : undefined
+            void this.patchDailyListItemFromDetail(pid)
+          },
+        },
+      })
+    },
+
     onDailyImageTap(e: WechatMiniprogram.TouchEvent) {
       const postId = e.currentTarget.dataset.postId as string | undefined
       if (!postId) return
@@ -354,7 +409,7 @@ Component({
       setDailyEditStaging({
         postId: item.id,
         text: typeof item.snippet === 'string' ? item.snippet : '',
-        images: Array.isArray(item.images) ? item.images.slice() : [],
+        images: [],
       })
       wx.navigateTo({
         url: `${PAGE_DAILY_COMPOSE}?id=${encodeURIComponent(item.id)}`,
@@ -364,7 +419,6 @@ Component({
         success: (res) => {
           res.eventChannel.emit('composeInit', {
             text: typeof item.snippet === 'string' ? item.snippet : '',
-            images: Array.isArray(item.images) ? item.images.slice() : [],
           })
         },
       })
@@ -390,17 +444,34 @@ Component({
 
     async applyDailyPublished(payload: DailyPublishedPayload) {
       const raw = payload.post
-      const enriched = await enrichDailyPostsForDisplay([raw])
-      const post = enriched[0] ?? raw
       const list = [...this.data.dailyList]
       if (payload.mode === 'edit') {
-        const idx = list.findIndex((x) => x.id === post.id)
+        const idx = list.findIndex((x) => x.id === raw.id)
+        const prev = idx >= 0 ? list[idx] : undefined
+        const base =
+          prev && typeof prev.commentCount === 'number' && prev.commentCount > 0
+            ? {
+                ...raw,
+                commentCount: prev.commentCount,
+                firstCommentUserName:
+                  typeof prev.firstCommentUserName === 'string'
+                    ? prev.firstCommentUserName
+                    : '',
+                firstCommentText:
+                  typeof prev.firstCommentText === 'string' ? prev.firstCommentText : '',
+              }
+            : raw
+        const enrichedArr = await enrichDailyPostsForDisplay([base])
+        const post = enrichedArr[0] != null ? enrichedArr[0] : base
         if (idx >= 0) {
           list[idx] = post
         } else {
           list.unshift(post)
         }
       } else {
+        const enriched = await enrichDailyPostsForDisplay([raw])
+        const enrichedFirst = enriched[0]
+        const post = enrichedFirst != null ? enrichedFirst : raw
         list.unshift(post)
       }
       this.setData({ dailyList: list })

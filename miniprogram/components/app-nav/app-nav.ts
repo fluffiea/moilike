@@ -1,18 +1,28 @@
-/** 自定义导航栏顶部留白（px）：真机/Skyline 下仅用 env() 在部分机型为 0，导致内容上顶，故用窗口 API 兜底（避免 ?. 以兼容工具链） */
+/**
+ * 顶栏安全区（px）：自定义导航下部分机型 env(safe-area) 不可靠，用系统信息兜底。
+ * getSystemInfoSync 会链路到 getWindowInfo；多实例各调一次易与 AgentPage 等并发报错，
+ * 故模块内只读一次并缓存（见开发者工具 getWindowInfo / temporarilyAllow 相关讨论）。
+ */
+const NAV_SAFE_TOP_MIN_PX = 20
+const NAV_SAFE_TOP_FALLBACK_PX = 24
+
+let navSafePaddingTopPxMemo: number | null = null
+
 function getNavSafePaddingTopPx(): number {
+  if (navSafePaddingTopPxMemo !== null) {
+    return navSafePaddingTopPxMemo
+  }
   try {
-    let win: WechatMiniprogram.WindowInfo | WechatMiniprogram.SystemInfo
-    if (typeof wx.getWindowInfo === 'function') {
-      win = wx.getWindowInfo()
-    } else {
-      win = wx.getSystemInfoSync()
-    }
+    const win = wx.getSystemInfoSync()
     const safeArea = win.safeArea
     const safeTop = safeArea && typeof safeArea.top === 'number' ? safeArea.top : 0
     const status = typeof win.statusBarHeight === 'number' ? win.statusBarHeight : 0
-    return Math.max(safeTop, status, 20)
+    const paddingTop = Math.max(safeTop, status, NAV_SAFE_TOP_MIN_PX)
+    navSafePaddingTopPxMemo = paddingTop
+    return paddingTop
   } catch {
-    return 24
+    navSafePaddingTopPxMemo = NAV_SAFE_TOP_FALLBACK_PX
+    return NAV_SAFE_TOP_FALLBACK_PX
   }
 }
 
@@ -21,7 +31,7 @@ Component({
     styleIsolation: 'isolated',
   },
   data: {
-    safePaddingTop: 24,
+    safePaddingTop: NAV_SAFE_TOP_FALLBACK_PX,
   },
   lifetimes: {
     attached() {

@@ -16,6 +16,9 @@ export async function uploadDailyImagesIfNeeded(localOrCloud: string[]): Promise
   for (let i = 0; i < localOrCloud.length; i++) {
     const p = localOrCloud[i]
     if (typeof p !== 'string' || p.length === 0) continue
+    if (p.indexOf('http://') === 0 || p.indexOf('https://') === 0) {
+      throw new Error('配图含临时链接，请返回后重新进入编辑页再保存')
+    }
     if (p.indexOf('cloud://') === 0) {
       out.push(p)
       continue

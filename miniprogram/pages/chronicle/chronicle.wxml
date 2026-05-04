@@ -108,6 +108,7 @@
             list-item
             class="daily-post daily-post--no-foot"
             data-id="{{item.id}}"
+            bind:tap="onDailyPostTap"
             bind:longpress="onDailyPostLongPress"
           >
             <view class="daily-post__body">
@@ -174,6 +175,14 @@
                   </view>
                 </view>
               </view>
+            </view>
+            <view wx:if="{{ item.commentCount > 0 }}" class="daily-post__preview">
+              <view class="daily-post__preview-inner" aria-hidden="true">
+                <text class="daily-post__preview-author">{{item.firstCommentUserName}}</text>
+                <text class="daily-post__preview-colon">：</text>
+                <text class="daily-post__preview-snippet" overflow="ellipsis" max-lines="2">{{item.firstCommentText}}</text>
+              </view>
+              <text class="daily-post__preview-count">{{item.commentCountLabel}}</text>
             </view>
           </view>
           <view wx:if="{{dailyLoadingMore}}" class="chronicle-load-more">

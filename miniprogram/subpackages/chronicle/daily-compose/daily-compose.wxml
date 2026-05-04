@@ -61,7 +61,7 @@
                 wx:key="imgIdx"
                 class="daily-compose-cell daily-compose-cell--pic"
               >
-                <image class="daily-compose-thumb" src="{{item}}" mode="aspectFill" />
+                <image class="daily-compose-thumb" src="{{imageDisplays[imgIdx]}}" mode="aspectFill" />
                 <view
                   class="daily-compose-remove"
                   data-index="{{imgIdx}}"

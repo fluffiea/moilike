@@ -31,6 +31,23 @@ export function loadMoUser(): MoUser | null {
   return null
 }
 
+/** 用于列表/详情在 onShow 判断「本地会话里的昵称/头像是否相对上次有变」，从而触发重拉云列表（含 openId 防串号） */
+export function moUserProfileDisplayStamp(): string {
+  const u = loadMoUser()
+  if (!u) return '|'
+  const oid = typeof u.openId === 'string' ? u.openId.trim() : ''
+  const nick = typeof u.nickName === 'string' ? u.nickName.trim() : ''
+  const av = typeof u.avatarUrl === 'string' ? u.avatarUrl.trim() : ''
+  let partner = ''
+  if (u.partner && typeof u.partner === 'object') {
+    const po = typeof u.partner.openId === 'string' ? u.partner.openId.trim() : ''
+    const pn = typeof u.partner.nickName === 'string' ? u.partner.nickName.trim() : ''
+    const pa = typeof u.partner.avatarUrl === 'string' ? u.partner.avatarUrl.trim() : ''
+    partner = `${po}\u0002${pn}\u0002${pa}`
+  }
+  return `${oid}\u0001${nick}\u0001${av}\u0001${partner}`
+}
+
 function syncGlobalMoUser(user: MoUser | undefined): void {
   try {
     const app = getApp<IAppOption>()
@@ -99,4 +116,5 @@ export default {
   setWaitExplicitRelogin,
   loadWaitExplicitRelogin,
   clearWaitExplicitRelogin,
+  moUserProfileDisplayStamp,
 }

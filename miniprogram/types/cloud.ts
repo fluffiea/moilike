@@ -63,6 +63,12 @@ export type DailyPostPublic = {
   avatarTone?: 'mist' | 'dew' | 'bloom' | 'meadow'
   imageLayout?: 'short' | 'normal' | 'tall'
   isMine?: boolean
+  /** listDaily：有评论时首条摘要（时间升序第一条）与总数 */
+  commentCount?: number
+  firstCommentUserName?: string
+  firstCommentText?: string
+  /** 客户端 enrich 写入，WXML 整句绑定避免中文排版问题 */
+  commentCountLabel?: string
 }
 
 export type DailyListCloudResult =
@@ -74,3 +80,26 @@ export type DailyPostCloudResult =
   | { ok: false; error?: string }
 
 export type DailyVoidCloudResult = { ok: true } | { ok: false; error?: string }
+
+/** 云函数 daily · listDailyComments / addDailyComment 返回的公开评论字段 */
+export type DailyCommentPublic = {
+  id: string
+  userName: string
+  time: string
+  text: string
+  parentId: string
+  depth: number
+  isMine?: boolean
+}
+
+export type DailyListCommentsCloudResult =
+  | { ok: true; list: DailyCommentPublic[] }
+  | { ok: false; error?: string }
+
+export type DailyAddCommentCloudResult =
+  | { ok: true; comment: DailyCommentPublic }
+  | { ok: false; error?: string }
+
+export type DailyUpdateCommentCloudResult =
+  | { ok: true; comment: DailyCommentPublic }
+  | { ok: false; error?: string }

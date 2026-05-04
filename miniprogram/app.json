@@ -77,7 +77,8 @@
       "root": "subpackages/chronicle",
       "name": "chronicle_pack",
       "pages": [
-        "daily-compose/daily-compose"
+        "daily-compose/daily-compose",
+        "daily-detail/daily-detail"
       ]
     }
   ],

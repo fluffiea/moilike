@@ -1,0 +1,185 @@
+<!--
+  [Layering] L0 #F2F2F7 · 帖+评单张 L1 · 评论 cm-thread 衬板 + 规范 L1 主评卡 · 底栏 L2 玻璃
+  [Spacing] 统一卡 40rpx · 评论区独立排版（cm-*）
+-->
+<view class="daily-detail-page">
+  <view class="daily-detail-bg" aria-hidden="true">
+    <view class="daily-detail-bg-wash" />
+  </view>
+
+  <view class="daily-detail-stack">
+    <app-nav
+      title="{{navTitle}}"
+      variant="glass"
+      show-back="{{true}}"
+      bind:back="onNavBack"
+    />
+
+    <scroll-view
+      class="daily-detail-scroll"
+      scroll-y
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+      bounces="{{true}}"
+    >
+      <view class="daily-detail-scroll-inner">
+        <view wx:if="{{postLoading}}" class="daily-detail-state">
+          <text class="daily-detail-state-text">加载中...</text>
+        </view>
+
+        <block wx:elif="{{post}}">
+          <view class="daily-detail-unified">
+            <view class="daily-detail-unified__post">
+              <view class="daily-post daily-post--embedded daily-post--no-foot daily-post--detail">
+                <view class="daily-post__body">
+                  <view class="daily-post__main">
+                    <view class="daily-post__head">
+                      <view class="daily-post__avatar-shell">
+                        <image
+                          wx:if="{{ post.avatarUrl }}"
+                          class="daily-post__avatar daily-post__avatar--photo"
+                          src="{{ post.avatarUrl }}"
+                          mode="aspectFill"
+                        />
+                        <view
+                          wx:else
+                          class="daily-post__avatar-ph daily-post__ph--{{ post.avatarTone || 'dew' }}"
+                          aria-hidden="true"
+                        >
+                          <view class="daily-post__ph-shine" />
+                        </view>
+                      </view>
+                      <view class="daily-post__head-main">
+                        <view class="daily-post__head-row">
+                          <view class="daily-post__name-wrap">
+                            <text
+                              class="daily-post__name"
+                              overflow="ellipsis"
+                              max-lines="2"
+                            >{{post.userName}}</text>
+                          </view>
+                          <text class="daily-post__time">{{post.time}}</text>
+                        </view>
+                      </view>
+                    </view>
+                    <view
+                      wx:if="{{ post.snippet || post.images.length }}"
+                      class="daily-post__content"
+                    >
+                      <view wx:if="{{post.snippet}}" class="daily-post__prose">
+                        <text class="daily-post__text">{{post.snippet}}</text>
+                      </view>
+                      <view wx:if="{{ post.images.length }}" class="daily-post__media">
+                        <block wx:if="{{ post.images.length === 1 }}">
+                          <view
+                            class="daily-post__img-wrap daily-post__img-wrap--{{ post.imageLayout || 'normal' }}"
+                            data-img-index="{{0}}"
+                            catch:tap="onPostImageTap"
+                          >
+                            <image class="daily-post__img" src="{{ post.images[0] }}" mode="aspectFill" />
+                          </view>
+                        </block>
+                        <block wx:else>
+                          <view
+                            class="daily-post__img-grid daily-post__img-grid--{{ post.images.length === 2 ? 'dual' : 'multi' }}"
+                          >
+                            <view
+                              wx:for="{{ post.images }}"
+                              wx:for-item="imgUrl"
+                              wx:for-index="imgIdx"
+                              wx:key="imgIdx"
+                              class="daily-post__img-cell"
+                              data-img-index="{{imgIdx}}"
+                              catch:tap="onPostImageTap"
+                            >
+                              <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
+                            </view>
+                          </view>
+                        </block>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+
+            <view class="daily-detail-unified__sep" aria-hidden="true" />
+
+            <view class="daily-detail-unified__thread cm-thread">
+              <view class="cm-thread__head">
+                <view class="cm-thread__head-left">
+                  <view class="cm-thread__accent" aria-hidden="true" />
+                  <text class="cm-thread__title">评论</text>
+                </view>
+                <view wx:if="{{comments.length > 0}}" class="cm-thread__badge">{{comments.length}}</view>
+              </view>
+
+              <view wx:if="{{comments.length === 0}}" class="cm-thread__empty">
+                <text class="cm-thread__empty-text">还没有留言，在下方说点什么吧</text>
+              </view>
+
+              <view wx:else class="cm-thread__list">
+                <view
+                  wx:for="{{comments}}"
+                  wx:key="id"
+                  class="cm-line {{ item.depth > 0 ? 'cm-line--reply' : 'cm-line--root' }}"
+                  data-reply-id="{{item.replyTapId}}"
+                  data-reply-name="{{item.replyTapName}}"
+                  data-row-id="{{item.id}}"
+                  bind:tap="onCommentRowTap"
+                  bind:longpress="onCommentLongPress"
+                >
+                  <view class="cm-line__meta">
+                    <text class="cm-line__name">{{item.userName}}</text>
+                    <text class="cm-line__time">{{item.time}}</text>
+                  </view>
+                  <view class="cm-line__body">
+                    <text class="cm-line__text">{{item.text}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <view wx:else class="daily-detail-state">
+          <text class="daily-detail-state-text">无法加载该条日常</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{post}}" class="daily-detail-composer">
+      <view wx:if="{{editingCommentId}}" class="daily-detail-reply-chip" bind:tap="onClearEdit">
+        <text class="daily-detail-reply-chip-text">正在编辑评论</text>
+        <text class="daily-detail-reply-chip-x">取消</text>
+      </view>
+      <view wx:elif="{{replyTarget}}" class="daily-detail-reply-chip" bind:tap="onClearReply">
+        <text class="daily-detail-reply-chip-text">回复 {{replyTarget.userName}}</text>
+        <text class="daily-detail-reply-chip-x">取消</text>
+      </view>
+      <view class="daily-detail-composer-row">
+        <textarea
+          class="daily-detail-textarea"
+          value="{{commentDraft}}"
+          placeholder="{{editingCommentId ? '修改评论...' : (replyTarget ? '写点什么...' : '参与讨论...')}}"
+          placeholder-class="daily-detail-placeholder"
+          maxlength="{{500}}"
+          adjust-position="{{true}}"
+          show-confirm-bar="{{false}}"
+          confirm-type="send"
+          bindinput="onCommentDraftInput"
+          bindconfirm="onSendTap"
+          auto-height="{{true}}"
+        />
+        <view
+          class="daily-detail-send {{sending || commentDraftIsEmpty ? 'daily-detail-send--disabled' : ''}}"
+          bind:tap="onSendTap"
+          aria-role="button"
+          aria-label="{{editingCommentId ? '保存评论' : '发送评论'}}"
+        >
+          <text class="daily-detail-send-text">{{editingCommentId ? '保存' : '发送'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

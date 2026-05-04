@@ -21,6 +21,13 @@ type ComposePageThis = WechatMiniprogram.Component.Instance<
   getOpenerEventChannel?: () => WechatMiniprogram.EventChannel
 }
 
+/** 提交用 fileID / 本地临时路径；与 imageDisplays 等长，缩略图可为临时 HTTPS */
+type ComposeData = {
+  text: string
+  images: string[]
+  imageDisplays: string[]
+}
+
 Component({
   behaviors: [requireAuth],
   data: {
@@ -30,14 +37,17 @@ Component({
     /** 变化时可强制 textarea 与当前 data 对齐（解决 value 首帧后不随 setData 刷新） */
     textareaMountKey: 'compose-new',
     text: '',
+    /** 仅 cloud:// 或 wx 本地临时路径，供 uploadDailyImagesIfNeeded / 云函数 */
     images: [] as string[],
+    /** 与 images 一一对应；编辑态为临时 HTTPS 展示，避免把 https 当本地路径上传 */
+    imageDisplays: [] as string[],
     canSubmit: false,
   },
   /**
    * 编辑数据三条线（按可靠性排序）：
    * 1. navigate 前 sync 写入 Storage（见 daily-edit-staging），onLoad 解析 id 后读出——不依赖 EventChannel 先后。
    * 2. pageLifetimes.onLoad(options)；若 Skyline/容器未带上 query，则在 lifetimes.ready 里用 getCurrentPages().options 再试一次。
-   * 3. EventChannel composeInit 仅作补充；云端 getDaily 用于校验与对齐。
+   * 3. EventChannel composeInit 仅补充正文；配图以云端 getDaily 为准（列表项 images 可能已是临时 HTTPS，不可写入提交数组）。
    */
   lifetimes: {
     ready() {
@@ -67,14 +77,14 @@ Component({
       const ch =
         typeof self.getOpenerEventChannel === 'function' ? self.getOpenerEventChannel() : null
       if (ch && typeof ch.on === 'function') {
-        ch.on('composeInit', (payload: { text?: string; images?: string[] }) => {
+        ch.on('composeInit', (payload: { text?: string }) => {
           const text = typeof payload.text === 'string' ? payload.text : ''
-          const images = Array.isArray(payload.images) ? payload.images.slice(0, MAX_IMAGES) : []
-          const canSubmit = text.trim().length > 0 || images.length > 0
+          if (text.trim().length === 0) return
           const editId = (self.data as { editId?: string }).editId || ''
+          const d = self.data as ComposeData
+          const canSubmit = text.trim().length > 0 || d.images.length > 0
           self.setData({
             text,
-            images,
             canSubmit,
             textareaMountKey: `${editId || 'new'}-ec-${Date.now()}`,
           })
@@ -120,9 +130,16 @@ Component({
       }
       if (staged) {
         patch.text = staged.text
-        patch.images = staged.images.slice(0, MAX_IMAGES)
-        patch.canSubmit =
-          staged.text.trim().length > 0 || staged.images.length > 0
+        const onlyCloud = staged.images.filter(
+          (u) => typeof u === 'string' && u.indexOf('cloud://') === 0,
+        )
+        if (onlyCloud.length > 0) {
+          const imgs = onlyCloud.slice(0, MAX_IMAGES)
+          patch.images = imgs
+          patch.imageDisplays = imgs.slice()
+        }
+        const im = (patch.images as string[]) || []
+        patch.canSubmit = staged.text.trim().length > 0 || im.length > 0
       }
 
       this.setData(patch)
@@ -143,9 +160,9 @@ Component({
       try {
         const r = await dailyGetDaily(id)
         if (!r || !r.ok || !r.post) {
+          const d = this.data as ComposeData
           const hadLocal =
-            ((this.data as { text?: string }).text || '').trim().length > 0 ||
-            (((this.data as { images?: string[] }).images) || []).length > 0
+            (d.text || '').trim().length > 0 || (d.images && d.images.length > 0)
           if (!hadLocal) {
             wx.showToast({
               title: r && !r.ok ? formatDailyCloudBizError(r.error) : '加载失败',
@@ -169,13 +186,14 @@ Component({
         const text = typeof p.snippet === 'string' ? p.snippet : ''
         const imagesRaw = Array.isArray(p.images) ? p.images.slice(0, MAX_IMAGES) : []
         const mediaMap = await dailyMapMediaTempUrls(imagesRaw)
-        const images = imagesRaw.map((img) =>
+        const imageDisplays = imagesRaw.map((img) =>
           typeof img === 'string' ? mediaMap.get(img) || img : img,
         )
-        const canSubmit = text.trim().length > 0 || images.length > 0
+        const canSubmit = text.trim().length > 0 || imagesRaw.length > 0
         this.setData({
           text,
-          images,
+          images: imagesRaw,
+          imageDisplays,
           canSubmit,
           textareaMountKey: `${id}-cloud-${Date.now()}`,
         })
@@ -185,8 +203,8 @@ Component({
     },
 
     syncCanSubmit() {
-      const { text, images } = this.data as { text: string; images: string[] }
-      const ok = text.trim().length > 0 || images.length > 0
+      const d = this.data as ComposeData
+      const ok = d.text.trim().length > 0 || d.images.length > 0
       if (ok !== this.data.canSubmit) {
         this.setData({ canSubmit: ok })
       }
@@ -194,8 +212,8 @@ Component({
 
     onTextInput(e: WechatMiniprogram.Input) {
       const v = e.detail.value || ''
-      const images = (this.data as { images: string[] }).images
-      const ok = v.trim().length > 0 || images.length > 0
+      const d = this.data as ComposeData
+      const ok = v.trim().length > 0 || d.images.length > 0
       if (ok !== this.data.canSubmit) {
         this.setData({ canSubmit: ok })
       }
@@ -218,8 +236,8 @@ Component({
      * @param maxCount 单次可选张数；相册为剩余槽位，相机固定 1
      */
     pickImages(sourceType: Array<'album' | 'camera'>, maxCount?: number) {
-      const { images } = this.data as { images: string[] }
-      const remain = MAX_IMAGES - images.length
+      const d = this.data as ComposeData
+      const remain = MAX_IMAGES - d.images.length
       if (remain <= 0) return
       const count = maxCount != null ? Math.min(maxCount, remain) : remain
       wx.chooseMedia({
@@ -228,9 +246,13 @@ Component({
         sizeType: ['compressed'],
         sourceType,
         success: (res) => {
+          const cur = this.data as ComposeData
           const next = res.tempFiles.map((f) => f.tempFilePath)
+          const merged = [...cur.images, ...next].slice(0, MAX_IMAGES)
+          const mergedD = [...cur.imageDisplays, ...next].slice(0, MAX_IMAGES)
           this.setData({
-            images: [...images, ...next].slice(0, MAX_IMAGES),
+            images: merged,
+            imageDisplays: mergedD,
           })
           this.syncCanSubmit()
         },
@@ -240,9 +262,12 @@ Component({
     onRemoveImage(e: WechatMiniprogram.TouchEvent) {
       const idx = Number(e.currentTarget.dataset.index)
       if (Number.isNaN(idx)) return
-      const images = [...(this.data as { images: string[] }).images]
+      const d = this.data as ComposeData
+      const images = [...d.images]
+      const imageDisplays = [...d.imageDisplays]
       images.splice(idx, 1)
-      this.setData({ images })
+      imageDisplays.splice(idx, 1)
+      this.setData({ images, imageDisplays })
       this.syncCanSubmit()
     },
 
@@ -259,11 +284,8 @@ Component({
         wx.showToast({ title: '写点什么或选一张图吧', icon: 'none' })
         return
       }
-      const { text, images, editId } = this.data as {
-        text: string
-        images: string[]
-        editId: string
-      }
+      const d = this.data as ComposeData & { editId: string }
+      const { text, images, editId } = d
       const snippet = text.trim()
       wx.showLoading({ title: editId ? '保存中' : '发布中', mask: true })
       try {

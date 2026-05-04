@@ -1,7 +1,10 @@
 import {
   DAILY_CLOUD_FUNCTION,
+  type DailyAddCommentCloudResult,
   type DailyListCloudResult,
+  type DailyListCommentsCloudResult,
   type DailyPostCloudResult,
+  type DailyUpdateCommentCloudResult,
   type DailyVoidCloudResult,
   type TempFileUrlsCloudResult,
 } from '../types/cloud'
@@ -31,6 +34,105 @@ export async function dailyGetDaily(id: string): Promise<DailyPostCloudResult | 
       data: { action: 'getDaily', id },
     })
     return res.result as DailyPostCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+    return null
+  }
+}
+
+/** 单条列表卡数据（正文 + 首评摘要），用于从详情返回时只合并一项、不重拉整页。 */
+export async function dailyGetDailyFeedItem(postId: string): Promise<DailyPostCloudResult | null> {
+  if (!wx.cloud) return null
+  const id = typeof postId === 'string' ? postId.trim() : ''
+  if (!id) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: DAILY_CLOUD_FUNCTION,
+      data: { action: 'getDailyFeedItem', id },
+    })
+    return res.result as DailyPostCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+    return null
+  }
+}
+
+export async function dailyListComments(
+  postId: string,
+): Promise<DailyListCommentsCloudResult | null> {
+  if (!wx.cloud) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: DAILY_CLOUD_FUNCTION,
+      data: { action: 'listDailyComments', postId },
+    })
+    return res.result as DailyListCommentsCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+    return null
+  }
+}
+
+export async function dailyUpdateComment(
+  postId: string,
+  commentId: string,
+  text: string,
+): Promise<DailyUpdateCommentCloudResult | null> {
+  if (!wx.cloud) return null
+  const pid = typeof postId === 'string' ? postId.trim() : ''
+  const cid = typeof commentId === 'string' ? commentId.trim() : ''
+  const body = typeof text === 'string' ? text.trim().slice(0, 500) : ''
+  if (!pid || !cid || !body) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: DAILY_CLOUD_FUNCTION,
+      data: { action: 'updateDailyComment', postId: pid, commentId: cid, text: body },
+    })
+    return res.result as DailyUpdateCommentCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+    return null
+  }
+}
+
+export async function dailyDeleteComment(
+  postId: string,
+  commentId: string,
+): Promise<DailyVoidCloudResult | null> {
+  if (!wx.cloud) return null
+  const pid = typeof postId === 'string' ? postId.trim() : ''
+  const cid = typeof commentId === 'string' ? commentId.trim() : ''
+  if (!pid || !cid) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: DAILY_CLOUD_FUNCTION,
+      data: { action: 'deleteDailyComment', postId: pid, commentId: cid },
+    })
+    return res.result as DailyVoidCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+    return null
+  }
+}
+
+export async function dailyAddComment(
+  postId: string,
+  text: string,
+  parentCommentId?: string,
+): Promise<DailyAddCommentCloudResult | null> {
+  if (!wx.cloud) return null
+  const parent =
+    typeof parentCommentId === 'string' && parentCommentId.trim()
+      ? parentCommentId.trim()
+      : ''
+  try {
+    const res = await wx.cloud.callFunction({
+      name: DAILY_CLOUD_FUNCTION,
+      data: parent
+        ? { action: 'addDailyComment', postId, text, parentCommentId: parent }
+        : { action: 'addDailyComment', postId, text },
+    })
+    return res.result as DailyAddCommentCloudResult
   } catch (e) {
     showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
     return null
