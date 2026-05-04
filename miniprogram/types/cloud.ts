@@ -41,10 +41,16 @@ export type PartnerPanelCloudResult =
 /** 云函数 user · requestBind / respondBind（reject 分支） */
 export type PartnerActionVoidCloudResult = { ok: true } | { ok: false; error?: string }
 
-/** 云函数 user · action getTempFileURLs（服务端换云存储临时链，解决对方 avatars 的 STORAGE_EXCEED_AUTHORITY） */
-export type AvatarTempUrlsCloudResult =
+/** 云函数返回：临时下载 URL 映射（user.getTempFileURLs、daily.getDailyMediaTempURLs 形状一致） */
+export type TempFileUrlsCloudResult =
   | { ok: true; urls: Record<string, string> }
   | { ok: false; error?: string }
+
+/** 云函数 user · action getTempFileURLs */
+export type AvatarTempUrlsCloudResult = TempFileUrlsCloudResult
+
+/** 云函数 daily · action getDailyMediaTempURLs */
+export type DailyMediaTempUrlsCloudResult = TempFileUrlsCloudResult
 
 /** 日常列表项（云函数 list/get/create/update 返回的公开字段） */
 export type DailyPostPublic = {

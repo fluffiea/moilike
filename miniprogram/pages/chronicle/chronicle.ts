@@ -7,6 +7,7 @@ import {
 } from '../../utils/daily-api'
 import { setDailyEditStaging } from '../../utils/daily-edit-staging'
 import { formatDailyCloudBizError } from '../../utils/cloud-invoke'
+import { enrichDailyPostsForDisplay } from '../../utils/daily-feed-display'
 import moSession from '../../utils/session'
 import {
   DEFAULT_CHRONICLE_MAIN_TAB,
@@ -74,10 +75,30 @@ type DailyPublishedPayload = {
   post: DailyPostPublic
 }
 
+/** 用于日常列表：伴侣关系变化时清空本地列表并重新拉取（避免仍只缓存「仅自己」的旧数据） */
+const CHRONICLE_DAILY_COUPLE_SCOPE_KEY = '_chronicleDailyCoupleScopeKey'
+
+function dailyCoupleScopeKeyFromSession(): string {
+  const u = moSession.loadMoUser()
+  if (!u) return '|'
+  const me = typeof u.openId === 'string' ? u.openId : ''
+  let fromPartnerOpenId = ''
+  if (typeof u.partnerOpenId === 'string' && u.partnerOpenId.trim()) {
+    fromPartnerOpenId = u.partnerOpenId.trim()
+  }
+  let fromPartner = ''
+  if (u.partner && typeof u.partner.openId === 'string' && u.partner.openId.trim()) {
+    fromPartner = u.partner.openId.trim()
+  }
+  const partner = fromPartnerOpenId || fromPartner
+  return `${me}|${partner}`
+}
+
 Component({
   behaviors: [requireAuth],
   pageLifetimes: {
     show() {
+      this.syncDailyListCoupleScope()
       this.applyChroniclePreferencesFromSession()
       this.ensureDailyFirstPageIfEmpty(this.data.mainModule as MainModule)
     },
@@ -103,6 +124,19 @@ Component({
     },
   },
   methods: {
+    /** 绑定 / 解绑伴侣后 openId 组合变化：清空日常列表并由 ensureDailyFirstPageIfEmpty 重拉 */
+    syncDailyListCoupleScope() {
+      const key = dailyCoupleScopeKeyFromSession()
+      const ext = this as WechatMiniprogram.IAnyObject
+      if (ext[CHRONICLE_DAILY_COUPLE_SCOPE_KEY] === key) return
+      ext[CHRONICLE_DAILY_COUPLE_SCOPE_KEY] = key
+      this.setData({
+        dailyList: [],
+        dailyHasMore: true,
+        dailyNextOffset: 0,
+      })
+    },
+
     /** 按用户云端偏好恢复 Tab；偏好未改时不重复 setData，保留用户在现场切换的位置 */
     applyChroniclePreferencesFromSession() {
       const u = moSession.loadMoUser()
@@ -151,8 +185,9 @@ Component({
             wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
             return
           }
+          const list = await enrichDailyPostsForDisplay(r.list)
           this.setData({
-            dailyList: r.list,
+            dailyList: list,
             dailyHasMore: r.hasMore,
             dailyNextOffset: r.nextOffset,
           })
@@ -176,7 +211,8 @@ Component({
           wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
           return
         }
-        const merged = [...this.data.dailyList, ...r.list]
+        const chunk = await enrichDailyPostsForDisplay(r.list)
+        const merged = [...this.data.dailyList, ...chunk]
         this.setData({
           dailyList: merged,
           dailyHasMore: r.hasMore,
@@ -323,7 +359,7 @@ Component({
       wx.navigateTo({
         url: `${PAGE_DAILY_COMPOSE}?id=${encodeURIComponent(item.id)}`,
         events: {
-          dailyPublished: (payload: DailyPublishedPayload) => this.applyDailyPublished(payload),
+          dailyPublished: (payload: DailyPublishedPayload) => void this.applyDailyPublished(payload),
         },
         success: (res) => {
           res.eventChannel.emit('composeInit', {
@@ -347,13 +383,15 @@ Component({
       wx.navigateTo({
         url: PAGE_DAILY_COMPOSE,
         events: {
-          dailyPublished: (payload: DailyPublishedPayload) => this.applyDailyPublished(payload),
+          dailyPublished: (payload: DailyPublishedPayload) => void this.applyDailyPublished(payload),
         },
       })
     },
 
-    applyDailyPublished(payload: DailyPublishedPayload) {
-      const post = payload.post
+    async applyDailyPublished(payload: DailyPublishedPayload) {
+      const raw = payload.post
+      const enriched = await enrichDailyPostsForDisplay([raw])
+      const post = enriched[0] ?? raw
       const list = [...this.data.dailyList]
       if (payload.mode === 'edit') {
         const idx = list.findIndex((x) => x.id === post.id)

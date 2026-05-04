@@ -1,4 +1,4 @@
-import type { AvatarTempUrlsCloudResult } from '../types/cloud'
+import type { TempFileUrlsCloudResult } from '../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../types/cloud'
 
 /** 与页面默认头像路径一致 */
@@ -37,7 +37,7 @@ async function fetchAvatarTempUrlsViaUserFn(fileList: string[]): Promise<Map<str
       name: USER_CLOUD_FUNCTION,
       data: { action: 'getTempFileURLs', fileIDs: unique.slice(0, TEMP_URL_BATCH_SIZE) },
     })
-    const body = res.result as AvatarTempUrlsCloudResult
+    const body = res.result as TempFileUrlsCloudResult
     if (!body || body.ok !== true || !body.urls) return out
     for (const [fid, url] of Object.entries(body.urls)) {
       if (typeof url === 'string' && url) out.set(fid, url)
@@ -65,20 +65,25 @@ export async function resolveAvatarForDisplay(ref: string | undefined | null): P
   return DEFAULT_AVATAR_PATH
 }
 
+async function collectAvatarTempUrlMap(fileIds: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  const unique = [...new Set(fileIds)]
+  for (let i = 0; i < unique.length; i += TEMP_URL_BATCH_SIZE) {
+    const part = await fetchAvatarTempUrlsViaUserFn(unique.slice(i, i + TEMP_URL_BATCH_SIZE))
+    for (const [k, v] of part) {
+      out.set(k, v)
+    }
+  }
+  return out
+}
+
 /**
  * 批量解析 cloud://（每批最多 TEMP_URL_BATCH_SIZE 条，与云函数上限一致）。
  */
 export async function resolveAvatarForDisplayList(refs: (string | undefined)[]): Promise<string[]> {
   const normalized = refs.map((r) => (typeof r === 'string' ? r.trim() : ''))
   const cloudIds = [...new Set(normalized.filter((x) => isAvatarCloudFileId(x)))]
-  const map = new Map<string, string>()
-  for (let i = 0; i < cloudIds.length; i += TEMP_URL_BATCH_SIZE) {
-    const chunk = cloudIds.slice(i, i + TEMP_URL_BATCH_SIZE)
-    const part = await fetchAvatarTempUrlsViaUserFn(chunk)
-    for (const [k, v] of part) {
-      map.set(k, v)
-    }
-  }
+  const map = await collectAvatarTempUrlMap(cloudIds)
   return normalized.map((s) => {
     if (!s || s === DEFAULT_AVATAR_PATH) return DEFAULT_AVATAR_PATH
     if (s.startsWith('cloud://')) return map.get(s) || DEFAULT_AVATAR_PATH
@@ -86,4 +91,18 @@ export async function resolveAvatarForDisplayList(refs: (string | undefined)[]):
     if (s.startsWith('wxfile://')) return s
     return DEFAULT_AVATAR_PATH
   })
+}
+
+/** 批量将 `avatars/` 下 cloud fileID 换为临时 HTTPS（日常流卡片头像等）。 */
+export async function mapAvatarCloudFileIdsToHttps(
+  fileIDs: (string | undefined | null)[],
+): Promise<Map<string, string>> {
+  const unique = [
+    ...new Set(
+      fileIDs
+        .map((x) => (typeof x === 'string' ? x.trim() : ''))
+        .filter((s) => isAvatarCloudFileId(s)),
+    ),
+  ]
+  return collectAvatarTempUrlMap(unique)
 }

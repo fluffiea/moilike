@@ -3,6 +3,7 @@ import type { DailyPostPublic } from '../../../types/cloud'
 import {
   dailyCreateDaily,
   dailyGetDaily,
+  dailyMapMediaTempUrls,
   dailyUpdateDaily,
 } from '../../../utils/daily-api'
 import { formatDailyCloudBizError } from '../../../utils/cloud-invoke'
@@ -166,7 +167,11 @@ Component({
           return
         }
         const text = typeof p.snippet === 'string' ? p.snippet : ''
-        const images = Array.isArray(p.images) ? p.images.slice(0, MAX_IMAGES) : []
+        const imagesRaw = Array.isArray(p.images) ? p.images.slice(0, MAX_IMAGES) : []
+        const mediaMap = await dailyMapMediaTempUrls(imagesRaw)
+        const images = imagesRaw.map((img) =>
+          typeof img === 'string' ? mediaMap.get(img) || img : img,
+        )
         const canSubmit = text.trim().length > 0 || images.length > 0
         this.setData({
           text,
