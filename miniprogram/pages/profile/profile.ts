@@ -16,17 +16,15 @@ import {
 } from '../../utils/avatar-display'
 import moSession from '../../utils/session'
 
-type SettingId = 'editProfile' | 'changePassword' | 'preferences'
+type SettingId = 'editProfile' | 'preferences'
 
 const SETTING_TITLES: Record<SettingId, string> = {
   editProfile: '编辑资料',
-  changePassword: '修改密码',
   preferences: '偏好设置',
 }
 
 const SETTINGS_ITEMS: { id: SettingId; icon: string }[] = [
   { id: 'editProfile', icon: '✨' },
-  { id: 'changePassword', icon: '🔒' },
   { id: 'preferences', icon: '☰' },
 ]
 
@@ -133,8 +131,6 @@ Component({
         wx.navigateTo({ url: PAGE_PREFERENCES })
         return
       }
-      const title = id && id in SETTING_TITLES ? SETTING_TITLES[id] : '该功能'
-      wx.showToast({ title: `${title}，敬请期待`, icon: 'none' })
     },
     onLogoutTap() {
       wx.showModal({

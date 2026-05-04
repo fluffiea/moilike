@@ -192,11 +192,12 @@
             <text class="chronicle-empty-title">还没有日常动态</text>
             <text class="chronicle-empty-hint">记录一条此刻的心情或影像</text>
             <view
-              class="chronicle-empty-cta"
+              class="chronicle-compose-fab chronicle-compose-fab--in-empty"
               bind:tap="onEmptyComposeTap"
               aria-role="button"
+              aria-label="写一条日常"
             >
-              <text class="chronicle-empty-cta-label">写一条</text>
+              <template is="chronicle-compose-plus" />
             </view>
           </view>
         </view>
@@ -248,12 +249,18 @@
 
   <view
     wx:if="{{mainModule === 'daily'}}"
-    class="chronicle-fab"
+    class="chronicle-compose-fab chronicle-compose-fab--fixed"
     bind:tap="onFabTap"
     aria-role="button"
     aria-label="写日常"
   >
-    <text class="chronicle-fab-icon" aria-hidden="true">✎</text>
+    <template is="chronicle-compose-plus" />
   </view>
 
+  <template name="chronicle-compose-plus">
+    <view class="chronicle-compose-fab__plus" aria-hidden="true">
+      <view class="chronicle-compose-fab__bar chronicle-compose-fab__bar--h" />
+      <view class="chronicle-compose-fab__bar chronicle-compose-fab__bar--v" />
+    </view>
+  </template>
 </view>
