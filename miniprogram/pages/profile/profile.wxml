@@ -1,7 +1,7 @@
 <!--
-  [Layering] L0 #F2F2F7 + 极淡顶区浸润 · L1 身份卡/设置/对象摘要入口/退出 §2.3 · 顶栏 L2 app-nav glass
-  [Spacing] 水平 40rpx；卡间距 32–36rpx；8rpx 阶梯
-  [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅主按钮、行内 CTA
+  [Layering] L0 #F2F2F7 · L1 身份卡 + 下方 profile-module 列表组（§2.3）· 顶栏 L2 app-nav glass
+  [Spacing] 水平 40rpx；模块间距 32rpx；组内标题与行 40rpx 对齐
+  [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀在头像环与行首图标槽
 -->
 <view class="profile-shell">
   <app-nav title="独白" variant="glass" />
@@ -38,63 +38,61 @@
         </view>
       </view>
 
-      <view class="profile-settings-card">
-        <view class="profile-settings-heading" aria-hidden="true">账户与偏好</view>
+      <view class="profile-module">
+        <view class="profile-module-head" aria-hidden="true">账户与偏好</view>
         <view
           wx:for="{{settingsRows}}"
           wx:key="id"
-          class="profile-settings-row {{index < settingsRows.length - 1 ? 'profile-settings-row--line' : ''}}"
+          class="profile-module-row {{index < settingsRows.length - 1 ? 'profile-module-row--line' : ''}}"
           data-id="{{item.id}}"
           bind:tap="onSettingTap"
           aria-role="button"
           aria-label="{{item.label}}"
         >
-          <view class="profile-settings-icon-wrap" aria-hidden="true">
-            <text class="profile-settings-icon">{{item.icon}}</text>
+          <view class="profile-module-icon" aria-hidden="true">
+            <text class="profile-module-icon-emoji">{{item.icon}}</text>
           </view>
-          <text class="profile-settings-label">{{item.label}}</text>
-          <text class="profile-settings-chevron" aria-hidden="true">›</text>
+          <text class="profile-module-label">{{item.label}}</text>
+          <text class="profile-module-chevron" aria-hidden="true">›</text>
         </view>
       </view>
 
       <view
-        class="profile-couple-peek"
+        class="profile-module"
         bind:tap="onCoupleHubTap"
         aria-role="button"
         aria-label="查看恋爱关系与绑定详情"
       >
-        <view wx:if="{{partner && partner.openId}}" class="profile-couple-peek-inner">
-          <view class="profile-couple-peek-avatar-ring" aria-hidden="true">
+        <view class="profile-module-head" aria-hidden="true">结伴</view>
+        <view class="profile-module-row profile-module-row--valign-start">
+          <view wx:if="{{partner && partner.openId}}" class="profile-module-lead profile-module-lead--avatar" aria-hidden="true">
             <image
-              class="profile-couple-peek-avatar"
+              class="profile-module-lead-img"
               src="{{partner.avatarUrl || defaultAvatar}}"
               mode="aspectFill"
               binderror="onPartnerPeekAvatarError"
             />
           </view>
-          <view class="profile-couple-peek-text">
-            <text class="profile-couple-peek-title">与「{{partner.nickName || 'Ta'}}」已结伴</text>
-            <text class="profile-couple-peek-sub">绑定码与申请进度 · 轻点查看</text>
+          <view wx:else class="profile-module-lead profile-module-lead--ph" aria-hidden="true" />
+          <view class="profile-module-stack">
+            <text wx:if="{{partner && partner.openId}}" class="profile-module-strong">与「{{partner.nickName || 'Ta'}}」已结伴</text>
+            <text wx:else class="profile-module-strong">还没有结伴对象</text>
+            <text wx:if="{{partner && partner.openId}}" class="profile-module-muted">绑定码与申请进度 · 轻点查看</text>
+            <text wx:else class="profile-module-muted">分享绑定码，或处理对方发来的申请</text>
           </view>
-          <text class="profile-couple-peek-chevron" aria-hidden="true">›</text>
-        </view>
-        <view wx:else class="profile-couple-peek-inner">
-          <view class="profile-couple-peek-placeholder" aria-hidden="true" />
-          <view class="profile-couple-peek-text">
-            <text class="profile-couple-peek-title">还没有结伴对象</text>
-            <text class="profile-couple-peek-sub">分享绑定码，或处理对方发来的申请</text>
-          </view>
-          <text class="profile-couple-peek-chevron" aria-hidden="true">›</text>
+          <text class="profile-module-chevron" aria-hidden="true">›</text>
         </view>
       </view>
 
-      <view
-        class="profile-logout"
-        bind:tap="onLogoutTap"
-        aria-role="button"
-        aria-label="退出登录"
-      >
-        退出登录
+      <view class="profile-module">
+        <view
+          class="profile-module-row profile-module-row--solo"
+          bind:tap="onLogoutTap"
+          aria-role="button"
+          aria-label="退出登录"
+        >
+          <text class="profile-module-logout">退出登录</text>
+        </view>
       </view>
 
       <text class="profile-footer">{{tagLine}}</text>

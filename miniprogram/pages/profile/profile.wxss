@@ -1,8 +1,8 @@
 /**
  * 独白页 · moilike-ui
- * [Layering] L0 #F2F2F7 + 顶区极淡径向（≤5%）；身份卡/设置/对象与绑定/退出均为 L1 §2.3；顶栏 L2 glass 在 app-nav
- * [Spacing] 水平 40rpx；卡间距 32–36rpx；区块内 8rpx 阶梯
- * [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅主操作按钮、行内 CTA
+ * [Layering] L0 #F2F2F7；身份卡 L1；下方「账户 / 结伴 / 退出」共用 profile-module §2.3；顶栏 L2 app-nav
+ * [Spacing] 水平 40rpx；模块间距 32rpx（8rpx 阶梯）；模块内标题与行左右 40rpx 对齐
+ * [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀仅在头像环与图标底
  */
 
 page {
@@ -28,13 +28,13 @@ page {
   box-sizing: border-box;
   width: 100%;
   min-height: 100%;
-  padding: 32rpx 0 calc(36rpx + 120rpx + env(safe-area-inset-bottom));
+  padding: 32rpx 0 calc(32rpx + 120rpx + env(safe-area-inset-bottom));
 }
 
 /* ---------- L1 身份卡 ---------- */
 .profile-identity-card {
   position: relative;
-  margin: 0 40rpx 36rpx;
+  margin: 0 40rpx 32rpx;
   padding: 44rpx 40rpx 40rpx;
   overflow: hidden;
   border-radius: 56rpx;
@@ -162,59 +162,74 @@ page {
   color: #8e8e93;
 }
 
-/* ---------- L1 设置 ---------- */
-.profile-settings-card {
-  margin: 0 40rpx 36rpx;
-  padding: 28rpx 0 12rpx;
+/* ---------- L1 分组模块（账户 / 结伴 / 退出 · 统一 §2.3 与行结构） ---------- */
+.profile-module {
+  margin: 0 40rpx 32rpx;
   border-radius: 48rpx;
   box-sizing: border-box;
+  overflow: hidden;
   background-color: #ffffff;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.profile-settings-heading {
-  padding: 0 40rpx 16rpx;
+.profile-module-head {
+  padding: 24rpx 40rpx 8rpx;
+  box-sizing: border-box;
   font-size: 22rpx;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: #8e8e93;
 }
 
-.profile-settings-row {
+.profile-module-row {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
-  min-height: 104rpx;
-  padding: 12rpx 36rpx;
+  min-height: 100rpx;
+  padding: 16rpx 40rpx;
 }
 
-.profile-settings-row--line {
+.profile-module-row--line {
   border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
-.profile-settings-icon-wrap {
+.profile-module-row--valign-start {
+  align-items: flex-start;
+  padding-top: 20rpx;
+  padding-bottom: 22rpx;
+}
+
+.profile-module-row--valign-start .profile-module-chevron {
+  align-self: center;
+}
+
+.profile-module-row--solo {
+  justify-content: center;
+}
+
+.profile-module-icon {
   flex-shrink: 0;
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 64rpx;
   height: 64rpx;
   margin-right: 20rpx;
   border-radius: 22rpx;
+  box-sizing: border-box;
   background-color: rgba(102, 143, 128, 0.1);
   border: 1rpx solid rgba(102, 143, 128, 0.12);
 }
 
-.profile-settings-icon {
+.profile-module-icon-emoji {
   font-size: 30rpx;
   line-height: 1;
   color: #4a6670;
 }
 
-.profile-settings-label {
+.profile-module-label {
   flex: 1;
   min-width: 0;
   font-size: 30rpx;
@@ -225,32 +240,75 @@ page {
   white-space: nowrap;
 }
 
-.profile-settings-chevron {
+.profile-module-chevron {
   flex-shrink: 0;
   margin-left: 12rpx;
   font-size: 34rpx;
   font-weight: 300;
+  line-height: 1;
   color: #c7c7cc;
 }
 
-/* ---------- 退出：次级强调，仍为 L1 ---------- */
-.profile-logout {
+.profile-module-lead {
+  flex-shrink: 0;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 20rpx;
   box-sizing: border-box;
-  margin: 0 40rpx 36rpx;
-  height: 92rpx;
-  line-height: 92rpx;
-  text-align: center;
+}
+
+.profile-module-lead--avatar {
+  padding: 2rpx;
+  border-radius: 50%;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.28);
+  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.profile-module-lead-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #f2f2f7;
+}
+
+.profile-module-lead--ph {
+  border-radius: 22rpx;
+  background-color: rgba(102, 143, 128, 0.12);
+  border: 1rpx solid rgba(102, 143, 128, 0.22);
+}
+
+.profile-module-stack {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.profile-module-strong {
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1c1c1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-module-muted {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #8e8e93;
+}
+
+.profile-module-logout {
   font-size: 30rpx;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #4a6670;
-  border-radius: 28rpx;
-  background-color: rgba(255, 255, 255, 0.96);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.02),
-    0 12px 32px rgba(0, 0, 0, 0.04),
-    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.8);
 }
 
 .profile-footer {
@@ -273,85 +331,3 @@ page {
     sans-serif;
 }
 
-/* ---------- 对象与绑定：摘要入口（详情见 partner-hub） ---------- */
-.profile-couple-peek {
-  margin: 0 40rpx 36rpx;
-  border-radius: 48rpx;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-.profile-couple-peek-inner {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 28rpx 32rpx;
-  box-sizing: border-box;
-}
-
-.profile-couple-peek-avatar-ring {
-  flex-shrink: 0;
-  width: 80rpx;
-  height: 80rpx;
-  padding: 2rpx;
-  border-radius: 50%;
-  box-sizing: border-box;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  border: 1rpx solid rgba(74, 102, 112, 0.28);
-  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.2);
-}
-
-.profile-couple-peek-avatar {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: #f2f2f7;
-}
-
-.profile-couple-peek-placeholder {
-  flex-shrink: 0;
-  width: 76rpx;
-  height: 76rpx;
-  border-radius: 24rpx;
-  box-sizing: border-box;
-  background-color: rgba(102, 143, 128, 0.12);
-  border: 1rpx solid rgba(102, 143, 128, 0.22);
-}
-
-.profile-couple-peek-text {
-  flex: 1;
-  min-width: 0;
-  margin-left: 24rpx;
-  margin-right: 12rpx;
-}
-
-.profile-couple-peek-title {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #1c1c1e;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.profile-couple-peek-sub {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  line-height: 1.45;
-  font-weight: 500;
-  color: #8e8e93;
-}
-
-.profile-couple-peek-chevron {
-  flex-shrink: 0;
-  font-size: 40rpx;
-  font-weight: 300;
-  line-height: 1;
-  color: #c7c7cc;
-}

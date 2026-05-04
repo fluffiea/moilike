@@ -18,22 +18,14 @@ import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'preferences'
 
-const SETTING_TITLES: Record<SettingId, string> = {
-  editProfile: '编辑资料',
-  preferences: '偏好设置',
-}
-
-const SETTINGS_ITEMS: { id: SettingId; icon: string }[] = [
-  { id: 'editProfile', icon: '✨' },
-  { id: 'preferences', icon: '☰' },
+const SETTINGS_ROWS: { id: SettingId; label: string; icon: string }[] = [
+  { id: 'editProfile', label: '编辑资料', icon: '✨' },
+  { id: 'preferences', label: '偏好设置', icon: '☰' },
 ]
 
-function buildSettingsRows(): { id: SettingId; label: string; icon: string }[] {
-  return SETTINGS_ITEMS.map((row) => ({
-    id: row.id,
-    icon: row.icon,
-    label: SETTING_TITLES[row.id],
-  }))
+const SETTING_NAV_URL: Record<SettingId, string> = {
+  editProfile: PAGE_EDIT_PROFILE,
+  preferences: PAGE_PREFERENCES,
 }
 
 Component({
@@ -50,7 +42,7 @@ Component({
     nickName: '未设置昵称',
     signature: '写点什么介绍自己吧。',
     tagLine: 'Moilike，只属于我们两个人',
-    settingsRows: buildSettingsRows(),
+    settingsRows: SETTINGS_ROWS,
     /** 独白摘要行：是否已绑定对象（详情见 partner-hub） */
     partner: null as MoPartner | null,
   },
@@ -123,14 +115,10 @@ Component({
     },
     onSettingTap(e: WechatMiniprogram.TouchEvent) {
       const id = e.currentTarget.dataset.id as SettingId | undefined
-      if (id === 'editProfile') {
-        wx.navigateTo({ url: PAGE_EDIT_PROFILE })
-        return
-      }
-      if (id === 'preferences') {
-        wx.navigateTo({ url: PAGE_PREFERENCES })
-        return
-      }
+      if (!id) return
+      const url = SETTING_NAV_URL[id]
+      if (!url) return
+      wx.navigateTo({ url })
     },
     onLogoutTap() {
       wx.showModal({
