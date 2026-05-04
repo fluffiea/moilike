@@ -69,7 +69,8 @@
       "name": "user",
       "pages": [
         "edit-profile/edit-profile",
-        "preferences/preferences"
+        "preferences/preferences",
+        "partner-hub/partner-hub"
       ]
     },
     {

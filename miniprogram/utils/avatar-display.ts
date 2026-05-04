@@ -1,5 +1,6 @@
 import type { TempFileUrlsCloudResult } from '../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../types/cloud'
+import type { MoPartner } from '../types/user'
 
 /** 与页面默认头像路径一致 */
 export const DEFAULT_AVATAR_PATH = '/images/default.png'
@@ -105,4 +106,9 @@ export async function mapAvatarCloudFileIdsToHttps(
     ),
   ]
   return collectAvatarTempUrlMap(unique)
+}
+
+/** 伴侣头像：在 `resolveAvatarForDisplay` 完成前用占位规则，避免 Skyline 直接请求 cloud:// */
+export function moPartnerWithPendingAvatarSrc(p: MoPartner): MoPartner {
+  return { ...p, avatarUrl: avatarImageSrcWhileCloudPending(p.avatarUrl) }
 }

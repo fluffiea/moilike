@@ -1,8 +1,8 @@
 /**
- * 独白页 · moilike-ui（高级感 · 克制层次）
- * [Layering] L0 #F2F2F7 + 顶区极淡径向（≤5%）；身份卡/设置/对象区/退出均为 L1 §2.3；顶栏 L2 glass 在 app-nav
- * [Spacing] 水平 40rpx；分栏下卡间距 32–36rpx；区块内 8rpx 阶梯
- * [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅 Tab 拇指、主操作按钮
+ * 独白页 · moilike-ui
+ * [Layering] L0 #F2F2F7 + 顶区极淡径向（≤5%）；身份卡/设置/对象与绑定/退出均为 L1 §2.3；顶栏 L2 glass 在 app-nav
+ * [Spacing] 水平 40rpx；卡间距 32–36rpx；区块内 8rpx 阶梯
+ * [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅主操作按钮、行内 CTA
  */
 
 page {
@@ -273,137 +273,29 @@ page {
     sans-serif;
 }
 
-/* ---------- 独白一级 Tab：我 / 对象（拇指位移动画 §3.1 基线） ---------- */
-.profile-tab-bar-wrap {
-  margin: 0 40rpx 28rpx;
-}
-
-.profile-tab-split {
-  position: relative;
+/* ---------- 对象与绑定：摘要入口（详情见 partner-hub） ---------- */
+.profile-couple-peek {
+  margin: 0 40rpx 36rpx;
+  border-radius: 48rpx;
   box-sizing: border-box;
-  width: 100%;
-  padding: 4rpx;
-  border-radius: 36rpx;
-  background-color: rgba(60, 60, 67, 0.07);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.profile-tab-thumb {
-  position: absolute;
-  z-index: 0;
-  left: 4rpx;
-  top: 4rpx;
-  bottom: 4rpx;
-  width: calc((100% - 12rpx) / 2);
-  box-sizing: border-box;
-  border-radius: 28rpx;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  border: 1rpx solid rgba(74, 102, 112, 0.35);
-  box-shadow:
-    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
-    0 4px 12px rgba(0, 0, 0, 0.02),
-    0 10px 24px rgba(74, 102, 112, 0.22);
-  pointer-events: none;
-  transition: transform 0.34s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.profile-tab-thumb--right {
-  transform: translateX(calc(100% + 4rpx));
-}
-
-.profile-tab-cells {
-  position: relative;
-  z-index: 1;
+.profile-couple-peek-inner {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  box-sizing: border-box;
-  width: 100%;
-  gap: 4rpx;
-}
-
-.profile-tab-cell {
-  flex: 1;
-  min-width: 0;
-  min-height: 64rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 8rpx 12rpx;
-  border-radius: 28rpx;
-  border: 1rpx solid transparent;
-  background-color: transparent;
-}
-
-.profile-tab-name {
-  font-size: 29rpx;
-  font-weight: 500;
-  line-height: 1.2;
-  color: #8e8e93;
-  transition:
-    color 0.28s cubic-bezier(0.23, 1, 0.32, 1),
-    font-weight 0.28s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.profile-tab-cell--on .profile-tab-name {
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.profile-partner-loading {
-  margin: 48rpx 40rpx;
-  padding: 40rpx;
-  text-align: center;
-  border-radius: 48rpx;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-.profile-partner-loading-text {
-  font-size: 28rpx;
-  color: #8e8e93;
-}
-
-.profile-partner-card {
-  position: relative;
-  margin: 0 40rpx 24rpx;
-  padding: 40rpx 36rpx 36rpx;
-  overflow: hidden;
-  border-radius: 56rpx;
+  padding: 28rpx 32rpx;
   box-sizing: border-box;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.profile-partner-card__wash {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 56rpx;
-  background: radial-gradient(
-    ellipse 60% 45% at 88% 12%,
-    rgba(102, 143, 128, 0.07) 0%,
-    rgba(255, 255, 255, 0) 55%
-  );
-}
-
-.profile-partner-hero {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.profile-partner-avatar-ring {
-  width: 144rpx;
-  height: 144rpx;
-  padding: 4rpx;
+.profile-couple-peek-avatar-ring {
+  flex-shrink: 0;
+  width: 80rpx;
+  height: 80rpx;
+  padding: 2rpx;
   border-radius: 50%;
   box-sizing: border-box;
   background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
@@ -411,7 +303,7 @@ page {
   box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.2);
 }
 
-.profile-partner-avatar-img {
+.profile-couple-peek-avatar {
   display: block;
   width: 100%;
   height: 100%;
@@ -419,279 +311,47 @@ page {
   background-color: #f2f2f7;
 }
 
-.profile-partner-nick {
-  margin-top: 28rpx;
-  font-size: 36rpx;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #1c1c1e;
-}
-
-.profile-partner-sign-wrap {
-  margin-top: 20rpx;
-  width: 100%;
-  padding: 22rpx 28rpx;
-  border-radius: 28rpx;
-  box-sizing: border-box;
-  background-color: rgba(251, 251, 253, 0.98);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.85);
-}
-
-.profile-partner-sign {
-  display: block;
-  text-align: center;
-  font-size: 26rpx;
-  line-height: 1.55;
-  color: #8e8e93;
-}
-
-.profile-partner-hint {
-  display: block;
-  margin: 0 40rpx 32rpx;
-  text-align: center;
-  font-size: 24rpx;
-  line-height: 1.5;
-  color: #8e8e93;
-}
-
-.profile-partner-section {
-  margin: 0 40rpx 32rpx;
-  padding: 28rpx 0 8rpx;
-  border-radius: 48rpx;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-.profile-partner-section-head {
-  padding: 0 36rpx 16rpx;
-}
-
-.profile-partner-section-title {
-  font-size: 22rpx;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: #8e8e93;
-}
-
-.profile-partner-empty {
-  padding: 24rpx 36rpx 32rpx;
-}
-
-.profile-partner-empty-text {
-  font-size: 26rpx;
-  color: #8e8e93;
-}
-
-.profile-inbound-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20rpx 32rpx 24rpx;
-  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.profile-inbound-avatar {
+.profile-couple-peek-placeholder {
   flex-shrink: 0;
-  width: 80rpx;
-  height: 80rpx;
+  width: 76rpx;
+  height: 76rpx;
   border-radius: 24rpx;
-  background-color: #f2f2f7;
+  box-sizing: border-box;
+  background-color: rgba(102, 143, 128, 0.12);
+  border: 1rpx solid rgba(102, 143, 128, 0.22);
 }
 
-.profile-inbound-main {
+.profile-couple-peek-text {
   flex: 1;
   min-width: 0;
-  margin-left: 20rpx;
-  margin-right: 16rpx;
+  margin-left: 24rpx;
+  margin-right: 12rpx;
 }
 
-.profile-inbound-name {
+.profile-couple-peek-title {
   display: block;
   font-size: 30rpx;
   font-weight: 600;
+  letter-spacing: -0.02em;
   color: #1c1c1e;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.profile-inbound-time {
+.profile-couple-peek-sub {
   display: block;
-  margin-top: 6rpx;
-  font-size: 22rpx;
-  color: #8e8e93;
-}
-
-.profile-inbound-actions {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.profile-inbound-btn {
-  box-sizing: border-box;
-  min-width: 100rpx;
-  padding: 14rpx 20rpx;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile-inbound-btn--ghost {
-  background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.profile-inbound-btn--ok {
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  border: 1rpx solid rgba(74, 102, 112, 0.35);
-  box-shadow:
-    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
-    0 4px 12px rgba(0, 0, 0, 0.02),
-    0 8px 20px rgba(74, 102, 112, 0.18);
-}
-
-.profile-inbound-btn-text {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #4a6670;
-}
-
-.profile-inbound-btn-text--light {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.profile-outbound-banner {
-  margin: 0 40rpx 32rpx;
-  padding: 28rpx 32rpx;
-  border-radius: 40rpx;
-  box-sizing: border-box;
-  background-color: rgba(102, 143, 128, 0.1);
-  border: 1rpx solid rgba(102, 143, 128, 0.18);
-}
-
-.profile-outbound-title {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #1c1c1e;
-}
-
-.profile-outbound-desc {
-  display: block;
-  margin-top: 12rpx;
+  margin-top: 8rpx;
   font-size: 24rpx;
   line-height: 1.45;
-  color: #8e8e93;
-}
-
-.profile-bind-card {
-  margin: 0 40rpx 32rpx;
-  padding: 32rpx 36rpx 36rpx;
-  border-radius: 48rpx;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-.profile-bind-label {
-  display: block;
-  font-size: 22rpx;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: #8e8e93;
-  margin-bottom: 20rpx;
-}
-
-.profile-bind-code-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20rpx;
-  margin-bottom: 16rpx;
-}
-
-.profile-bind-code {
-  flex: 1;
-  min-width: 0;
-  font-size: 40rpx;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #1c1c1e;
-}
-
-.profile-bind-copy {
-  flex-shrink: 0;
-  padding: 14rpx 28rpx;
-  border-radius: 24rpx;
-  background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.profile-bind-copy-text {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #4a6670;
-}
-
-.profile-bind-tip {
-  display: block;
-  font-size: 24rpx;
-  line-height: 1.45;
-  color: #8e8e93;
-}
-
-.profile-bind-input {
-  box-sizing: border-box;
-  width: 100%;
-  height: 88rpx;
-  padding: 0 28rpx;
-  margin-bottom: 24rpx;
-  border-radius: 28rpx;
-  font-size: 30rpx;
   font-weight: 500;
-  color: #1c1c1e;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.profile-bind-ph {
   color: #8e8e93;
 }
 
-.profile-bind-submit {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 88rpx;
-  padding: 24rpx 32rpx;
-  border-radius: 28rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  border: 1rpx solid rgba(74, 102, 112, 0.35);
-  box-shadow:
-    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
-    0 4px 12px rgba(0, 0, 0, 0.02),
-    0 12px 28px rgba(74, 102, 112, 0.22);
-}
-
-.profile-bind-submit--disabled {
-  opacity: 0.38;
-  pointer-events: none;
-}
-
-.profile-bind-submit-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.03em;
+.profile-couple-peek-chevron {
+  flex-shrink: 0;
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+  color: #c7c7cc;
 }

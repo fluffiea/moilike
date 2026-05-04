@@ -1,0 +1,123 @@
+<!--
+  [Layering] L0 #F2F2F7 · L1 对象卡/申请/绑定白卡 §2.3 · 顶栏 L2 app-nav glass
+  [Spacing] 水平 40rpx；卡间距 32rpx；8rpx 阶梯
+  [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅主按钮
+-->
+<view class="hub-shell">
+  <app-nav title="恋爱与绑定" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+  <scroll-view class="hub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hub-scroll-body">
+      <view wx:if="{{partnerLoading}}" class="hub-loading">
+        <text class="hub-loading-text">正在为你同步…</text>
+      </view>
+
+      <block wx:elif="{{partner && partner.openId}}">
+        <view class="profile-partner-card">
+          <view class="profile-partner-card__wash" aria-hidden="true" />
+          <view class="profile-partner-hero">
+            <view class="profile-partner-avatar-ring">
+              <image
+                class="profile-partner-avatar-img"
+                src="{{partner.avatarUrl || defaultAvatar}}"
+                mode="aspectFill"
+                binderror="onPartnerAvatarError"
+              />
+            </view>
+            <text class="profile-partner-nick">{{partner.nickName}}</text>
+            <view class="profile-partner-sign-wrap">
+              <text class="profile-partner-sign">{{partner.signature || '对方暂未填写签名'}}</text>
+            </view>
+          </view>
+        </view>
+        <text class="profile-partner-hint">你们已为彼此锁定这段恋爱关系</text>
+      </block>
+
+      <block wx:else>
+        <view class="profile-partner-section">
+          <view class="profile-partner-section-head">
+            <text class="profile-partner-section-title">对方发来的申请</text>
+          </view>
+          <view wx:if="{{inboundList.length === 0}}" class="profile-partner-empty">
+            <text class="profile-partner-empty-text">暂时还没有新的申请</text>
+          </view>
+          <view wx:for="{{inboundList}}" wx:key="id" class="profile-inbound-row">
+            <image
+              class="profile-inbound-avatar"
+              src="{{item.fromAvatarUrl || defaultAvatar}}"
+              mode="aspectFill"
+              data-index="{{index}}"
+              binderror="onInboundAvatarError"
+            />
+            <view class="profile-inbound-main">
+              <text class="profile-inbound-name">{{item.fromNickName}}</text>
+              <text wx:if="{{item.timeLabel}}" class="profile-inbound-time">{{item.timeLabel}}</text>
+            </view>
+            <view class="profile-inbound-actions">
+              <view
+                class="profile-inbound-btn profile-inbound-btn--ghost"
+                data-id="{{item.id}}"
+                data-kind="reject"
+                catch:tap="onRespondBind"
+                aria-role="button"
+                aria-label="拒绝 {{item.fromNickName}} 的结伴邀请"
+              >
+                <text class="profile-inbound-btn-text">拒绝</text>
+              </view>
+              <view
+                class="profile-inbound-btn profile-inbound-btn--ok"
+                data-id="{{item.id}}"
+                data-kind="accept"
+                catch:tap="onRespondBind"
+                aria-role="button"
+                aria-label="同意与 {{item.fromNickName}} 结伴"
+              >
+                <text class="profile-inbound-btn-text profile-inbound-btn-text--light">同意</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{outboundPending}}" class="profile-outbound-banner">
+          <text class="profile-outbound-title">等待对方回应</text>
+          <text class="profile-outbound-desc">已向「{{outboundPending.toNickName}}」发出结伴邀请<text wx:if="{{outboundPending.timeLabel}}"> · {{outboundPending.timeLabel}}</text></text>
+        </view>
+
+        <view class="profile-bind-card">
+          <text class="profile-bind-label">你的绑定码</text>
+          <view class="profile-bind-code-row">
+            <text class="profile-bind-code" selectable="true">{{myBindCode || '—'}}</text>
+            <view
+              class="profile-bind-copy"
+              bind:tap="onCopyBindCode"
+              aria-role="button"
+              aria-label="复制绑定码"
+            >
+              <text class="profile-bind-copy-text">复制</text>
+            </view>
+          </view>
+          <text class="profile-bind-tip">请把绑定码私下发给对方。对方在本页底部填入后，你会在上方列表里看到一条待确认的结伴申请。</text>
+        </view>
+
+        <view class="profile-bind-card">
+          <text class="profile-bind-label">用对方的绑定码发起申请</text>
+          <input
+            class="profile-bind-input"
+            value="{{bindCodeDraft}}"
+            bindinput="onBindCodeInput"
+            placeholder="粘贴或输入对方分享给你的绑定码"
+            placeholder-class="profile-bind-ph"
+            maxlength="16"
+          />
+          <view
+            class="profile-bind-submit {{outboundPending ? 'profile-bind-submit--disabled' : ''}}"
+            bind:tap="onRequestBindTap"
+            aria-role="button"
+            aria-label="发送结伴申请"
+          >
+            <text class="profile-bind-submit-text">发送结伴申请</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>
