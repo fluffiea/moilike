@@ -22,6 +22,10 @@ export type MoUser = {
   avatarUrl?: string
   partnerOpenId?: string | null
   partner: MoPartner | null
+  /**
+   * 结伴双方约定的「在一起」起始 UTC 毫秒（云库存分钟对齐）；getProfile / getPartnerPanel 返回。
+   */
+  togetherSinceMs?: number
   /** 偏好设置（按用户持久化） */
   preferences?: MoPreferences | null
 }

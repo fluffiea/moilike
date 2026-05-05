@@ -41,6 +41,11 @@ export type PartnerPanelCloudResult =
 /** 云函数 user · requestBind / respondBind（reject 分支） */
 export type PartnerActionVoidCloudResult = { ok: true } | { ok: false; error?: string }
 
+/** 云函数 user · action setTogetherSince */
+export type SetTogetherSinceCloudResult =
+  | { ok: true; user: MoUser }
+  | { ok: false; error?: string }
+
 /** 云函数返回：临时下载 URL 映射（user.getTempFileURLs、daily.getDailyMediaTempURLs 形状一致） */
 export type TempFileUrlsCloudResult =
   | { ok: true; urls: Record<string, string> }

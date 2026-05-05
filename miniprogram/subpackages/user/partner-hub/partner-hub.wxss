@@ -134,6 +134,123 @@ page {
   color: #8e8e93;
 }
 
+/* —— 在一起的时间（L1 白卡） —— */
+.together-card {
+  position: relative;
+  margin: 0 40rpx 32rpx;
+  padding: 36rpx 32rpx 32rpx;
+  overflow: hidden;
+  border-radius: 48rpx;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.together-card__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 48rpx;
+  background: radial-gradient(
+    ellipse 55% 40% at 12% 0%,
+    rgba(214, 162, 173, 0.09) 0%,
+    rgba(255, 255, 255, 0) 55%
+  );
+}
+
+.together-card__title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  margin-bottom: 12rpx;
+}
+
+.together-card__desc {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #8e8e93;
+  margin-bottom: 20rpx;
+}
+
+.together-card__saved {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #4a6670;
+  margin-bottom: 24rpx;
+}
+
+.together-pickers {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.together-picker-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.together-picker-lab {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #8e8e93;
+  margin-bottom: 12rpx;
+}
+
+.together-picker-val {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 80rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 28rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.together-save {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 88rpx;
+  padding: 24rpx 32rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.35);
+  box-shadow:
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.02),
+    0 12px 28px rgba(74, 102, 112, 0.22);
+}
+
+.together-save-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.03em;
+}
+
 .profile-partner-section {
   margin: 0 40rpx 32rpx;
   padding: 28rpx 0 8rpx;

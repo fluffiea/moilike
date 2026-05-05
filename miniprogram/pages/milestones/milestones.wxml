@@ -1,9 +1,121 @@
-<view class="page-shell">
+<!--
+  [Layering] L0 #F2F2F7 · L1 白卡 §2.3 · 顶栏白底
+  [Spacing] 头像行留白加大；中线为「臂 + 结扣」装饰链
+  [Palette] #1C1C1E / #8E8E93；teal 点缀链接与主按钮
+-->
+<view class="ms-shell">
   <app-nav title="朝夕" bg="#ffffff" />
-  <scroll-view class="page-scroll" scroll-y type="list">
-    <view class="placeholder">
-      <text class="placeholder-title">朝夕</text>
-      <text class="placeholder-desc">纪念日与重要日子（待开发）</text>
+  <scroll-view class="ms-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="ms-body">
+      <!-- msBoot 与 scene 分支分层：避免与 msBoot 串在同一 wx:if/elif 链上时，部分环境下 scene 分支被跳过 -->
+      <block wx:if="{{msBoot}}">
+        <view class="ms-card">
+          <view class="ms-card__body ms-card__body--solo">
+            <text class="ms-card__title">朝夕</text>
+            <text class="ms-card__desc ms-card__desc--muted">正在同步资料…</text>
+          </view>
+        </view>
+      </block>
+      <block wx:else>
+        <block wx:if="{{scene === 'needPartner'}}">
+          <view class="ms-card">
+            <view class="ms-card__body">
+              <text class="ms-card__title">先把 Ta 接到身边</text>
+              <text class="ms-card__desc">朝夕只给已经结伴的两个人用。绑定关系之后，这里才会为你们亮起一盏小小的计时灯。</text>
+            </view>
+            <view class="ms-card__footer">
+              <view class="ms-cta" bind:tap="onOpenPartnerHub" aria-role="button">
+                <text class="ms-cta-text">去绑定结伴</text>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <block wx:elif="{{scene === 'needSet'}}">
+          <view class="ms-card">
+            <view class="ms-card__body">
+              <text class="ms-card__title">还差纪念日这一笔</text>
+              <text class="ms-card__desc">在独白打开「恋爱与绑定」，选你们心里认定的那一天、那一刻（精确到分钟）。保存后，两个人的朝夕会共用同一枚起点。</text>
+            </view>
+            <view class="ms-card__footer">
+              <view class="ms-cta" bind:tap="onOpenPartnerHub" aria-role="button">
+                <text class="ms-cta-text">去选纪念日</text>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <block wx:elif="{{scene === 'hero'}}">
+          <view class="ms-hero">
+            <view class="ms-hero__inner">
+              <text class="ms-hero__kicker">你们的朝夕</text>
+              <text class="ms-hero__nick">{{partnerNickLine}}</text>
+
+              <view class="ms-hero-portrait">
+                <view class="ms-avatars">
+                  <view class="ms-avatar-ring">
+                    <image
+                      class="ms-avatar-img"
+                      src="{{myAvatarUrl || defaultAvatar}}"
+                      mode="aspectFill"
+                      binderror="onMyAvatarError"
+                    />
+                  </view>
+                  <view class="ms-avatar-link" aria-hidden="true">
+                    <view class="ms-avatar-link__arm" />
+                    <view class="ms-avatar-link__knot">
+                      <view class="ms-avatar-link__knot-dot" />
+                    </view>
+                    <view class="ms-avatar-link__arm" />
+                  </view>
+                  <view class="ms-avatar-ring">
+                    <image
+                      class="ms-avatar-img"
+                      src="{{partnerAvatarUrl || defaultAvatar}}"
+                      mode="aspectFill"
+                      binderror="onPartnerAvatarError"
+                    />
+                  </view>
+                </view>
+              </view>
+
+              <view class="ms-hero__divider" aria-hidden="true" />
+
+              <view class="ms-hero__quote">
+                <text class="ms-hero__sub">{{togetherSubtitle}}</text>
+              </view>
+
+              <view class="ms-count-grid">
+                <view class="ms-count-cell ms-count-cell--days">
+                  <text class="ms-count-val">{{togetherDaysStr}}</text>
+                  <text class="ms-count-lab">天</text>
+                </view>
+                <view class="ms-count-cell">
+                  <text class="ms-count-val">{{togetherHoursStr}}</text>
+                  <text class="ms-count-lab">时</text>
+                </view>
+                <view class="ms-count-cell">
+                  <text class="ms-count-val">{{togetherMinutesStr}}</text>
+                  <text class="ms-count-lab">分</text>
+                </view>
+                <view class="ms-count-cell ms-count-cell--last">
+                  <text class="ms-count-val">{{togetherSecondsStr}}</text>
+                  <text class="ms-count-lab">秒</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <block wx:else>
+          <view class="ms-card">
+            <view class="ms-card__body ms-card__body--solo">
+              <text class="ms-card__title">朝夕</text>
+              <text class="ms-card__desc">登录之后，这里才会为你们留住时间。</text>
+            </view>
+          </view>
+        </block>
+      </block>
     </view>
   </scroll-view>
 </view>

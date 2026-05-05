@@ -1,13 +1,22 @@
 import { redirectIfNotAuthed } from '../../../utils/auth-guard'
-import type {
-  PartnerActionVoidCloudResult,
-  PartnerBindInboundItem,
-  PartnerOutboundPendingItem,
-  PartnerPanelCloudResult,
+import {
+  USER_CLOUD_FUNCTION,
+  type PartnerActionVoidCloudResult,
+  type PartnerBindInboundItem,
+  type PartnerOutboundPendingItem,
+  type PartnerPanelCloudResult,
+  type SetTogetherSinceCloudResult,
 } from '../../../types/cloud'
-import { USER_CLOUD_FUNCTION } from '../../../types/cloud'
 import { TAB_PROFILE } from '../../../constants/paths'
-import type { MoPartner } from '../../../types/user'
+import type { MoPartner, MoUser } from '../../../types/user'
+import {
+  floorToMinuteMs,
+  formatMsToDateStr,
+  formatMsToTimeStr,
+  formatTogetherSavedLabelCn,
+  parseLocalDateTimeToMs,
+} from '../../../utils/together-since'
+import { togetherSinceMsFromUser } from '../../../utils/togetherSinceMs'
 import {
   DEFAULT_AVATAR_PATH,
   moPartnerWithPendingAvatarSrc,
@@ -19,7 +28,11 @@ import moSession from '../../../utils/session'
 const NETWORK_UNSTABLE_TOAST = '网络不太稳定，请稍后再试'
 
 function messageFromPartnerCloudFailure(
-  result: PartnerPanelCloudResult | PartnerActionVoidCloudResult | undefined,
+  result:
+    | PartnerPanelCloudResult
+    | PartnerActionVoidCloudResult
+    | SetTogetherSinceCloudResult
+    | undefined,
   fallback: string,
 ): string {
   if (result && result.ok === false) {
@@ -45,13 +58,35 @@ Component({
     bindCodeDraft: '',
     inboundList: [] as PartnerBindInboundItem[],
     outboundPending: null as PartnerOutboundPendingItem | null,
+    togetherDateStr: '',
+    togetherTimeStr: '',
+    togetherSavedLabel: '',
   },
   methods: {
+    syncTogetherPickersFromUser(u: MoUser | null) {
+      const now = Date.now()
+      const emptyLabelPickers = {
+        togetherSavedLabel: '',
+        togetherDateStr: formatMsToDateStr(now),
+        togetherTimeStr: formatMsToTimeStr(now),
+      }
+      const ms = u ? togetherSinceMsFromUser(u) : null
+      if (ms == null) {
+        this.setData(emptyLabelPickers)
+        return
+      }
+      this.setData({
+        togetherSavedLabel: formatTogetherSavedLabelCn(ms),
+        togetherDateStr: formatMsToDateStr(ms),
+        togetherTimeStr: formatMsToTimeStr(ms),
+      })
+    },
     applyLocalPartner() {
       const u = moSession.loadMoUser()
       if (!u) return
       const partner = u.partner != null ? moPartnerWithPendingAvatarSrc(u.partner) : null
       this.setData({ partner })
+      this.syncTogetherPickersFromUser(u)
       void this.resolvePartnerAvatar()
     },
     async resolvePartnerAvatar() {
@@ -85,7 +120,10 @@ Component({
       this.setData({ [`inboundList[${idx}].fromAvatarUrl`]: DEFAULT_AVATAR_PATH })
     },
     async loadPartnerPanel() {
-      if (!wx.cloud) return
+      if (!wx.cloud) {
+        this.setData({ partnerLoading: false })
+        return
+      }
       this.setData({ partnerLoading: true })
       try {
         const res = await wx.cloud.callFunction({
@@ -98,7 +136,6 @@ Component({
             title: messageFromPartnerCloudFailure(result, '同步失败，请稍后再试'),
             icon: 'none',
           })
-          this.setData({ partnerLoading: false })
           return
         }
         moSession.saveMoUser(result.user)
@@ -114,10 +151,10 @@ Component({
           myBindCode: result.myBindCode,
           inboundList,
           outboundPending: result.outboundPending,
-          partnerLoading: false,
         })
       } catch (_e) {
         wx.showToast({ title: NETWORK_UNSTABLE_TOAST, icon: 'none' })
+      } finally {
         this.setData({ partnerLoading: false })
       }
     },
@@ -212,6 +249,58 @@ Component({
         }
         wx.showToast({ title: accept ? '结伴成功' : '已拒绝', icon: 'none' })
         void this.loadPartnerPanel()
+      } catch (_e) {
+        wx.hideLoading()
+        wx.showToast({ title: NETWORK_UNSTABLE_TOAST, icon: 'none' })
+      }
+    },
+    onTogetherDateChange(e: WechatMiniprogram.PickerChange) {
+      this.applyTogetherPickerValue(e, 'togetherDateStr')
+    },
+    onTogetherTimeChange(e: WechatMiniprogram.PickerChange) {
+      this.applyTogetherPickerValue(e, 'togetherTimeStr')
+    },
+    applyTogetherPickerValue(e: WechatMiniprogram.PickerChange, field: 'togetherDateStr' | 'togetherTimeStr') {
+      const v = e.detail && typeof e.detail.value === 'string' ? e.detail.value : ''
+      if (!v) return
+      if (field === 'togetherDateStr') {
+        this.setData({ togetherDateStr: v })
+      } else {
+        this.setData({ togetherTimeStr: v })
+      }
+    },
+    async onSaveTogetherSinceTap() {
+      if (!wx.cloud) return
+      const dateStr = this.data.togetherDateStr
+      const timeStr = this.data.togetherTimeStr
+      const parsed = parseLocalDateTimeToMs(dateStr, timeStr)
+      if (!Number.isFinite(parsed)) {
+        wx.showToast({ title: '请先选齐日期与时间', icon: 'none' })
+        return
+      }
+      const sinceMs = floorToMinuteMs(parsed)
+      if (!Number.isFinite(sinceMs)) {
+        wx.showToast({ title: '时间无效', icon: 'none' })
+        return
+      }
+      try {
+        wx.showLoading({ title: '保存中…', mask: true })
+        const res = await wx.cloud.callFunction({
+          name: USER_CLOUD_FUNCTION,
+          data: { action: 'setTogetherSince', togetherSinceMs: sinceMs },
+        })
+        wx.hideLoading()
+        const result = res.result as SetTogetherSinceCloudResult
+        if (!result || result.ok !== true || !result.user) {
+          wx.showToast({
+            title: messageFromPartnerCloudFailure(result, '保存失败，请稍后再试'),
+            icon: 'none',
+          })
+          return
+        }
+        moSession.saveMoUser(result.user)
+        this.applyLocalPartner()
+        wx.showToast({ title: '纪念日已保存', icon: 'success' })
       } catch (_e) {
         wx.hideLoading()
         wx.showToast({ title: NETWORK_UNSTABLE_TOAST, icon: 'none' })

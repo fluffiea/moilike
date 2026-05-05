@@ -85,7 +85,8 @@ function toPublicUser(doc, openIdFallback) {
       : {}
   const hasPrefs = Object.keys(preferences).length > 0
 
-  return {
+  /** @type {Record<string, unknown>} */
+  const userOut = {
     openId,
     nickName: typeof row.nickName === 'string' ? row.nickName : '',
     signature: typeof row.signature === 'string' ? row.signature : '',
@@ -94,6 +95,10 @@ function toPublicUser(doc, openIdFallback) {
     partner,
     ...(hasPrefs ? { preferences } : {}),
   }
+  if (typeof row.togetherSinceMs === 'number' && !Number.isNaN(row.togetherSinceMs)) {
+    userOut.togetherSinceMs = Math.floor(row.togetherSinceMs)
+  }
+  return userOut
 }
 
 function isDocNotFound(err) {
@@ -228,6 +233,25 @@ function normalizeUserDocIdValue(raw) {
   }
   const s = String(raw)
   return s && s !== 'undefined' && s !== '[object Object]' ? s : ''
+}
+
+/**
+ * 新结伴生效时清空双方旧的「在一起」时间戳（若存在），避免沿用上段关系数据。
+ * @param {import('wx-server-sdk').DB.CollectionReference} users
+ * @param {import('wx-server-sdk').DB.Database} db
+ * @param {Record<string, unknown>} userDocA
+ * @param {Record<string, unknown>} userDocB
+ */
+async function clearTogetherSinceForPair(users, db, userDocA, userDocB) {
+  const _ = db.command
+  const idA = normalizeUserDocIdValue(userDocA && userDocA._id)
+  const idB = normalizeUserDocIdValue(userDocB && userDocB._id)
+  if (!idA || !idB) return
+  const t = db.serverDate()
+  await Promise.all([
+    usersDocUpdateTry(users, idA, { togetherSinceMs: _.remove(), updatedAt: t }),
+    usersDocUpdateTry(users, idB, { togetherSinceMs: _.remove(), updatedAt: t }),
+  ])
 }
 
 /**
@@ -430,6 +454,7 @@ async function ensureUserBindCode(db, users, OPENID) {
  *   requestId?: string,
  *   accept?: boolean,
  *   fileIDs?: string[],
+ *   togetherSinceMs?: number | string,
  * }} event
  */
 exports.main = async (event) => {
@@ -565,6 +590,56 @@ exports.main = async (event) => {
           },
         })
       }
+
+      const saved = await users.doc(OPENID).get()
+      const user = toPublicUser(saved.data, OPENID)
+      if (!user) {
+        return { ok: false, error: '写入后读取用户失败' }
+      }
+      return { ok: true, user }
+    }
+
+    if (event.action === 'setTogetherSince') {
+      const raw = event.togetherSinceMs
+      let since = NaN
+      if (typeof raw === 'number' && !Number.isNaN(raw)) {
+        since = raw
+      } else if (typeof raw === 'string') {
+        since = parseInt(raw.trim(), 10)
+      }
+      if (!Number.isFinite(since)) {
+        return { ok: false, error: '时间无效' }
+      }
+      since = Math.floor(since / 60000) * 60000
+
+      let me
+      try {
+        me = (await users.doc(OPENID).get()).data
+      } catch (e) {
+        if (isDocNotFound(e)) return { ok: false, error: '请先完善资料' }
+        throw e
+      }
+      const pidRaw = me && typeof me.partnerOpenId === 'string' ? me.partnerOpenId.trim() : ''
+      const rawP = me && me.partner != null && typeof me.partner === 'object' ? me.partner : null
+      const pOid =
+        rawP && typeof rawP.openId === 'string' && rawP.openId.trim() ? rawP.openId.trim() : ''
+      if (!pidRaw || !pOid || pOid !== pidRaw) {
+        return { ok: false, error: '仅结伴后可设置' }
+      }
+
+      const now = Date.now()
+      if (since > now + 120000) {
+        return { ok: false, error: '不能选择未来时间' }
+      }
+      const minMs = new Date(1970, 0, 2).getTime()
+      if (since < minMs) {
+        return { ok: false, error: '日期太早了' }
+      }
+
+      const t = db.serverDate()
+      const patch = { togetherSinceMs: since, updatedAt: t }
+      await usersDocUpdateTry(users, OPENID, patch)
+      await usersDocUpdateTry(users, pidRaw, patch)
 
       const saved = await users.doc(OPENID).get()
       const user = toPublicUser(saved.data, OPENID)
@@ -845,6 +920,12 @@ exports.main = async (event) => {
       }
 
       await voidPendingBindRequestsForPair(db, bindReq, fromId, OPENID)
+
+      try {
+        await clearTogetherSinceForPair(users, db, fromDoc, toDoc)
+      } catch (eClear) {
+        console.error('respondBind clearTogetherSince', eClear)
+      }
 
       return { ok: true }
     }

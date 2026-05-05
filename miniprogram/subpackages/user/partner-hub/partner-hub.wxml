@@ -29,7 +29,32 @@
             </view>
           </view>
         </view>
-        <text class="profile-partner-hint">你们已为彼此锁定这段恋爱关系</text>
+
+        <view class="together-card">
+          <view class="together-card__wash" aria-hidden="true" />
+          <text class="together-card__title">纪念日</text>
+          <text class="together-card__desc">选你们心里认定的那一天、那一刻，精确到分钟。保存后，双方资料一致，朝夕页会从这一刻起为你们读秒。</text>
+          <text wx:if="{{togetherSavedLabel}}" class="together-card__saved">{{togetherSavedLabel}}</text>
+          <view class="together-pickers">
+            <view class="together-picker-col">
+              <text class="together-picker-lab">那一天</text>
+              <picker mode="date" value="{{togetherDateStr}}" bindchange="onTogetherDateChange">
+                <view class="together-picker-val" aria-role="button">{{togetherDateStr}}</view>
+              </picker>
+            </view>
+            <view class="together-picker-col">
+              <text class="together-picker-lab">那一刻</text>
+              <picker mode="time" value="{{togetherTimeStr}}" bindchange="onTogetherTimeChange">
+                <view class="together-picker-val" aria-role="button">{{togetherTimeStr}}</view>
+              </picker>
+            </view>
+          </view>
+          <view class="together-save" bind:tap="onSaveTogetherSinceTap" aria-role="button" aria-label="保存纪念日并同步给对方">
+            <text class="together-save-text">保存并同步</text>
+          </view>
+        </view>
+
+        <text class="profile-partner-hint">关系已锁定，剩下的日子慢慢写就好</text>
       </block>
 
       <block wx:else>
