@@ -28,4 +28,6 @@ export type MoUser = {
   togetherSinceMs?: number
   /** 偏好设置（按用户持久化） */
   preferences?: MoPreferences | null
+  /** 报备自定义标签（云函数 listReportTags 会与默认「干饭」合并） */
+  reportTags?: string[]
 }

@@ -1,0 +1,141 @@
+<!--
+  [Layering] 对齐写日常页 · L1 白卡 · app-nav glass
+-->
+<view class="report-compose-page">
+  <view class="report-compose-bg" aria-hidden="true">
+    <view class="report-compose-bg-wash" />
+  </view>
+
+  <view class="report-compose-stack">
+    <app-nav title="{{navTitle}}" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+
+    <scroll-view class="report-compose-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}" bounces="{{true}}">
+      <view class="report-compose-scroll-inner">
+        <view class="report-compose-sheet">
+          <text class="report-compose-kicker">{{heroKicker}}</text>
+
+          <view class="report-compose-block">
+            <view class="report-compose-row">
+              <text class="report-compose-label">正文</text>
+              <text class="report-compose-meta-inline">{{text.length}} / 2000</text>
+            </view>
+            <view class="report-compose-field-shell">
+              <textarea
+                id="{{textareaMountKey}}"
+                class="report-compose-textarea"
+                placeholder="写报备内容…"
+                placeholder-class="report-compose-placeholder"
+                maxlength="{{2000}}"
+                model:value="{{text}}"
+                bindinput="onTextInput"
+                auto-height
+                show-confirm-bar="{{false}}"
+                cursor-spacing="{{24}}"
+              />
+            </view>
+          </view>
+
+          <view class="report-compose-rule" aria-hidden="true" />
+
+          <view class="report-compose-block">
+            <view class="report-compose-row">
+              <text class="report-compose-label">记录时间</text>
+            </view>
+            <view class="report-compose-pickers">
+              <view class="report-compose-picker-col">
+                <text class="report-compose-picker-lab">那一天</text>
+                <picker mode="date" value="{{recordDateStr}}" bindchange="onRecordDateChange">
+                  <view class="report-compose-picker-val" aria-role="button">{{recordDateStr}}</view>
+                </picker>
+              </view>
+              <view class="report-compose-picker-col">
+                <text class="report-compose-picker-lab">那一刻</text>
+                <picker mode="time" value="{{recordTimeStr}}" bindchange="onRecordTimeChange">
+                  <view class="report-compose-picker-val" aria-role="button">{{recordTimeStr}}</view>
+                </picker>
+              </view>
+            </view>
+          </view>
+
+          <view class="report-compose-rule" aria-hidden="true" />
+
+          <view class="report-compose-block">
+            <view class="report-compose-row">
+              <text class="report-compose-label">标签</text>
+              <text class="report-compose-meta-inline">可多选</text>
+            </view>
+            <text class="report-compose-hint">轻点选择；没有想要的可下方添加</text>
+            <view class="report-compose-tag-wrap">
+              <view
+                wx:for="{{tagRows}}"
+                wx:key="name"
+                class="report-compose-tag-chip {{item.selected ? 'report-compose-tag-chip--on' : ''}}"
+                data-tag="{{item.name}}"
+                bind:tap="onToggleTag"
+                aria-role="button"
+                aria-pressed="{{item.selected}}"
+              >
+                <text class="report-compose-tag-chip-text">{{item.name}}</text>
+              </view>
+            </view>
+            <view class="report-compose-add-tag-row">
+              <input
+                class="report-compose-add-tag-input"
+                value="{{newTagDraft}}"
+                bindinput="onNewTagInput"
+                placeholder="新标签"
+                placeholder-class="report-compose-placeholder"
+                maxlength="{{16}}"
+              />
+              <view class="report-compose-add-tag-btn" bind:tap="onAddCustomTag" aria-role="button">
+                <text class="report-compose-add-tag-btn-text">添加</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="report-compose-rule" aria-hidden="true" />
+
+          <view class="report-compose-block report-compose-block--flush">
+            <view class="report-compose-row">
+              <text class="report-compose-label">配图</text>
+              <view class="report-compose-chip">
+                <text class="report-compose-chip-text">{{images.length}} / 9</text>
+              </view>
+            </view>
+            <text class="report-compose-hint">可选 · 轻点相册 / 长按拍摄</text>
+
+            <view class="report-compose-grid" aria-label="配图网格">
+              <view wx:for="{{images}}" wx:for-index="imgIdx" wx:key="imgIdx" class="report-compose-cell report-compose-cell--pic">
+                <image class="report-compose-thumb" src="{{imageDisplays[imgIdx]}}" mode="aspectFill" />
+                <view class="report-compose-remove" data-index="{{imgIdx}}" catch:tap="onRemoveImage" aria-role="button" aria-label="删除此图">
+                  <view class="report-compose-remove-x">×</view>
+                </view>
+              </view>
+
+              <view wx:if="{{images.length < 9}}" class="report-compose-cell report-compose-cell--add">
+                <view class="report-compose-add-fill" bind:tap="onAddImagesFromAlbum" bind:longpress="onAddImagesFromCamera" aria-role="button" aria-label="添加图片，轻点相册或长按拍摄">
+                  <text class="report-compose-add-plus">+</text>
+                  <text class="report-compose-add-line">添加</text>
+                  <text class="report-compose-add-sub">还可 {{9 - images.length}} 张</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="report-compose-scroll-pad" />
+      </view>
+    </scroll-view>
+
+    <view class="report-compose-footer">
+      <view wx:if="{{!canSubmit}}" class="report-compose-footer-hint">
+        <text class="report-compose-footer-hint-text">填写文字或添加图片后即可提交</text>
+      </view>
+      <view class="report-compose-footer-inner">
+        <view class="report-compose-publish {{canSubmit ? '' : 'report-compose-publish--disabled'}}" bind:tap="onSubmit" aria-role="button" aria-label="{{editId ? '保存修改' : '发布报备'}}">
+          <text class="report-compose-publish-label">{{editId ? '保存修改' : '发布报备'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

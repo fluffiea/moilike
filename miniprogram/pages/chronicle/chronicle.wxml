@@ -223,32 +223,55 @@
         bounces="{{true}}"
         enable-passive="{{true}}"
         cache-extent="320"
+        refresher-enabled="{{true}}"
+        refresher-triggered="{{reportRefreshing}}"
+        bindrefresherrefresh="onReportRefresh"
+        bindscrolltolower="onReportScrollToLower"
+        lower-threshold="{{120}}"
       >
         <view class="chronicle-scroll-body">
-          <view wx:for="{{reportDisplayList}}" wx:key="id" class="report-card">
+          <view
+            wx:for="{{reportList}}"
+            wx:key="id"
+            list-item
+            class="report-card"
+            data-id="{{item.id}}"
+            bind:tap="onReportCardTap"
+            bind:longpress="onReportPostLongPress"
+          >
             <view class="report-card-head">
               <view class="report-head-main">
                 <text class="report-name">{{item.userName}}</text>
                 <text class="report-name-suffix"> 的报备</text>
               </view>
-              <view class="report-tag">{{item.tag}}</view>
+              <view class="report-status-pill" aria-label="状态">{{item.statusLabel}}</view>
             </view>
-            <text class="report-publish">发布 {{item.publishTime}}</text>
-            <view class="report-media">
-              <text class="feed-media-placeholder">加载中</text>
+            <view class="report-tag-row">
+              <view wx:for="{{item.tagChips}}" wx:for-item="chip" wx:key="name" class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}">
+                <text class="report-tag-chip-text">{{chip.name}}</text>
+              </view>
+            </view>
+            <text class="report-record-line">记录 {{item.recordTimeStr}}</text>
+            <text class="report-publish-sub">发布 {{item.publishTimeStr}}</text>
+            <view wx:if="{{item.images && item.images.length}}" class="report-media report-media--grid">
+              <view wx:for="{{item.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-media-cell">
+                <image class="report-media-thumb" src="{{img}}" mode="aspectFill" data-post-id="{{item.id}}" data-img-index="{{ix}}" catch:tap="onReportImageTap" />
+              </view>
             </view>
             <view class="report-body-wrap">
               <text class="report-body">{{item.body}}</text>
-              <view wx:if="{{item.readByMe}}" class="report-stamp">已阅</view>
             </view>
-            <view wx:if="{{item.comments.length}}" class="report-comments">
-              <block wx:for="{{item.comments}}" wx:key="index" wx:for-item="c">
-                <text class="report-comment-line">{{c.user}}：{{c.text}}</text>
-              </block>
+            <view wx:if="{{item.partnerEvalText}}" class="report-eval-box">
+              <text class="report-eval-label">对方评价</text>
+              <text class="report-eval-text">{{item.partnerEvalText}}</text>
             </view>
           </view>
-          <view wx:if="{{reportDisplayList.length === 0}}" class="chronicle-empty">
-            <text>暂无内容</text>
+          <view wx:if="{{reportList.length === 0 && !reportBootstrapping}}" class="chronicle-empty">
+            <text class="chronicle-empty-title">还没有报备</text>
+            <text class="chronicle-empty-hint">记录一件想告诉对方的小事</text>
+            <view class="chronicle-compose-fab chronicle-compose-fab--in-empty" bind:tap="onEmptyReportComposeTap" aria-role="button" aria-label="写一条报备">
+              <template is="chronicle-compose-plus" />
+            </view>
           </view>
           <view class="chronicle-scroll-pad" />
         </view>
@@ -256,15 +279,16 @@
     </swiper-item>
   </swiper>
 
-  <view
-    wx:if="{{mainModule === 'daily'}}"
-    class="chronicle-compose-fab chronicle-compose-fab--fixed"
-    bind:tap="onFabTap"
-    aria-role="button"
-    aria-label="写日常"
-  >
-    <template is="chronicle-compose-plus" />
-  </view>
+  <block wx:if="{{mainModule === 'daily'}}">
+    <view class="chronicle-compose-fab chronicle-compose-fab--fixed" bind:tap="onFabTap" aria-role="button" aria-label="写日常">
+      <template is="chronicle-compose-plus" />
+    </view>
+  </block>
+  <block wx:elif="{{mainModule === 'report'}}">
+    <view class="chronicle-compose-fab chronicle-compose-fab--fixed" bind:tap="onReportFabTap" aria-role="button" aria-label="写报备">
+      <template is="chronicle-compose-plus" />
+    </view>
+  </block>
 
   <template name="chronicle-compose-plus">
     <view class="chronicle-compose-fab__plus" aria-hidden="true">

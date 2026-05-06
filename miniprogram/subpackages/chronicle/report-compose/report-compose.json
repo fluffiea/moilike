@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {
+    "app-nav": "../../../components/app-nav/app-nav"
+  }
+}

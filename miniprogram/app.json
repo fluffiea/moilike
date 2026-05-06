@@ -78,7 +78,9 @@
       "name": "chronicle_pack",
       "pages": [
         "daily-compose/daily-compose",
-        "daily-detail/daily-detail"
+        "daily-detail/daily-detail",
+        "report-compose/report-compose",
+        "report-detail/report-detail"
       ]
     }
   ],

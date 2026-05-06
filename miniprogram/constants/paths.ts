@@ -23,3 +23,9 @@ export const PAGE_DAILY_COMPOSE = '/subpackages/chronicle/daily-compose/daily-co
 
 /** 日常详情（列表卡片 navigateTo · 分包 chronicle） */
 export const PAGE_DAILY_DETAIL = '/subpackages/chronicle/daily-detail/daily-detail' as const
+
+/** 写报备 / 编辑报备（见证报备 Tab · 分包 chronicle） */
+export const PAGE_REPORT_COMPOSE = '/subpackages/chronicle/report-compose/report-compose' as const
+
+/** 报备详情（对象已阅/评价 · 分包 chronicle） */
+export const PAGE_REPORT_DETAIL = '/subpackages/chronicle/report-detail/report-detail' as const

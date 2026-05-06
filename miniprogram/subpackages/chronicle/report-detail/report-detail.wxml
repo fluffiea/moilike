@@ -1,0 +1,54 @@
+<view class="report-detail-page">
+  <view class="report-detail-bg" aria-hidden="true">
+    <view class="report-detail-bg-wash" />
+  </view>
+  <view class="report-detail-stack">
+    <app-nav title="报备详情" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+    <scroll-view wx:if="{{post}}" class="report-detail-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}" bounces="{{true}}">
+      <view class="report-detail-inner">
+        <view class="report-detail-sheet">
+          <view class="report-detail-head">
+            <text class="report-detail-name">{{post.userName}}</text>
+            <text class="report-detail-suffix"> 的报备</text>
+            <view class="report-detail-status">{{post.statusLabel}}</view>
+          </view>
+          <view class="report-detail-tag-row">
+            <view wx:for="{{post.tagChips}}" wx:for-item="chip" wx:key="name" class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}">
+              <text class="report-tag-chip-text">{{chip.name}}</text>
+            </view>
+          </view>
+          <text class="report-detail-record">记录 {{post.recordTimeStr}}</text>
+          <text class="report-detail-publish">发布 {{post.publishTimeStr}}</text>
+          <view wx:if="{{post.images && post.images.length}}" class="report-detail-media">
+            <view wx:for="{{post.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-detail-media-cell">
+              <image class="report-detail-media-thumb" src="{{img}}" mode="aspectFill" data-index="{{ix}}" bind:tap="onImageTap" />
+            </view>
+          </view>
+          <text class="report-detail-body">{{post.body}}</text>
+          <view wx:if="{{post.partnerEvalText}}" class="report-detail-eval">
+            <text class="report-detail-eval-lab">对方评价</text>
+            <text class="report-detail-eval-txt">{{post.partnerEvalText}}</text>
+          </view>
+          <view wx:if="{{post.canMarkRead}}" class="report-detail-actions">
+            <view class="report-detail-btn report-detail-btn--primary" bind:tap="onMarkRead" aria-role="button">
+              <text class="report-detail-btn-text">标记已阅</text>
+            </view>
+          </view>
+          <view wx:if="{{post.canEvaluate}}" class="report-detail-eval-form">
+            <text class="report-detail-eval-form-lab">写一句评价</text>
+            <view class="report-detail-eval-shell">
+              <textarea class="report-detail-eval-area" placeholder="对方会先看到你的已阅，再读这里…" placeholder-class="report-detail-ph" maxlength="{{500}}" value="{{evalDraft}}" bindinput="onEvalInput" auto-height show-confirm-bar="{{false}}" cursor-spacing="{{24}}" />
+            </view>
+            <view class="report-detail-btn report-detail-btn--primary" bind:tap="onSubmitEval" aria-role="button">
+              <text class="report-detail-btn-text">提交评价</text>
+            </view>
+          </view>
+        </view>
+        <view class="report-detail-pad" />
+      </view>
+    </scroll-view>
+    <view wx:else class="report-detail-empty">
+      <text class="report-detail-empty-text">{{postLoading ? '加载中…' : '无法加载'}}</text>
+    </view>
+  </view>
+</view>
