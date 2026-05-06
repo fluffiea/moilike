@@ -255,206 +255,234 @@ page {
 }
 
 
-/* 报备卡片 */
-.report-card {
-  background-color: #ffffff;
-  border-radius: 44rpx;
-  padding: 32rpx;
-  margin-bottom: 32rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
+/*
+ * 报备卡片 · Skyline list：外层 report-card-slot（list-item）仅宿主；内层 report-card 承载 L1 白底。
+ * §2.3 阴影在 slot；圆角裁切在 inner。间距：主 gap 24；文+图时用 report-card-main--paired 加厚图下留白。
+ */
+.report-card-slot {
+  width: 100%;
   box-sizing: border-box;
+  margin-bottom: 40rpx;
+  border-radius: 56rpx;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.report-card-head {
+.report-card {
+  background-color: #ffffff;
+  border-radius: 56rpx;
+  padding: 40rpx 40rpx 48rpx;
+  margin-bottom: 0;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.report-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  min-width: 0;
+}
+
+/* 既有文案又有图：大图占竖向权重后，需在图与页脚分割带之间额外留出一段呼吸 */
+.report-card-main--paired {
+  padding-bottom: 20rpx;
+}
+
+.report-card-top {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 20rpx;
+  gap: 16rpx;
+  padding-bottom: 0;
+  border-bottom: none;
+  box-sizing: border-box;
+  min-height: 48rpx;
 }
 
 .report-head-main {
   flex: 1;
   min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .report-name {
-  font-size: 30rpx;
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 32rpx;
   font-weight: 600;
   color: #1c1c1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .report-name-suffix {
-  font-size: 26rpx;
+  flex-shrink: 0;
+  font-size: 24rpx;
   font-weight: 500;
   color: #8e8e93;
+  white-space: nowrap;
 }
 
-.report-tag {
-  flex-shrink: 0;
-  padding: 8rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  font-weight: 500;
-  color: #3d5a4d;
-  background-color: #e8f1eb;
-  border: 1rpx solid rgba(102, 143, 128, 0.15);
+.report-tag-rail {
+  flex: 0 1 auto;
+  max-width: 44%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
-.report-publish {
-  display: block;
-  margin-top: 16rpx;
-  font-size: 22rpx;
-  color: #8e8e93;
-}
-
-.report-media {
-  margin-top: 24rpx;
-  min-height: 200rpx;
-  border-radius: 28rpx;
-  background-color: #ebebeb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-}
-
-.report-body-wrap {
-  position: relative;
-  margin-top: 24rpx;
-  padding: 4rpx 0 0;
-}
-
-.report-body {
-  display: block;
-  font-size: 28rpx;
-  color: rgba(44, 44, 44, 0.9);
-  line-height: 1.55;
-  padding-right: 108rpx;
-}
-
-.report-stamp {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 8rpx 18rpx;
-  border-radius: 24rpx;
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #a85d6f;
-  background-color: #fff0f3;
-  border: 1rpx solid rgba(232, 184, 196, 0.65);
-  transform: rotate(-3deg);
-}
-
-.report-comments {
-  margin-top: 24rpx;
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: rgba(242, 242, 247, 0.85);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.report-comment-line {
-  display: block;
-  font-size: 26rpx;
-  color: rgba(44, 44, 44, 0.68);
-  line-height: 1.5;
-}
-
-.report-status-pill {
-  flex-shrink: 0;
-  padding: 10rpx 20rpx;
-  border-radius: 24rpx;
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #4a6670;
-  background-color: rgba(102, 143, 128, 0.14);
-  border: 1rpx solid rgba(102, 143, 128, 0.28);
-}
-
-.report-tag-row {
+.report-tag-rail-inner {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-top: 16rpx;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8rpx;
+  width: max-content;
+  margin-left: auto;
+  box-sizing: border-box;
+  padding: 4rpx 0;
 }
 
 .report-tag-chip {
-  padding: 8rpx 18rpx;
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
   border-radius: 999rpx;
-  font-size: 22rpx;
-  font-weight: 600;
   border: 1rpx solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
 .report-tag-chip-text {
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: 600;
 }
 
 .report-tag-chip--c0 {
   color: #4a6670;
-  background-color: rgba(74, 102, 112, 0.12);
+  background-color: rgba(74, 102, 112, 0.1);
 }
 .report-tag-chip--c1 {
   color: #5c4a6b;
-  background-color: rgba(120, 90, 130, 0.12);
+  background-color: rgba(120, 90, 130, 0.1);
 }
 .report-tag-chip--c2 {
   color: #3d5a4d;
-  background-color: rgba(102, 143, 128, 0.16);
+  background-color: rgba(102, 143, 128, 0.12);
 }
 .report-tag-chip--c3 {
   color: #6b5a3d;
-  background-color: rgba(180, 140, 80, 0.14);
+  background-color: rgba(180, 140, 80, 0.1);
 }
 .report-tag-chip--c4 {
   color: #4d5a6b;
-  background-color: rgba(90, 110, 140, 0.12);
+  background-color: rgba(90, 110, 140, 0.1);
 }
 .report-tag-chip--c5 {
   color: #5a4d4d;
-  background-color: rgba(140, 100, 100, 0.12);
+  background-color: rgba(140, 100, 100, 0.1);
 }
 
-.report-record-line {
+.report-body-wrap {
+  margin-top: 0;
+}
+
+.report-body {
   display: block;
-  margin-top: 16rpx;
-  font-size: 28rpx;
-  font-weight: 600;
+  font-size: 30rpx;
+  font-weight: 400;
   color: #1c1c1e;
+  line-height: 1.55;
 }
 
-.report-publish-sub {
+.report-media {
+  margin-top: 0;
+  box-sizing: border-box;
+}
+
+/* 单图：嵌套圆角 < 卡 56rpx */
+.report-media--one {
   display: block;
-  margin-top: 8rpx;
-  font-size: 22rpx;
-  color: #8e8e93;
+  width: 100%;
+  border-radius: 32rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
-.report-media--grid {
-  min-height: 0;
-  padding: 12rpx;
+.report-media--one .report-media-cell {
+  width: 100%;
+  padding-bottom: 58%;
+  height: 0;
+  position: relative;
+  border-radius: 32rpx;
+  overflow: hidden;
+  border: none;
+}
+
+.report-media--two {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.report-media--two .report-media-cell {
+  width: calc((100% - 12rpx) / 2);
+  padding-bottom: calc((100% - 12rpx) / 2);
+  height: 0;
+  position: relative;
+  border-radius: 28rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.report-media--many {
+  border-radius: 36rpx;
+  background-color: #f2f2f7;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: 10rpx;
   justify-content: flex-start;
+  align-content: flex-start;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 10rpx;
+}
+
+.report-media--many .report-media-cell {
+  width: calc((100% - 20rpx) / 3);
+  padding-bottom: calc((100% - 20rpx) / 3);
+  height: 0;
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .report-media-cell {
-  width: calc((100% - 24rpx) / 3);
-  padding-bottom: calc((100% - 24rpx) / 3);
-  height: 0;
   position: relative;
-  border-radius: 20rpx;
   overflow: hidden;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
 .report-media-thumb {
@@ -466,24 +494,104 @@ page {
 }
 
 .report-eval-box {
-  margin-top: 20rpx;
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: rgba(242, 242, 247, 0.9);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  margin-top: 0;
+  padding: 28rpx 32rpx;
+  border-radius: 32rpx;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  border-left-width: 6rpx;
+  border-left-color: rgba(102, 143, 128, 0.45);
+  border-right-color: rgba(0, 0, 0, 0.05);
+  border-top-color: rgba(0, 0, 0, 0.05);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .report-eval-label {
   display: block;
   font-size: 22rpx;
   font-weight: 600;
-  color: #8e8e93;
-  margin-bottom: 8rpx;
+  color: #668f80;
+  margin-bottom: 12rpx;
 }
 
 .report-eval-text {
   display: block;
   font-size: 28rpx;
   color: #1c1c1e;
-  line-height: 1.5;
+  line-height: 1.58;
+}
+
+.report-card-foot {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 32rpx 0 16rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.report-foot-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8rpx;
+  box-sizing: border-box;
+}
+
+.report-foot-meta-label {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8e8e93;
+}
+
+.report-foot-meta-time {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-status-pill {
+  align-self: center;
+  flex-shrink: 0;
+  max-width: 46%;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.35);
+  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.report-status-pill-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
