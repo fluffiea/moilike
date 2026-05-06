@@ -6,12 +6,10 @@ import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../../uti
 import moSession from '../../../utils/session'
 import type { MoPreferences } from '../../../types/user'
 import {
-  DEFAULT_CHRONICLE_MAIN_TAB,
-  DEFAULT_CHRONICLE_REPORT_FILTER,
-  resolveChronicleEntryPrefs,
-} from '../../../constants/chronicle-preferences'
+  DEFAULT_RESONANCE_REPORT_FILTER,
+  resolveResonanceReportFilter,
+} from '../../../constants/resonance-preferences'
 
-type MainTabPref = 'daily' | 'report'
 type ReportFilterPref = 'pending' | 'all' | 'mine'
 
 function reportFilterToIndex(f: ReportFilterPref): number {
@@ -28,9 +26,7 @@ Component({
     },
   },
   data: {
-    chronicleMainTab: DEFAULT_CHRONICLE_MAIN_TAB as MainTabPref,
-    chronicleReportFilter: DEFAULT_CHRONICLE_REPORT_FILTER as ReportFilterPref,
-    /** 报备滑块 0/1/2，与见证页 reportFilterIndex 一致 */
+    resonanceReportFilter: DEFAULT_RESONANCE_REPORT_FILTER as ReportFilterPref,
     reportFilterIndex: 0,
     submitting: false,
   },
@@ -38,24 +34,17 @@ Component({
     loadFormFromSession() {
       const u = moSession.loadMoUser()
       const prefs = u ? u.preferences : undefined
-      const { mainModule, reportFilter } = resolveChronicleEntryPrefs(prefs)
+      const reportFilter = resolveResonanceReportFilter(prefs)
       this.setData({
-        chronicleMainTab: mainModule,
-        chronicleReportFilter: reportFilter,
+        resonanceReportFilter: reportFilter,
         reportFilterIndex: reportFilterToIndex(reportFilter),
       })
-    },
-
-    onPickMainTab(e: WechatMiniprogram.TouchEvent) {
-      const tab = e.currentTarget.dataset.tab as MainTabPref | undefined
-      if (tab !== 'daily' && tab !== 'report') return
-      this.setData({ chronicleMainTab: tab })
     },
 
     onPickReportFilter(e: WechatMiniprogram.TouchEvent) {
       const f = e.currentTarget.dataset.filter as ReportFilterPref | undefined
       if (f !== 'pending' && f !== 'all' && f !== 'mine') return
-      this.setData({ chronicleReportFilter: f, reportFilterIndex: reportFilterToIndex(f) })
+      this.setData({ resonanceReportFilter: f, reportFilterIndex: reportFilterToIndex(f) })
     },
 
     onNavBack() {
@@ -76,8 +65,7 @@ Component({
       wx.showLoading({ title: '保存中' })
       try {
         const preferences: MoPreferences = {
-          chronicleDefaultMainTab: this.data.chronicleMainTab,
-          chronicleReportFilter: this.data.chronicleReportFilter,
+          resonanceReportFilter: this.data.resonanceReportFilter,
         }
         const res = await wx.cloud.callFunction({
           name: USER_CLOUD_FUNCTION,

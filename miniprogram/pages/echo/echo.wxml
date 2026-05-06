@@ -1,9 +1,0 @@
-<view class="page-shell">
-  <app-nav title="回响" bg="#ffffff" />
-  <scroll-view class="page-scroll" scroll-y type="list">
-    <view class="placeholder">
-      <text class="placeholder-title">回响</text>
-      <text class="placeholder-desc">聊天模块占位，敬请期待</text>
-    </view>
-  </scroll-view>
-</view>

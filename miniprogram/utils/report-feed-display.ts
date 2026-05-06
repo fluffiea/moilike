@@ -30,7 +30,7 @@ export async function enrichReportPostForDisplay(post: ReportPostPublic): Promis
   return arr[0] != null ? arr[0] : post
 }
 
-/** 见证页报备流：配图 cloud:// 换临时 HTTPS；写入 tagChips */
+/** 共鸣页报备流：配图 cloud:// 换临时 HTTPS；写入 tagChips */
 export async function enrichReportPostsForDisplay(posts: ReportPostPublic[]): Promise<ReportPostPublic[]> {
   if (posts.length === 0) return posts
   const allImageIds = posts.flatMap((p) => (Array.isArray(p.images) ? p.images : []))

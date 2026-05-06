@@ -14,7 +14,7 @@ function mapPostImagesWithTempUrls(
 }
 
 /**
- * 见证页日常流：头像、配图中的 cloud:// 在 Skyline 下需换临时 HTTPS，且对方文件客户端无读权限。
+ * 浮生页日常流：头像、配图中的 cloud:// 在 Skyline 下需换临时 HTTPS，且对方文件客户端无读权限。
  */
 export async function enrichDailyPostsForDisplay(posts: DailyPostPublic[]): Promise<DailyPostPublic[]> {
   if (posts.length === 0) return posts

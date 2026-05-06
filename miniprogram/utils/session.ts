@@ -1,12 +1,15 @@
 import type { MoUser } from '../types/user'
-import { invalidateChroniclePrefsApplyCache, prefsSignature } from '../constants/chronicle-preferences'
+import {
+  resonancePrefsSignature,
+  invalidateResonancePrefsApplyCache,
+} from '../constants/resonance-preferences'
 
 const STORAGE_KEY = 'mo_user'
 /** 用户主动退出后置位：登录页不得再根据云端资料自动恢复会话 */
 const WAIT_EXPLICIT_RELOGIN_KEY = 'mo_wait_explicit_relogin'
 
-/** 已下线功能曾写入的 key；仅做清理，禁止再写入 */
-const LEGACY_STORAGE_KEYS_REMOVED = ['mo_chronicle_daily_list_v1'] as const
+/** 已下线功能曾写入的 key；仅做清理，禁止再写入（当前无条目） */
+const LEGACY_STORAGE_KEYS_REMOVED = [] as const
 
 /** 移除遗留 Storage，避免占配额或被误读 */
 export function removeLegacyUnusedStorageKeys(): void {
@@ -48,6 +51,23 @@ export function moUserProfileDisplayStamp(): string {
   return `${oid}\u0001${nick}\u0001${av}\u0001${partner}`
 }
 
+/** 伴侣关系维度的列表作用域键（绑定/解绑后变化）；moments、resonance 等 Tab 共用 */
+export function moCoupleScopeKey(): string {
+  const u = loadMoUser()
+  if (!u) return '|'
+  const me = typeof u.openId === 'string' ? u.openId : ''
+  let fromPartnerOpenId = ''
+  if (typeof u.partnerOpenId === 'string' && u.partnerOpenId.trim()) {
+    fromPartnerOpenId = u.partnerOpenId.trim()
+  }
+  let fromPartner = ''
+  if (u.partner && typeof u.partner.openId === 'string' && u.partner.openId.trim()) {
+    fromPartner = u.partner.openId.trim()
+  }
+  const partner = fromPartnerOpenId || fromPartner
+  return `${me}|${partner}`
+}
+
 function syncGlobalMoUser(user: MoUser | undefined): void {
   try {
     const app = getApp<IAppOption>()
@@ -67,8 +87,11 @@ export function saveMoUser(user: MoUser): void {
   syncGlobalMoUser(user)
   const prevOpenId = prev ? prev.openId : undefined
   const prevPrefs = prev ? prev.preferences : undefined
-  if (prefsSignature(prevOpenId, prevPrefs) !== prefsSignature(user.openId, user.preferences)) {
-    invalidateChroniclePrefsApplyCache()
+  if (
+    resonancePrefsSignature(prevOpenId, prevPrefs) !==
+    resonancePrefsSignature(user.openId, user.preferences)
+  ) {
+    invalidateResonancePrefsApplyCache()
   }
 }
 
@@ -79,7 +102,7 @@ export function clearMoUser(): void {
     // ignore
   }
   syncGlobalMoUser(undefined)
-  invalidateChroniclePrefsApplyCache()
+  invalidateResonancePrefsApplyCache()
   removeLegacyUnusedStorageKeys()
 }
 
@@ -117,4 +140,5 @@ export default {
   loadWaitExplicitRelogin,
   clearWaitExplicitRelogin,
   moUserProfileDisplayStamp,
+  moCoupleScopeKey,
 }

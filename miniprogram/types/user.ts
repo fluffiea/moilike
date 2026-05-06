@@ -6,12 +6,10 @@ export type MoPartner = {
   signature?: string
 }
 
-/** 与见证页 / 报备筛选文案一致；保存在云端 users.preferences */
+/** 偏好；保存在云端 users.preferences */
 export type MoPreferences = {
-  /** 进入见证页默认主 Tab */
-  chronicleDefaultMainTab?: 'daily' | 'report'
-  /** 进入报备模块时的默认筛选 */
-  chronicleReportFilter?: 'pending' | 'all' | 'mine'
+  /** 进入「共鸣」Tab 时报备列表的默认筛选 */
+  resonanceReportFilter?: 'pending' | 'all' | 'mine'
 }
 
 export type MoUser = {

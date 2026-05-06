@@ -9,15 +9,6 @@ function reportDetailBizToast(r: { ok?: boolean; error?: string } | null, fallba
   return fallback
 }
 
-type DetailThis = WechatMiniprogram.Component.Instance<
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject
-> & {
-  getOpenerEventChannel?: () => WechatMiniprogram.EventChannel
-}
-
 Component({
   behaviors: [requireAuth],
   data: {
@@ -47,12 +38,12 @@ Component({
     },
   },
   methods: {
-    emitRefreshToChronicle() {
-      const self = this as DetailThis
-      const ch = typeof self.getOpenerEventChannel === 'function' ? self.getOpenerEventChannel() : null
+    emitRefreshToResonance() {
+      const ch =
+        typeof this.getOpenerEventChannel === 'function' ? this.getOpenerEventChannel() : null
       const pid = (this.data as { postId?: string }).postId || ''
       if (ch && typeof ch.emit === 'function' && pid) {
-        ch.emit('reportListNeedRefreshFromDetail', { postId: pid })
+        ch.emit('resonanceListNeedRefreshFromDetail', { postId: pid })
       }
     },
 
@@ -75,7 +66,7 @@ Component({
 
     onNavBack() {
       if (this.data.post) {
-        this.emitRefreshToChronicle()
+        this.emitRefreshToResonance()
       }
       wx.navigateBack({ fail: () => {} })
     },
@@ -117,7 +108,7 @@ Component({
         }
         const post = await enrichReportPostForDisplay(r.post)
         this.setData({ post })
-        this.emitRefreshToChronicle()
+        this.emitRefreshToResonance()
         wx.showToast({ title: '已标记已阅', icon: 'success' })
       } catch {
         wx.hideLoading()
@@ -145,7 +136,7 @@ Component({
         }
         const post = await enrichReportPostForDisplay(r.post)
         this.setData({ post, evalDraft: '' })
-        this.emitRefreshToChronicle()
+        this.emitRefreshToResonance()
         wx.showToast({ title: '已提交评价', icon: 'success' })
       } catch {
         wx.hideLoading()

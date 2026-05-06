@@ -9,6 +9,7 @@ import {
 import { formatDailyCloudBizError } from '../../../utils/cloud-invoke'
 import { takeDailyEditStaging } from '../../../utils/daily-edit-staging'
 import { uploadDailyImagesIfNeeded } from '../../../utils/daily-upload'
+import { TAB_MOMENTS } from '../../../constants/paths'
 
 const MAX_IMAGES = 9
 
@@ -125,7 +126,7 @@ Component({
       const patch: WechatMiniprogram.IAnyObject = {
         editId: id,
         navTitle: '编辑日常',
-        heroKicker: '修改正文或配图，保存后见证列表会同步更新。',
+        heroKicker: '修改正文或配图，保存后浮生列表会同步更新。',
         textareaMountKey: `${id}-boot-${Date.now()}`,
       }
       if (staged) {
@@ -177,7 +178,7 @@ Component({
           setTimeout(() => {
             wx.navigateBack({
               fail: () => {
-                wx.switchTab({ url: '/pages/chronicle/chronicle' })
+                wx.switchTab({ url: TAB_MOMENTS })
               },
             })
           }, 600)
@@ -274,7 +275,7 @@ Component({
     onNavBack() {
       wx.navigateBack({
         fail: () => {
-          wx.switchTab({ url: '/pages/chronicle/chronicle' })
+          wx.switchTab({ url: TAB_MOMENTS })
         },
       })
     },
@@ -323,7 +324,7 @@ Component({
         setTimeout(() => {
           wx.navigateBack({
             fail: () => {
-              wx.switchTab({ url: '/pages/chronicle/chronicle' })
+              wx.switchTab({ url: TAB_MOMENTS })
             },
           })
         }, 320)

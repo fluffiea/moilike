@@ -17,7 +17,7 @@ alwaysApply: false
 工具链对**可选链 `?.`** 支持不完整时，可能导致**单文件编译失败**，进而**不生成**对应的 `*.js`，表现为子包/页面在 `app.json` 中报错「找不到 `xxx.js`」等。
 
 - **在 `miniprogram/**/*.ts` 中避免使用可选链 `?.`**，改用显式判空（`obj && obj.prop`、三元、`if` 收窄等）。与仓库内 `components/app-nav/app-nav.ts` 顶部注释「避免 `?.` 以兼容工具链」一致。
-- **避免空值合并 `??`**：在 `project.config.json` 的 **`"es6": false`** 等配置下，**上传 / 真机校验**可能对输出 JS 按较旧语法解析，出现 `Unexpected token ?`（与 `chronicle.js` 一类报错）。请改用 `a != null ? a : b` 或 `typeof x !== 'undefined' && x !== null ? x : fallback` 等显式写法。
+- **避免空值合并 `??`**：在 `project.config.json` 的 **`"es6": false`** 等配置下，**上传 / 真机校验**可能对输出 JS 按较旧语法解析，出现 `Unexpected token ?`（与部分页面脚本一类报错）。请改用 `a != null ? a : b` 或 `typeof x !== 'undefined' && x !== null ? x : fallback` 等显式写法。
 
 ```typescript
 // ❌ 易触发工具链编译失败 → 无 .js → app.json 子包页报错

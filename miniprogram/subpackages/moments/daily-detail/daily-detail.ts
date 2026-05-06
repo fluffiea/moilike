@@ -101,7 +101,7 @@ type DetailPageData = {
   replyTarget: { id: string; userName: string } | null
   editingCommentId: string | null
   sending: boolean
-  /** 增删改评论后，返回见证页需刷新列表首评摘要 */
+  /** 增删改评论后，返回浮生页需刷新列表首评摘要 */
   commentsMutated: boolean
 }
 
@@ -137,7 +137,7 @@ Component({
       }
     },
     detached() {
-      this.notifyChronicleIfCommentsMutated()
+      this.notifyFushengIfCommentsMutated()
     },
   },
   pageLifetimes: {
@@ -155,7 +155,7 @@ Component({
     },
   },
   methods: {
-    notifyChronicleIfCommentsMutated() {
+    notifyFushengIfCommentsMutated() {
       const d = this.data as DetailPageData
       if (!d.commentsMutated) return
       const ext = this as WechatMiniprogram.IAnyObject
@@ -220,7 +220,7 @@ Component({
     },
 
     onNavBack() {
-      this.notifyChronicleIfCommentsMutated()
+      this.notifyFushengIfCommentsMutated()
       wx.navigateBack({ fail: () => {} })
     },
 
@@ -261,7 +261,7 @@ Component({
       })
     },
 
-    /** 长按自己的、且尚无回复的评论：与见证页日常卡片一致，ActionSheet → 编辑 / 删除 */
+    /** 长按自己的、且尚无回复的评论：与浮生页日常卡片一致，ActionSheet → 编辑 / 删除 */
     onCommentLongPress(e: WechatMiniprogram.TouchEvent) {
       const rowId = e.currentTarget.dataset.rowId as string | undefined
       if (!rowId) return

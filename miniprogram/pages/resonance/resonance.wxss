@@ -1,0 +1,489 @@
+/** 共鸣 Tab · 报备流 · moilike-ui（Skyline） */
+
+page {
+  height: 100vh;
+  background-color: #f2f2f7;
+}
+
+.resonance-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  background-color: #f2f2f7;
+}
+
+.resonance-header {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.resonance-header-surface {
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #fbfbfd;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.resonance-header-inner {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 22rpx 40rpx 22rpx;
+}
+
+.resonance-toolbar {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.resonance-toolbar-shell {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 56rpx;
+  padding: 4rpx 12rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: stretch;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  background-color: rgba(60, 60, 67, 0.035);
+  overflow: hidden;
+}
+
+.resonance-toolbar-shell > .resonance-report-tabs {
+  flex: 1;
+  min-width: 0;
+}
+
+.resonance-report-tabs {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48rpx;
+}
+
+.resonance-report-rail {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48rpx;
+  padding: 2rpx 0;
+}
+
+.resonance-report-thumb {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  top: 2rpx;
+  bottom: 2rpx;
+  width: calc((100% - 8rpx) / 3);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.resonance-report-thumb--0 {
+  transform: translateX(0);
+}
+
+.resonance-report-thumb--1 {
+  transform: translateX(calc(100% + 4rpx));
+}
+
+.resonance-report-thumb--2 {
+  transform: translateX(calc(200% + 8rpx));
+}
+
+.resonance-report-tabs-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44rpx;
+  gap: 4rpx;
+  padding: 0;
+}
+
+.resonance-report-tab {
+  flex: 1;
+  min-width: 0;
+  min-height: 44rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rpx 16rpx;
+}
+
+.resonance-report-tab-label {
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #8e8e93;
+  text-align: center;
+  white-space: nowrap;
+  transition:
+    color 0.26s cubic-bezier(0.23, 1, 0.32, 1),
+    font-weight 0.26s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.resonance-report-tab--active .resonance-report-tab-label {
+  color: #1c1c1e;
+  font-weight: 600;
+}
+
+.resonance-pane-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.resonance-scroll-body {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  margin-top: 40rpx;
+  padding: 0 40rpx 0;
+}
+
+.resonance-scroll-pad {
+  height: calc(200rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.resonance-empty {
+  padding: 96rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #8e8e93;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.resonance-empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+  display: block;
+}
+
+.resonance-empty-hint {
+  font-size: 26rpx;
+  color: #8e8e93;
+  line-height: 1.45;
+  display: block;
+  margin-top: 12rpx;
+}
+
+.resonance-load-more {
+  padding: 24rpx 0 48rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.resonance-load-more-text {
+  font-size: 26rpx;
+  color: #8e8e93;
+}
+
+/* 报备新建：主 CTA teal → slate（§2.4），「+」白字 */
+.resonance-compose-fab {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 40rpx;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.35);
+  box-shadow:
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.02),
+    0 12px 32px rgba(74, 102, 112, 0.24);
+}
+
+.resonance-compose-fab--fixed {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(124rpx + env(safe-area-inset-bottom));
+  z-index: 20;
+}
+
+.resonance-compose-fab__plus {
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+}
+
+.resonance-compose-fab__bar {
+  position: absolute;
+  border-radius: 2rpx;
+  background-color: rgba(255, 255, 255, 0.96);
+}
+
+.resonance-compose-fab__bar--h {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 5rpx;
+  transform: translateY(-50%);
+}
+
+.resonance-compose-fab__bar--v {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 5rpx;
+  transform: translateX(-50%);
+}
+
+
+/* 报备卡片 */
+.report-card {
+  background-color: #ffffff;
+  border-radius: 44rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.report-card-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.report-head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.report-name-suffix {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #8e8e93;
+}
+
+.report-tag {
+  flex-shrink: 0;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #3d5a4d;
+  background-color: #e8f1eb;
+  border: 1rpx solid rgba(102, 143, 128, 0.15);
+}
+
+.report-publish {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #8e8e93;
+}
+
+.report-media {
+  margin-top: 24rpx;
+  min-height: 200rpx;
+  border-radius: 28rpx;
+  background-color: #ebebeb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.report-body-wrap {
+  position: relative;
+  margin-top: 24rpx;
+  padding: 4rpx 0 0;
+}
+
+.report-body {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(44, 44, 44, 0.9);
+  line-height: 1.55;
+  padding-right: 108rpx;
+}
+
+.report-stamp {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 8rpx 18rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #a85d6f;
+  background-color: #fff0f3;
+  border: 1rpx solid rgba(232, 184, 196, 0.65);
+  transform: rotate(-3deg);
+}
+
+.report-comments {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  background-color: rgba(242, 242, 247, 0.85);
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-comment-line {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(44, 44, 44, 0.68);
+  line-height: 1.5;
+}
+
+.report-status-pill {
+  flex-shrink: 0;
+  padding: 10rpx 20rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #4a6670;
+  background-color: rgba(102, 143, 128, 0.14);
+  border: 1rpx solid rgba(102, 143, 128, 0.28);
+}
+
+.report-tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.report-tag-chip {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-tag-chip-text {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.report-tag-chip--c0 {
+  color: #4a6670;
+  background-color: rgba(74, 102, 112, 0.12);
+}
+.report-tag-chip--c1 {
+  color: #5c4a6b;
+  background-color: rgba(120, 90, 130, 0.12);
+}
+.report-tag-chip--c2 {
+  color: #3d5a4d;
+  background-color: rgba(102, 143, 128, 0.16);
+}
+.report-tag-chip--c3 {
+  color: #6b5a3d;
+  background-color: rgba(180, 140, 80, 0.14);
+}
+.report-tag-chip--c4 {
+  color: #4d5a6b;
+  background-color: rgba(90, 110, 140, 0.12);
+}
+.report-tag-chip--c5 {
+  color: #5a4d4d;
+  background-color: rgba(140, 100, 100, 0.12);
+}
+
+.report-record-line {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.report-publish-sub {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #8e8e93;
+}
+
+.report-media--grid {
+  min-height: 0;
+  padding: 12rpx;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  justify-content: flex-start;
+}
+
+.report-media-cell {
+  width: calc((100% - 24rpx) / 3);
+  padding-bottom: calc((100% - 24rpx) / 3);
+  height: 0;
+  position: relative;
+  border-radius: 20rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-media-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.report-eval-box {
+  margin-top: 20rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  background-color: rgba(242, 242, 247, 0.9);
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-eval-label {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8e8e93;
+  margin-bottom: 8rpx;
+}
+
+.report-eval-text {
+  display: block;
+  font-size: 28rpx;
+  color: #1c1c1e;
+  line-height: 1.5;
+}

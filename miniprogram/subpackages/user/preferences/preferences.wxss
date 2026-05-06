@@ -2,7 +2,7 @@
  * 偏好设置 · moilike-ui
  * [Layering] L0 #F2F2F7；卡片 L1 §2.3 + wash；顶栏 L2 玻璃在 app-nav
  * [Spacing] 水平 40rpx；卡间距 32rpx；滑块轨道略加深灰底（避免「发灰」），拇指用 §2.4 饱和 teal→slate + §2.3 级阴影
- * [Palette 6-3-1] 未选字 #8E8E93；拇指上字 #FFFFFF；与见证页一级 Tab 质感对齐，报备三格同拇指材质（非淡白块）
+ * [Palette 6-3-1] 未选字 #8E8E93；拇指上字 #FFFFFF；与共鸣页顶栏报备筛选质感对齐（三格轨道）
  */
 
 page {
@@ -82,7 +82,7 @@ page {
   color: #8e8e93;
 }
 
-/* ---------- 滑块容器（见证 / 报备同款轨道语气） ---------- */
+/* ---------- 滑块容器（偏好 · 与共鸣顶栏同款轨道语气） ---------- */
 .pref-slider {
   position: relative;
   z-index: 1;
@@ -96,7 +96,7 @@ page {
   width: 100%;
 }
 
-/* 双格：对齐见证 chronicle-mode-split，轨道对比略增强 */
+/* 三格滑块：可与共鸣页顶栏报备筛选同构 */
 .pref-slider-track--dual {
   padding: 4rpx;
   border-radius: 36rpx;
@@ -104,7 +104,7 @@ page {
   border: 1rpx solid rgba(0, 0, 0, 0.07);
 }
 
-/* 三格：对齐报备 rail，轨道略深于见证次级白条 */
+/* 三格：对齐共鸣 rail */
 .pref-slider-track--triple {
   padding: 4rpx;
   border-radius: 28rpx;

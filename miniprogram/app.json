@@ -3,8 +3,8 @@
   "pages": [
     "pages/login/login",
     "pages/milestones/milestones",
-    "pages/chronicle/chronicle",
-    "pages/echo/echo",
+    "pages/moments/moments",
+    "pages/resonance/resonance",
     "pages/profile/profile"
   ],
   "window": {
@@ -36,16 +36,16 @@
         "selectedIconPath": "images/tabbar/milestones-active.png"
       },
       {
-        "pagePath": "pages/chronicle/chronicle",
-        "text": "见证",
-        "iconPath": "images/tabbar/chronicle.png",
-        "selectedIconPath": "images/tabbar/chronicle-active.png"
+        "pagePath": "pages/moments/moments",
+        "text": "浮生",
+        "iconPath": "images/tabbar/moments.png",
+        "selectedIconPath": "images/tabbar/moments-active.png"
       },
       {
-        "pagePath": "pages/echo/echo",
-        "text": "回响",
-        "iconPath": "images/tabbar/echo.png",
-        "selectedIconPath": "images/tabbar/echo-active.png"
+        "pagePath": "pages/resonance/resonance",
+        "text": "共鸣",
+        "iconPath": "images/tabbar/resonance.png",
+        "selectedIconPath": "images/tabbar/resonance-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
@@ -74,11 +74,17 @@
       ]
     },
     {
-      "root": "subpackages/chronicle",
-      "name": "chronicle_pack",
+      "root": "subpackages/moments",
+      "name": "moments_pack",
       "pages": [
         "daily-compose/daily-compose",
-        "daily-detail/daily-detail",
+        "daily-detail/daily-detail"
+      ]
+    },
+    {
+      "root": "subpackages/resonance",
+      "name": "resonance_pack",
+      "pages": [
         "report-compose/report-compose",
         "report-detail/report-detail"
       ]
@@ -97,10 +103,16 @@
         "user"
       ]
     },
-    "pages/chronicle/chronicle": {
+    "pages/moments/moments": {
       "network": "all",
       "packages": [
-        "chronicle_pack"
+        "moments_pack"
+      ]
+    },
+    "pages/resonance/resonance": {
+      "network": "all",
+      "packages": [
+        "resonance_pack"
       ]
     }
   },

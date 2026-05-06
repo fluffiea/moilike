@@ -17,6 +17,7 @@ import {
 } from '../../../utils/report-api'
 import { takeReportEditStaging } from '../../../utils/report-edit-staging'
 import { uploadReportImagesIfNeeded } from '../../../utils/report-upload'
+import { TAB_RESONANCE } from '../../../constants/paths'
 
 const MAX_IMAGES = 9
 const MAX_BODY = 2000
@@ -59,7 +60,7 @@ Component({
   behaviors: [requireAuth],
   data: {
     navTitle: '写报备',
-    heroKicker: '记下此刻，对方会在见证里收到。',
+    heroKicker: '记下此刻，对方会在共鸣里收到。',
     editId: '',
     textareaMountKey: 'report-new',
     text: '',
@@ -250,7 +251,7 @@ Component({
           setTimeout(() => {
             wx.navigateBack({
               fail: () => {
-                wx.switchTab({ url: '/pages/chronicle/chronicle' })
+                wx.switchTab({ url: TAB_RESONANCE })
               },
             })
           }, 600)
@@ -408,7 +409,7 @@ Component({
     onNavBack() {
       wx.navigateBack({
         fail: () => {
-          wx.switchTab({ url: '/pages/chronicle/chronicle' })
+          wx.switchTab({ url: TAB_RESONANCE })
         },
       })
     },
@@ -468,7 +469,7 @@ Component({
         setTimeout(() => {
           wx.navigateBack({
             fail: () => {
-              wx.switchTab({ url: '/pages/chronicle/chronicle' })
+              wx.switchTab({ url: TAB_RESONANCE })
             },
           })
         }, 320)

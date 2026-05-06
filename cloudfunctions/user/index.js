@@ -29,15 +29,11 @@ function stripDoc(doc) {
 /** @param {Record<string, unknown>} raw */
 function sanitizePreferences(raw) {
   if (!raw || typeof raw !== 'object') return {}
-  /** @type {{ chronicleDefaultMainTab?: string, chronicleReportFilter?: string }} */
+  /** @type {{ resonanceReportFilter?: string }} */
   const out = {}
-  const main = raw.chronicleDefaultMainTab
-  if (main === 'daily' || main === 'report') {
-    out.chronicleDefaultMainTab = main
-  }
-  const rf = raw.chronicleReportFilter
+  const rf = raw.resonanceReportFilter
   if (rf === 'pending' || rf === 'all' || rf === 'mine') {
-    out.chronicleReportFilter = rf
+    out.resonanceReportFilter = rf
   }
   return out
 }

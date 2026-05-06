@@ -119,7 +119,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 **基线（Moilike 仓库）**
 
 - **不写**通用 **`hover-class` 按压缩放**，**不写** **`bindtouchstart` / `touchend` 驱动 CTA 缩放**。
-- **须保留**：**双格 / 三格分段控件**上 **拇指层**（如见证页 `.chronicle-mode-thumb`、`.chronicle-report-thumb`，偏好 `.pref-slider-thumb--dual` / `--triple`）在切换选项时 **`transition: transform`** + **`translateX`**（或等价位移动画）；缓动可用 **`cubic-bezier(0.23, 1, 0.32, 1)`** 一类；**勿**再给分段格子本身叠按压缩放，以免与拇指动画打架。
+- **须保留**：**双格 / 三格分段控件**上 **拇指层**（如共鸣页 `.resonance-report-thumb`，偏好 `.pref-slider-thumb--dual` / `--triple`）在切换选项时 **`transition: transform`** + **`translateX`**（或等价位移动画）；缓动可用 **`cubic-bezier(0.23, 1, 0.32, 1)`** 一类；**勿**再给分段格子本身叠按压缩放，以免与拇指动画打架。
 
 **可选（移植或其它产品需要按压感时，全项目统一启用）**
 
@@ -185,4 +185,4 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 1. 仅复制 **本文件** 至目标项目 **`.cursor/skills/<自定义目录>/SKILL.md`**。  
 2. 按需修改 YAML **`name` / `description`**（可选）。  
 3. 若品牌不同：编辑 **§2.4 表格 Hex** 与文案中的示例渐变方向说明，并做一次 **对比度与实底字色** 核对。  
-4. **勿删 §0–§2.3 的材质锁定**（blur/阴影/灰阶）；**分段滑块拇指**的 **`transform` 位移动画**须保留或与见证/偏好页一致迁移。若启用按压，**§3.1 可选**参数应在项目内**统一替换**，避免混用两套按压曲线。
+4. **勿删 §0–§2.3 的材质锁定**（blur/阴影/灰阶）；**分段滑块拇指**的 **`transform` 位移动画**须保留或与共鸣 / 偏好页一致迁移。若启用按压，**§3.1 可选**参数应在项目内**统一替换**，避免混用两套按压曲线。

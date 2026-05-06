@@ -11,7 +11,7 @@ const cloud = require('wx-server-sdk')
  * 列表使用 authorOpenId + createdAt 降序，请在「数据库 → 索引」添加复合索引 (authorOpenId, createdAt desc)，否则 where(in)+orderBy 可能报错。
  * 日常列表/单条返回的作者昵称、头像以 users 当前值为准（缺字段时回退帖内 authorNickName / authorAvatarUrl 快照）。
  * listDaily 每条在有评论时附带 commentCount、firstCommentUserName、firstCommentText（首条按 createdAt 升序）；对当前页 postId 批量查评论，单次最多 1000 条。
- * getDailyFeedItem：单条帖子 + 与 listDaily 同规则的首评摘要，供见证页从详情返回时合并一条列表项、避免整页重拉。
+ * getDailyFeedItem：单条帖子 + 与 listDaily 同规则的首评摘要，供浮生页从详情返回时合并一条列表项、避免整页重拉。
  * 评论集合 daily_comments：控制台新建；列表按 dailyPostId + createdAt 升序，建议索引 (dailyPostId, createdAt asc)；若使用 update/delete 评论的「子评论计数」，建议加 (dailyPostId, parentId)。评论列表展示昵称以 users 当前 nickName 为准（无则回退 authorNickName）；评论文档不含头像字段。本人可编辑/删除自己的评论，但若已有直接子回复（parentId 指向该条）则禁止（与产品两层评论一致）。
  */
 
@@ -593,7 +593,7 @@ exports.main = async (event) => {
       return await buildPublicDailyForViewer(dailyCol, usersCol, OPENID, id)
     }
 
-    /** 见证列表单条合并：帖子字段 + 与 listDaily 一致的首评摘要（省整页重拉） */
+    /** 浮生列表单条合并：帖子字段 + 与 listDaily 一致的首评摘要（省整页重拉） */
     if (event.action === 'getDailyFeedItem') {
       let rawId = ''
       if (typeof event.id === 'string') {

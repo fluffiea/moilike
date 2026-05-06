@@ -13,47 +13,11 @@
     show-scrollbar="{{false}}"
   >
     <view class="pref-scroll-body">
-      <!-- 见证：双格滑块（与见证页一级 Tab 同构，饱和渐变拇指） -->
       <view class="pref-card">
         <view class="pref-card__wash" aria-hidden="true" />
-        <text class="pref-card-title">见证</text>
-        <text class="pref-card-desc">打开「见证」时默认进入的模块</text>
-        <view class="pref-slider" aria-label="见证默认模块">
-          <view class="pref-slider-track pref-slider-track--dual">
-            <view
-              class="pref-slider-thumb pref-slider-thumb--dual {{chronicleMainTab === 'report' ? 'pref-slider-thumb--dual-right' : ''}}"
-              aria-hidden="true"
-            />
-            <view class="pref-slider-cells">
-              <view
-                class="pref-slider-cell {{chronicleMainTab === 'daily' ? 'pref-slider-cell--on' : ''}}"
-                data-tab="daily"
-                bind:tap="onPickMainTab"
-                aria-role="tab"
-                aria-selected="{{chronicleMainTab === 'daily'}}"
-              >
-                <text class="pref-slider-cell-text">日常</text>
-              </view>
-              <view
-                class="pref-slider-cell {{chronicleMainTab === 'report' ? 'pref-slider-cell--on' : ''}}"
-                data-tab="report"
-                bind:tap="onPickMainTab"
-                aria-role="tab"
-                aria-selected="{{chronicleMainTab === 'report'}}"
-              >
-                <text class="pref-slider-cell-text">报备</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <!-- 报备：三格滑块（结构对齐见证页报备筛选，拇指改为品牌渐变） -->
-      <view class="pref-card">
-        <view class="pref-card__wash" aria-hidden="true" />
-        <text class="pref-card-title">报备</text>
-        <text class="pref-card-desc">进入「报备」后的默认列表筛选</text>
-        <view class="pref-slider" aria-label="报备默认筛选">
+        <text class="pref-card-title">共鸣</text>
+        <text class="pref-card-desc">打开「共鸣」时报备列表的默认筛选</text>
+        <view class="pref-slider" aria-label="共鸣默认筛选">
           <view class="pref-slider-track pref-slider-track--triple">
             <view
               class="pref-slider-thumb pref-slider-thumb--triple pref-slider-thumb--triple-{{reportFilterIndex}}"
@@ -61,29 +25,29 @@
             />
             <view class="pref-slider-cells pref-slider-cells--triple">
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'pending' ? 'pref-slider-cell--on' : ''}}"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'pending' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="pending"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{chronicleReportFilter === 'pending'}}"
+                aria-selected="{{resonanceReportFilter === 'pending'}}"
               >
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">待阅读</text>
               </view>
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="all"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{chronicleReportFilter === 'all'}}"
+                aria-selected="{{resonanceReportFilter === 'all'}}"
               >
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">全部</text>
               </view>
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{chronicleReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="mine"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{chronicleReportFilter === 'mine'}}"
+                aria-selected="{{resonanceReportFilter === 'mine'}}"
               >
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">我的</text>
               </view>
