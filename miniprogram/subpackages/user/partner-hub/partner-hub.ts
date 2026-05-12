@@ -22,7 +22,7 @@ import {
   moPartnerWithPendingAvatarSrc,
   resolveAvatarForDisplay,
   resolveAvatarForDisplayList,
-} from '../../../utils/avatar-display'
+} from '../../../utils/display/avatar-display'
 import moSession from '../../../utils/session'
 
 const NETWORK_UNSTABLE_TOAST = '网络不太稳定，请稍后再试'

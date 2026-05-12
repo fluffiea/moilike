@@ -5,11 +5,6 @@
  * [Palette 6-3-1] 未选字 #8E8E93；拇指上字 #FFFFFF；与共鸣页顶栏报备筛选质感对齐（三格轨道）
  */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .pref-shell {
   display: flex;
   flex-direction: column;

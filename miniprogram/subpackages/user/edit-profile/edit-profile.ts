@@ -8,7 +8,7 @@ import {
   DEFAULT_AVATAR_PATH,
   avatarImageSrcWhileCloudPending,
   resolveAvatarForDisplay,
-} from '../../../utils/avatar-display'
+} from '../../../utils/display/avatar-display'
 
 function isPersistedRemoteAvatarRef(ref: string): boolean {
   const s = ref.trim()

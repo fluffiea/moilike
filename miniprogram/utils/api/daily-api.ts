@@ -7,8 +7,9 @@ import {
   type DailyUpdateCommentCloudResult,
   type DailyVoidCloudResult,
   type TempFileUrlsCloudResult,
-} from '../types/cloud'
-import { showCloudInvokeErrorToast } from './cloud-invoke'
+} from '../../types/cloud'
+import { showCloudInvokeErrorToast } from '../cloud-invoke'
+import { MEDIA_TEMP_URL_BATCH } from '../../constants/limits'
 
 /** 日常云函数 `daily` 的客户端封装；服务端按「本人 + 已互相绑定的伴侣」过滤列表与读写。 */
 
@@ -188,7 +189,7 @@ export async function dailyDeleteDaily(id: string): Promise<DailyVoidCloudResult
   }
 }
 
-const DAILY_MEDIA_TEMP_URL_BATCH = 20
+const DAILY_MEDIA_TEMP_URL_BATCH = MEDIA_TEMP_URL_BATCH
 
 /** 将日常配图 cloud fileID 换为临时 HTTPS（云函数校验路径为 `daily/{情侣一方 openId}/`）。 */
 export async function dailyMapMediaTempUrls(fileIDs: string[]): Promise<Map<string, string>> {

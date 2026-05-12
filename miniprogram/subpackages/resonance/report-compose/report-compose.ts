@@ -1,6 +1,6 @@
 import requireAuth from '../../../behaviors/require-auth'
 import type { ReportPostPublic } from '../../../types/cloud'
-import { formatDailyCloudBizError } from '../../../utils/cloud-invoke'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import {
   floorToMinuteMs,
   formatMsToDateStr,
@@ -14,9 +14,9 @@ import {
   reportListTags,
   reportMapMediaTempUrls,
   reportUpdate,
-} from '../../../utils/report-api'
+} from '../../../utils/api/report-api'
 import { takeReportEditStaging } from '../../../utils/report-edit-staging'
-import { uploadReportImagesIfNeeded } from '../../../utils/report-upload'
+import { uploadReportImagesIfNeeded } from '../../../utils/upload/report-upload'
 import { TAB_RESONANCE } from '../../../constants/paths'
 
 const MAX_IMAGES = 9
@@ -24,15 +24,6 @@ const MAX_BODY = 2000
 const DEFAULT_TAG = '干饭'
 
 type TagRow = { name: string; selected: boolean }
-
-type ComposePageThis = WechatMiniprogram.Component.Instance<
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject
-> & {
-  getOpenerEventChannel?: () => WechatMiniprogram.EventChannel
-}
 
 type ReportComposeData = {
   navTitle: string
@@ -51,12 +42,19 @@ type ReportComposeData = {
   newTagDraft: string
 }
 
+interface ReportComposeCustomInstanceProperty {
+  _reportComposeBootstrappedId: string
+  _skipAlbumTapUntil: number
+}
+
+type ReportComposeMethods = WechatMiniprogram.Component.MethodOption
+
 function reportBizErr(r: { ok?: boolean; error?: string } | null | undefined): string {
-  if (r && r.ok === false) return formatDailyCloudBizError(r.error)
+  if (r && r.ok === false) return formatCloudBizError(r.error)
   return '操作失败'
 }
 
-Component({
+Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstanceProperty>({
   behaviors: [requireAuth],
   data: {
     navTitle: '写报备',
@@ -64,32 +62,27 @@ Component({
     editId: '',
     textareaMountKey: 'report-new',
     text: '',
-    images: [] as string[],
-    imageDisplays: [] as string[],
+    images: [],
+    imageDisplays: [],
     canSubmit: false,
     recordDateStr: '',
     recordTimeStr: '',
-    tagOptions: [] as string[],
-    selectedTags: [DEFAULT_TAG] as string[],
-    tagRows: [] as TagRow[],
+    tagOptions: [],
+    selectedTags: [DEFAULT_TAG],
+    tagRows: [],
     newTagDraft: '',
   },
   lifetimes: {
     attached() {
-      void (this as WechatMiniprogram.IAnyObject).initTagOptions()
+      void this.initTagOptions()
     },
     ready() {
-      const self = this as ComposePageThis & {
-        bootstrapEditFromQuery: (q: Record<string, string | undefined> | undefined) => boolean
-      }
-      if ((self.data as { editId?: string }).editId) {
-        return
-      }
+      if (this.data.editId) return
       try {
         const pages = getCurrentPages()
         const top = pages[pages.length - 1] as { options?: Record<string, string | undefined> }
         if (top && top.options) {
-          self.bootstrapEditFromQuery(top.options)
+          this.bootstrapEditFromQuery(top.options)
         }
       } catch {
         // ignore
@@ -98,28 +91,8 @@ Component({
   },
   pageLifetimes: {
     onLoad(options: Record<string, string | undefined>) {
-      const self = this as ComposePageThis & {
-        bootstrapEditFromQuery: (q: Record<string, string | undefined> | undefined) => boolean
-      }
-      const ch =
-        typeof self.getOpenerEventChannel === 'function' ? self.getOpenerEventChannel() : null
-      if (ch && typeof ch.on === 'function') {
-        ch.on('reportComposeInit', (payload: { text?: string }) => {
-          const t = typeof payload.text === 'string' ? payload.text : ''
-          if (t.trim().length === 0) return
-          const editId = (self.data as { editId?: string }).editId || ''
-          const d = self.data as ReportComposeData
-          const canSubmit =
-            t.trim().length > 0 || d.images.length > 0 || d.selectedTags.length > 0
-          self.setData({
-            text: t,
-            canSubmit,
-            textareaMountKey: `${editId || 'new'}-ec-${Date.now()}`,
-          })
-        })
-      }
-      void self.initRecordPickers()
-      self.bootstrapEditFromQuery(options)
+      void this.initRecordPickers()
+      this.bootstrapEditFromQuery(options)
     },
   },
   methods: {
@@ -132,9 +105,8 @@ Component({
     },
 
     rebuildTagRows() {
-      const d = this.data as ReportComposeData
-      const opts = Array.isArray(d.tagOptions) ? d.tagOptions : []
-      const sel = Array.isArray(d.selectedTags) ? d.selectedTags : []
+      const opts = this.data.tagOptions
+      const sel = this.data.selectedTags
       const rows: TagRow[] = opts.map((name) => ({
         name,
         selected: sel.indexOf(name) >= 0,
@@ -150,7 +122,7 @@ Component({
         return
       }
       const tags = r.tags
-      let selected = (this.data as ReportComposeData).selectedTags
+      let selected = this.data.selectedTags
       if (!Array.isArray(selected) || selected.length === 0) {
         if (tags.indexOf(DEFAULT_TAG) >= 0) {
           selected = [DEFAULT_TAG]
@@ -174,27 +146,18 @@ Component({
     },
 
     bootstrapEditFromQuery(query: Record<string, string | undefined> | undefined): boolean {
-      if (!query || typeof query !== 'object') {
-        return false
-      }
+      if (!query || typeof query !== 'object') return false
       const rawId = query.id
-      if (!rawId || typeof rawId !== 'string') {
-        return false
-      }
+      if (!rawId || typeof rawId !== 'string') return false
       let id: string
       try {
         id = decodeURIComponent(rawId)
       } catch {
         return false
       }
-      if (!id) {
-        return false
-      }
+      if (!id) return false
 
-      const ext = this as WechatMiniprogram.IAnyObject
-      if (ext._reportComposeBootstrappedId === id) {
-        return true
-      }
+      if (this._reportComposeBootstrappedId === id) return true
 
       const staged = takeReportEditStaging(id)
       const patch: WechatMiniprogram.IAnyObject = {
@@ -218,7 +181,7 @@ Component({
       }
 
       this.setData(patch)
-      ext._reportComposeBootstrappedId = id
+      this._reportComposeBootstrappedId = id
 
       wx.nextTick(() => {
         void this.loadEditDraft(id)
@@ -235,9 +198,7 @@ Component({
       try {
         const r = await reportGetReport(id)
         if (!r || !r.ok || !r.post) {
-          const d = this.data as ReportComposeData
-          const hadLocal = (d.text || '').trim().length > 0 || (d.images && d.images.length > 0)
-          if (!hadLocal) {
+          if ((this.data.text || '').trim().length === 0 && (!this.data.images || this.data.images.length === 0)) {
             wx.showToast({
               title: reportBizErr(r),
               icon: 'none',
@@ -264,8 +225,8 @@ Component({
         const imageDisplays = imagesRaw.map((img) =>
           typeof img === 'string' ? mediaMap.get(img) || img : img,
         )
-        let recordDateStr = (this.data as ReportComposeData).recordDateStr
-        let recordTimeStr = (this.data as ReportComposeData).recordTimeStr
+        let recordDateStr = this.data.recordDateStr
+        let recordTimeStr = this.data.recordTimeStr
         const msRaw = p.recordAtMs
         if (typeof msRaw === 'number' && !Number.isNaN(msRaw)) {
           recordDateStr = formatMsToDateStr(msRaw)
@@ -290,12 +251,9 @@ Component({
     },
 
     syncCanSubmit() {
-      const d = this.data as ReportComposeData
       const ok =
-        d.text.trim().length > 0 || d.images.length > 0 || (d.selectedTags && d.selectedTags.length > 0)
-      if (ok !== this.data.canSubmit) {
-        this.setData({ canSubmit: ok })
-      }
+        this.data.text.trim().length > 0 || this.data.images.length > 0 || this.data.selectedTags.length > 0
+      if (ok !== this.data.canSubmit) this.setData({ canSubmit: ok })
     },
 
     onTextInput() {
@@ -315,8 +273,7 @@ Component({
     onToggleTag(e: WechatMiniprogram.TouchEvent) {
       const tag = e.currentTarget.dataset.tag as string | undefined
       if (!tag || typeof tag !== 'string') return
-      const d = this.data as ReportComposeData
-      const sel = d.selectedTags.slice()
+      const sel = this.data.selectedTags.slice()
       const idx = sel.indexOf(tag)
       if (idx >= 0) {
         sel.splice(idx, 1)
@@ -333,7 +290,7 @@ Component({
     },
 
     async onAddCustomTag() {
-      const raw = ((this.data as ReportComposeData).newTagDraft || '').trim()
+      const raw = (this.data.newTagDraft || '').trim()
       if (!raw) {
         wx.showToast({ title: '请先输入标签', icon: 'none' })
         return
@@ -344,7 +301,7 @@ Component({
         return
       }
       const tags = r.tags
-      const sel = (this.data as ReportComposeData).selectedTags.slice()
+      const sel = this.data.selectedTags.slice()
       if (sel.indexOf(raw) < 0) {
         sel.push(raw)
       }
@@ -359,20 +316,17 @@ Component({
     },
 
     onAddImagesFromAlbum() {
-      const ext = this as unknown as { _skipAlbumTapUntil?: number }
-      if (Date.now() < (ext._skipAlbumTapUntil || 0)) return
+      if (Date.now() < this._skipAlbumTapUntil) return
       this.pickImages(['album'])
     },
 
     onAddImagesFromCamera() {
-      const ext = this as unknown as { _skipAlbumTapUntil?: number }
-      ext._skipAlbumTapUntil = Date.now() + 480
+      this._skipAlbumTapUntil = Date.now() + 480
       this.pickImages(['camera'], 1)
     },
 
     pickImages(sourceType: Array<'album' | 'camera'>, maxCount?: number) {
-      const d = this.data as ReportComposeData
-      const remain = MAX_IMAGES - d.images.length
+      const remain = MAX_IMAGES - this.data.images.length
       if (remain <= 0) return
       const count = maxCount != null ? Math.min(maxCount, remain) : remain
       wx.chooseMedia({
@@ -381,10 +335,9 @@ Component({
         sizeType: ['compressed'],
         sourceType,
         success: (res) => {
-          const cur = this.data as ReportComposeData
           const next = res.tempFiles.map((f) => f.tempFilePath)
-          const merged = [...cur.images, ...next].slice(0, MAX_IMAGES)
-          const mergedD = [...cur.imageDisplays, ...next].slice(0, MAX_IMAGES)
+          const merged = [...this.data.images, ...next].slice(0, MAX_IMAGES)
+          const mergedD = [...this.data.imageDisplays, ...next].slice(0, MAX_IMAGES)
           this.setData({
             images: merged,
             imageDisplays: mergedD,
@@ -397,9 +350,8 @@ Component({
     onRemoveImage(e: WechatMiniprogram.TouchEvent) {
       const idx = Number(e.currentTarget.dataset.index)
       if (Number.isNaN(idx)) return
-      const d = this.data as ReportComposeData
-      const images = [...d.images]
-      const imageDisplays = [...d.imageDisplays]
+      const images = [...this.data.images]
+      const imageDisplays = [...this.data.imageDisplays]
       images.splice(idx, 1)
       imageDisplays.splice(idx, 1)
       this.setData({ images, imageDisplays })
@@ -419,8 +371,7 @@ Component({
         wx.showToast({ title: '写点内容、选标签或配图', icon: 'none' })
         return
       }
-      const d = this.data as ReportComposeData & { editId: string }
-      const { text, images, editId, recordDateStr, recordTimeStr, selectedTags } = d
+      const { text, images, editId, recordDateStr, recordTimeStr, selectedTags } = this.data
       const body = text.trim().slice(0, MAX_BODY)
       const parsed = parseLocalDateTimeToMs(recordDateStr, recordTimeStr)
       if (!Number.isFinite(parsed)) {
@@ -443,9 +394,8 @@ Component({
           wx.showToast({ title: msg, icon: 'none' })
           return
         }
-        const id = editId
-        const result = id
-          ? await reportUpdate(id, body, fileIds, tags, recordAtMs)
+        const result = editId
+          ? await reportUpdate(editId, body, fileIds, tags, recordAtMs)
           : await reportCreate(body, fileIds, tags, recordAtMs)
         if (!result) return
         if (!result.ok) {
@@ -457,15 +407,14 @@ Component({
           return
         }
         const post: ReportPostPublic = result.post
-        const self = this as ComposePageThis
-        const ch = typeof self.getOpenerEventChannel === 'function' ? self.getOpenerEventChannel() : null
+        const ch = this.getOpenerEventChannel()
         if (ch && typeof ch.emit === 'function') {
           ch.emit('reportPublished', {
-            mode: id ? 'edit' : 'create',
+            mode: editId ? 'edit' : 'create',
             post,
           })
         }
-        wx.showToast({ title: id ? '已保存' : '已发布', icon: 'success', duration: 900 })
+        wx.showToast({ title: editId ? '已保存' : '已发布', icon: 'success', duration: 900 })
         setTimeout(() => {
           wx.navigateBack({
             fail: () => {

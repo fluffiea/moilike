@@ -1,6 +1,6 @@
-import type { DailyPostPublic } from '../types/cloud'
+import type { DailyPostPublic } from '../../types/cloud'
 import { mapAvatarCloudFileIdsToHttps } from './avatar-display'
-import { dailyMapMediaTempUrls } from './daily-api'
+import { dailyMapMediaTempUrls } from '../api/daily-api'
 
 /** 将帖内 cloud 配图替换为临时 HTTPS（换失败则保留原 fileID）。 */
 function mapPostImagesWithTempUrls(

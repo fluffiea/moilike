@@ -1,10 +1,5 @@
 ﻿/** 鍐欐棩甯?/ 缂栬緫鏃ュ父 路 moilike-ui 路 Skyline 鈥?鍗曞崱琛ㄥ崟 + 鍐呴儴鑺傚緥 */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .report-compose-page {
   position: relative;
   box-sizing: border-box;

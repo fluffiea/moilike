@@ -1,11 +1,11 @@
 import requireAuth from '../../../behaviors/require-auth'
 import type { ReportPostPublic } from '../../../types/cloud'
-import { formatDailyCloudBizError } from '../../../utils/cloud-invoke'
-import { enrichReportPostForDisplay } from '../../../utils/report-feed-display'
-import { reportEvaluate, reportGetReport, reportMarkRead } from '../../../utils/report-api'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
+import { enrichReportPostForDisplay } from '../../../utils/display/report-feed-display'
+import { reportEvaluate, reportGetReport, reportMarkRead } from '../../../utils/api/report-api'
 
 function reportDetailBizToast(r: { ok?: boolean; error?: string } | null, fallback: string): string {
-  if (r && r.ok === false) return formatDailyCloudBizError(r.error)
+  if (r && r.ok === false) return formatCloudBizError(r.error)
   return fallback
 }
 

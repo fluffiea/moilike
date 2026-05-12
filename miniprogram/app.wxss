@@ -1,4 +1,52 @@
-/**app.wxss**/
+/** app.wxss — Moilike 全局设计令牌与基础样式（Skyline） **/
+
+/* ======== 设计令牌（CSS Custom Properties） ======== */
+page {
+  /* 层次色 */
+  --mo-l0-bg: #f2f2f7;
+  --mo-l1-card: #ffffff;
+  --mo-l1-accent: #fbfbfd;
+
+  /* 文字色 · 6-3-1 体系 */
+  --mo-text-primary: #1c1c1e;
+  --mo-text-secondary: #8e8e93;
+  --mo-text-muted: #aeaeb2;
+
+  /* 品牌色 */
+  --mo-brand-teal: #668f80;
+  --mo-brand-slate: #4a6670;
+  --mo-brand-rose: #d6a2ad;
+  --mo-brand-sage: #a0af84;
+
+  /* 品牌渐变（主 CTA / 头像环 / 按钮） */
+  --mo-gradient-brand: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  --mo-gradient-warm: linear-gradient(155deg, #d6a2ad 0%, #c3b59f 100%);
+
+  /* 卡片阴影 */
+  --mo-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  --mo-shadow-btn-highlight: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22);
+
+  /* 边框 */
+  --mo-border-card: 1rpx solid rgba(0, 0, 0, 0.04);
+  --mo-border-field: 1rpx solid rgba(0, 0, 0, 0.06);
+  --mo-border-divider: 1rpx solid rgba(0, 0, 0, 0.08);
+
+  /* 圆角 */
+  --mo-radius-card: 56rpx;
+  --mo-radius-module: 48rpx;
+  --mo-radius-btn: 28rpx;
+  --mo-radius-chip: 24rpx;
+
+  /* 间距 */
+  --mo-pad-h: 40rpx;
+  --mo-gap-module: 32rpx;
+
+  /* 全局页面底 */
+  height: 100vh;
+  background-color: var(--mo-l0-bg);
+}
+
+/* 已被各页面组件样式覆盖，仅作为 fallback */
 .container {
   height: 100%;
   display: flex;
@@ -7,4 +55,4 @@
   justify-content: space-between;
   padding: 200rpx 0;
   box-sizing: border-box;
-} 
+}

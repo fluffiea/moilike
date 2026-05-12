@@ -1,6 +1,6 @@
-import type { ReportPostPublic } from '../types/cloud'
-import { reportTagColorIndex } from './report-tag-color'
-import { reportMapMediaTempUrls } from './report-api'
+import type { ReportPostPublic } from '../../types/cloud'
+import { reportTagColorIndex } from '../report-tag-color'
+import { reportMapMediaTempUrls } from '../api/report-api'
 
 function mapPostImagesWithTempUrls(
   images: string[] | undefined,

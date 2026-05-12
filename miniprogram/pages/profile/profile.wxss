@@ -5,11 +5,6 @@
  * [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀仅在头像环与图标底
  */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .profile-shell {
   display: flex;
   flex-direction: column;

@@ -1,10 +1,5 @@
 /** 浮生 Tab · 仅日常列表（Tab 页内：顶栏 + 单列 scroll-view） · moilike-ui（Skyline） */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .moments-page {
   display: flex;
   flex-direction: column;

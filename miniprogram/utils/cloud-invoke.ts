@@ -39,8 +39,8 @@ export function showCloudInvokeErrorToast(
   })
 }
 
-/** 日常云函数业务错误（非 HTTP 层） */
-export function formatDailyCloudBizError(message: string | undefined): string {
+/** 云函数业务错误文案（日常、报备通用） */
+export function formatCloudBizError(message: string | undefined): string {
   if (!message) return '操作失败'
   return message.length > 40 ? `${message.slice(0, 37)}…` : message
 }

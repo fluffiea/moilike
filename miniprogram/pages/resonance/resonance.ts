@@ -11,9 +11,9 @@ import {
   resolveResonanceReportFilter,
 } from '../../constants/resonance-preferences'
 import { setReportEditStaging } from '../../utils/report-edit-staging'
-import { formatDailyCloudBizError } from '../../utils/cloud-invoke'
-import { enrichReportPostForDisplay, enrichReportPostsForDisplay } from '../../utils/report-feed-display'
-import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/report-api'
+import { formatCloudBizError } from '../../utils/cloud-invoke'
+import { enrichReportPostForDisplay, enrichReportPostsForDisplay } from '../../utils/display/report-feed-display'
+import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type ReportListOk = Extract<ReportListCloudResult, { ok: true }>
@@ -60,10 +60,14 @@ type ReportPublishedPayload = {
   post: ReportPostPublic
 }
 
-const RESONANCE_COUPLE_SCOPE_KEY = '_resonanceCoupleScopeKey'
-const RESONANCE_PROFILE_STAMP_KEY = '_resonanceProfileStampKey'
+interface ResonanceCustomInstanceProperty {
+  _resonanceCoupleScopeKey: string
+  _resonanceProfileStampKey: string
+}
 
-Component({
+type ResonanceMethods = WechatMiniprogram.Component.MethodOption
+
+Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProperty>({
   behaviors: [requireAuth],
   pageLifetimes: {
     show() {
@@ -81,7 +85,7 @@ Component({
     reportLoadingMore: false,
     reportHasMore: true,
     reportNextOffset: 0,
-  } as ResonancePageData,
+  },
   lifetimes: {
     attached() {
       invalidateResonancePrefsApplyCache()
@@ -91,15 +95,14 @@ Component({
     syncReportFeedListScope() {
       const coupleKey = moCoupleScopeKey()
       const stamp = moUserProfileDisplayStamp()
-      const ext = this as WechatMiniprogram.IAnyObject
       if (
-        ext[RESONANCE_COUPLE_SCOPE_KEY] === coupleKey &&
-        ext[RESONANCE_PROFILE_STAMP_KEY] === stamp
+        this._resonanceCoupleScopeKey === coupleKey &&
+        this._resonanceProfileStampKey === stamp
       ) {
         return
       }
-      ext[RESONANCE_COUPLE_SCOPE_KEY] = coupleKey
-      ext[RESONANCE_PROFILE_STAMP_KEY] = stamp
+      this._resonanceCoupleScopeKey = coupleKey
+      this._resonanceProfileStampKey = stamp
       this.setData({
         reportList: [],
         reportHasMore: true,
@@ -124,9 +127,8 @@ Component({
     },
 
     ensureReportFirstPageIfEmpty() {
-      const d = this.data as ResonancePageData
-      if (d.reportList.length > 0) return
-      if (d.reportBootstrapping || d.reportRefreshing) return
+      if (this.data.reportList.length > 0) return
+      if (this.data.reportBootstrapping || this.data.reportRefreshing) return
       void this.loadReportList({ reset: true, useRefresher: false })
     },
 
@@ -155,7 +157,7 @@ Component({
       }
       const reset = opts.reset
       const useRefresher = opts.useRefresher === true
-      const filter = this.data.reportFilter as ReportFilter
+      const filter = this.data.reportFilter
       if (reset) {
         if (useRefresher) {
           if (this.data.reportRefreshing) return
@@ -168,7 +170,7 @@ Component({
           const r = await reportListReports(0, filter)
           if (!r) return
           if (!r.ok) {
-            wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+            wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
             return
           }
           await this.applyReportListPage(r, false)
@@ -185,11 +187,10 @@ Component({
       if (this.data.reportLoadingMore || !this.data.reportHasMore) return
       this.setData({ reportLoadingMore: true })
       try {
-        const off = this.data.reportNextOffset
-        const r = await reportListReports(off, filter)
+        const r = await reportListReports(this.data.reportNextOffset, filter)
         if (!r) return
         if (!r.ok) {
-          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
           return
         }
         await this.applyReportListPage(r, true)
@@ -209,13 +210,12 @@ Component({
     async patchReportListItemFromDetail(rawPostId: string | undefined) {
       const postId = normalizeReportPostId(rawPostId)
       if (!postId || !wx.cloud) return
-      const items = this.data.reportList as ReportPostPublic[]
-      const idx = items.findIndex((x) => x.id === postId)
+      const idx = this.data.reportList.findIndex((x) => x.id === postId)
       if (idx < 0) return
       const r = await reportGetReportFeedItem(postId)
       if (!r || !r.ok || !r.post) return
       const post = await enrichReportPostForDisplay(r.post)
-      const list = [...items]
+      const list = [...this.data.reportList]
       list[idx] = post
       this.setData({ reportList: list })
     },
@@ -311,11 +311,10 @@ Component({
         const r = await reportDelete(id)
         if (!r) return
         if (!r.ok) {
-          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
           return
         }
-        const list = this.data.reportList.filter((x) => x.id !== id)
-        this.setData({ reportList: list })
+        this.setData({ reportList: this.data.reportList.filter((x) => x.id !== id) })
         wx.showToast({ title: '已删除', icon: 'success' })
       } finally {
         wx.hideLoading()
@@ -333,11 +332,6 @@ Component({
         events: {
           reportPublished: (payload: ReportPublishedPayload) =>
             void this.applyReportPublished(payload),
-        },
-        success: (res) => {
-          res.eventChannel.emit('reportComposeInit', {
-            text: typeof item.body === 'string' ? item.body : '',
-          })
         },
       })
     },

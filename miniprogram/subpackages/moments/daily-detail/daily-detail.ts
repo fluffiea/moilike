@@ -6,12 +6,11 @@ import {
   dailyGetDaily,
   dailyListComments,
   dailyUpdateComment,
-} from '../../../utils/daily-api'
-import { enrichDailyPostsForDisplay } from '../../../utils/daily-feed-display'
-import { formatDailyCloudBizError } from '../../../utils/cloud-invoke'
+} from '../../../utils/api/daily-api'
+import { enrichDailyPostsForDisplay } from '../../../utils/display/daily-feed-display'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { moUserProfileDisplayStamp } from '../../../utils/session'
-
-const MAX_COMMENT_LEN = 500
+import { MAX_COMMENT_TEXT } from '../../../constants/limits'
 
 /** 列表展示：回复目标 id、本人是否可长按编辑/删除（无子回复） */
 type DailyCommentVm = DailyCommentPublic & {
@@ -81,15 +80,6 @@ function findCommentVm(list: DailyCommentVm[], id: string): DailyCommentVm | und
   return undefined
 }
 
-type DetailPageThis = WechatMiniprogram.Component.Instance<
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject,
-  WechatMiniprogram.IAnyObject
-> & {
-  getOpenerEventChannel?: () => WechatMiniprogram.EventChannel
-}
-
 type DetailPageData = {
   postId: string
   navTitle: string
@@ -101,14 +91,17 @@ type DetailPageData = {
   replyTarget: { id: string; userName: string } | null
   editingCommentId: string | null
   sending: boolean
-  /** 增删改评论后，返回浮生页需刷新列表首评摘要 */
   commentsMutated: boolean
 }
 
-const DAILY_DETAIL_PROFILE_STAMP_KEY = '_dailyDetailProfileStamp'
-const DAILY_DETAIL_REFRESH_EMITTED_KEY = '_dailyDetailRefreshEmitted'
+interface DetailCustomInstanceProperty {
+  _dailyDetailProfileStamp: string
+  _dailyDetailRefreshEmitted: boolean
+}
 
-Component({
+type DetailMethods = WechatMiniprogram.Component.MethodOption
+
+Component<DetailPageData, {}, DetailMethods, DetailCustomInstanceProperty>({
   behaviors: [requireAuth],
   data: {
     postId: '',
@@ -122,7 +115,7 @@ Component({
     editingCommentId: null,
     sending: false,
     commentsMutated: false,
-  } as DetailPageData,
+  },
   lifetimes: {
     ready() {
       if (this.data.postId) return
@@ -146,25 +139,21 @@ Component({
     },
     show() {
       const stamp = moUserProfileDisplayStamp()
-      const ext = this as WechatMiniprogram.IAnyObject
-      const prev = ext[DAILY_DETAIL_PROFILE_STAMP_KEY]
+      const prev = this._dailyDetailProfileStamp
       if (prev !== undefined && prev !== stamp && this.data.postId) {
         void this.loadAll()
       }
-      ext[DAILY_DETAIL_PROFILE_STAMP_KEY] = stamp
+      this._dailyDetailProfileStamp = stamp
     },
   },
   methods: {
     notifyFushengIfCommentsMutated() {
-      const d = this.data as DetailPageData
-      if (!d.commentsMutated) return
-      const ext = this as WechatMiniprogram.IAnyObject
-      if (ext[DAILY_DETAIL_REFRESH_EMITTED_KEY]) return
-      ext[DAILY_DETAIL_REFRESH_EMITTED_KEY] = true
-      const self = this as DetailPageThis
-      const ch = typeof self.getOpenerEventChannel === 'function' ? self.getOpenerEventChannel() : null
+      if (!this.data.commentsMutated) return
+      if (this._dailyDetailRefreshEmitted) return
+      this._dailyDetailRefreshEmitted = true
+      const ch = this.getOpenerEventChannel()
       if (ch && typeof ch.emit === 'function') {
-        ch.emit('dailyListNeedRefreshFromDetail', { postId: d.postId })
+        ch.emit('dailyListNeedRefreshFromDetail', { postId: this.data.postId })
       }
     },
 
@@ -197,7 +186,7 @@ Component({
           commentDraftIsEmpty: true,
         })
         wx.showToast({
-          title: formatDailyCloudBizError(errMsg),
+          title: formatCloudBizError(errMsg),
           icon: 'none',
         })
         return
@@ -261,7 +250,6 @@ Component({
       })
     },
 
-    /** 长按自己的、且尚无回复的评论：与浮生页日常卡片一致，ActionSheet → 编辑 / 删除 */
     onCommentLongPress(e: WechatMiniprogram.TouchEvent) {
       const rowId = e.currentTarget.dataset.rowId as string | undefined
       if (!rowId) return
@@ -327,7 +315,7 @@ Component({
       if (!r || !r.ok) {
         const errMsg = r && r.ok === false ? r.error : undefined
         wx.showToast({
-          title: formatDailyCloudBizError(errMsg),
+          title: formatCloudBizError(errMsg),
           icon: 'none',
         })
         return
@@ -341,7 +329,7 @@ Component({
 
     onCommentDraftInput(e: WechatMiniprogram.Input) {
       const v = typeof e.detail.value === 'string' ? e.detail.value : ''
-      const trimmed = v.slice(0, MAX_COMMENT_LEN)
+      const trimmed = v.slice(0, MAX_COMMENT_TEXT)
       this.setData({
         commentDraft: trimmed,
         commentDraftIsEmpty: trimmed.trim().length === 0,
@@ -362,7 +350,7 @@ Component({
         if (!r || !r.ok) {
           const errMsg = r && r.ok === false ? r.error : undefined
           wx.showToast({
-            title: formatDailyCloudBizError(errMsg),
+            title: formatCloudBizError(errMsg),
             icon: 'none',
           })
           return
@@ -387,7 +375,7 @@ Component({
       if (!r || !r.ok) {
         const errMsg = r && r.ok === false ? r.error : undefined
         wx.showToast({
-          title: formatDailyCloudBizError(errMsg),
+          title: formatCloudBizError(errMsg),
           icon: 'none',
         })
         return

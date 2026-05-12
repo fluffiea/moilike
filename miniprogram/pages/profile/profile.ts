@@ -13,7 +13,7 @@ import {
   avatarImageSrcWhileCloudPending,
   moPartnerWithPendingAvatarSrc,
   resolveAvatarForDisplay,
-} from '../../utils/avatar-display'
+} from '../../utils/display/avatar-display'
 import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'preferences'

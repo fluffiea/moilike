@@ -1,6 +1,6 @@
-import type { TempFileUrlsCloudResult } from '../types/cloud'
-import { USER_CLOUD_FUNCTION } from '../types/cloud'
-import type { MoPartner } from '../types/user'
+import type { TempFileUrlsCloudResult } from '../../types/cloud'
+import { USER_CLOUD_FUNCTION } from '../../types/cloud'
+import type { MoPartner } from '../../types/user'
 
 /** 与页面默认头像路径一致 */
 export const DEFAULT_AVATAR_PATH = '/images/default.png'

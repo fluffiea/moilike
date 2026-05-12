@@ -5,7 +5,7 @@ import type { MoUser } from '../../types/user'
 import {
   DEFAULT_AVATAR_PATH,
   resolveAvatarForDisplay,
-} from '../../utils/avatar-display'
+} from '../../utils/display/avatar-display'
 import moSession from '../../utils/session'
 import {
   formatDurationGridStrings,
@@ -14,9 +14,27 @@ import {
 } from '../../utils/together-since'
 import { togetherSinceMsFromUser } from '../../utils/togetherSinceMs'
 
-const TOGETHER_TICKER = '_msTogetherTicker'
-
 type MilestonesScene = 'empty' | 'needPartner' | 'needSet' | 'hero'
+
+type MilestonesPageData = {
+  msBoot: boolean
+  scene: MilestonesScene
+  defaultAvatar: string
+  myAvatarUrl: string
+  partnerAvatarUrl: string
+  partnerNickLine: string
+  togetherSubtitle: string
+  togetherDaysStr: string
+  togetherHoursStr: string
+  togetherMinutesStr: string
+  togetherSecondsStr: string
+}
+
+interface MilestonesCustomInstanceProperty {
+  _msTogetherTicker: number
+}
+
+type MilestonesMethods = WechatMiniprogram.Component.MethodOption
 
 /** 拉最新资料写入本地会话；失败时静默，仍可用 Storage 中的用户展示朝夕 */
 async function refreshSessionProfileFromCloud(): Promise<void> {
@@ -45,10 +63,9 @@ async function resolveDisplayAvatarUrl(raw: string | undefined): Promise<string>
   }
 }
 
-Component({
+Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstanceProperty>({
   behaviors: [requireAuth],
   data: {
-    /** 首帧与拉云前为 true，避免误显「未登录」占位 */
     msBoot: true,
     scene: 'empty' as MilestonesScene,
     defaultAvatar: DEFAULT_AVATAR_PATH,
@@ -78,22 +95,19 @@ Component({
   methods: {
     async onShowBootstrap() {
       await this.bootstrap()
-      if ((this.data.scene as MilestonesScene) === 'hero') {
+      if (this.data.scene === 'hero') {
         this.startTogetherTicker()
       }
     },
     stopTogetherTicker() {
-      const ext = this as WechatMiniprogram.IAnyObject
-      const id = ext[TOGETHER_TICKER]
-      if (id) {
-        clearInterval(id)
-        ext[TOGETHER_TICKER] = 0
+      if (this._msTogetherTicker) {
+        clearInterval(this._msTogetherTicker)
+        this._msTogetherTicker = 0
       }
     },
     startTogetherTicker() {
       this.stopTogetherTicker()
-      const ext = this as WechatMiniprogram.IAnyObject
-      ext[TOGETHER_TICKER] = setInterval(() => {
+      this._msTogetherTicker = setInterval(() => {
         this.refreshTogetherDurationOnly()
       }, 1000)
     },
@@ -146,7 +160,7 @@ Component({
       })
     },
     refreshTogetherDurationOnly() {
-      if ((this.data.scene as MilestonesScene) !== 'hero') return
+      if (this.data.scene !== 'hero') return
       const u = moSession.loadMoUser()
       const since = togetherSinceMsFromUser(u)
       if (since == null) return

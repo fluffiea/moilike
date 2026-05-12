@@ -1,10 +1,5 @@
 /** 写日常 / 编辑日常 · moilike-ui · Skyline — 单卡表单 + 内部节律 */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .daily-compose-page {
   position: relative;
   box-sizing: border-box;

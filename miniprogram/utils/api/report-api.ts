@@ -5,8 +5,9 @@ import {
   type ReportTagsCloudResult,
   type ReportVoidCloudResult,
   type TempFileUrlsCloudResult,
-} from '../types/cloud'
-import { showCloudInvokeErrorToast } from './cloud-invoke'
+} from '../../types/cloud'
+import { showCloudInvokeErrorToast } from '../cloud-invoke'
+import { MEDIA_TEMP_URL_BATCH } from '../../constants/limits'
 
 export type ReportListFilter = 'pending' | 'all' | 'mine'
 
@@ -180,7 +181,7 @@ export async function reportEvaluate(id: string, text: string): Promise<ReportPo
   }
 }
 
-const REPORT_MEDIA_TEMP_URL_BATCH = 20
+const REPORT_MEDIA_TEMP_URL_BATCH = MEDIA_TEMP_URL_BATCH
 
 export async function reportMapMediaTempUrls(fileIDs: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>()

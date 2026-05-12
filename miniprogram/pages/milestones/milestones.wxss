@@ -3,11 +3,6 @@
  * L0 #F2F2F7 · L1 §2.3 · 主按钮渐变
  */
 
-page {
-  height: 100vh;
-  background-color: #f2f2f7;
-}
-
 .ms-shell {
   display: flex;
   flex-direction: column;

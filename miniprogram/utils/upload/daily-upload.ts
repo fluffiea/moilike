@@ -1,10 +1,9 @@
-import moSession from './session'
+import moSession from '../session'
 
 /**
  * 将本地临时路径上传为云存储 fileID；已是 cloud:// 的条目原样保留。
- * 路径前缀 `reports/{openId}/`，与云函数 getReportMediaTempURLs 校验一致。
  */
-export async function uploadReportImagesIfNeeded(localOrCloud: string[]): Promise<string[]> {
+export async function uploadDailyImagesIfNeeded(localOrCloud: string[]): Promise<string[]> {
   const u = moSession.loadMoUser()
   const openId = u && u.openId ? u.openId : ''
   if (!openId) {
@@ -24,7 +23,7 @@ export async function uploadReportImagesIfNeeded(localOrCloud: string[]): Promis
       out.push(p)
       continue
     }
-    const cloudPath = `reports/${openId}/${Date.now()}_${i}_${Math.random().toString(36).slice(2, 9)}.jpg`
+    const cloudPath = `daily/${openId}/${Date.now()}_${i}_${Math.random().toString(36).slice(2, 9)}.jpg`
     const r = await wx.cloud.uploadFile({
       cloudPath,
       filePath: p,

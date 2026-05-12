@@ -1,10 +1,10 @@
 import requireAuth from '../../behaviors/require-auth'
 import { PAGE_DAILY_COMPOSE, PAGE_DAILY_DETAIL } from '../../constants/paths'
 import type { DailyListCloudResult, DailyPostPublic } from '../../types/cloud'
-import { dailyDeleteDaily, dailyGetDailyFeedItem, dailyListDaily } from '../../utils/daily-api'
+import { dailyDeleteDaily, dailyGetDailyFeedItem, dailyListDaily } from '../../utils/api/daily-api'
 import { setDailyEditStaging } from '../../utils/daily-edit-staging'
-import { formatDailyCloudBizError } from '../../utils/cloud-invoke'
-import { enrichDailyPostsForDisplay } from '../../utils/daily-feed-display'
+import { formatCloudBizError } from '../../utils/cloud-invoke'
+import { enrichDailyPostsForDisplay } from '../../utils/display/daily-feed-display'
 import { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type MomentsPageData = {
@@ -23,8 +23,12 @@ type DailyPublishedPayload = {
 
 type DailyListOk = Extract<DailyListCloudResult, { ok: true }>
 
-const MOMENTS_DAILY_COUPLE_SCOPE_KEY = '_momentsDailyCoupleScopeKey'
-const MOMENTS_DAILY_PROFILE_STAMP_KEY = '_momentsDailyProfileStampKey'
+interface MomentsCustomInstanceProperty {
+  _momentsDailyCoupleScopeKey: string
+  _momentsDailyProfileStampKey: string
+}
+
+type MomentsMethods = WechatMiniprogram.Component.MethodOption
 
 function normalizeDailyPostId(raw: string | undefined): string {
   return typeof raw === 'string' ? raw.trim() : ''
@@ -69,7 +73,7 @@ function clampDailyImageIndex(rawIdx: unknown, maxIndex: number): number {
   return i
 }
 
-Component({
+Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
   behaviors: [requireAuth],
   pageLifetimes: {
     show() {
@@ -84,21 +88,19 @@ Component({
     dailyLoadingMore: false,
     dailyHasMore: true,
     dailyNextOffset: 0,
-  } as MomentsPageData,
+  },
   methods: {
-    /** 伴侣关系或资料展示戳变化时清空列表分页，由 show 后 ensure 触发重拉 */
     syncDailyFeedListScope() {
       const coupleKey = moCoupleScopeKey()
       const profileStamp = moUserProfileDisplayStamp()
-      const ext = this as WechatMiniprogram.IAnyObject
       if (
-        ext[MOMENTS_DAILY_COUPLE_SCOPE_KEY] === coupleKey &&
-        ext[MOMENTS_DAILY_PROFILE_STAMP_KEY] === profileStamp
+        this._momentsDailyCoupleScopeKey === coupleKey &&
+        this._momentsDailyProfileStampKey === profileStamp
       ) {
         return
       }
-      ext[MOMENTS_DAILY_COUPLE_SCOPE_KEY] = coupleKey
-      ext[MOMENTS_DAILY_PROFILE_STAMP_KEY] = profileStamp
+      this._momentsDailyCoupleScopeKey = coupleKey
+      this._momentsDailyProfileStampKey = profileStamp
       this.setData({
         dailyList: [],
         dailyHasMore: true,
@@ -107,9 +109,8 @@ Component({
     },
 
     ensureDailyFirstPageIfEmpty() {
-      const d = this.data as MomentsPageData
-      if (d.dailyList.length > 0) return
-      if (d.dailyBootstrapping || d.dailyRefreshing) return
+      if (this.data.dailyList.length > 0) return
+      if (this.data.dailyBootstrapping || this.data.dailyRefreshing) return
       void this.loadDailyList({ reset: true, useRefresher: false })
     },
 
@@ -149,7 +150,7 @@ Component({
           const r = await dailyListDaily(0)
           if (!r) return
           if (!r.ok) {
-            wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+            wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
             return
           }
           await this.applyDailyListPage(r, 'replace')
@@ -169,7 +170,7 @@ Component({
         const r = await dailyListDaily(this.data.dailyNextOffset)
         if (!r) return
         if (!r.ok) {
-          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
           return
         }
         await this.applyDailyListPage(r, 'append')
@@ -181,21 +182,19 @@ Component({
     async patchDailyListItemFromDetail(rawPostId: string | undefined) {
       const postId = normalizeDailyPostId(rawPostId)
       if (!postId || !wx.cloud) return
-      const items = this.data.dailyList as DailyPostPublic[]
-      const idx = items.findIndex((x) => x.id === postId)
+      const idx = this.data.dailyList.findIndex((x) => x.id === postId)
       if (idx < 0) return
       const r = await dailyGetDailyFeedItem(postId)
       if (!r) return
       if (!r.ok) {
-        const err = typeof r.error === 'string' ? r.error : ''
-        if (err === '不存在' || err === '无权查看') {
-          this.setData({ dailyList: items.filter((x) => x.id !== postId) })
+        if (r.error === '不存在' || r.error === '无权查看') {
+          this.setData({ dailyList: this.data.dailyList.filter((x) => x.id !== postId) })
         }
         return
       }
       const enriched = await enrichDailyPostsForDisplay([r.post])
       const post = enriched[0] != null ? enriched[0] : r.post
-      const list = [...items]
+      const list = [...this.data.dailyList]
       list[idx] = post
       this.setData({ dailyList: list })
     },
@@ -276,7 +275,7 @@ Component({
         const r = await dailyDeleteDaily(id)
         if (!r) return
         if (!r.ok) {
-          wx.showToast({ title: formatDailyCloudBizError(r.error), icon: 'none' })
+          wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
           return
         }
         this.setData({ dailyList: this.data.dailyList.filter((x) => x.id !== id) })
@@ -297,9 +296,6 @@ Component({
         url: `${PAGE_DAILY_COMPOSE}?id=${encodeURIComponent(item.id)}`,
         events: {
           dailyPublished: (payload: DailyPublishedPayload) => void this.applyDailyPublished(payload),
-        },
-        success: (res) => {
-          res.eventChannel.emit('composeInit', { text })
         },
       })
     },
