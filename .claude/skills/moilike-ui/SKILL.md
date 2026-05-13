@@ -1,6 +1,6 @@
 ---
 name: moilike-ui
-description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS). One file, no other skills required. Locked glass, dual px shadows, neutrals, safe-area; default five-color palette (replaceable per project) and optional Liquid Glass flourishes. Moilike default — no press micro-interactions; keep segment-thumb `transition: transform` only. Copy this SKILL.md to any repo’s .cursor/skills/<folder>/.
+description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS). One file, no other skills required. Locked glass, dual px shadows, neutrals, safe-area; default five-color palette (replaceable per project) and optional Liquid Glass flourishes. Moilike default — no press micro-interactions; keep segment-thumb `transition: transform` only. Copy this SKILL.md to any repo’s .claude/skills/<folder>/.
 ---
 
 # Apple 质感小程序 UI 规范（自包含 · 可移植）
@@ -13,7 +13,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 
 **独立性**
 
-- 复制到其它项目时：只需 **本 `SKILL.md` 一个文件**（建议放入目标仓库 **`.cursor/skills/<任意文件夹名>/SKILL.md`**）。无需配套 JSON、无需链接其它 skill。
+- 复制到其它项目时：只需 **本 `SKILL.md` 一个文件**（建议放入目标仓库 **`.claude/skills/<任意文件夹名>/SKILL.md`**）。无需配套 JSON、无需链接其它 skill。
 - 可在 YAML 的 `name` / `description` 中改为你的项目名；**正文规范不变**则行为一致。
 
 **全项目锁定（不可为「换肤」而改数值）**
@@ -182,7 +182,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 
 ## 8. 移植清单（给其它仓库维护者）
 
-1. 仅复制 **本文件** 至目标项目 **`.cursor/skills/<自定义目录>/SKILL.md`**。  
+1. 仅复制 **本文件** 至目标项目 **`.claude/skills/<自定义目录>/SKILL.md`**。  
 2. 按需修改 YAML **`name` / `description`**（可选）。  
 3. 若品牌不同：编辑 **§2.4 表格 Hex** 与文案中的示例渐变方向说明，并做一次 **对比度与实底字色** 核对。  
 4. **勿删 §0–§2.3 的材质锁定**（blur/阴影/灰阶）；**分段滑块拇指**的 **`transform` 位移动画**须保留或与共鸣 / 偏好页一致迁移。若启用按压，**§3.1 可选**参数应在项目内**统一替换**，避免混用两套按压曲线。
