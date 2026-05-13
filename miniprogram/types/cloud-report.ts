@@ -9,6 +9,8 @@ export type ReportPartnerState = 'pending_read' | 'read' | 'evaluated'
 export type ReportPostPublic = {
   id: string
   userName: string
+  authorAvatarUrl?: string
+  authorAvatarDisplay?: string
   body: string
   tags: string[]
   images: string[]

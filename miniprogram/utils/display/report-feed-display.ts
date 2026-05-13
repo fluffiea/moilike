@@ -1,6 +1,7 @@
 import type { ReportPostPublic } from '../../types/cloud'
 import { reportTagColorIndex } from '../report-tag-color'
 import { reportMapMediaTempUrls } from '../api/report-api'
+import { mapAvatarCloudFileIdsToHttps, DEFAULT_AVATAR_PATH } from './avatar-display'
 
 function mapPostImagesWithTempUrls(
   images: string[] | undefined,
@@ -30,14 +31,21 @@ export async function enrichReportPostForDisplay(post: ReportPostPublic): Promis
   return arr[0] != null ? arr[0] : post
 }
 
-/** 共鸣页报备流：配图 cloud:// 换临时 HTTPS；写入 tagChips */
+/** 共鸣页报备流：配图 cloud:// 换临时 HTTPS；写入 tagChips；头像 cloud:// 换临时 HTTPS */
 export async function enrichReportPostsForDisplay(posts: ReportPostPublic[]): Promise<ReportPostPublic[]> {
   if (posts.length === 0) return posts
   const allImageIds = posts.flatMap((p) => (Array.isArray(p.images) ? p.images : []))
-  const imageMap = await reportMapMediaTempUrls(allImageIds)
+  const imageMapPromise = reportMapMediaTempUrls(allImageIds)
+  const avatarIds = posts.map((p) => p.authorAvatarUrl).filter((s): s is string => typeof s === 'string' && !!s)
+  const avatarMapPromise = mapAvatarCloudFileIdsToHttps(avatarIds)
+  const [imageMap, avatarMap] = await Promise.all([imageMapPromise, avatarMapPromise])
   return posts.map((p) => ({
     ...p,
     images: mapPostImagesWithTempUrls(p.images, imageMap),
     tagChips: buildTagChips(p.tags),
+    authorAvatarDisplay:
+      typeof p.authorAvatarUrl === 'string' && p.authorAvatarUrl
+        ? avatarMap.get(p.authorAvatarUrl) || DEFAULT_AVATAR_PATH
+        : DEFAULT_AVATAR_PATH,
   }))
 }

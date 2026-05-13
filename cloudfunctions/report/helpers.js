@@ -77,6 +77,7 @@ function toPublicReport(doc, id, OPENID, partner) {
   const tags = Array.isArray(doc.tags) ? sanitizeTags(doc.tags) : []
   const images = sanitizeImages(doc.images)
   const authorNickName = typeof doc.authorNickName === 'string' ? doc.authorNickName : ''
+  const authorAvatarUrl = typeof doc.authorAvatarUrl === 'string' ? doc.authorAvatarUrl : ''
   let recordTimeStr = ''
   let recordAtMs = 0
   const ra = doc.recordAt
@@ -114,6 +115,7 @@ function toPublicReport(doc, id, OPENID, partner) {
   return {
     id,
     userName: authorNickName || '对方',
+    authorAvatarUrl,
     body,
     tags,
     images,

@@ -8,9 +8,20 @@
       <view class="report-detail-inner">
         <view class="report-detail-sheet">
           <view class="report-detail-head">
-            <text class="report-detail-name">{{post.userName}}</text>
-            <text class="report-detail-suffix"> 的报备</text>
-            <view class="report-detail-status">{{post.statusLabel}}</view>
+            <view class="report-detail-avatar-shell">
+              <image class="report-detail-avatar-img" src="{{post.authorAvatarDisplay}}" mode="aspectFill" />
+            </view>
+            <view class="report-detail-head-main">
+              <view class="report-detail-head-row">
+                <text class="report-detail-name">{{post.userName}}</text>
+                <text class="report-detail-suffix"> 的报备</text>
+                <view class="report-detail-status">{{post.statusLabel}}</view>
+              </view>
+              <text class="report-detail-publish">发布 {{post.publishTimeStr}}</text>
+            </view>
+            <view wx:if="{{post.isMine}}" class="report-detail-more" bind:tap="onMoreActions" aria-role="button" aria-label="更多操作">
+              <text class="report-detail-more-icon">⋯</text>
+            </view>
           </view>
           <view class="report-detail-tag-row">
             <view wx:for="{{post.tagChips}}" wx:for-item="chip" wx:key="name" class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}">
@@ -18,7 +29,6 @@
             </view>
           </view>
           <text class="report-detail-record">记录 {{post.recordTimeStr}}</text>
-          <text class="report-detail-publish">发布 {{post.publishTimeStr}}</text>
           <view wx:if="{{post.images && post.images.length}}" class="report-detail-media">
             <view wx:for="{{post.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-detail-media-cell">
               <image class="report-detail-media-thumb" src="{{img}}" mode="aspectFill" data-index="{{ix}}" bind:tap="onImageTap" />
@@ -30,7 +40,7 @@
             <text class="report-detail-eval-txt">{{post.partnerEvalText}}</text>
           </view>
           <view wx:if="{{post.canMarkRead}}" class="report-detail-actions">
-            <view class="report-detail-btn report-detail-btn--primary" bind:tap="onMarkRead" aria-role="button">
+            <view class="report-detail-btn" bind:tap="onMarkRead" aria-role="button">
               <text class="report-detail-btn-text">标记已阅</text>
             </view>
           </view>
@@ -39,7 +49,7 @@
             <view class="report-detail-eval-shell">
               <textarea class="report-detail-eval-area" placeholder="对方会先看到你的已阅，再读这里…" placeholder-class="report-detail-ph" maxlength="{{500}}" value="{{evalDraft}}" bindinput="onEvalInput" auto-height show-confirm-bar="{{false}}" cursor-spacing="{{24}}" />
             </view>
-            <view class="report-detail-btn report-detail-btn--primary" bind:tap="onSubmitEval" aria-role="button">
+            <view class="report-detail-btn" bind:tap="onSubmitEval" aria-role="button">
               <text class="report-detail-btn-text">提交评价</text>
             </view>
           </view>
