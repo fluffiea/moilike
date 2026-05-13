@@ -1,0 +1,19 @@
+{
+  "description": "项目私有配置文件。复制为 project.private.config.json 后按需修改。",
+  "setting": {
+    "compileHotReLoad": true,
+    "urlCheck": true
+  },
+  "libVersion": "3.15.2",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "默认（登录）",
+          "pathName": "pages/login/login",
+          "query": ""
+        }
+      ]
+    }
+  }
+}

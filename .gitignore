@@ -42,9 +42,11 @@ temp/
 *.pem
 *.key
 
+# ========== 微信开发者工具配置（含敏感 AppID，勿提交）==========
+project.config.json
+project.private.config.json
+
 # ========== 微信开发者工具私有配置（可选）==========
-# 个人本机设置会写进此文件；若希望仓库内统一 libVersion 等，请删除下一行
-# project.private.config.json
 
 # ========== 测试与覆盖率 ==========
 coverage/
