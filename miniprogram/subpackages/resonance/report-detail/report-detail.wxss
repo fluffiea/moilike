@@ -25,7 +25,7 @@
   height: 48%;
   background: radial-gradient(
     ellipse 75% 65% at 50% 0%,
-    rgba(102, 143, 128, 0.045) 0%,
+    rgba(102, 143, 128, 0.05) 0%,
     rgba(242, 242, 247, 0) 70%
   );
 }
@@ -49,12 +49,17 @@
 }
 
 .report-detail-sheet {
-  padding: 36rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+  padding: 40rpx;
   border-radius: 56rpx;
   background-color: #ffffff;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
+
+/* ── 头部 ── */
 
 .report-detail-head {
   display: flex;
@@ -90,7 +95,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8rpx;
+  gap: 6rpx;
 }
 
 .report-detail-name {
@@ -106,14 +111,41 @@
   flex-shrink: 0;
 }
 
+.report-detail-head-meta-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+
+.report-detail-publish {
+  font-size: 24rpx;
+  color: #8e8e93;
+  flex-shrink: 0;
+}
+
 .report-detail-status {
-  padding: 6rpx 16rpx;
+  padding: 8rpx 18rpx;
   border-radius: 24rpx;
   font-size: 22rpx;
   font-weight: 600;
-  color: #4a6670;
-  background-color: rgba(102, 143, 128, 0.14);
   flex-shrink: 0;
+}
+
+.report-detail-status--pending_read {
+  color: #9B7A5A;
+  background-color: rgba(195, 181, 159, 0.22);
+}
+
+.report-detail-status--read {
+  color: #5C7A8A;
+  background-color: rgba(92, 122, 138, 0.12);
+}
+
+.report-detail-status--evaluated {
+  color: #4A6670;
+  background-color: rgba(102, 143, 128, 0.14);
 }
 
 .report-detail-more {
@@ -137,31 +169,39 @@
   transform: translateY(-1rpx);
 }
 
-.report-detail-publish {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #8e8e93;
-}
+/* ── 标签行 ── */
 
 .report-detail-tag-row {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 20rpx;
 }
 
-.report-detail-record {
-  display: block;
-  margin-top: 20rpx;
-  font-size: 30rpx;
+/* ── 记录时刻 ── */
+
+.report-detail-record-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.report-detail-record-label {
+  font-size: 24rpx;
+  color: #8e8e93;
+  flex-shrink: 0;
+}
+
+.report-detail-record-time {
+  font-size: 28rpx;
   font-weight: 600;
   color: #1c1c1e;
 }
 
+/* ── 配图 ── */
+
 .report-detail-media {
-  margin-top: 24rpx;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -186,75 +226,76 @@
   height: 100%;
 }
 
+/* ── 正文 ── */
+
 .report-detail-body {
   display: block;
-  margin-top: 28rpx;
   font-size: 30rpx;
-  line-height: 1.55;
+  line-height: 1.6;
   color: #1c1c1e;
 }
 
-.report-detail-eval {
-  margin-top: 24rpx;
-  padding: 20rpx 24rpx;
+/* ── 评价展示卡 ── */
+
+.report-detail-eval-card {
+  margin-top: 32rpx;
+  padding: 24rpx;
   border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  background-color: rgba(102, 143, 128, 0.045);
 }
 
-.report-detail-eval-lab {
-  display: block;
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #8e8e93;
+.report-detail-eval-card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8rpx;
 }
 
-.report-detail-eval-txt {
+.report-detail-eval-card-label {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #668f80;
+}
+
+.report-detail-eval-edit-hint {
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+  background-color: rgba(102, 143, 128, 0.08);
+  border: 1rpx solid rgba(102, 143, 128, 0.15);
+}
+
+.report-detail-eval-edit-hint-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #668f80;
+}
+
+.report-detail-eval-card-txt {
+  display: block;
   font-size: 28rpx;
   color: #1c1c1e;
-  line-height: 1.5;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
+
+.report-detail-eval-card--editable:active {
+  opacity: 0.72;
+}
+
+/* ── 操作按钮 ── */
 
 .report-detail-actions {
   margin-top: 32rpx;
 }
 
-.report-detail-eval-form {
-  margin-top: 32rpx;
-}
-
-.report-detail-eval-form-lab {
-  display: block;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #1c1c1e;
-  margin-bottom: 12rpx;
-}
-
-.report-detail-eval-shell {
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.report-detail-eval-area {
-  width: 100%;
-  min-height: 160rpx;
-  font-size: 28rpx;
-  color: #1c1c1e;
-}
-
-.report-detail-ph {
-  color: #8e8e93;
-}
-
 .report-detail-btn {
-  margin-top: 24rpx;
   padding: 22rpx 32rpx;
   border-radius: 28rpx;
   background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.3);
+  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -264,6 +305,61 @@
   font-size: 30rpx;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── 评价编辑表单 ── */
+
+.report-detail-eval-form {
+  margin-top: 32rpx;
+}
+
+.report-detail-eval-form-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.report-detail-eval-form-lab {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.report-detail-eval-cancel {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  background-color: rgba(60, 60, 67, 0.06);
+}
+
+.report-detail-eval-cancel-text {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #8e8e93;
+}
+
+.report-detail-eval-shell {
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  background-color: #fbfbfd;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-detail-eval-area {
+  width: 100%;
+  min-height: 160rpx;
+  font-size: 28rpx;
+  color: #1c1c1e;
+  line-height: 1.55;
+}
+
+.report-detail-ph {
+  color: #8e8e93;
+}
+
+.report-detail-btn--eval {
+  margin-top: 20rpx;
 }
 
 .report-detail-pad {
@@ -283,7 +379,8 @@
   color: #8e8e93;
 }
 
-/* 与列表 tag 色阶一致 */
+/* ── tag 色阶（与列表一致） ── */
+
 .report-tag-chip {
   padding: 8rpx 18rpx;
   border-radius: 999rpx;
@@ -297,27 +394,9 @@
   font-weight: 600;
 }
 
-.report-tag-chip--c0 {
-  color: #4a6670;
-  background-color: rgba(74, 102, 112, 0.12);
-}
-.report-tag-chip--c1 {
-  color: #5c4a6b;
-  background-color: rgba(120, 90, 130, 0.12);
-}
-.report-tag-chip--c2 {
-  color: #3d5a4d;
-  background-color: rgba(102, 143, 128, 0.16);
-}
-.report-tag-chip--c3 {
-  color: #6b5a3d;
-  background-color: rgba(180, 140, 80, 0.14);
-}
-.report-tag-chip--c4 {
-  color: #4d5a6b;
-  background-color: rgba(90, 110, 140, 0.12);
-}
-.report-tag-chip--c5 {
-  color: #5a4d4d;
-  background-color: rgba(140, 100, 100, 0.12);
-}
+.report-tag-chip--c0 { color: #4a6670; background-color: rgba(74, 102, 112, 0.12); }
+.report-tag-chip--c1 { color: #5c4a6b; background-color: rgba(120, 90, 130, 0.12); }
+.report-tag-chip--c2 { color: #3d5a4d; background-color: rgba(102, 143, 128, 0.16); }
+.report-tag-chip--c3 { color: #6b5a3d; background-color: rgba(180, 140, 80, 0.14); }
+.report-tag-chip--c4 { color: #4d5a6b; background-color: rgba(90, 110, 140, 0.12); }
+.report-tag-chip--c5 { color: #5a4d4d; background-color: rgba(140, 100, 100, 0.12); }

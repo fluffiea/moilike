@@ -16,7 +16,8 @@ async function evaluateReport(ctx) {
   const doc = vr.doc
   const authorOpenId = typeof doc.authorOpenId === 'string' ? doc.authorOpenId : ''
   if (authorOpenId === ctx.OPENID) return { ok: false, error: '仅对象可评价' }
-  if (partnerStateFromDoc(doc) !== 'read') {
+  const state = partnerStateFromDoc(doc)
+  if (state !== 'read' && state !== 'evaluated') {
     return { ok: false, error: '请先标记已阅后再评价' }
   }
   await reportCol.doc(id).update({

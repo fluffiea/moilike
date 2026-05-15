@@ -102,6 +102,8 @@ function toPublicReport(doc, id, OPENID, partner) {
     !isMine && partnerState === 'pending_read' && partner && authorOpenId === partner
   const canEvaluate =
     !isMine && partnerState === 'read' && partner && authorOpenId === partner
+  const canEditEval =
+    !isMine && partnerState === 'evaluated' && partner && authorOpenId === partner
   let statusLabel = ''
   if (isMine) {
     if (partnerState === 'pending_read') statusLabel = '待对方阅读'
@@ -128,6 +130,7 @@ function toPublicReport(doc, id, OPENID, partner) {
     partnerEvalText: evalText,
     canMarkRead,
     canEvaluate,
+    canEditEval,
   }
 }
 

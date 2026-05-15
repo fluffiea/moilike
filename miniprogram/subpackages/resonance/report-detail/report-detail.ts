@@ -12,6 +12,7 @@ type ReportDetailData = {
   postLoading: boolean
   post: ReportPostPublic | null
   evalDraft: string
+  evalEditing: boolean
 }
 
 interface ReportDetailCustomInstanceProperty {
@@ -28,6 +29,7 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
     postLoading: true,
     post: null,
     evalDraft: '',
+    evalEditing: false,
   },
   lifetimes: {
     ready() {
@@ -116,6 +118,19 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
       this.setData({ evalDraft: e.detail.value || '' })
     },
 
+    onStartEditEval() {
+      const post = this.data.post
+      if (!post || !post.canEditEval) return
+      this.setData({
+        evalEditing: true,
+        evalDraft: post.partnerEvalText || '',
+      })
+    },
+
+    onCancelEditEval() {
+      this.setData({ evalEditing: false, evalDraft: '' })
+    },
+
     onImageTap(e: WechatMiniprogram.TouchEvent) {
       const post = this.data.post
       if (!post || !post.images || post.images.length === 0) return
@@ -175,8 +190,9 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
           return
         }
         const post = await enrichReportPostForDisplay(r.post)
-        this.setData({ post, evalDraft: '' })
-        wx.showToast({ title: '已提交评价', icon: 'success' })
+        const editing = this.data.evalEditing
+        this.setData({ post, evalDraft: '', evalEditing: false })
+        wx.showToast({ title: editing ? '评价已更新' : '已提交评价', icon: 'success' })
       } catch {
         wx.hideLoading()
       }

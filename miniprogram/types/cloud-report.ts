@@ -24,6 +24,7 @@ export type ReportPostPublic = {
   partnerEvalText: string
   canMarkRead?: boolean
   canEvaluate?: boolean
+  canEditEval?: boolean
   /** 客户端 enrich：每条 tag 对应 chip 色阶 0–5 */
   tagChips?: { name: string; colorIdx: number }[]
 }

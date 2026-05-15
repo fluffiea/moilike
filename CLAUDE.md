@@ -13,6 +13,12 @@
 - **例外**：面向用户的 UI 文案（WXML 中文、`navigationBarTitleText` 等）可使用中文。
 - 持久化键名：若已有非拼音旧字段需兼容，新写入统一用英文键。
 
+## Git 提交规范
+
+- **禁止在 commit message 中添加 `Co-Authored-By`、`Signed-off-by`、`Reviewed-by` 等 trailer**，除非用户明确要求。
+- commit message 只包含用户指定的内容，不附加任何元数据标记。
+- 提交前需得到用户明确许可，不可主动 commit。
+
 ## 代码行为准则
 
 ### 1. 先想后写
