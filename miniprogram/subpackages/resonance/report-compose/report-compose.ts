@@ -23,6 +23,10 @@ const MAX_IMAGES = 9
 const MAX_BODY = 2000
 const DEFAULT_TAG = '干饭'
 
+const MODULE_NOW_MS = Date.now()
+const DEFAULT_RECORD_DATE_STR = formatMsToDateStr(MODULE_NOW_MS)
+const DEFAULT_RECORD_TIME_STR = formatMsToTimeStr(MODULE_NOW_MS)
+
 type TagRow = { name: string; selected: boolean }
 
 type ReportComposeData = {
@@ -36,6 +40,7 @@ type ReportComposeData = {
   canSubmit: boolean
   recordDateStr: string
   recordTimeStr: string
+  recordTimeModified: boolean
   tagOptions: string[]
   selectedTags: string[]
   tagRows: TagRow[]
@@ -65,8 +70,9 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
     images: [],
     imageDisplays: [],
     canSubmit: false,
-    recordDateStr: '',
-    recordTimeStr: '',
+    recordDateStr: DEFAULT_RECORD_DATE_STR,
+    recordTimeStr: DEFAULT_RECORD_TIME_STR,
+    recordTimeModified: false,
     tagOptions: [],
     selectedTags: [DEFAULT_TAG],
     tagRows: [],
@@ -75,6 +81,7 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
   lifetimes: {
     attached() {
       void this.initTagOptions()
+      this.initRecordPickers()
     },
     ready() {
       if (this.data.editId) return
@@ -91,7 +98,6 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
   },
   pageLifetimes: {
     onLoad(options: Record<string, string | undefined>) {
-      void this.initRecordPickers()
       this.bootstrapEditFromQuery(options)
     },
   },
@@ -241,6 +247,7 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
           selectedTags: tags.length > 0 ? tags : [DEFAULT_TAG],
           recordDateStr,
           recordTimeStr,
+          recordTimeModified: true,
           canSubmit,
           textareaMountKey: `${id}-cloud-${Date.now()}`,
         })
@@ -262,12 +269,12 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
 
     onRecordDateChange(e: WechatMiniprogram.PickerChange) {
       const val = e.detail && typeof e.detail.value === 'string' ? e.detail.value : ''
-      if (val) this.setData({ recordDateStr: val })
+      if (val) this.setData({ recordDateStr: val, recordTimeModified: true })
     },
 
     onRecordTimeChange(e: WechatMiniprogram.PickerChange) {
       const val = e.detail && typeof e.detail.value === 'string' ? e.detail.value : ''
-      if (val) this.setData({ recordTimeStr: val })
+      if (val) this.setData({ recordTimeStr: val, recordTimeModified: true })
     },
 
     onToggleTag(e: WechatMiniprogram.TouchEvent) {

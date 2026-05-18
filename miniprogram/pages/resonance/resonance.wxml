@@ -14,29 +14,29 @@
                 />
                 <view class="resonance-report-tabs-row">
                   <view
-                    class="resonance-report-tab {{reportFilter === 'pending' ? 'resonance-report-tab--active' : ''}}"
+                    class="resonance-report-tab {{reportFilterIndex === 0 ? 'resonance-report-tab--active' : ''}}"
                     data-filter="pending"
-                    bind:tap="onReportFilter"
+                    bind:tap="onTabTap"
                     aria-role="tab"
-                    aria-selected="{{reportFilter === 'pending'}}"
+                    aria-selected="{{reportFilterIndex === 0}}"
                   >
                     <text class="resonance-report-tab-label">待阅读</text>
                   </view>
                   <view
-                    class="resonance-report-tab {{reportFilter === 'all' ? 'resonance-report-tab--active' : ''}}"
+                    class="resonance-report-tab {{reportFilterIndex === 1 ? 'resonance-report-tab--active' : ''}}"
                     data-filter="all"
-                    bind:tap="onReportFilter"
+                    bind:tap="onTabTap"
                     aria-role="tab"
-                    aria-selected="{{reportFilter === 'all'}}"
+                    aria-selected="{{reportFilterIndex === 1}}"
                   >
                     <text class="resonance-report-tab-label">全部</text>
                   </view>
                   <view
-                    class="resonance-report-tab {{reportFilter === 'mine' ? 'resonance-report-tab--active' : ''}}"
+                    class="resonance-report-tab {{reportFilterIndex === 2 ? 'resonance-report-tab--active' : ''}}"
                     data-filter="mine"
-                    bind:tap="onReportFilter"
+                    bind:tap="onTabTap"
                     aria-role="tab"
-                    aria-selected="{{reportFilter === 'mine'}}"
+                    aria-selected="{{reportFilterIndex === 2}}"
                   >
                     <text class="resonance-report-tab-label">我的</text>
                   </view>
@@ -49,101 +49,116 @@
     </view>
   </view>
 
-  <scroll-view
-    class="resonance-pane-scroll"
-    scroll-y
-    type="list"
-    enhanced="{{true}}"
-    show-scrollbar="{{false}}"
-    bounces="{{true}}"
-    enable-passive="{{true}}"
-    cache-extent="320"
-    refresher-enabled="{{true}}"
-    refresher-triggered="{{reportRefreshing}}"
-    bindrefresherrefresh="onReportRefresh"
-    bindscrolltolower="onReportScrollToLower"
-    lower-threshold="{{120}}"
+  <swiper
+    class="resonance-swiper"
+    current="{{reportFilterIndex}}"
+    duration="{{300}}"
+    cache-extent="1"
+    bindchange="onSwiperChange"
   >
-    <view class="resonance-scroll-body">
-      <view
-        wx:for="{{reportList}}"
-        wx:key="id"
-        list-item
-        class="report-card-slot"
-        data-id="{{item.id}}"
-        bind:tap="onReportCardTap"
-        bind:longpress="onReportPostLongPress"
+    <swiper-item wx:for="{{tabs}}" wx:key="filter">
+      <scroll-view
+        class="resonance-pane-scroll"
+        scroll-y
+        type="list"
+        enhanced="{{true}}"
+        show-scrollbar="{{false}}"
+        bounces="{{true}}"
+        enable-passive="{{true}}"
+        cache-extent="320"
+        refresher-enabled="{{true}}"
+        refresher-triggered="{{item.refreshing}}"
+        bindrefresherrefresh="onReportRefresh"
+        bindscrolltolower="onReportScrollToLower"
+        lower-threshold="{{120}}"
+        data-tab="{{index}}"
       >
-        <view class="report-card">
+        <view class="resonance-scroll-body">
 
-          <!-- 头部：名称 + 状态 + 时间 -->
-          <view class="report-card-head">
-            <view class="report-card-head-row">
-              <text class="report-card-name">{{item.userName}}</text>
-              <text class="report-card-suffix"> 的报备</text>
-              <view class="report-card-status report-card-status--{{item.partnerState}}">{{item.statusLabel}}</view>
-            </view>
-            <view class="report-card-head-sub">
-              <text class="report-card-publish">发布 {{item.publishTimeStr}}</text>
-            </view>
+          <!-- 静默刷新指示器 -->
+          <view class="resonance-silent-refresh" aria-hidden="true">
+            <view wx:if="{{item.silentRefreshing}}" class="resonance-silent-refresh-bar" />
           </view>
 
-          <!-- 标签 -->
-          <view wx:if="{{item.tagChips && item.tagChips.length}}" class="report-card-tag-row">
-            <view
-              wx:for="{{item.tagChips}}"
-              wx:for-item="chip"
-              wx:key="name"
-              class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}"
-            >
-              <text class="report-tag-chip-text">{{chip.name}}</text>
-            </view>
-          </view>
-
-          <!-- 正文 + 配图 -->
           <view
-            wx:if="{{item.body || (item.images && item.images.length)}}"
-            class="report-card-main"
+            wx:for="{{item.list}}"
+            wx:key="id"
+            list-item
+            class="report-card-slot"
+            data-id="{{item.id}}"
+            bind:tap="onReportCardTap"
+            bind:longpress="onReportPostLongPress"
           >
-            <view wx:if="{{item.body}}" class="report-card-body">
-              <text class="report-card-body-text">{{item.body}}</text>
-            </view>
-            <view
-              wx:if="{{item.images && item.images.length}}"
-              class="report-card-media {{ item.images.length === 1 ? 'report-card-media--one' : item.images.length === 2 ? 'report-card-media--two' : 'report-card-media--many' }}"
-            >
-              <view wx:for="{{item.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-card-media-cell">
-                <image class="report-card-media-thumb" src="{{img}}" mode="aspectFill" data-post-id="{{item.id}}" data-img-index="{{ix}}" catch:tap="onReportImageTap" />
+            <view class="report-card report-card--{{item.partnerState}}">
+
+              <!-- 头部 -->
+              <view class="report-card-head">
+                <view class="report-card-head-row">
+                  <view class="report-card-status-dot"></view>
+                  <text class="report-card-name">{{item.userName}}</text>
+                  <text class="report-card-suffix"> 的报备</text>
+                  <view wx:if="{{item.tagChips && item.tagChips.length}}" class="report-card-head-tags">
+                    <view
+                      wx:for="{{item.tagChips}}"
+                      wx:for-item="chip"
+                      wx:key="name"
+                      class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}"
+                    >
+                      <text class="report-tag-chip-text">{{chip.name}}</text>
+                    </view>
+                  </view>
+                </view>
+                <view class="report-card-head-sub">
+                  <text class="report-card-record-label">记录于</text>
+                  <text class="report-card-record-time">{{item.recordTimeStr}}</text>
+                </view>
               </view>
+
+              <!-- 内容 -->
+              <view class="report-card-body-zone">
+
+              <!-- 正文 + 配图 -->
+              <view
+                wx:if="{{item.body || (item.images && item.images.length)}}"
+                class="report-card-main"
+              >
+                <view wx:if="{{item.body}}" class="report-card-body">
+                  <text class="report-card-body-text">{{item.body}}</text>
+                </view>
+                <view
+                  wx:if="{{item.images && item.images.length}}"
+                  class="report-card-media {{ item.images.length === 1 ? 'report-card-media--one' : item.images.length === 2 ? 'report-card-media--two' : 'report-card-media--many' }}"
+                >
+                  <view wx:for="{{item.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-card-media-cell">
+                    <image class="report-card-media-thumb" src="{{img}}" mode="aspectFill" data-post-id="{{item.id}}" data-img-index="{{ix}}" catch:tap="onReportImageTap" />
+                  </view>
+                </view>
+              </view>
+
+              <!-- 对方评价 -->
+              <view wx:if="{{item.partnerEvalText}}" class="report-card-eval">
+                <text class="report-card-eval-label">对方的评价</text>
+                <text class="report-card-eval-text">{{item.partnerEvalText}}</text>
+              </view>
+
+              </view><!-- /report-card-body-zone -->
+
             </view>
           </view>
 
-          <!-- 记录时刻 -->
-          <view class="report-card-record">
-            <text class="report-card-record-label">记录时刻</text>
-            <text class="report-card-record-time">{{item.recordTimeStr}}</text>
+          <view wx:if="{{item.bootstrapping && item.list.length === 0}}" class="resonance-load-more">
+            <text class="resonance-load-more-text">加载中…</text>
+          </view>
+          <view wx:if="{{item.list.length === 0 && !item.bootstrapping && !item.refreshing && item.everLoaded}}" class="resonance-empty">
+            <text class="resonance-empty-title">还没有报备</text>
+            <text class="resonance-empty-hint">记录一件想告诉对方的小事，点右下角按钮即可开始</text>
           </view>
 
-          <!-- 对方评价 -->
-          <view wx:if="{{item.partnerEvalText}}" class="report-card-eval">
-            <text class="report-card-eval-label">对方的评价</text>
-            <text class="report-card-eval-text">{{item.partnerEvalText}}</text>
-          </view>
-
+          <view class="resonance-scroll-pad" />
         </view>
-      </view>
-
-      <view wx:if="{{reportBootstrapping && reportList.length === 0}}" class="resonance-load-more">
-        <text class="resonance-load-more-text">加载中…</text>
-      </view>
-      <view wx:if="{{reportList.length === 0 && !reportBootstrapping && !reportRefreshing}}" class="resonance-empty">
-        <text class="resonance-empty-title">还没有报备</text>
-        <text class="resonance-empty-hint">记录一件想告诉对方的小事，点右下角按钮即可开始</text>
-      </view>
-
-      <view class="resonance-scroll-pad" />
-    </view>
-  </scroll-view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
 
   <view class="resonance-compose-fab resonance-compose-fab--fixed" bind:tap="onReportComposeFabTap" aria-role="button" aria-label="写报备">
     <template is="resonance-compose-plus" />

@@ -1,4 +1,4 @@
-﻿/** 鍐欐棩甯?/ 缂栬緫鏃ュ父 路 moilike-ui 路 Skyline 鈥?鍗曞崱琛ㄥ崟 + 鍐呴儴鑺傚緥 */
+/** 报备编辑页 · moilike-ui · Skyline — 多卡表单 */
 
 .report-compose-page {
   position: relative;
@@ -21,7 +21,6 @@
   overflow: hidden;
 }
 
-/* 鏇磋交鐨勯《鍖烘蹈娑︼紝閬垮厤涓庡崱鐗囨姠瑙嗙嚎 */
 .report-compose-bg-wash {
   position: absolute;
   left: -15%;
@@ -53,59 +52,59 @@
 
 .report-compose-scroll-inner {
   box-sizing: border-box;
-  padding: 28rpx 40rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 28rpx 40rpx 0;
 }
 
-/* 鈥斺€?L1 鍗曞崱 搂2.3 鈥斺€?*/
-.report-compose-sheet {
-  box-sizing: border-box;
-  padding: 36rpx 36rpx 48rpx;
-  border-radius: 56rpx;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
+/* ── 页级引导语 ── */
 
 .report-compose-kicker {
   display: block;
-  margin-bottom: 32rpx;
-  padding: 0 4rpx;
+  margin-bottom: 4rpx;
+  padding: 0 8rpx;
   font-size: 26rpx;
   line-height: 1.45;
   font-weight: 400;
   color: #8e8e93;
 }
 
-.report-compose-block {
+/* ── L1 卡片 ── */
+
+.report-compose-card {
   box-sizing: border-box;
+  padding: 36rpx;
+  border-radius: 48rpx;
+  background-color: #ffffff;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
-.report-compose-block--flush {
-  margin-bottom: 0;
-}
-
-.report-compose-row {
+/* 卡片头部行 */
+.report-compose-card-head {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 24rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 24rpx;
 }
 
-.report-compose-label {
+.report-compose-card-label {
   font-size: 28rpx;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #1c1c1e;
 }
 
-.report-compose-meta-inline {
+.report-compose-card-meta {
   flex-shrink: 0;
   font-size: 22rpx;
   line-height: 1.2;
   color: #8e8e93;
 }
+
+/* ── 正文输入 ── */
 
 .report-compose-field-shell {
   box-sizing: border-box;
@@ -129,23 +128,159 @@
   color: #8e8e93;
 }
 
-.report-compose-rule {
-  height: 1rpx;
-  margin: 32rpx 0;
-  background-color: rgba(0, 0, 0, 0.06);
+/* ── 记录时间 ── */
+
+/* 状态徽章 */
+.report-compose-time-badge {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid transparent;
 }
 
-.report-compose-hint {
-  display: block;
-  margin-bottom: 24rpx;
-  margin-top: -8rpx;
-  padding: 0 2rpx;
-  font-size: 24rpx;
-  line-height: 1.35;
+.report-compose-time-badge--now {
+  background-color: rgba(102, 143, 128, 0.1);
+  border-color: rgba(102, 143, 128, 0.18);
+}
+
+.report-compose-time-badge--custom {
+  background-color: rgba(60, 60, 67, 0.06);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.report-compose-time-badge-dot {
+  font-size: 14rpx;
+  line-height: 1;
+}
+
+.report-compose-time-badge--now .report-compose-time-badge-dot {
+  color: #668f80;
+}
+
+.report-compose-time-badge--custom .report-compose-time-badge-dot {
   color: #8e8e93;
 }
 
-/* 涓€?chip锛屼笌姝ｆ枃璁℃暟鍚屼竴璇箟鏉冮噸 */
+.report-compose-time-badge-text {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.report-compose-time-badge--now .report-compose-time-badge-text {
+  color: #668f80;
+}
+
+.report-compose-time-badge--custom .report-compose-time-badge-text {
+  color: #8e8e93;
+}
+
+.report-compose-pickers {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.report-compose-picker-col {
+  width: 100%;
+}
+
+.report-compose-picker-lab {
+  display: block;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+  color: #8e8e93;
+}
+
+.report-compose-picker-val {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  font-size: 28rpx;
+  color: #1c1c1e;
+  font-weight: 500;
+}
+
+.report-compose-picker-chevron {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  color: #8e8e93;
+  font-weight: 400;
+}
+
+/* ── 标签 ── */
+
+.report-compose-tag-wrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.report-compose-tag-chip {
+  padding: 14rpx 22rpx;
+  border-radius: 28rpx;
+  background-color: rgba(60, 60, 67, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-compose-tag-chip--on {
+  background-color: rgba(102, 143, 128, 0.18);
+  border-color: rgba(102, 143, 128, 0.45);
+}
+
+.report-compose-tag-chip-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.report-compose-add-tag-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.report-compose-add-tag-input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  font-size: 28rpx;
+  color: #1c1c1e;
+}
+
+.report-compose-add-tag-btn {
+  flex-shrink: 0;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  background-color: rgba(102, 143, 128, 0.2);
+  border: 1rpx solid rgba(102, 143, 128, 0.35);
+}
+
+.report-compose-add-tag-btn-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #4a6670;
+}
+
+/* ── 配图 ── */
+
 .report-compose-chip {
   flex-shrink: 0;
   padding: 8rpx 16rpx;
@@ -204,7 +339,6 @@
   z-index: 2;
 }
 
-/* 鐢?view 閾烘弧鍦嗛挳鍐?flex 灞呬腑锛岄伩鍏?text 鍩虹嚎瀵艰嚧 脳 瑙嗚涓婂亸涓?鍋忓乏 */
 .report-compose-remove-x {
   box-sizing: border-box;
   width: 100%;
@@ -219,13 +353,11 @@
   transform: translateY(-1rpx);
 }
 
-/* 澶栨浠呭崰浣嶆垚姝ｆ柟褰紝涓嶅弬涓庣缉鏀句笌鎻忚竟锛岄伩鍏嶅渾瑙掑鍒嗗眰閲嶅奖 */
 .report-compose-cell--add {
   box-sizing: border-box;
   overflow: visible;
 }
 
-/* 鍐呭眰闈㈠煙锛氬疄绾跨粏鎻忚竟 + 绾壊搴曪紝鎸夊帇缂╂斁浜庡唴灞傦紝鍦嗚涓庡灞傚榻愶紙鐣?inset锛?*/
 .report-compose-add-fill {
   position: absolute;
   left: 2rpx;
@@ -269,7 +401,8 @@
   height: 32rpx;
 }
 
-/* L2 搴曟爮锛毬?.2 鐜荤拑涓変欢濂?*/
+/* ── 底部提交栏 L2 玻璃 ── */
+
 .report-compose-footer {
   flex-shrink: 0;
   box-sizing: border-box;
@@ -325,94 +458,4 @@
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
   letter-spacing: 0.03em;
-}
-
-.report-compose-pickers {
-  display: flex;
-  flex-direction: row;
-  gap: 32rpx;
-  margin-top: 8rpx;
-}
-
-.report-compose-picker-col {
-  flex: 1;
-  min-width: 0;
-}
-
-.report-compose-picker-lab {
-  display: block;
-  margin-bottom: 12rpx;
-  font-size: 24rpx;
-  color: #8e8e93;
-}
-
-.report-compose-picker-val {
-  box-sizing: border-box;
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-  font-size: 28rpx;
-  color: #1c1c1e;
-  font-weight: 500;
-}
-
-.report-compose-tag-wrap {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  margin-top: 8rpx;
-}
-
-.report-compose-tag-chip {
-  padding: 12rpx 24rpx;
-  border-radius: 28rpx;
-  background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.report-compose-tag-chip--on {
-  background-color: rgba(102, 143, 128, 0.18);
-  border-color: rgba(102, 143, 128, 0.45);
-}
-
-.report-compose-tag-chip-text {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #1c1c1e;
-}
-
-.report-compose-add-tag-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16rpx;
-  margin-top: 24rpx;
-}
-
-.report-compose-add-tag-input {
-  flex: 1;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 20rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-  font-size: 28rpx;
-  color: #1c1c1e;
-}
-
-.report-compose-add-tag-btn {
-  flex-shrink: 0;
-  padding: 20rpx 28rpx;
-  border-radius: 24rpx;
-  background-color: rgba(102, 143, 128, 0.2);
-  border: 1rpx solid rgba(102, 143, 128, 0.35);
-}
-
-.report-compose-add-tag-btn-text {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #4a6670;
 }
