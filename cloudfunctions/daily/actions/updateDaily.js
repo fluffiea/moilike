@@ -4,7 +4,7 @@
  */
 async function updateDaily(ctx) {
   const { event, db, dailyCol, usersCol, helpers } = ctx
-  const { sanitizeImages, getUserDocRow } = require('../../common/utils')
+  const { sanitizeImages, getUserDocRow } = require('../common/utils')
   const { MAX_SNIPPET, toPublicDaily, nickAvatarForDailyAuthor } = helpers
 
   const id = typeof event.id === 'string' ? event.id : ''

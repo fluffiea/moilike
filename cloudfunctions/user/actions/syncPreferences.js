@@ -5,7 +5,7 @@
 async function syncPreferences(ctx) {
   const { event, db, usersCol, helpers } = ctx
   const { mergePreferences, toPublicUser } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   const incoming =
     event.preferences && typeof event.preferences === 'object' ? event.preferences : {}

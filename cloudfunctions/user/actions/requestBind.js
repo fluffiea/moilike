@@ -5,7 +5,7 @@
 async function requestBind(ctx) {
   const { event, db, usersCol, bindReqCol, helpers } = ctx
   const { normalizeBindCodeInput, isBindCollectionMissing } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   const code = normalizeBindCodeInput(typeof event.bindCode === 'string' ? event.bindCode : '')
   if (code.length < 6) return { ok: false, error: '请输入对方绑定码' }

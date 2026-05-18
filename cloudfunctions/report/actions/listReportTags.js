@@ -4,7 +4,7 @@
  */
 async function listReportTags(ctx) {
   const { usersCol, helpers } = ctx
-  const { getUserDocRow } = require('../../common/utils')
+  const { getUserDocRow } = require('../common/utils')
   const { mergeDefaultTags } = helpers
   const row = await getUserDocRow(usersCol, ctx.OPENID)
   const raw = row && typeof row === 'object' && row.reportTags ? row.reportTags : []

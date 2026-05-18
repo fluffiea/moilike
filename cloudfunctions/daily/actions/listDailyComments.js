@@ -4,7 +4,7 @@
  */
 async function listDailyComments(ctx) {
   const { event, db, dailyCol, usersCol, helpers } = ctx
-  const { getUserRowsByOpenIds } = require('../../common/utils')
+  const { getUserRowsByOpenIds } = require('../common/utils')
   const { DAILY_COMMENTS, toPublicComment, getDailyPostDocForViewer } = helpers
 
   const postId = typeof event.postId === 'string' ? event.postId.trim() : ''

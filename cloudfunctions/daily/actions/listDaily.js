@@ -4,7 +4,7 @@
  */
 async function listDaily(ctx) {
   const { event, db, _, dailyCol, usersCol, helpers } = ctx
-  const { getMutualPartnerOpenId, coupleAuthorOpenIds, getUserRowsByOpenIds } = require('../../common/utils')
+  const { getMutualPartnerOpenId, coupleAuthorOpenIds, getUserRowsByOpenIds } = require('../common/utils')
   const { toPublicDaily, viewerDailyAuthorFromUser, attachDailyListCommentSummaries, PAGE_SIZE } = helpers
 
   const offset = Math.max(0, parseInt(String(event.offset || 0), 10) || 0)

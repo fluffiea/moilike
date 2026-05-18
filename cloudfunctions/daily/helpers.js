@@ -9,7 +9,7 @@ const {
   getUserRowsByOpenIds,
   getMutualPartnerOpenId,
   coupleAuthorOpenIds,
-} = require('../../common/utils')
+} = require('./common/utils')
 
 const DAILY = 'daily_posts'
 const DAILY_COMMENTS = 'daily_comments'

@@ -5,8 +5,8 @@ export const DEFAULT_RESONANCE_REPORT_FILTER = 'pending' as const
 
 function parseReportFilterPref(
   v: unknown,
-): 'pending' | 'all' | 'mine' | undefined {
-  if (v === 'pending' || v === 'all' || v === 'mine') {
+): 'pending' | 'all' | 'to_comment' | undefined {
+  if (v === 'pending' || v === 'all' || v === 'to_comment') {
     return v
   }
   return undefined
@@ -15,7 +15,7 @@ function parseReportFilterPref(
 /** 根据用户偏好解析进入「共鸣」页时应使用的报备筛选。 */
 export function resolveResonanceReportFilter(
   prefs: MoPreferences | null | undefined,
-): 'pending' | 'all' | 'mine' {
+): 'pending' | 'all' | 'to_comment' {
   if (prefs == null) {
     return DEFAULT_RESONANCE_REPORT_FILTER
   }

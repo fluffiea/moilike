@@ -4,7 +4,7 @@
  */
 async function updateDailyComment(ctx) {
   const { event, db, dailyCol, usersCol, helpers } = ctx
-  const { getUserDocRow } = require('../../common/utils')
+  const { getUserDocRow } = require('../common/utils')
   const { DAILY_COMMENTS, MAX_COMMENT_TEXT, toPublicComment, getDailyPostDocForViewer, nickAvatarForDailyAuthor, countDirectReplies } = helpers
 
   const postId = typeof event.postId === 'string' ? event.postId.trim() : ''

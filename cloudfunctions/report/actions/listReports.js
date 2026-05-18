@@ -4,7 +4,7 @@
  */
 async function listReports(ctx) {
   const { event, _, reportCol, usersCol, helpers } = ctx
-  const { getMutualPartnerOpenId, coupleAuthorOpenIds } = require('../../common/utils')
+  const { getMutualPartnerOpenId, coupleAuthorOpenIds } = require('../common/utils')
   const { toPublicReport, PAGE_SIZE } = helpers
 
   const offset = Math.max(0, parseInt(String(event.offset || 0), 10) || 0)
@@ -13,8 +13,11 @@ async function listReports(ctx) {
   const authors = coupleAuthorOpenIds(ctx.OPENID, partner)
 
   let q = reportCol.where({ authorOpenId: _.in(authors) })
-  if (filter === 'mine') {
-    q = reportCol.where({ authorOpenId: ctx.OPENID })
+  if (filter === 'to_comment') {
+    if (!partner) {
+      return { ok: true, list: [], hasMore: false, nextOffset: offset }
+    }
+    q = reportCol.where({ authorOpenId: partner, partnerEvaluatedAt: _.eq(null) })
   } else if (filter === 'pending') {
     if (!partner) {
       return { ok: true, list: [], hasMore: false, nextOffset: offset }
@@ -26,7 +29,7 @@ async function listReports(ctx) {
   const rawList = res.data || []
   const filtered = rawList.filter((doc) => {
     const aid = typeof doc.authorOpenId === 'string' ? doc.authorOpenId : ''
-    if (filter === 'mine') return aid === ctx.OPENID
+    if (filter === 'to_comment') return aid === partner && doc.partnerReadAt != null && doc.partnerEvaluatedAt == null
     if (filter === 'pending') return aid === partner
     return authors.includes(aid)
   })

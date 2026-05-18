@@ -5,7 +5,7 @@
 async function getProfile(ctx) {
   const { usersCol, helpers } = ctx
   const { toPublicUser } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   try {
     const res = await usersCol.doc(ctx.OPENID).get()

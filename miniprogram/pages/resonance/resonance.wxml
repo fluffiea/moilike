@@ -24,21 +24,21 @@
                   </view>
                   <view
                     class="resonance-report-tab {{reportFilterIndex === 1 ? 'resonance-report-tab--active' : ''}}"
-                    data-filter="all"
+                    data-filter="to_comment"
                     bind:tap="onTabTap"
                     aria-role="tab"
                     aria-selected="{{reportFilterIndex === 1}}"
                   >
-                    <text class="resonance-report-tab-label">全部</text>
+                    <text class="resonance-report-tab-label">待评论</text>
                   </view>
                   <view
                     class="resonance-report-tab {{reportFilterIndex === 2 ? 'resonance-report-tab--active' : ''}}"
-                    data-filter="mine"
+                    data-filter="all"
                     bind:tap="onTabTap"
                     aria-role="tab"
                     aria-selected="{{reportFilterIndex === 2}}"
                   >
-                    <text class="resonance-report-tab-label">我的</text>
+                    <text class="resonance-report-tab-label">全部</text>
                   </view>
                 </view>
               </view>

@@ -5,7 +5,7 @@
 async function syncProfile(ctx) {
   const { event, db, usersCol, helpers } = ctx
   const { toPublicUser } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   const nickName = typeof event.nickName === 'string' ? event.nickName.trim() : ''
   const signature = typeof event.signature === 'string' ? event.signature.trim() : ''

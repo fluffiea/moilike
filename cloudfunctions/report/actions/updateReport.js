@@ -4,8 +4,8 @@
  */
 async function updateReport(ctx) {
   const { event, db, reportCol, usersCol, helpers } = ctx
-  const { getUserDocRow, getMutualPartnerOpenId } = require('../../common/utils')
-  const { sanitizeImages } = require('../../common/utils')
+  const { getUserDocRow, getMutualPartnerOpenId } = require('../common/utils')
+  const { sanitizeImages } = require('../common/utils')
   const { sanitizeTags, nickAvatarForAuthor, toPublicReport, MAX_BODY } = helpers
 
   const id = typeof event.id === 'string' ? event.id.trim() : ''

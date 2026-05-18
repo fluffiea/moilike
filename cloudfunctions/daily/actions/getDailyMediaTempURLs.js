@@ -4,7 +4,7 @@
  */
 async function getDailyMediaTempURLs(ctx) {
   const { event, cloud, usersCol, helpers } = ctx
-  const { getMutualPartnerOpenId, coupleAuthorOpenIds, recordTempFileUrlsFromSdk } = require('../../common/utils')
+  const { getMutualPartnerOpenId, coupleAuthorOpenIds, recordTempFileUrlsFromSdk } = require('../common/utils')
   const { isDailyImageFileIdVisibleToCouple } = helpers
 
   const raw = event.fileIDs

@@ -16,12 +16,12 @@ import { enrichReportPostForDisplay, enrichReportPostsForDisplay } from '../../u
 import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
-type ReportFilter = 'pending' | 'all' | 'mine'
+type ReportFilter = 'pending' | 'all' | 'to_comment'
 
 const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
   pending: 0,
-  all: 1,
-  mine: 2,
+  to_comment: 1,
+  all: 2,
 }
 
 type TabSlot = {
@@ -103,8 +103,8 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
     reportFilterIndex: resolveTabIndex(DEFAULT_RESONANCE_REPORT_FILTER),
     tabs: [
       freshTabSlot('pending'),
+      freshTabSlot('to_comment'),
       freshTabSlot('all'),
-      freshTabSlot('mine'),
     ],
   },
   lifetimes: {
@@ -227,8 +227,8 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
       this.setData({
         tabs: [
           freshTabSlot('pending'),
+          freshTabSlot('to_comment'),
           freshTabSlot('all'),
-          freshTabSlot('mine'),
         ],
       })
     },
@@ -473,8 +473,8 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
           }
         } else {
           // create mode
-          if (tab.filter === 'mine') {
-            if (post.isMine) {
+          if (tab.filter === 'to_comment') {
+            if (post.partnerState === 'read') {
               list.unshift(post)
               updateMap['tabs[' + i + '].list'] = list
             }

@@ -14,7 +14,7 @@ async function respondBind(ctx) {
     voidPendingBindRequestsForPair,
     clearTogetherSinceForPair,
   } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   const requestId = typeof event.requestId === 'string' ? event.requestId.trim() : ''
   const accept = event.accept === true

@@ -2,7 +2,7 @@
  * user 云函数内部辅助模块
  */
 
-const { isDocNotFound } = require('../../common/utils')
+const { isDocNotFound } = require('./common/utils')
 
 const USERS = 'users'
 const BIND_REQUESTS = 'bind_requests'
@@ -31,7 +31,7 @@ function sanitizePreferences(raw) {
   if (!raw || typeof raw !== 'object') return {}
   const out = {}
   const rf = raw.resonanceReportFilter
-  if (rf === 'pending' || rf === 'all' || rf === 'mine') {
+  if (rf === 'pending' || rf === 'all' || rf === 'to_comment') {
     out.resonanceReportFilter = rf
   }
   return out

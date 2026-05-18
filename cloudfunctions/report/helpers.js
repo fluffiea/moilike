@@ -8,7 +8,7 @@ const {
   getMutualPartnerOpenId,
   coupleAuthorOpenIds,
   recordTempFileUrlsFromSdk,
-} = require('../../common/utils')
+} = require('./common/utils')
 
 const REPORT = 'report_posts'
 const USERS = 'users'
@@ -22,7 +22,7 @@ const MAX_EVAL_TEXT = 500
 const DEFAULT_TAG = '干饭'
 const REPORT_STORAGE_PREFIX = '/reports/'
 
-const { formatTime } = require('../../common/utils')
+const { formatTime } = require('./common/utils')
 
 function sanitizeTags(arr) {
   if (!Array.isArray(arr)) return []

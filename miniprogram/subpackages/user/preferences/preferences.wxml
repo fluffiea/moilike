@@ -34,6 +34,15 @@
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">待阅读</text>
               </view>
               <view
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'to_comment' ? 'pref-slider-cell--on' : ''}}"
+                data-filter="to_comment"
+                bind:tap="onPickReportFilter"
+                aria-role="tab"
+                aria-selected="{{resonanceReportFilter === 'to_comment'}}"
+              >
+                <text class="pref-slider-cell-text pref-slider-cell-text--compact">待评论</text>
+              </view>
+              <view
                 class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
                 data-filter="all"
                 bind:tap="onPickReportFilter"
@@ -41,15 +50,6 @@
                 aria-selected="{{resonanceReportFilter === 'all'}}"
               >
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">全部</text>
-              </view>
-              <view
-                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
-                data-filter="mine"
-                bind:tap="onPickReportFilter"
-                aria-role="tab"
-                aria-selected="{{resonanceReportFilter === 'mine'}}"
-              >
-                <text class="pref-slider-cell-text pref-slider-cell-text--compact">我的</text>
               </view>
             </view>
           </view>

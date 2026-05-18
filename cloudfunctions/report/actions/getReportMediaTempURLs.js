@@ -4,7 +4,7 @@
  */
 async function getReportMediaTempURLs(ctx) {
   const { event, cloud, usersCol, helpers } = ctx
-  const { getMutualPartnerOpenId, coupleAuthorOpenIds, recordTempFileUrlsFromSdk } = require('../../common/utils')
+  const { getMutualPartnerOpenId, coupleAuthorOpenIds, recordTempFileUrlsFromSdk } = require('../common/utils')
   const { isReportImageFileIdVisibleToCouple } = helpers
 
   const raw = event.fileIDs

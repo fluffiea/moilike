@@ -38,13 +38,13 @@
 .resonance-toolbar-shell {
   box-sizing: border-box;
   width: 100%;
-  min-height: 56rpx;
-  padding: 4rpx 12rpx;
+  min-height: 60rpx;
+  padding: 6rpx 12rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: stretch;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   background-color: rgba(60, 60, 67, 0.035);
   overflow: hidden;
@@ -65,7 +65,7 @@
   position: relative;
   box-sizing: border-box;
   width: 100%;
-  min-height: 48rpx;
+  min-height: 52rpx;
   padding: 2rpx 0;
 }
 
@@ -76,9 +76,9 @@
   top: 2rpx;
   bottom: 2rpx;
   width: calc((100% - 8rpx) / 3);
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
   pointer-events: none;
   transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
@@ -98,7 +98,7 @@
   justify-content: space-between;
   box-sizing: border-box;
   width: 100%;
-  min-height: 44rpx;
+  min-height: 48rpx;
   gap: 4rpx;
   padding: 0;
 }
@@ -106,7 +106,7 @@
 .resonance-report-tab {
   flex: 1;
   min-width: 0;
-  min-height: 44rpx;
+  min-height: 48rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -116,15 +116,13 @@
 }
 
 .resonance-report-tab-label {
-  font-size: 22rpx;
+  font-size: 26rpx;
   font-weight: 500;
   line-height: 1.2;
   color: #8e8e93;
   text-align: center;
   white-space: nowrap;
-  transition:
-    color 0.26s cubic-bezier(0.23, 1, 0.32, 1),
-    font-weight 0.26s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: color 0.26s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .resonance-report-tab--active .resonance-report-tab-label {

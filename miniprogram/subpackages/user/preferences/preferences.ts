@@ -10,11 +10,11 @@ import {
   resolveResonanceReportFilter,
 } from '../../../constants/resonance-preferences'
 
-type ReportFilterPref = 'pending' | 'all' | 'mine'
+type ReportFilterPref = 'pending' | 'all' | 'to_comment'
 
 function reportFilterToIndex(f: ReportFilterPref): number {
   if (f === 'pending') return 0
-  if (f === 'all') return 1
+  if (f === 'to_comment') return 1
   return 2
 }
 
@@ -43,7 +43,7 @@ Component({
 
     onPickReportFilter(e: WechatMiniprogram.TouchEvent) {
       const f = e.currentTarget.dataset.filter as ReportFilterPref | undefined
-      if (f !== 'pending' && f !== 'all' && f !== 'mine') return
+      if (f !== 'pending' && f !== 'all' && f !== 'to_comment') return
       this.setData({ resonanceReportFilter: f, reportFilterIndex: reportFilterToIndex(f) })
     },
 

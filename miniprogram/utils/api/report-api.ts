@@ -9,7 +9,7 @@ import {
 import { showCloudInvokeErrorToast } from '../cloud-invoke'
 import { MEDIA_TEMP_URL_BATCH } from '../../constants/limits'
 
-export type ReportListFilter = 'pending' | 'all' | 'mine'
+export type ReportListFilter = 'pending' | 'all' | 'to_comment'
 
 export async function reportListReports(
   offset: number,

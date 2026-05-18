@@ -1,7 +1,7 @@
 /**
  * 云函数公共工具模块
  * 从 daily / report / user 三个云函数中抽离的共享函数。
- * 使用方式: const { getUserDocRow, getMutualPartnerOpenId, ... } = require('../common/utils')
+ * 使用方式: const { isDocNotFound, getUserDocRow, ... } = require('./common/utils')
  */
 
 const cloud = require('wx-server-sdk')

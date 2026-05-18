@@ -5,7 +5,7 @@
 async function setTogetherSince(ctx) {
   const { event, db, usersCol, helpers } = ctx
   const { toPublicUser, usersDocUpdateTry } = helpers
-  const { isDocNotFound } = require('../../common/utils')
+  const { isDocNotFound } = require('../common/utils')
 
   const raw = event.togetherSinceMs
   let since = NaN

@@ -4,7 +4,7 @@
  */
 async function addDailyComment(ctx) {
   const { event, db, dailyCol, usersCol, helpers } = ctx
-  const { getUserDocRow } = require('../../common/utils')
+  const { getUserDocRow } = require('../common/utils')
   const { DAILY_COMMENTS, MAX_COMMENT_TEXT, MAX_COMMENT_DEPTH, toPublicComment, getDailyPostDocForViewer, nickAvatarForDailyAuthor } = helpers
 
   const postId = typeof event.postId === 'string' ? event.postId.trim() : ''

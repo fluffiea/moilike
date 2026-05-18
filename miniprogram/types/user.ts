@@ -9,7 +9,7 @@ export type MoPartner = {
 /** 偏好；保存在云端 users.preferences */
 export type MoPreferences = {
   /** 进入「共鸣」Tab 时报备列表的默认筛选 */
-  resonanceReportFilter?: 'pending' | 'all' | 'mine'
+  resonanceReportFilter?: 'pending' | 'all' | 'to_comment'
 }
 
 export type MoUser = {

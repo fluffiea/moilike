@@ -4,8 +4,8 @@
  */
 async function createReport(ctx) {
   const { event, db, reportCol, usersCol, helpers } = ctx
-  const { getUserDocRow, getMutualPartnerOpenId } = require('../../common/utils')
-  const { sanitizeImages } = require('../../common/utils')
+  const { getUserDocRow, getMutualPartnerOpenId } = require('../common/utils')
+  const { sanitizeImages } = require('../common/utils')
   const { sanitizeTags, nickAvatarForAuthor, toPublicReport, MAX_BODY } = helpers
 
   const body = typeof event.body === 'string' ? event.body.trim().slice(0, MAX_BODY) : ''

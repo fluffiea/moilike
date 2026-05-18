@@ -4,7 +4,7 @@
  */
 async function addReportTag(ctx) {
   const { event, usersCol, helpers } = ctx
-  const { getUserDocRow } = require('../../common/utils')
+  const { getUserDocRow } = require('../common/utils')
   const { MAX_TAG_LEN, MAX_USER_CUSTOM_TAGS, DEFAULT_TAG, mergeDefaultTags } = helpers
 
   const rawTag = typeof event.tag === 'string' ? event.tag.trim().slice(0, MAX_TAG_LEN) : ''
