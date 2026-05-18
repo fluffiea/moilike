@@ -321,6 +321,7 @@ module.exports = {
   toPublicComment,
   getDailyPostDocForViewer,
   buildPublicDailyForViewer,
+  viewerDailyAuthorFromUser,
   nickAvatarForDailyAuthor,
   countDirectReplies,
   attachDailyListCommentSummaries,

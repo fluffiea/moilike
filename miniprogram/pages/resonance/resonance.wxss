@@ -389,7 +389,7 @@
 /* ── 内容区 ── */
 
 .report-card-body-zone {
-  padding: 24rpx 0 40rpx;
+  padding: 40rpx 0 40rpx;
 }
 
 /* ── tag 色阶（与详情页一致） ── */
@@ -415,7 +415,6 @@
 /* ── 正文 + 配图（内容组） ── */
 
 .report-card-main {
-  margin-top: 32rpx;
 }
 
 .report-card-body {
