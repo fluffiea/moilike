@@ -13,7 +13,7 @@ const {
 
 const DAILY = 'daily_posts'
 const DAILY_COMMENTS = 'daily_comments'
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 const MAX_SNIPPET = 2000
 const MAX_IMAGES = 9
 const MAX_COMMENT_TEXT = 500

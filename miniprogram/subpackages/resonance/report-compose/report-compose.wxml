@@ -1,8 +1,8 @@
 <!--
   报备编辑页 · moilike-ui · Skyline — 多卡表单
-  [Layering] L0 灰底 + L1 四张独立卡片（§2.3 阴影）+ L2 玻璃顶栏/底栏
-  [Spacing] 40rpx 水平起点，卡片间 24rpx gap，36rpx 卡内边距
-  [Palette 6-3-1] ~60% 中性灰面，~30% 白卡，≤10% 品牌色（CTA + 时间徽章）
+  [Layering] L0 灰底 + L1 独立卡片（§2.3 阴影）+ L2 玻璃顶栏/底栏
+  [Spacing] 40rpx 水平起点，卡片间 24rpx gap，核心输入区 36rpx 卡内边距，非输入区 compact
+  [Order] 正文 → 配图（核心区）→ 记录时间 → 标签（非输入区，紧凑置底）
 -->
 <view class="report-compose-page">
   <view class="report-compose-bg" aria-hidden="true">
@@ -40,72 +40,7 @@
           </view>
         </view>
 
-        <!-- Card 2: 记录时间 -->
-        <view class="report-compose-card">
-          <view class="report-compose-card-head">
-            <text class="report-compose-card-label">记录时间</text>
-            <view class="report-compose-time-badge {{recordTimeModified ? 'report-compose-time-badge--custom' : 'report-compose-time-badge--now'}}">
-              <text class="report-compose-time-badge-dot" aria-hidden="true">●</text>
-              <text class="report-compose-time-badge-text">{{recordTimeModified ? '已自定义' : '当前时刻'}}</text>
-            </view>
-          </view>
-          <view class="report-compose-pickers">
-            <view class="report-compose-picker-col">
-              <text class="report-compose-picker-lab">日期</text>
-              <picker mode="date" value="{{recordDateStr}}" bindchange="onRecordDateChange">
-                <view class="report-compose-picker-val" aria-role="button">
-                  <text>{{recordDateStr}}</text>
-                  <text class="report-compose-picker-chevron" aria-hidden="true">›</text>
-                </view>
-              </picker>
-            </view>
-            <view class="report-compose-picker-col">
-              <text class="report-compose-picker-lab">时间</text>
-              <picker mode="time" value="{{recordTimeStr}}" bindchange="onRecordTimeChange">
-                <view class="report-compose-picker-val" aria-role="button">
-                  <text>{{recordTimeStr}}</text>
-                  <text class="report-compose-picker-chevron" aria-hidden="true">›</text>
-                </view>
-              </picker>
-            </view>
-          </view>
-        </view>
-
-        <!-- Card 3: 标签 -->
-        <view class="report-compose-card">
-          <view class="report-compose-card-head">
-            <text class="report-compose-card-label">标签</text>
-            <text class="report-compose-card-meta">可多选</text>
-          </view>
-          <view class="report-compose-tag-wrap">
-            <view
-              wx:for="{{tagRows}}"
-              wx:key="name"
-              class="report-compose-tag-chip {{item.selected ? 'report-compose-tag-chip--on' : ''}}"
-              data-tag="{{item.name}}"
-              bind:tap="onToggleTag"
-              aria-role="button"
-              aria-pressed="{{item.selected}}"
-            >
-              <text class="report-compose-tag-chip-text">{{item.name}}</text>
-            </view>
-          </view>
-          <view class="report-compose-add-tag-row">
-            <input
-              class="report-compose-add-tag-input"
-              value="{{newTagDraft}}"
-              bindinput="onNewTagInput"
-              placeholder="新标签"
-              placeholder-class="report-compose-placeholder"
-              maxlength="{{16}}"
-            />
-            <view class="report-compose-add-tag-btn" bind:tap="onAddCustomTag" aria-role="button">
-              <text class="report-compose-add-tag-btn-text">添加</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- Card 4: 配图 -->
+        <!-- Card 2: 配图 -->
         <view class="report-compose-card">
           <view class="report-compose-card-head">
             <text class="report-compose-card-label">配图</text>
@@ -128,6 +63,67 @@
                 <text class="report-compose-add-sub">还可 {{9 - images.length}} 张</text>
               </view>
             </view>
+          </view>
+        </view>
+
+        <!-- Card 3: 记录时间 -->
+        <view class="report-compose-card report-compose-card--compact">
+          <view class="report-compose-card-head">
+            <text class="report-compose-card-label report-compose-card-label--sm">记录时间</text>
+            <view class="report-compose-time-badge {{recordTimeModified ? 'report-compose-time-badge--custom' : 'report-compose-time-badge--now'}}">
+              <text class="report-compose-time-badge-dot" aria-hidden="true">●</text>
+              <text class="report-compose-time-badge-text">{{recordTimeModified ? '已自定义' : '当前时刻'}}</text>
+            </view>
+          </view>
+          <view class="report-compose-pickers report-compose-pickers--row">
+            <view class="report-compose-picker-col report-compose-picker-col--half">
+              <picker mode="date" value="{{recordDateStr}}" bindchange="onRecordDateChange">
+                <view class="report-compose-picker-val report-compose-picker-val--sm" aria-role="button">
+                  <text>{{recordDateStr}}</text>
+                  <text class="report-compose-picker-chevron" aria-hidden="true">›</text>
+                </view>
+              </picker>
+            </view>
+            <view class="report-compose-picker-col report-compose-picker-col--half">
+              <picker mode="time" value="{{recordTimeStr}}" bindchange="onRecordTimeChange">
+                <view class="report-compose-picker-val report-compose-picker-val--sm" aria-role="button">
+                  <text>{{recordTimeStr}}</text>
+                  <text class="report-compose-picker-chevron" aria-hidden="true">›</text>
+                </view>
+              </picker>
+            </view>
+          </view>
+        </view>
+
+        <!-- Card 4: 标签 -->
+        <view class="report-compose-card report-compose-card--compact">
+          <view class="report-compose-card-head">
+            <text class="report-compose-card-label report-compose-card-label--sm">标签</text>
+            <text class="report-compose-card-meta">可多选</text>
+          </view>
+          <view class="report-compose-tag-wrap">
+            <view
+              wx:for="{{tagRows}}"
+              wx:key="name"
+              class="report-compose-tag-chip {{item.selected ? 'report-compose-tag-chip--on' : ''}}"
+              data-tag="{{item.name}}"
+              bind:tap="onToggleTag"
+              aria-role="button"
+              aria-pressed="{{item.selected}}"
+            >
+              <text class="report-compose-tag-chip-text">{{item.name}}</text>
+            </view>
+            <input
+              class="report-compose-tag-input"
+              value="{{newTagDraft}}"
+              bindinput="onNewTagInput"
+              bindconfirm="onAddCustomTag"
+              placeholder="+ 新标签"
+              placeholder-class="report-compose-tag-input-placeholder"
+              maxlength="{{16}}"
+              confirm-type="done"
+              adjust-position="{{false}}"
+            />
           </view>
         </view>
 
