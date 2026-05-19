@@ -1,3 +1,5 @@
+/** 报备详情页 · moilike-ui · Skyline · 对齐共鸣列表卡 */
+
 .report-detail-page {
   position: relative;
   display: flex;
@@ -15,6 +17,7 @@
   bottom: 0;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .report-detail-bg-wash {
@@ -33,10 +36,10 @@
 .report-detail-stack {
   position: relative;
   z-index: 1;
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .report-detail-scroll {
@@ -45,52 +48,58 @@
 }
 
 .report-detail-inner {
-  padding: 28rpx 40rpx 48rpx;
+  padding: 28rpx 40rpx 0;
 }
 
-.report-detail-sheet {
-  display: flex;
-  flex-direction: column;
-  gap: 32rpx;
-  padding: 40rpx;
+/* ═══════════════════════════════════════════════════════════════════════
+ * L1 白卡 · 左侧柔光 · 色彩即状态（对齐列表卡 report-card）
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.report-detail-card {
+  position: relative;
+  box-sizing: border-box;
+  padding: 40rpx 40rpx 0;
   border-radius: 56rpx;
   background-color: #ffffff;
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-/* ── 头部 ── */
-
-.report-detail-head {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 20rpx;
-}
-
-.report-detail-avatar-shell {
-  flex-shrink: 0;
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
   overflow: hidden;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
-.report-detail-avatar-img {
-  display: block;
-  width: 100%;
-  height: 100%;
+/* 左侧柔光 — 从边缘淡入，天然贴合圆角 */
+.report-detail-card--pending_read {
+  background: linear-gradient(90deg, rgba(232, 168, 124, 0.09) 0%, transparent 48rpx), #ffffff;
+}
+
+.report-detail-card--read {
+  background: linear-gradient(90deg, rgba(107, 191, 138, 0.08) 0%, transparent 48rpx), #ffffff;
+}
+
+.report-detail-card--evaluated {
+  background: linear-gradient(90deg, rgba(155, 142, 196, 0.10) 0%, transparent 48rpx), #ffffff;
+}
+
+/* 状态圆点 */
+.report-detail-card-status-dot {
+  flex-shrink: 0;
+  width: 22rpx;
+  height: 22rpx;
   border-radius: 50%;
+  margin-right: 10rpx;
 }
 
-.report-detail-head-main {
-  flex: 1;
-  min-width: 0;
+.report-detail-card--pending_read .report-detail-card-status-dot { background: #E8A87C; }
+.report-detail-card--read        .report-detail-card-status-dot { background: #6BBF8A; }
+.report-detail-card--evaluated   .report-detail-card-status-dot { background: #9B8EC4; }
+
+/* ── 头部（对齐 report-card-head） ── */
+
+.report-detail-card-head {
+  padding: 0 0 24rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
-.report-detail-head-row {
+.report-detail-card-head-row {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -98,127 +107,147 @@
   gap: 6rpx;
 }
 
-.report-detail-name {
+.report-detail-card-name {
   font-size: 32rpx;
   font-weight: 600;
   color: #1c1c1e;
-  flex-shrink: 0;
 }
 
-.report-detail-suffix {
+.report-detail-card-suffix {
   font-size: 26rpx;
   color: #8e8e93;
-  flex-shrink: 0;
 }
 
-.report-detail-head-meta-row {
+.report-detail-card-head-tags {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 12rpx;
-  margin-top: 8rpx;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-left: auto;
 }
 
-.report-detail-publish {
-  font-size: 24rpx;
-  color: #8e8e93;
+.report-detail-card-more {
   flex-shrink: 0;
-}
-
-.report-detail-status {
-  padding: 8rpx 18rpx;
-  border-radius: 24rpx;
-  font-size: 22rpx;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.report-detail-status--pending_read {
-  color: #9B7A5A;
-  background-color: rgba(195, 181, 159, 0.22);
-}
-
-.report-detail-status--read {
-  color: #5C7A8A;
-  background-color: rgba(92, 122, 138, 0.12);
-}
-
-.report-detail-status--evaluated {
-  color: #4A6670;
-  background-color: rgba(102, 143, 128, 0.14);
-}
-
-.report-detail-more {
-  flex-shrink: 0;
-  width: 56rpx;
-  height: 56rpx;
+  width: 44rpx;
+  height: 44rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(60, 60, 67, 0.06);
   border: 1rpx solid rgba(0, 0, 0, 0.06);
-  margin-top: 2rpx;
 }
 
-.report-detail-more-icon {
-  font-size: 28rpx;
+.report-detail-card-more-icon {
+  font-size: 24rpx;
   font-weight: 600;
   color: #8e8e93;
   line-height: 1;
-  transform: translateY(-1rpx);
 }
 
-/* ── 标签行 ── */
-
-.report-detail-tag-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-/* ── 记录时刻 ── */
-
-.report-detail-record-row {
+.report-detail-card-head-sub {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
+  margin-top: 8rpx;
 }
 
-.report-detail-record-label {
-  font-size: 24rpx;
+.report-detail-card-record-label {
+  font-size: 23rpx;
   color: #8e8e93;
+}
+
+.report-detail-card-record-time {
+  font-size: 23rpx;
+  font-weight: 500;
+  color: #8e8e93;
+}
+
+/* ── 内容区（对齐 report-card-body-zone） ── */
+
+.report-detail-card-body-zone {
+  padding: 40rpx 0 40rpx;
+}
+
+.report-detail-card-main {
+  /* 正文+配图容器 */
+}
+
+.report-detail-card-body-text {
+  display: block;
+  font-size: 30rpx;
+  color: #1c1c1e;
+  line-height: 1.6;
+}
+
+.report-detail-card-body + .report-detail-card-media {
+  margin-top: 24rpx;
+}
+
+/* ── 配图（对齐 report-card-media） ── */
+
+.report-detail-card-media {
+  box-sizing: border-box;
+}
+
+/* 1 张 */
+.report-detail-card-media--one {
+  display: block;
+  width: 100%;
+  border-radius: 32rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.report-detail-card-media--one .report-detail-card-media-cell {
+  width: 100%;
+  padding-bottom: 58%;
+  height: 0;
+  position: relative;
+  border-radius: 32rpx;
+  overflow: hidden;
+}
+
+/* 2 张 */
+.report-detail-card-media--two {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12rpx;
+  width: 100%;
+}
+
+.report-detail-card-media--two .report-detail-card-media-cell {
+  width: calc((100% - 12rpx) / 2);
+  padding-bottom: calc((100% - 12rpx) / 2);
+  height: 0;
+  position: relative;
+  border-radius: 28rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
-.report-detail-record-time {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1c1c1e;
-}
-
-/* ── 配图 ── */
-
-.report-detail-media {
+/* 3+ 张 */
+.report-detail-card-media--many {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: 10rpx;
 }
 
-.report-detail-media-cell {
-  width: calc((100% - 24rpx) / 3);
-  padding-bottom: calc((100% - 24rpx) / 3);
+.report-detail-card-media--many .report-detail-card-media-cell {
+  width: calc((100% - 20rpx) / 3);
+  padding-bottom: calc((100% - 20rpx) / 3);
   height: 0;
   position: relative;
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   overflow: hidden;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
-.report-detail-media-thumb {
+.report-detail-card-media-thumb {
   position: absolute;
   left: 0;
   top: 0;
@@ -226,25 +255,16 @@
   height: 100%;
 }
 
-/* ── 正文 ── */
+/* ── 对方评价（对齐 report-card-eval） ── */
 
-.report-detail-body {
-  display: block;
-  font-size: 30rpx;
-  line-height: 1.6;
-  color: #1c1c1e;
-}
-
-/* ── 评价展示卡 ── */
-
-.report-detail-eval-card {
-  margin-top: 32rpx;
+.report-detail-card-eval {
   padding: 24rpx;
   border-radius: 24rpx;
   background-color: rgba(102, 143, 128, 0.045);
+  margin-top: 32rpx;
 }
 
-.report-detail-eval-card-top {
+.report-detail-card-eval-top {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -252,65 +272,37 @@
   margin-bottom: 8rpx;
 }
 
-.report-detail-eval-card-label {
+.report-detail-card-eval-label {
   font-size: 22rpx;
   font-weight: 600;
   color: #668f80;
 }
 
-.report-detail-eval-edit-hint {
+.report-detail-card-eval-edit {
   padding: 6rpx 18rpx;
   border-radius: 20rpx;
   background-color: rgba(102, 143, 128, 0.08);
   border: 1rpx solid rgba(102, 143, 128, 0.15);
 }
 
-.report-detail-eval-edit-hint-text {
+.report-detail-card-eval-edit-text {
   font-size: 22rpx;
   font-weight: 600;
   color: #668f80;
 }
 
-.report-detail-eval-card-txt {
+.report-detail-card-eval-text {
   display: block;
   font-size: 28rpx;
   color: #1c1c1e;
   line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
-.report-detail-eval-card--editable:active {
-  opacity: 0.72;
-}
+/* ── 评价编辑表单卡 ── */
 
-/* ── 操作按钮 ── */
-
-.report-detail-actions {
-  margin-top: 32rpx;
-}
-
-.report-detail-btn {
-  padding: 22rpx 32rpx;
-  border-radius: 28rpx;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  border: 1rpx solid rgba(74, 102, 112, 0.3);
-  box-shadow: inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.report-detail-btn-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-}
-
-/* ── 评价编辑表单 ── */
-
-.report-detail-eval-form {
-  margin-top: 32rpx;
+.report-detail-eval-form-card {
+  margin-top: 28rpx;
+  padding: 36rpx 40rpx 40rpx;
 }
 
 .report-detail-eval-form-top {
@@ -318,7 +310,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 
 .report-detail-eval-form-lab {
@@ -342,29 +334,63 @@
 .report-detail-eval-shell {
   padding: 24rpx 28rpx;
   border-radius: 24rpx;
-  background-color: #fbfbfd;
+  background-color: #f2f2f7;
   border: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
 .report-detail-eval-area {
   width: 100%;
-  min-height: 160rpx;
+  min-height: 180rpx;
   font-size: 28rpx;
   color: #1c1c1e;
   line-height: 1.55;
+  padding: 0;
 }
 
 .report-detail-ph {
   color: #8e8e93;
 }
 
-.report-detail-btn--eval {
-  margin-top: 20rpx;
+.report-detail-eval-form-actions {
+  margin-top: 24rpx;
 }
 
-.report-detail-pad {
-  height: 32rpx;
+/* ── 标记已阅 ── */
+
+.report-detail-actions {
+  margin-top: 28rpx;
 }
+
+/* ── 操作按钮 ── */
+
+.report-detail-btn {
+  padding: 24rpx 32rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border: 1rpx solid rgba(74, 102, 112, 0.35);
+  box-shadow:
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.02),
+    0 12px 28px rgba(74, 102, 112, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-detail-btn-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.03em;
+}
+
+/* ── 底部留白 ── */
+
+.report-detail-pad {
+  height: calc(200rpx + env(safe-area-inset-bottom));
+}
+
+/* ── 空态 ── */
 
 .report-detail-empty {
   flex: 1;
@@ -379,13 +405,11 @@
   color: #8e8e93;
 }
 
-/* ── tag 色阶（与列表一致） ── */
+/* ── tag 色阶（与共鸣列表一致） ── */
 
 .report-tag-chip {
   padding: 8rpx 18rpx;
   border-radius: 999rpx;
-  font-size: 22rpx;
-  font-weight: 600;
   border: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 

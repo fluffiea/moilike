@@ -13,6 +13,7 @@ type ReportDetailData = {
   post: ReportPostPublic | null
   evalDraft: string
   evalEditing: boolean
+  imageLayoutClass: string
 }
 
 interface ReportDetailCustomInstanceProperty {
@@ -30,6 +31,7 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
     post: null,
     evalDraft: '',
     evalEditing: false,
+    imageLayoutClass: '',
   },
   lifetimes: {
     ready() {
@@ -106,7 +108,12 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
         return
       }
       const post = await enrichReportPostForDisplay(r.post)
-      this.setData({ post, postLoading: false })
+      const imgCount = post.images && post.images.length ? post.images.length : 0
+      let imageLayoutClass = ''
+      if (imgCount === 1) imageLayoutClass = 'report-detail-card-media--one'
+      else if (imgCount === 2) imageLayoutClass = 'report-detail-card-media--two'
+      else if (imgCount >= 3) imageLayoutClass = 'report-detail-card-media--many'
+      this.setData({ post, postLoading: false, imageLayoutClass })
     },
 
     onNavBack() {

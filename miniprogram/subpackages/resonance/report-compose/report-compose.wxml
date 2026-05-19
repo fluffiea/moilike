@@ -108,6 +108,7 @@
               class="report-compose-tag-chip {{item.selected ? 'report-compose-tag-chip--on' : ''}}"
               data-tag="{{item.name}}"
               bind:tap="onToggleTag"
+              bind:longpress="onDeleteTag"
               aria-role="button"
               aria-pressed="{{item.selected}}"
             >
@@ -118,6 +119,7 @@
               value="{{newTagDraft}}"
               bindinput="onNewTagInput"
               bindconfirm="onAddCustomTag"
+              bindblur="onNewTagBlur"
               placeholder="+ 新标签"
               placeholder-class="report-compose-tag-input-placeholder"
               maxlength="{{16}}"

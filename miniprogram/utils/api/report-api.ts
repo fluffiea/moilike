@@ -90,6 +90,22 @@ export async function reportAddTag(tag: string): Promise<ReportTagsCloudResult |
   }
 }
 
+export async function reportDeleteTag(tag: string): Promise<ReportTagsCloudResult | null> {
+  if (!wx.cloud) return null
+  const t = typeof tag === 'string' ? tag.trim() : ''
+  if (!t) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: REPORT_CLOUD_FUNCTION,
+      data: { action: 'deleteReportTag', tag: t },
+    })
+    return res.result as ReportTagsCloudResult
+  } catch (e) {
+    showCloudInvokeErrorToast(e, 4200, REPORT_CLOUD_FUNCTION)
+    return null
+  }
+}
+
 export async function reportCreate(body: string, images: string[], tags: string[], recordAtMs: number) {
   if (!wx.cloud) return null
   try {

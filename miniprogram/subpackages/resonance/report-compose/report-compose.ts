@@ -10,6 +10,7 @@ import {
 import {
   reportAddTag,
   reportCreate,
+  reportDeleteTag,
   reportGetReport,
   reportListTags,
   reportMapMediaTempUrls,
@@ -320,6 +321,42 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
       this.rebuildTagRows()
       this.syncCanSubmit()
       wx.showToast({ title: '已添加', icon: 'none' })
+    },
+
+    onNewTagBlur() {
+      const raw = (this.data.newTagDraft || '').trim()
+      if (!raw) return
+      void this.onAddCustomTag()
+    },
+
+    onDeleteTag(e: WechatMiniprogram.TouchEvent) {
+      const tag = e.currentTarget.dataset.tag as string | undefined
+      if (!tag || typeof tag !== 'string') return
+      if (tag === DEFAULT_TAG) {
+        wx.showToast({ title: '默认标签不可删除', icon: 'none' })
+        return
+      }
+      wx.showModal({
+        title: '删除标签',
+        content: `确定删除标签「${tag}」？`,
+        confirmText: '删除',
+        confirmColor: '#e85d3a',
+        success: async (res) => {
+          if (!res.confirm) return
+          const r = await reportDeleteTag(tag)
+          if (!r || r.ok !== true || !Array.isArray(r.tags)) {
+            wx.showToast({ title: reportBizErr(r), icon: 'none' })
+            return
+          }
+          const sel = this.data.selectedTags.filter((t) => t !== tag)
+          this.setData({
+            tagOptions: r.tags,
+            selectedTags: sel,
+          })
+          this.rebuildTagRows()
+          wx.showToast({ title: '已删除', icon: 'none' })
+        },
+      })
     },
 
     onAddImagesFromAlbum() {

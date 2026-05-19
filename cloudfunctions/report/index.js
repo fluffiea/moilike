@@ -20,6 +20,7 @@ const ACTIONS = {
   evaluateReport: require('./actions/evaluateReport'),
   listReportTags: require('./actions/listReportTags'),
   addReportTag: require('./actions/addReportTag'),
+  deleteReportTag: require('./actions/deleteReportTag'),
   getReportMediaTempURLs: require('./actions/getReportMediaTempURLs'),
 }
 
