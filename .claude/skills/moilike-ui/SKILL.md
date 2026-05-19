@@ -171,6 +171,7 @@ description: Self-contained Apple-style WeChat mini program UI spec (WXML/WXSS).
 - [ ] 若启用按压：**`hover-class`** 或 Worklet 与 **§3.1 可选**一致；**`hover-start-time` 为 0**；无 **`transition: all`**；无 **`opacity`+`scale` 脏叠**；分段控件 **拇指**仍有 **§3.1 基线**的 **`transform` 滑动过渡**  
 - [ ] 分割线与卡片描边 **`1rpx`**；顶栏玻璃底边允许 **§2.2 的 `0.5px`**；无其它 **`1px`** 粗硬描边  
 - [ ] **safe-area** 已处理；可选高光/锐边/浸润未破坏对比（L1 内装饰层符合 **§1.3**）  
+- [ ] **Skyline 兼容**：列 flex 未用 `gap`（改用 margin）；`<input>` 有显式 `height` + `line-height`；`<text>` 无多行插值；折行容器内未用 `margin-left: auto`  
 
 ---
 
