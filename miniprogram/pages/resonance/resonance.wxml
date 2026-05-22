@@ -15,21 +15,21 @@
                 <view class="resonance-report-tabs-row">
                   <view
                     class="resonance-report-tab {{reportFilterIndex === 0 ? 'resonance-report-tab--active' : ''}}"
-                    data-filter="pending"
+                    data-filter="mine"
                     bind:tap="onTabTap"
                     aria-role="tab"
                     aria-selected="{{reportFilterIndex === 0}}"
                   >
-                    <text class="resonance-report-tab-label">待阅读</text>
+                    <text class="resonance-report-tab-label">我的报备</text>
                   </view>
                   <view
                     class="resonance-report-tab {{reportFilterIndex === 1 ? 'resonance-report-tab--active' : ''}}"
-                    data-filter="to_comment"
+                    data-filter="action_needed"
                     bind:tap="onTabTap"
                     aria-role="tab"
                     aria-selected="{{reportFilterIndex === 1}}"
                   >
-                    <text class="resonance-report-tab-label">待评论</text>
+                    <text class="resonance-report-tab-label">待处理</text>
                   </view>
                   <view
                     class="resonance-report-tab {{reportFilterIndex === 2 ? 'resonance-report-tab--active' : ''}}"

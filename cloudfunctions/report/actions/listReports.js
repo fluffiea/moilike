@@ -13,24 +13,21 @@ async function listReports(ctx) {
   const authors = coupleAuthorOpenIds(ctx.OPENID, partner)
 
   let q = reportCol.where({ authorOpenId: _.in(authors) })
-  if (filter === 'to_comment') {
+  if (filter === 'action_needed') {
     if (!partner) {
       return { ok: true, list: [], hasMore: false, nextOffset: offset }
     }
     q = reportCol.where({ authorOpenId: partner, partnerEvaluatedAt: _.eq(null) })
-  } else if (filter === 'pending') {
-    if (!partner) {
-      return { ok: true, list: [], hasMore: false, nextOffset: offset }
-    }
-    q = reportCol.where({ authorOpenId: partner, partnerReadAt: _.eq(null) })
+  } else if (filter === 'mine') {
+    q = reportCol.where({ authorOpenId: ctx.OPENID })
   }
 
   const res = await q.orderBy('recordAt', 'desc').skip(offset).limit(PAGE_SIZE).get()
   const rawList = res.data || []
   const filtered = rawList.filter((doc) => {
     const aid = typeof doc.authorOpenId === 'string' ? doc.authorOpenId : ''
-    if (filter === 'to_comment') return aid === partner && doc.partnerReadAt != null && doc.partnerEvaluatedAt == null
-    if (filter === 'pending') return aid === partner
+    if (filter === 'action_needed') return aid === partner
+    if (filter === 'mine') return aid === ctx.OPENID
     return authors.includes(aid)
   })
   const list = filtered.map((doc) => toPublicReport(doc, doc._id, ctx.OPENID, partner))

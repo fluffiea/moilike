@@ -16,11 +16,11 @@ import { enrichReportPostForDisplay, enrichReportPostsForDisplay } from '../../u
 import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
-type ReportFilter = 'pending' | 'all' | 'to_comment'
+type ReportFilter = 'mine' | 'action_needed' | 'all'
 
 const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
-  pending: 0,
-  to_comment: 1,
+  mine: 0,
+  action_needed: 1,
   all: 2,
 }
 
@@ -102,8 +102,8 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
   data: {
     reportFilterIndex: resolveTabIndex(DEFAULT_RESONANCE_REPORT_FILTER),
     tabs: [
-      freshTabSlot('pending'),
-      freshTabSlot('to_comment'),
+      freshTabSlot('mine'),
+      freshTabSlot('action_needed'),
       freshTabSlot('all'),
     ],
   },
@@ -226,8 +226,8 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
       this._resonanceProfileStampKey = stamp
       this.setData({
         tabs: [
-          freshTabSlot('pending'),
-          freshTabSlot('to_comment'),
+          freshTabSlot('mine'),
+          freshTabSlot('action_needed'),
           freshTabSlot('all'),
         ],
       })
@@ -473,13 +473,13 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
           }
         } else {
           // create mode
-          if (tab.filter === 'to_comment') {
-            if (post.partnerState === 'read') {
+          if (tab.filter === 'mine') {
+            if (post.isMine) {
               list.unshift(post)
               updateMap['tabs[' + i + '].list'] = list
             }
-          } else if (tab.filter === 'pending') {
-            if (post.partnerState === 'pending_read') {
+          } else if (tab.filter === 'action_needed') {
+            if (!post.isMine && post.partnerState !== 'evaluated') {
               list.unshift(post)
               updateMap['tabs[' + i + '].list'] = list
             }

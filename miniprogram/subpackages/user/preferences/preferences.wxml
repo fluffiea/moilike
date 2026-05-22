@@ -25,22 +25,22 @@
             />
             <view class="pref-slider-cells pref-slider-cells--triple">
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'pending' ? 'pref-slider-cell--on' : ''}}"
-                data-filter="pending"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
+                data-filter="mine"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{resonanceReportFilter === 'pending'}}"
+                aria-selected="{{resonanceReportFilter === 'mine'}}"
               >
-                <text class="pref-slider-cell-text pref-slider-cell-text--compact">待阅读</text>
+                <text class="pref-slider-cell-text pref-slider-cell-text--compact">我的报备</text>
               </view>
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'to_comment' ? 'pref-slider-cell--on' : ''}}"
-                data-filter="to_comment"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'action_needed' ? 'pref-slider-cell--on' : ''}}"
+                data-filter="action_needed"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{resonanceReportFilter === 'to_comment'}}"
+                aria-selected="{{resonanceReportFilter === 'action_needed'}}"
               >
-                <text class="pref-slider-cell-text pref-slider-cell-text--compact">待评论</text>
+                <text class="pref-slider-cell-text pref-slider-cell-text--compact">待处理</text>
               </view>
               <view
                 class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"

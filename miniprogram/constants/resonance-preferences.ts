@@ -1,12 +1,12 @@
 import type { MoPreferences } from '../types/user'
 
 /** 「共鸣」Tab 报备列表默认筛选；与 {@link resolveResonanceReportFilter} 一致 */
-export const DEFAULT_RESONANCE_REPORT_FILTER = 'pending' as const
+export const DEFAULT_RESONANCE_REPORT_FILTER = 'mine' as const
 
 function parseReportFilterPref(
   v: unknown,
-): 'pending' | 'all' | 'to_comment' | undefined {
-  if (v === 'pending' || v === 'all' || v === 'to_comment') {
+): 'mine' | 'action_needed' | 'all' | undefined {
+  if (v === 'mine' || v === 'action_needed' || v === 'all') {
     return v
   }
   return undefined
@@ -15,7 +15,7 @@ function parseReportFilterPref(
 /** 根据用户偏好解析进入「共鸣」页时应使用的报备筛选。 */
 export function resolveResonanceReportFilter(
   prefs: MoPreferences | null | undefined,
-): 'pending' | 'all' | 'to_comment' {
+): 'mine' | 'action_needed' | 'all' {
   if (prefs == null) {
     return DEFAULT_RESONANCE_REPORT_FILTER
   }

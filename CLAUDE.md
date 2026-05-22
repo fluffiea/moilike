@@ -1,10 +1,76 @@
-# Moilike 项目规范
+# CLAUDE.md
 
-## Language Protocol
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- **强制**：所有对话回复必须使用**简体中文**。
-- 即使用户输入英文或代码报错为英文，解释和对话仍需使用简体中文。
-- 技术术语可保留英文（如 "Closure"、"Hook"、"Middleware"），或附注中文翻译。
+## 项目架构
+
+情侣间私密互动小程序，基于微信云开发。四大模块：朝夕（纪念日）、浮生（日常记录）、共鸣（报备）、独白（个人资料）。
+
+| 层 | 技术 |
+|---|------|
+| 渲染引擎 | Skyline（glass-easel 组件框架） |
+| 前端语言 | TypeScript（ES2020 + strict，微信开发者工具内置编译，无独立构建管线） |
+| 样式 | WXSS + CSS 自定义属性（设计令牌定义在 `app.wxss` 的 `page` 选择器） |
+| 后端 | 微信云函数（Node.js，`wx-server-sdk ~3.0.1`） |
+| 数据库 | CloudBase 文档数据库 |
+
+- **前端无 `package.json`**：TS 编译由微信开发者工具 `useCompilerPlugins: ["typescript"]` 处理，`es6: false`。
+- `cloudfunctions/` 下三个云函数各有自己的 `package.json` 和 `node_modules/`。
+- 数据库集合：`users`、`dailies`、`reports`、`bind_requests`、`report_tags`。除 `report_tags` 外均仅云函数可读写。
+
+### 分包与预加载
+
+- 主包 5 个 Tab 页：`login`、`milestones`、`moments`、`resonance`、`profile`
+- 3 个分包：`moments_pack`（详情/编辑）、`resonance_pack`（详情/编辑）、`user`（资料编辑/结伴/偏好）
+- 每个主 Tab 通过 `preloadRule` 预加载对应分包（`"network": "all"`）
+
+### 云函数模式
+
+所有云函数遵循统一的分发模式：
+
+```
+cloudfunctions/<name>/
+  index.js      # 入口：按 event.action 分发到 actions/<action>.js
+  helpers.js    # 领域内共享逻辑
+  actions/      # 每个 action 一个文件，导出一个异步函数
+  common/       # 跨云函数公共工具
+```
+
+`index.js` 的 `exports.main` 从 `ACTIONS` 表查找 `event.action`，将 `{ event, cloud, db, <集合>, helpers, OPENID }` 传入处理器。每个 action 文件格式：
+
+```js
+exports.main = async ({ event, cloud, db, dailyCol, usersCol, helpers, OPENID }) => {
+  // ...
+  return { ok: true, data: { ... } }
+}
+```
+
+### 前端模块组织
+
+```
+miniprogram/utils/
+  api/          # 云函数调用封装（daily-api.ts, report-api.ts）
+  display/      # 展示数据转换（Feed 显示逻辑）
+  upload/       # 图片上传逻辑
+miniprogram/constants/   # limits.ts, paths.ts, resonance-preferences.ts
+miniprogram/types/       # cloud.ts, cloud-daily.ts, cloud-report.ts, cloud-user.ts, user.ts
+miniprogram/behaviors/   # require-auth.ts — 鉴权 Behavior，挂载到需登录的页面/组件
+```
+
+---
+
+## 设计令牌
+
+全局 CSS 变量定义在 `miniprogram/app.wxss` 的 `page` 选择器：
+
+- `--mo-l0-bg` / `--mo-l1-card` — 背景色层级
+- `--mo-text-primary` / `--mo-text-secondary` / `--mo-text-tertiary` — 文字层级
+- `--mo-brand-teal` (#668f80) / `--mo-brand-slate` (#4a6670) — 品牌色
+- `--mo-gradient-brand` — 品牌渐变
+
+使用变量而非硬编码颜色值。
+
+---
 
 ## 命名规范
 
@@ -83,7 +149,3 @@ Skyline 对以下 CSS 模式支持不完整，真机表现与模拟器不符：
 - **`gap` 在列 flex 容器上不可靠**：`display: flex; flex-direction: column; gap: 24rpx` 可能导致子元素间距消失。改用在每个子元素上写 `margin-bottom`。
 - **`<input>` 需要显式 `height`**：仅靠 `padding` 无法给 `<input>` 正确高度，会塌陷成一条线。须同时设 `height` 和 `line-height`（`line-height` = `height` - 上下 padding）。
 - **`margin-left: auto` 在 `flex-wrap: wrap` 中折行异常**：若行内元素折行，带 `margin-left: auto` 的元素跳到新行并靠右，破坏布局。改用在左侧兄弟元素设 `flex: 1` 推挤右侧元素。
-
-### 后续扩展
-
-可在此文件末尾追加新小节（如云函数 `callFunction` 命名、`Component` 与页面生命周期混用注意点等），保持每节简短、可执行。
