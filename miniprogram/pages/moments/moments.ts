@@ -1,14 +1,16 @@
 import requireAuth from '../../behaviors/require-auth'
 import { PAGE_DAILY_COMPOSE, PAGE_DAILY_DETAIL } from '../../constants/paths'
-import type { DailyListCloudResult, DailyPostPublic } from '../../types/cloud'
+import type { DailyListCloudResult, DailyPostPublic, DailyStats } from '../../types/cloud'
 import { dailyDeleteDaily, dailyGetDailyFeedItem, dailyListDaily } from '../../utils/api/daily-api'
 import { setDailyEditStaging } from '../../utils/daily-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
-import { enrichDailyPostsForDisplay } from '../../utils/display/daily-feed-display'
+import { enrichDailyPostsForDisplay, groupDailyPostsByDate, type DailyGroup } from '../../utils/display/daily-feed-display'
 import { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type MomentsPageData = {
   dailyList: DailyPostPublic[]
+  dailyStats: DailyStats | null
+  dailyGroups: DailyGroup[]
   dailyRefreshing: boolean
   dailyBootstrapping: boolean
   dailyLoadingMore: boolean
@@ -83,6 +85,8 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
   },
   data: {
     dailyList: [],
+    dailyStats: null,
+    dailyGroups: [],
     dailyRefreshing: false,
     dailyBootstrapping: false,
     dailyLoadingMore: false,
@@ -103,6 +107,8 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       this._momentsDailyProfileStampKey = profileStamp
       this.setData({
         dailyList: [],
+        dailyStats: null,
+        dailyGroups: [],
         dailyHasMore: true,
         dailyNextOffset: 0,
       })
@@ -117,15 +123,22 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
     async applyDailyListPage(r: DailyListOk, mode: 'replace' | 'append'): Promise<void> {
       const chunk = await enrichDailyPostsForDisplay(r.list)
       if (mode === 'replace') {
-        this.setData({
+        const groups = groupDailyPostsByDate(chunk)
+        const patch: Record<string, unknown> = {
           dailyList: chunk,
+          dailyGroups: groups,
           dailyHasMore: r.hasMore,
           dailyNextOffset: r.nextOffset,
-        })
+        }
+        if (r.stats) patch.dailyStats = r.stats
+        this.setData(patch)
         return
       }
+      const merged = [...this.data.dailyList, ...chunk]
+      const groups = groupDailyPostsByDate(merged)
       this.setData({
-        dailyList: [...this.data.dailyList, ...chunk],
+        dailyList: merged,
+        dailyGroups: groups,
         dailyHasMore: r.hasMore,
         dailyNextOffset: r.nextOffset,
       })
@@ -188,7 +201,11 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       if (!r) return
       if (!r.ok) {
         if (r.error === '不存在' || r.error === '无权查看') {
-          this.setData({ dailyList: this.data.dailyList.filter((x) => x.id !== postId) })
+          const list = this.data.dailyList.filter((x) => x.id !== postId)
+          this.setData({
+            dailyList: list,
+            dailyGroups: groupDailyPostsByDate(list),
+          })
         }
         return
       }
@@ -196,7 +213,10 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       const post = enriched[0] != null ? enriched[0] : r.post
       const list = [...this.data.dailyList]
       list[idx] = post
-      this.setData({ dailyList: list })
+      this.setData({
+        dailyList: list,
+        dailyGroups: groupDailyPostsByDate(list),
+      })
     },
 
     onDailyRefresh() {
@@ -278,7 +298,8 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
           wx.showToast({ title: formatCloudBizError(r.error), icon: 'none' })
           return
         }
-        this.setData({ dailyList: this.data.dailyList.filter((x) => x.id !== id) })
+        const list = this.data.dailyList.filter((x) => x.id !== id)
+        this.setData({ dailyList: list, dailyGroups: groupDailyPostsByDate(list) })
         wx.showToast({ title: '已删除', icon: 'success' })
       } finally {
         wx.hideLoading()
@@ -344,7 +365,7 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
         const post = enriched[0] != null ? enriched[0] : raw
         list.unshift(post)
       }
-      this.setData({ dailyList: list })
+      this.setData({ dailyList: list, dailyGroups: groupDailyPostsByDate(list) })
     },
   },
 })

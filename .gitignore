@@ -83,3 +83,6 @@ Desktop.ini
 
 node_modules/.cache/
 
+# Claude Code
+.claude/settings.local.json
+

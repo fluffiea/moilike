@@ -14,6 +14,8 @@ export type DailyPostPublic = {
   avatarTone?: 'mist' | 'dew' | 'bloom' | 'meadow'
   imageLayout?: 'short' | 'normal' | 'tall'
   isMine?: boolean
+  /** 云函数返回的 UTC 毫秒时间戳，客户端日期分组用 */
+  createdAtMs?: number
   /** listDaily：有评论时首条摘要（时间升序第一条）与总数 */
   commentCount?: number
   firstCommentUserName?: string
@@ -22,8 +24,16 @@ export type DailyPostPublic = {
   commentCountLabel?: string
 }
 
+/** 日常统计（仅 listDaily offset=0 返回） */
+export type DailyStats = {
+  /** 本周（周一 00:00 至今）couple 双方有帖子的不同日期数 */
+  weekCount: number
+  /** 从今天往回数的连续记录天数（中断即停） */
+  streak: number
+}
+
 export type DailyListCloudResult =
-  | { ok: true; list: DailyPostPublic[]; hasMore: boolean; nextOffset: number }
+  | { ok: true; list: DailyPostPublic[]; hasMore: boolean; nextOffset: number; stats?: DailyStats }
   | { ok: false; error?: string }
 
 export type DailyPostCloudResult =

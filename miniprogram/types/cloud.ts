@@ -19,6 +19,7 @@ export {
   type DailyListCloudResult,
   type DailyPostCloudResult,
   type DailyVoidCloudResult,
+  type DailyStats,
   type DailyCommentPublic,
   type DailyListCommentsCloudResult,
   type DailyAddCommentCloudResult,

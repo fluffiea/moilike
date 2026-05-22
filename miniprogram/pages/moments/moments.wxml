@@ -17,89 +17,101 @@
     lower-threshold="{{120}}"
   >
     <view class="moments-feed">
-      <view
-        wx:for="{{dailyList}}"
-        wx:key="id"
-        list-item
-        class="daily-post"
-        data-id="{{item.id}}"
-        bind:tap="onDailyPostTap"
-        bind:longpress="onDailyPostLongPress"
-      >
-        <view class="daily-post__body">
-          <view class="daily-post__main">
-            <view class="daily-post__head">
-              <view class="daily-post__avatar-shell">
-                <image
-                  wx:if="{{ item.avatarUrl }}"
-                  class="daily-post__avatar daily-post__avatar--photo"
-                  src="{{ item.avatarUrl }}"
-                  mode="aspectFill"
-                />
-                <view
-                  wx:else
-                  class="daily-post__avatar-ph daily-post__ph--{{ item.avatarTone || 'dew' }}"
-                  aria-hidden="true"
-                >
-                  <view class="daily-post__ph-shine" />
-                </view>
-              </view>
-              <view class="daily-post__head-main">
-                <view class="daily-post__head-row">
-                  <view class="daily-post__name">{{item.userName}}</view>
-                  <text class="daily-post__time">{{item.time}}</text>
-                </view>
-              </view>
-            </view>
-            <view
-              wx:if="{{ item.snippet || item.images.length }}"
-              class="daily-post__content"
-            >
-              <view wx:if="{{item.snippet}}" class="daily-post__prose">
-                <text class="daily-post__text">{{item.snippet}}</text>
-              </view>
-              <view wx:if="{{ item.images.length }}" class="daily-post__media">
-                <block wx:if="{{ item.images.length === 1 }}">
+      <view wx:if="{{dailyStats && dailyList.length > 0}}" class="daily-stats-card">
+        <text class="daily-stats-card__text">本周已记录 {{dailyStats.weekCount}} 天 · 连续 {{dailyStats.streak}} 天</text>
+      </view>
+
+      <block wx:for="{{dailyGroups}}" wx:key="dateKey">
+        <view class="daily-date-head">
+          <view class="daily-date-head__line" />
+          <text class="daily-date-head__label">{{item.dateLabel}}</text>
+          <view class="daily-date-head__line" />
+        </view>
+        <view
+          wx:for="{{item.posts}}"
+          wx:for-item="post"
+          wx:key="id"
+          list-item
+          class="daily-post"
+          data-id="{{post.id}}"
+          bind:tap="onDailyPostTap"
+          bind:longpress="onDailyPostLongPress"
+        >
+          <view class="daily-post__body">
+            <view class="daily-post__main">
+              <view class="daily-post__head">
+                <view class="daily-post__avatar-shell {{post.isMine ? 'daily-post__avatar-shell--mine' : 'daily-post__avatar-shell--partner'}}">
+                  <image
+                    wx:if="{{ post.avatarUrl }}"
+                    class="daily-post__avatar daily-post__avatar--photo"
+                    src="{{ post.avatarUrl }}"
+                    mode="aspectFill"
+                  />
                   <view
-                    class="daily-post__img-wrap daily-post__img-wrap--{{ item.imageLayout || 'normal' }}"
-                    data-post-id="{{item.id}}"
-                    data-img-index="{{0}}"
-                    catch:tap="onDailyImageTap"
+                    wx:else
+                    class="daily-post__avatar-ph daily-post__ph--{{ post.avatarTone || 'dew' }}"
+                    aria-hidden="true"
                   >
-                    <image class="daily-post__img" src="{{ item.images[0] }}" mode="aspectFill" />
+                    <view class="daily-post__ph-shine" />
                   </view>
-                </block>
-                <block wx:else>
-                  <view
-                    class="daily-post__img-grid daily-post__img-grid--{{ item.images.length === 2 ? 'dual' : 'multi' }}"
-                  >
+                </view>
+                <view class="daily-post__head-main">
+                  <view class="daily-post__head-row">
+                    <view class="daily-post__name">{{post.userName}}</view>
+                    <text class="daily-post__time">{{post.time}}</text>
+                  </view>
+                </view>
+              </view>
+              <view
+                wx:if="{{ post.snippet || post.images.length }}"
+                class="daily-post__content"
+              >
+                <view wx:if="{{post.snippet}}" class="daily-post__prose">
+                  <text class="daily-post__text">{{post.snippet}}</text>
+                </view>
+                <view wx:if="{{ post.images.length }}" class="daily-post__media">
+                  <block wx:if="{{ post.images.length === 1 }}">
                     <view
-                      wx:for="{{ item.images }}"
-                      wx:for-item="imgUrl"
-                      wx:for-index="imgIdx"
-                      wx:key="imgIdx"
-                      class="daily-post__img-cell"
-                      data-post-id="{{item.id}}"
-                      data-img-index="{{imgIdx}}"
+                      class="daily-post__img-wrap daily-post__img-wrap--{{ post.imageLayout || 'normal' }}"
+                      data-post-id="{{post.id}}"
+                      data-img-index="{{0}}"
                       catch:tap="onDailyImageTap"
                     >
-                      <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
+                      <image class="daily-post__img" src="{{ post.images[0] }}" mode="aspectFill" />
                     </view>
-                  </view>
-                </block>
+                  </block>
+                  <block wx:else>
+                    <view
+                      class="daily-post__img-grid daily-post__img-grid--{{ post.images.length === 2 ? 'dual' : 'multi' }}"
+                    >
+                      <view
+                        wx:for="{{ post.images }}"
+                        wx:for-item="imgUrl"
+                        wx:for-index="imgIdx"
+                        wx:key="imgIdx"
+                        class="daily-post__img-cell"
+                        data-post-id="{{post.id}}"
+                        data-img-index="{{imgIdx}}"
+                        catch:tap="onDailyImageTap"
+                      >
+                        <image class="daily-post__img" src="{{ imgUrl }}" mode="aspectFill" />
+                      </view>
+                    </view>
+                  </block>
+                </view>
               </view>
             </view>
           </view>
-        </view>
-        <view wx:if="{{ item.commentCount > 0 }}" class="daily-post__preview">
-          <view class="daily-post__preview-inner" aria-hidden="true">
-            <text class="daily-post__preview-author">{{item.firstCommentUserName}}</text>
-            <text class="daily-post__preview-colon">：</text>
-            <text class="daily-post__preview-snippet" overflow="ellipsis" max-lines="2">{{item.firstCommentText}}</text>
+          <view wx:if="{{ post.commentCount > 0 }}" class="daily-post__preview">
+            <view class="daily-post__preview-inner" aria-hidden="true">
+              <text class="daily-post__preview-author">{{post.firstCommentUserName}}</text>
+              <text class="daily-post__preview-colon">：</text>
+              <text class="daily-post__preview-snippet" overflow="ellipsis" max-lines="2">{{post.firstCommentText}}</text>
+            </view>
+            <text class="daily-post__preview-count">{{post.commentCountLabel}}</text>
           </view>
-          <text class="daily-post__preview-count">{{item.commentCountLabel}}</text>
         </view>
-      </view>
+      </block>
       <view wx:if="{{dailyLoadingMore}}" class="moments-load-more">
         <text class="moments-load-more-text">加载中…</text>
       </view>

@@ -5,7 +5,7 @@
 async function listDaily(ctx) {
   const { event, db, _, dailyCol, usersCol, helpers } = ctx
   const { getMutualPartnerOpenId, coupleAuthorOpenIds, getUserRowsByOpenIds } = require('../common/utils')
-  const { toPublicDaily, viewerDailyAuthorFromUser, attachDailyListCommentSummaries, PAGE_SIZE } = helpers
+  const { toPublicDaily, viewerDailyAuthorFromUser, attachDailyListCommentSummaries, computeDailyStats, PAGE_SIZE } = helpers
 
   const offset = Math.max(0, parseInt(String(event.offset || 0), 10) || 0)
   const partner = await getMutualPartnerOpenId(usersCol, ctx.OPENID)
@@ -35,7 +35,15 @@ async function listDaily(ctx) {
   const rawLen = rawList.length
   const hasMore = rawLen === PAGE_SIZE
   const nextOffset = offset + rawLen
-  return { ok: true, list: listWithComments, hasMore, nextOffset }
+
+  let stats
+  if (offset === 0) {
+    stats = await computeDailyStats(dailyCol, authors, _)
+  }
+
+  const result = { ok: true, list: listWithComments, hasMore, nextOffset }
+  if (stats) result.stats = stats
+  return result
 }
 
 module.exports = listDaily
