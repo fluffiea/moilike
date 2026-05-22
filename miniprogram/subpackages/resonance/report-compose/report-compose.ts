@@ -86,6 +86,7 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
     },
     ready() {
       if (this.data.editId) return
+      this.consumeReportCameraPrefill()
       try {
         const pages = getCurrentPages()
         const top = pages[pages.length - 1] as { options?: Record<string, string | undefined> }
@@ -103,6 +104,21 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
     },
   },
   methods: {
+    consumeReportCameraPrefill() {
+      const imagePath = wx.getStorageSync('moilike_report_camera_prefill')
+      if (typeof imagePath === 'string' && imagePath) {
+        wx.removeStorageSync('moilike_report_camera_prefill')
+        const cur = this.data.images
+        if (cur.length < MAX_IMAGES) {
+          this.setData({
+            images: [...cur, imagePath],
+            imageDisplays: [...this.data.imageDisplays, imagePath],
+          })
+          this.syncCanSubmit()
+        }
+      }
+    },
+
     initRecordPickers() {
       const now = Date.now()
       this.setData({

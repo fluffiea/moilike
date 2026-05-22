@@ -160,7 +160,7 @@
     </swiper-item>
   </swiper>
 
-  <view class="resonance-compose-fab resonance-compose-fab--fixed" bind:tap="onReportComposeFabTap" aria-role="button" aria-label="写报备">
+  <view class="resonance-compose-fab resonance-compose-fab--fixed" bind:tap="onReportComposeFabTap" bind:longpress="onReportComposeFabLongPress" aria-role="button" aria-label="写报备">
     <template is="resonance-compose-plus" />
   </view>
 

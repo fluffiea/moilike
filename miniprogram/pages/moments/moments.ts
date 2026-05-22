@@ -309,6 +309,22 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       })
     },
 
+    onComposeFabLongPress() {
+      var self = this
+      wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sizeType: ['compressed'],
+        sourceType: ['camera'],
+        success: function (res) {
+          if (res.tempFiles.length > 0) {
+            wx.setStorageSync('moilike_daily_camera_prefill', res.tempFiles[0].tempFilePath)
+          }
+          self.onComposeFabTap()
+        },
+      })
+    },
+
     async applyDailyPublished(payload: DailyPublishedPayload) {
       const raw = payload.post
       const list = [...this.data.dailyList]

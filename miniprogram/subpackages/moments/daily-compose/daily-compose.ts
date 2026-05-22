@@ -46,6 +46,7 @@ Component<ComposeData, {}, ComposeMethods, ComposeCustomInstanceProperty>({
   lifetimes: {
     ready() {
       if (this.data.editId) return
+      this.consumeDailyCameraPrefill()
       try {
         const pages = getCurrentPages()
         const top = pages[pages.length - 1] as { options?: Record<string, string | undefined> }
@@ -63,6 +64,21 @@ Component<ComposeData, {}, ComposeMethods, ComposeCustomInstanceProperty>({
     },
   },
   methods: {
+    consumeDailyCameraPrefill() {
+      const imagePath = wx.getStorageSync('moilike_daily_camera_prefill')
+      if (typeof imagePath === 'string' && imagePath) {
+        wx.removeStorageSync('moilike_daily_camera_prefill')
+        const cur = this.data.images
+        if (cur.length < MAX_POST_IMAGES) {
+          this.setData({
+            images: [...cur, imagePath],
+            imageDisplays: [...this.data.imageDisplays, imagePath],
+          })
+          this.syncCanSubmit()
+        }
+      }
+    },
+
     /**
      * 解析 ?id= ，合并跳转前 Storage 暂存的正文与配图，再异步拉云端对齐。
      */

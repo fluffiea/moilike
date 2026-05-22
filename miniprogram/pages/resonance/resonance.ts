@@ -438,6 +438,22 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
       this.navigateToReportCompose()
     },
 
+    onReportComposeFabLongPress() {
+      var self = this
+      wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sizeType: ['compressed'],
+        sourceType: ['camera'],
+        success: function (res) {
+          if (res.tempFiles.length > 0) {
+            wx.setStorageSync('moilike_report_camera_prefill', res.tempFiles[0].tempFilePath)
+          }
+          self.navigateToReportCompose()
+        },
+      })
+    },
+
     openReportComposeEdit(item: ReportPostPublic) {
       setReportEditStaging({
         postId: item.id,

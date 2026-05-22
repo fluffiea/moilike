@@ -119,7 +119,7 @@
     </view>
   </scroll-view>
 
-  <view class="moments-compose-fab moments-compose-fab--fixed" bind:tap="onComposeFabTap" aria-role="button" aria-label="写日常">
+  <view class="moments-compose-fab moments-compose-fab--fixed" bind:tap="onComposeFabTap" bind:longpress="onComposeFabLongPress" aria-role="button" aria-label="写日常">
     <template is="moments-compose-plus" />
   </view>
 
