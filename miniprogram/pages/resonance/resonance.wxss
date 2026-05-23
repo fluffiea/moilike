@@ -191,6 +191,31 @@
   100% { transform: translateX(250%); }
 }
 
+/* ── 日期分组头 ── */
+
+.resonance-date-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 24rpx;
+  box-sizing: border-box;
+}
+
+.resonance-date-head__line {
+  flex: 1;
+  height: 1rpx;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.resonance-date-head__label {
+  flex-shrink: 0;
+  margin: 0 16rpx;
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #8e8e93;
+  line-height: 1.35;
+}
+
 /* ── 空态 / 加载 ── */
 
 .resonance-empty {

@@ -8,10 +8,12 @@ const cloud = require('wx-server-sdk')
 
 /** @param {Date} d */
 function formatTime(d) {
-  const m = `${d.getMonth() + 1}`.padStart(2, '0')
-  const day = `${d.getDate()}`.padStart(2, '0')
-  const hh = `${d.getHours()}`.padStart(2, '0')
-  const mm = `${d.getMinutes()}`.padStart(2, '0')
+  const off = 8 * 3600000
+  const bj = new Date(d.getTime() + off)
+  const m = `${bj.getUTCMonth() + 1}`.padStart(2, '0')
+  const day = `${bj.getUTCDate()}`.padStart(2, '0')
+  const hh = `${bj.getUTCHours()}`.padStart(2, '0')
+  const mm = `${bj.getUTCMinutes()}`.padStart(2, '0')
   return `${m}-${day} ${hh}:${mm}`
 }
 

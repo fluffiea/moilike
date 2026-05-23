@@ -80,71 +80,79 @@
             <view wx:if="{{item.silentRefreshing}}" class="resonance-silent-refresh-bar" />
           </view>
 
-          <view
-            wx:for="{{item.list}}"
-            wx:key="id"
-            list-item
-            class="report-card-slot"
-            data-id="{{item.id}}"
-            bind:tap="onReportCardTap"
-            bind:longpress="onReportPostLongPress"
-          >
-            <view class="report-card report-card--{{item.partnerState}}">
+          <block wx:for="{{item.groups}}" wx:key="dateKey">
+            <view class="resonance-date-head">
+              <view class="resonance-date-head__line" />
+              <text class="resonance-date-head__label">{{item.dateLabel}}</text>
+              <view class="resonance-date-head__line" />
+            </view>
+            <view
+              wx:for="{{item.posts}}"
+              wx:for-item="post"
+              wx:key="id"
+              list-item
+              class="report-card-slot"
+              data-id="{{post.id}}"
+              bind:tap="onReportCardTap"
+              bind:longpress="onReportPostLongPress"
+            >
+              <view class="report-card report-card--{{post.partnerState}}">
 
-              <!-- 头部 -->
-              <view class="report-card-head">
-                <view class="report-card-head-row">
-                  <view class="report-card-status-dot"></view>
-                  <text class="report-card-name">{{item.userName}}</text>
-                  <text class="report-card-suffix"> 的报备</text>
-                  <view wx:if="{{item.tagChips && item.tagChips.length}}" class="report-card-head-tags">
-                    <view
-                      wx:for="{{item.tagChips}}"
-                      wx:for-item="chip"
-                      wx:key="name"
-                      class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}"
-                    >
-                      <text class="report-tag-chip-text">{{chip.name}}</text>
+                <!-- 头部 -->
+                <view class="report-card-head">
+                  <view class="report-card-head-row">
+                    <view class="report-card-status-dot"></view>
+                    <text class="report-card-name">{{post.userName}}</text>
+                    <text class="report-card-suffix"> 的报备</text>
+                    <view wx:if="{{post.tagChips && post.tagChips.length}}" class="report-card-head-tags">
+                      <view
+                        wx:for="{{post.tagChips}}"
+                        wx:for-item="chip"
+                        wx:key="name"
+                        class="report-tag-chip report-tag-chip--c{{chip.colorIdx}}"
+                      >
+                        <text class="report-tag-chip-text">{{chip.name}}</text>
+                      </view>
+                    </view>
+                  </view>
+                  <view class="report-card-head-sub">
+                    <text class="report-card-record-label">记录于</text>
+                    <text class="report-card-record-time">{{post.recordTimeStr}}</text>
+                  </view>
+                </view>
+
+                <!-- 内容 -->
+                <view class="report-card-body-zone">
+
+                <!-- 正文 + 配图 -->
+                <view
+                  wx:if="{{post.body || (post.images && post.images.length)}}"
+                  class="report-card-main"
+                >
+                  <view wx:if="{{post.body}}" class="report-card-body">
+                    <text class="report-card-body-text">{{post.body}}</text>
+                  </view>
+                  <view
+                    wx:if="{{post.images && post.images.length}}"
+                    class="report-card-media {{ post.images.length === 1 ? 'report-card-media--one' : post.images.length === 2 ? 'report-card-media--two' : 'report-card-media--many' }}"
+                  >
+                    <view wx:for="{{post.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-card-media-cell">
+                      <image class="report-card-media-thumb" src="{{img}}" mode="aspectFill" data-post-id="{{post.id}}" data-img-index="{{ix}}" catch:tap="onReportImageTap" />
                     </view>
                   </view>
                 </view>
-                <view class="report-card-head-sub">
-                  <text class="report-card-record-label">记录于</text>
-                  <text class="report-card-record-time">{{item.recordTimeStr}}</text>
+
+                <!-- 对方评价 -->
+                <view wx:if="{{post.partnerEvalText}}" class="report-card-eval">
+                  <text class="report-card-eval-label">对方的评价</text>
+                  <text class="report-card-eval-text">{{post.partnerEvalText}}</text>
                 </view>
+
+                </view><!-- /report-card-body-zone -->
+
               </view>
-
-              <!-- 内容 -->
-              <view class="report-card-body-zone">
-
-              <!-- 正文 + 配图 -->
-              <view
-                wx:if="{{item.body || (item.images && item.images.length)}}"
-                class="report-card-main"
-              >
-                <view wx:if="{{item.body}}" class="report-card-body">
-                  <text class="report-card-body-text">{{item.body}}</text>
-                </view>
-                <view
-                  wx:if="{{item.images && item.images.length}}"
-                  class="report-card-media {{ item.images.length === 1 ? 'report-card-media--one' : item.images.length === 2 ? 'report-card-media--two' : 'report-card-media--many' }}"
-                >
-                  <view wx:for="{{item.images}}" wx:for-item="img" wx:for-index="ix" wx:key="ix" class="report-card-media-cell">
-                    <image class="report-card-media-thumb" src="{{img}}" mode="aspectFill" data-post-id="{{item.id}}" data-img-index="{{ix}}" catch:tap="onReportImageTap" />
-                  </view>
-                </view>
-              </view>
-
-              <!-- 对方评价 -->
-              <view wx:if="{{item.partnerEvalText}}" class="report-card-eval">
-                <text class="report-card-eval-label">对方的评价</text>
-                <text class="report-card-eval-text">{{item.partnerEvalText}}</text>
-              </view>
-
-              </view><!-- /report-card-body-zone -->
-
             </view>
-          </view>
+          </block>
 
           <view wx:if="{{item.bootstrapping && item.list.length === 0}}" class="resonance-load-more">
             <text class="resonance-load-more-text">加载中…</text>

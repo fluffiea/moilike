@@ -3,6 +3,65 @@ import { reportTagColorIndex } from '../report-tag-color'
 import { reportMapMediaTempUrls } from '../api/report-api'
 import { mapAvatarCloudFileIdsToHttps, DEFAULT_AVATAR_PATH } from './avatar-display'
 
+const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+function dateKeyFromMs(ms: number): string {
+  const d = new Date(ms)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+function dateLabelFromMs(ms: number, now: Date): string {
+  const d = new Date(ms)
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const diffDays = Math.floor((today.getTime() - target.getTime()) / 86400000)
+
+  if (diffDays === 0) return '今天'
+  if (diffDays === 1) return '昨天'
+
+  const dayOfWeek = target.getDay()
+  const weekStart = new Date(today)
+  weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+  if (target >= weekStart) {
+    return WEEKDAY_LABELS[dayOfWeek]
+  }
+
+  return `${d.getMonth() + 1}月${d.getDate()}日 ${WEEKDAY_LABELS[dayOfWeek]}`
+}
+
+/** 日期分组 */
+export type ReportGroup = {
+  dateLabel: string
+  dateKey: string
+  posts: ReportPostPublic[]
+}
+
+/**
+ * 将已按时间倒序的报备列表按 recordAtMs 分组。
+ * 无 recordAtMs 的帖子归入 "更早" 组（排在最后）。
+ */
+export function groupReportPostsByDate(posts: ReportPostPublic[]): ReportGroup[] {
+  if (posts.length === 0) return []
+  const now = new Date()
+  const groups: ReportGroup[] = []
+  for (let i = 0; i < posts.length; i++) {
+    const p = posts[i]
+    const ms = typeof p.recordAtMs === 'number' && p.recordAtMs > 0 ? p.recordAtMs : 0
+    const key = ms > 0 ? dateKeyFromMs(ms) : '__unknown__'
+    const label = ms > 0 ? dateLabelFromMs(ms, now) : '更早'
+    const last = groups[groups.length - 1]
+    if (last && last.dateKey === key) {
+      last.posts.push(p)
+    } else {
+      groups.push({ dateLabel: label, dateKey: key, posts: [p] })
+    }
+  }
+  return groups
+}
+
 function mapPostImagesWithTempUrls(
   images: string[] | undefined,
   imageMap: Map<string, string>,

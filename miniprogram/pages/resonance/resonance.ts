@@ -12,7 +12,7 @@ import {
 } from '../../constants/resonance-preferences'
 import { setReportEditStaging } from '../../utils/report-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
-import { enrichReportPostForDisplay, enrichReportPostsForDisplay } from '../../utils/display/report-feed-display'
+import { enrichReportPostForDisplay, enrichReportPostsForDisplay, groupReportPostsByDate, type ReportGroup } from '../../utils/display/report-feed-display'
 import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
@@ -27,6 +27,7 @@ const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
 type TabSlot = {
   filter: ReportFilter
   list: ReportPostPublic[]
+  groups: ReportGroup[]
   hasMore: boolean
   nextOffset: number
   bootstrapping: boolean
@@ -40,6 +41,7 @@ function freshTabSlot(filter: ReportFilter): TabSlot {
   return {
     filter,
     list: [],
+    groups: [],
     hasMore: true,
     nextOffset: 0,
     bootstrapping: false,
@@ -147,6 +149,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         const chunk = await enrichReportPostsForDisplay(r.list)
         this.setData({
           ['tabs[' + index + '].list']: chunk,
+          ['tabs[' + index + '].groups']: groupReportPostsByDate(chunk),
           ['tabs[' + index + '].hasMore']: r.hasMore,
           ['tabs[' + index + '].nextOffset']: r.nextOffset,
           ['tabs[' + index + '].everLoaded']: true,
@@ -176,6 +179,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         const chunk = await enrichReportPostsForDisplay(r.list)
         this.setData({
           ['tabs[' + index + '].list']: chunk,
+          ['tabs[' + index + '].groups']: groupReportPostsByDate(chunk),
           ['tabs[' + index + '].hasMore']: r.hasMore,
           ['tabs[' + index + '].nextOffset']: r.nextOffset,
           ['tabs[' + index + '].everLoaded']: true,
@@ -207,7 +211,10 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
 
         const enriched = await enrichReportPostsForDisplay(newItems)
         const merged = enriched.concat(tab.list)
-        this.setData({ ['tabs[' + index + '].list']: merged })
+        this.setData({
+          ['tabs[' + index + '].list']: merged,
+          ['tabs[' + index + '].groups']: groupReportPostsByDate(merged),
+        })
       } finally {
         this.setData({ ['tabs[' + index + '].silentRefreshing']: false })
       }
@@ -273,6 +280,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         const merged = tab.list.concat(chunk)
         this.setData({
           ['tabs[' + index + '].list']: merged,
+          ['tabs[' + index + '].groups']: groupReportPostsByDate(merged),
           ['tabs[' + index + '].hasMore']: r.hasMore,
           ['tabs[' + index + '].nextOffset']: r.nextOffset,
           ['tabs[' + index + '].loadingMore']: false,
@@ -319,6 +327,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         if (pos >= 0) {
           list[pos] = post
           updateMap['tabs[' + idx + '].list'] = list
+          updateMap['tabs[' + idx + '].groups'] = groupReportPostsByDate(list)
         }
       }
       if (Object.keys(updateMap).length > 0) {
@@ -410,7 +419,9 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         for (var i = 0; i < this.data.tabs.length; i++) {
           const list = this.data.tabs[i].list
           if (list.some(function (x) { return x.id === id })) {
-            updateMap['tabs[' + i + '].list'] = list.filter(function (x) { return x.id !== id })
+            const filtered = list.filter(function (x) { return x.id !== id })
+            updateMap['tabs[' + i + '].list'] = filtered
+            updateMap['tabs[' + i + '].groups'] = groupReportPostsByDate(filtered)
           }
         }
         if (Object.keys(updateMap).length > 0) {
@@ -486,6 +497,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
           if (editIdx >= 0) {
             list[editIdx] = post
             updateMap['tabs[' + i + '].list'] = list
+            updateMap['tabs[' + i + '].groups'] = groupReportPostsByDate(list)
           }
         } else {
           // create mode
@@ -493,15 +505,18 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
             if (post.isMine) {
               list.unshift(post)
               updateMap['tabs[' + i + '].list'] = list
+              updateMap['tabs[' + i + '].groups'] = groupReportPostsByDate(list)
             }
           } else if (tab.filter === 'action_needed') {
             if (!post.isMine && post.partnerState !== 'evaluated') {
               list.unshift(post)
               updateMap['tabs[' + i + '].list'] = list
+              updateMap['tabs[' + i + '].groups'] = groupReportPostsByDate(list)
             }
           } else if (tab.filter === 'all') {
             list.unshift(post)
             updateMap['tabs[' + i + '].list'] = list
+            updateMap['tabs[' + i + '].groups'] = groupReportPostsByDate(list)
           }
         }
       }
