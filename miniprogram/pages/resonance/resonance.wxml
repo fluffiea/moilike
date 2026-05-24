@@ -70,6 +70,9 @@
         refresher-triggered="{{item.refreshing}}"
         bindrefresherrefresh="onReportRefresh"
         bindscrolltolower="onReportScrollToLower"
+        bindscroll="onReportScroll"
+        scroll-top="{{item.scrollToTop}}"
+        scroll-with-animation="{{true}}"
         lower-threshold="{{120}}"
         data-tab="{{index}}"
       >
@@ -157,6 +160,12 @@
           <view wx:if="{{item.bootstrapping && item.list.length === 0}}" class="resonance-load-more">
             <text class="resonance-load-more-text">加载中…</text>
           </view>
+          <view wx:if="{{item.loadingMore}}" class="resonance-load-more">
+            <text class="resonance-load-more-text">加载中…</text>
+          </view>
+          <view wx:if="{{!item.hasMore && item.list.length > 0}}" class="resonance-load-more">
+            <text class="resonance-load-more-text">没有更多了</text>
+          </view>
           <view wx:if="{{item.list.length === 0 && !item.bootstrapping && !item.refreshing && item.everLoaded}}" class="resonance-empty">
             <text class="resonance-empty-title">还没有报备</text>
             <text class="resonance-empty-hint">记录一件想告诉对方的小事，点右下角按钮即可开始</text>
@@ -170,6 +179,10 @@
 
   <view class="resonance-compose-fab resonance-compose-fab--fixed" bind:tap="onReportComposeFabTap" bind:longpress="onReportComposeFabLongPress" aria-role="button" aria-label="写报备">
     <template is="resonance-compose-plus" />
+  </view>
+
+  <view wx:if="{{tabs[reportFilterIndex].showBackTop}}" class="resonance-back-top" bind:tap="onReportBackTop" aria-role="button" aria-label="回到顶部">
+    <view class="resonance-back-top__arrow" />
   </view>
 
   <template name="resonance-compose-plus">

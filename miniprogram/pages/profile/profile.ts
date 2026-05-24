@@ -28,7 +28,11 @@ const SETTING_NAV_URL: Record<SettingId, string> = {
   preferences: PAGE_PREFERENCES,
 }
 
-Component({
+interface ProfileCustomInstanceProperty {
+  _lastProfileFetchMs: number
+}
+
+Component<{}, {}, {}, ProfileCustomInstanceProperty>({
   pageLifetimes: {
     show() {
       if (redirectIfNotAuthed()) return
@@ -51,8 +55,25 @@ Component({
       const u = moSession.loadMoUser()
       if (!u) return
       const partner = u.partner != null ? moPartnerWithPendingAvatarSrc(u.partner) : null
+
+      // 避免重复 setData 导致 <image> 闪烁：如果当前已显示有效 HTTPS URL，
+      // 就不要因为 cloud:// 降级回默认占位图，等 resolveSessionAvatars 完成后再更新。
+      const pendingAvatar = avatarImageSrcWhileCloudPending(u.avatarUrl)
+      const curAvatar = this.data.avatarUrl
+      const keepCurrent = pendingAvatar === DEFAULT_AVATAR_PATH
+        && curAvatar
+        && curAvatar !== DEFAULT_AVATAR_PATH
+        && /^https?:\/\//i.test(curAvatar)
+
+      if (keepCurrent && partner && partner.avatarUrl === DEFAULT_AVATAR_PATH) {
+        const curPartnerAv = this.data.partner && this.data.partner.avatarUrl
+        if (curPartnerAv && curPartnerAv !== DEFAULT_AVATAR_PATH && /^https?:\/\//i.test(curPartnerAv)) {
+          partner.avatarUrl = curPartnerAv
+        }
+      }
+
       this.setData({
-        avatarUrl: avatarImageSrcWhileCloudPending(u.avatarUrl),
+        avatarUrl: keepCurrent ? curAvatar : pendingAvatar,
         nickName: u.nickName || '未设置昵称',
         signature: u.signature || '写点什么介绍自己吧。',
         partner,
@@ -93,6 +114,9 @@ Component({
     },
     async refreshFromCloud() {
       if (!wx.cloud) return
+      // 60 秒内不重复拉取 profile，减少云函数调用
+      const now = Date.now()
+      if (this._lastProfileFetchMs && now - this._lastProfileFetchMs < 60000) return
       try {
         const res = await wx.cloud.callFunction({
           name: USER_CLOUD_FUNCTION,
@@ -100,6 +124,7 @@ Component({
         })
         const result = res.result as UserCloudResult
         if (!result || result.ok !== true) return
+        this._lastProfileFetchMs = Date.now()
         if (result.user) {
           moSession.saveMoUser(result.user)
           this.applyLocalUser()

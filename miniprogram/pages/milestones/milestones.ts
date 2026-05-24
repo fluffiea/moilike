@@ -37,8 +37,13 @@ interface MilestonesCustomInstanceProperty {
 type MilestonesMethods = WechatMiniprogram.Component.MethodOption
 
 /** 拉最新资料写入本地会话；失败时静默，仍可用 Storage 中的用户展示朝夕 */
+let _lastMsProfileFetchMs = 0
+
 async function refreshSessionProfileFromCloud(): Promise<void> {
   if (!wx.cloud) return
+  // 60 秒内不重复拉取 profile，减少云函数调用
+  const now = Date.now()
+  if (_lastMsProfileFetchMs && now - _lastMsProfileFetchMs < 60000) return
   try {
     const res = await wx.cloud.callFunction({
       name: USER_CLOUD_FUNCTION,
@@ -47,6 +52,7 @@ async function refreshSessionProfileFromCloud(): Promise<void> {
     const r = res.result as UserCloudResult
     if (r && r.ok === true && r.user) {
       moSession.saveMoUser(r.user)
+      _lastMsProfileFetchMs = Date.now()
     }
   } catch {
     // ignore

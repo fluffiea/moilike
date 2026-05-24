@@ -11,21 +11,38 @@ import { MEDIA_TEMP_URL_BATCH } from '../../constants/limits'
 
 export type ReportListFilter = 'mine' | 'action_needed' | 'all'
 
+/** 并发请求去重：相同 key 的调用共享同一个 inflight Promise。 */
+const inflight = new Map<string, Promise<unknown>>()
+
+function dedupKey(action: string, payload: Record<string, unknown>): string {
+  return action + '|' + JSON.stringify(payload)
+}
+
+async function dedupCall<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inflight.get(key)
+  if (existing) return existing as Promise<T>
+  const p = fn().finally(() => { inflight.delete(key) })
+  inflight.set(key, p)
+  return p
+}
+
 export async function reportListReports(
   offset: number,
   filter: ReportListFilter,
 ): Promise<ReportListCloudResult | null> {
   if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: REPORT_CLOUD_FUNCTION,
-      data: { action: 'listReports', offset, filter },
-    })
-    return res.result as ReportListCloudResult
-  } catch (e) {
-    showCloudInvokeErrorToast(e, 4200, REPORT_CLOUD_FUNCTION)
-    return null
-  }
+  return dedupCall(dedupKey('listReports', { offset, filter }), async () => {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: REPORT_CLOUD_FUNCTION,
+        data: { action: 'listReports', offset, filter },
+      })
+      return res.result as ReportListCloudResult
+    } catch (e) {
+      showCloudInvokeErrorToast(e, 4200, REPORT_CLOUD_FUNCTION)
+      return null
+    }
+  })
 }
 
 export async function reportGetReport(id: string): Promise<ReportPostCloudResult | null> {
@@ -199,14 +216,35 @@ export async function reportEvaluate(id: string, text: string): Promise<ReportPo
 
 const REPORT_MEDIA_TEMP_URL_BATCH = MEDIA_TEMP_URL_BATCH
 
+/** 配图临时链接缓存：cloud://fileID → { url, resolvedAt }，8 分钟内复用，减少云函数调用。 */
+const reportMediaTempUrlCache = new Map<string, { url: string; resolvedAt: number }>()
+const REPORT_MEDIA_TEMP_URL_TTL_MS = 8 * 60 * 1000
+
+/** 清空报备配图临时链接缓存（下拉刷新等全量重载场景调用）。 */
+export function invalidateReportMediaTempUrlCache(): void {
+  reportMediaTempUrlCache.clear()
+}
+
 export async function reportMapMediaTempUrls(fileIDs: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>()
   const unique = [
     ...new Set(fileIDs.filter((x) => typeof x === 'string' && x.indexOf('cloud://') === 0)),
   ]
   if (unique.length === 0 || !wx.cloud) return out
-  for (let i = 0; i < unique.length; i += REPORT_MEDIA_TEMP_URL_BATCH) {
-    const chunk = unique.slice(i, i + REPORT_MEDIA_TEMP_URL_BATCH)
+
+  const now = Date.now()
+  const uncached: string[] = []
+  for (const fid of unique) {
+    const entry = reportMediaTempUrlCache.get(fid)
+    if (entry && now - entry.resolvedAt < REPORT_MEDIA_TEMP_URL_TTL_MS) {
+      out.set(fid, entry.url)
+    } else {
+      uncached.push(fid)
+    }
+  }
+
+  for (let i = 0; i < uncached.length; i += REPORT_MEDIA_TEMP_URL_BATCH) {
+    const chunk = uncached.slice(i, i + REPORT_MEDIA_TEMP_URL_BATCH)
     try {
       const res = await wx.cloud.callFunction({
         name: REPORT_CLOUD_FUNCTION,
@@ -215,7 +253,10 @@ export async function reportMapMediaTempUrls(fileIDs: string[]): Promise<Map<str
       const body = res.result as TempFileUrlsCloudResult
       if (!body || body.ok !== true || !body.urls) continue
       for (const [fid, url] of Object.entries(body.urls)) {
-        if (typeof url === 'string' && url) out.set(fid, url)
+        if (typeof url === 'string' && url) {
+          out.set(fid, url)
+          reportMediaTempUrlCache.set(fid, { url, resolvedAt: now })
+        }
       }
     } catch {
       // 单批失败时跳过

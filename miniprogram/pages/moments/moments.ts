@@ -1,16 +1,20 @@
 import requireAuth from '../../behaviors/require-auth'
 import { PAGE_DAILY_COMPOSE, PAGE_DAILY_DETAIL } from '../../constants/paths'
-import type { DailyListCloudResult, DailyPostPublic, DailyStats } from '../../types/cloud'
-import { dailyDeleteDaily, dailyGetDailyFeedItem, dailyListDaily } from '../../utils/api/daily-api'
+import type { DailyListCloudResult, DailyPostPublic } from '../../types/cloud'
+import { dailyDeleteDaily, dailyGetDailyFeedItem, dailyListDaily, invalidateDailyMediaTempUrlCache } from '../../utils/api/daily-api'
 import { setDailyEditStaging } from '../../utils/daily-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
 import { enrichDailyPostsForDisplay, groupDailyPostsByDate, type DailyGroup } from '../../utils/display/daily-feed-display'
+import { saveFeedCache, loadFeedCache } from '../../utils/feed-cache'
 import { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type MomentsPageData = {
   dailyList: DailyPostPublic[]
-  dailyStats: DailyStats | null
   dailyGroups: DailyGroup[]
+  dailyFilteredGroups: DailyGroup[]
+  dailyFilterDateKey: string
+  dailyShowBackTop: boolean
+  dailyScrollToTop: number
   dailyRefreshing: boolean
   dailyBootstrapping: boolean
   dailyLoadingMore: boolean
@@ -75,6 +79,11 @@ function clampDailyImageIndex(rawIdx: unknown, maxIndex: number): number {
   return i
 }
 
+function computeFilteredGroups(groups: DailyGroup[], dateKey: string): DailyGroup[] {
+  if (!dateKey) return groups
+  return groups.filter(function (g) { return g.dateKey === dateKey })
+}
+
 Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
   behaviors: [requireAuth],
   pageLifetimes: {
@@ -85,8 +94,11 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
   },
   data: {
     dailyList: [],
-    dailyStats: null,
     dailyGroups: [],
+    dailyFilteredGroups: [],
+    dailyFilterDateKey: '',
+    dailyShowBackTop: false,
+    dailyScrollToTop: 0,
     dailyRefreshing: false,
     dailyBootstrapping: false,
     dailyLoadingMore: false,
@@ -107,8 +119,9 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       this._momentsDailyProfileStampKey = profileStamp
       this.setData({
         dailyList: [],
-        dailyStats: null,
         dailyGroups: [],
+        dailyFilteredGroups: [],
+        dailyFilterDateKey: '',
         dailyHasMore: true,
         dailyNextOffset: 0,
       })
@@ -117,6 +130,24 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
     ensureDailyFirstPageIfEmpty() {
       if (this.data.dailyList.length > 0) return
       if (this.data.dailyBootstrapping || this.data.dailyRefreshing) return
+
+      // 优先从 Storage 缓存恢复，即时渲染，再静默刷新
+      const scopeKey = moCoupleScopeKey()
+      const cached = loadFeedCache<DailyPostPublic>('daily', scopeKey)
+      if (cached) {
+        const groups = groupDailyPostsByDate(cached)
+        this.setData({
+          dailyList: cached,
+          dailyGroups: groups,
+          dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
+          dailyHasMore: true,
+          dailyNextOffset: cached.length,
+        })
+        // 后台静默刷新获取最新数据
+        void this.loadDailyList({ reset: true, useRefresher: false })
+        return
+      }
+
       void this.loadDailyList({ reset: true, useRefresher: false })
     },
 
@@ -127,11 +158,12 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
         const patch: Record<string, unknown> = {
           dailyList: chunk,
           dailyGroups: groups,
+          dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
           dailyHasMore: r.hasMore,
           dailyNextOffset: r.nextOffset,
         }
-        if (r.stats) patch.dailyStats = r.stats
         this.setData(patch)
+        saveFeedCache('daily', chunk, moCoupleScopeKey())
         return
       }
       const merged = [...this.data.dailyList, ...chunk]
@@ -139,6 +171,7 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       this.setData({
         dailyList: merged,
         dailyGroups: groups,
+        dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
         dailyHasMore: r.hasMore,
         dailyNextOffset: r.nextOffset,
       })
@@ -152,6 +185,7 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       const reset = opts.reset
       const useRefresher = opts.useRefresher === true
       if (reset) {
+        invalidateDailyMediaTempUrlCache()
         if (useRefresher) {
           if (this.data.dailyRefreshing) return
           this.setData({ dailyRefreshing: true })
@@ -202,9 +236,11 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       if (!r.ok) {
         if (r.error === '不存在' || r.error === '无权查看') {
           const list = this.data.dailyList.filter((x) => x.id !== postId)
+          const groups = groupDailyPostsByDate(list)
           this.setData({
             dailyList: list,
-            dailyGroups: groupDailyPostsByDate(list),
+            dailyGroups: groups,
+            dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
           })
         }
         return
@@ -213,9 +249,11 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       const post = enriched[0] != null ? enriched[0] : r.post
       const list = [...this.data.dailyList]
       list[idx] = post
+      const groups = groupDailyPostsByDate(list)
       this.setData({
         dailyList: list,
-        dailyGroups: groupDailyPostsByDate(list),
+        dailyGroups: groups,
+        dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
       })
     },
 
@@ -225,6 +263,33 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
 
     onDailyScrollToLower() {
       void this.loadDailyList({ reset: false })
+    },
+
+    onDailyFilterDateChange(e: WechatMiniprogram.PickerChange) {
+      const val = e.detail.value as string
+      this.setData({
+        dailyFilterDateKey: val,
+        dailyFilteredGroups: computeFilteredGroups(this.data.dailyGroups, val),
+      })
+    },
+
+    onDailyFilterClear() {
+      this.setData({
+        dailyFilterDateKey: '',
+        dailyFilteredGroups: this.data.dailyGroups,
+      })
+    },
+
+    onDailyScroll(e: WechatMiniprogram.ScrollViewScroll) {
+      const t = e.detail.scrollTop
+      const show = t > 200
+      if (show !== this.data.dailyShowBackTop) {
+        this.setData({ dailyShowBackTop: show })
+      }
+    },
+
+    onDailyBackTop() {
+      this.setData({ dailyScrollToTop: this.data.dailyScrollToTop === 0 ? 1 : 0 })
     },
 
     onDailyPostTap(e: WechatMiniprogram.TouchEvent) {
@@ -299,7 +364,12 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
           return
         }
         const list = this.data.dailyList.filter((x) => x.id !== id)
-        this.setData({ dailyList: list, dailyGroups: groupDailyPostsByDate(list) })
+        const groups = groupDailyPostsByDate(list)
+        this.setData({
+          dailyList: list,
+          dailyGroups: groups,
+          dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
+        })
         wx.showToast({ title: '已删除', icon: 'success' })
       } finally {
         wx.hideLoading()
@@ -365,7 +435,12 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
         const post = enriched[0] != null ? enriched[0] : raw
         list.unshift(post)
       }
-      this.setData({ dailyList: list, dailyGroups: groupDailyPostsByDate(list) })
+      const groups = groupDailyPostsByDate(list)
+      this.setData({
+        dailyList: list,
+        dailyGroups: groups,
+        dailyFilteredGroups: computeFilteredGroups(groups, this.data.dailyFilterDateKey),
+      })
     },
   },
 })

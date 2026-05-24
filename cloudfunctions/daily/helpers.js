@@ -312,70 +312,6 @@ function isDailyImageFileIdVisibleToCouple(fileId, coupleOpenIdSet) {
   return owner != null && coupleOpenIdSet.has(owner)
 }
 
-/**
- * 根据最近 N 天帖子计算本周记录天数与连续天数。
- * @param {import('wx-server-sdk').DB.CollectionReference} dailyCol
- * @param {string[]} authors - [me, partner]
- * @param {import('wx-server-sdk').DB.Command} _
- * @returns {Promise<{ weekCount: number, streak: number }>}
- */
-async function computeDailyStats(dailyCol, authors, _) {
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  // 本周一 00:00
-  const dayOfWeek = todayStart.getDay()
-  const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  const weekStart = new Date(todayStart.getTime() - daysSinceMonday * 86400000)
-  // 取最近 60 天的帖子
-  const lookback = new Date(todayStart.getTime() - 60 * 86400000)
-
-  let res
-  try {
-    res = await dailyCol
-      .where({
-        authorOpenId: _.in(authors),
-        createdAt: _.gte(lookback),
-      })
-      .orderBy('createdAt', 'desc')
-      .limit(500)
-      .get()
-  } catch {
-    return { weekCount: 0, streak: 0 }
-  }
-
-  const rawList = res.data || []
-  const dateSet = new Set()
-  for (let i = 0; i < rawList.length; i++) {
-    const d = rawList[i].createdAt
-    if (!d) continue
-    const dt = d instanceof Date ? d : new Date(d)
-    if (Number.isNaN(dt.getTime())) continue
-    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
-    dateSet.add(key)
-  }
-
-  // weekCount: 从周一到今天，有帖子的天数
-  let weekCount = 0
-  const cursor = new Date(weekStart)
-  while (cursor <= todayStart) {
-    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`
-    if (dateSet.has(key)) weekCount++
-    cursor.setDate(cursor.getDate() + 1)
-  }
-
-  // streak: 从今天往回数连续天数
-  let streak = 0
-  const streakCursor = new Date(todayStart)
-  while (true) {
-    const key = `${streakCursor.getFullYear()}-${String(streakCursor.getMonth() + 1).padStart(2, '0')}-${String(streakCursor.getDate()).padStart(2, '0')}`
-    if (!dateSet.has(key)) break
-    streak++
-    streakCursor.setDate(streakCursor.getDate() - 1)
-  }
-
-  return { weekCount, streak }
-}
-
 module.exports = {
   DAILY,
   DAILY_COMMENTS,
@@ -395,5 +331,4 @@ module.exports = {
   attachOnePostCommentSummary,
   dailyStorageOwnerOpenId,
   isDailyImageFileIdVisibleToCouple,
-  computeDailyStats,
 }

@@ -13,18 +13,35 @@ import { MEDIA_TEMP_URL_BATCH } from '../../constants/limits'
 
 /** 日常云函数 `daily` 的客户端封装；服务端按「本人 + 已互相绑定的伴侣」过滤列表与读写。 */
 
+/** 并发请求去重：相同 key 的调用共享同一个 inflight Promise。 */
+const inflight = new Map<string, Promise<unknown>>()
+
+function dedupKey(action: string, payload: Record<string, unknown>): string {
+  return action + '|' + JSON.stringify(payload)
+}
+
+async function dedupCall<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inflight.get(key)
+  if (existing) return existing as Promise<T>
+  const p = fn().finally(() => { inflight.delete(key) })
+  inflight.set(key, p)
+  return p
+}
+
 export async function dailyListDaily(offset: number): Promise<DailyListCloudResult | null> {
   if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: DAILY_CLOUD_FUNCTION,
-      data: { action: 'listDaily', offset },
-    })
-    return res.result as DailyListCloudResult
-  } catch (e) {
-    showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
-    return null
-  }
+  return dedupCall(dedupKey('listDaily', { offset }), async () => {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: DAILY_CLOUD_FUNCTION,
+        data: { action: 'listDaily', offset },
+      })
+      return res.result as DailyListCloudResult
+    } catch (e) {
+      showCloudInvokeErrorToast(e, 4200, DAILY_CLOUD_FUNCTION)
+      return null
+    }
+  })
 }
 
 export async function dailyGetDaily(id: string): Promise<DailyPostCloudResult | null> {
@@ -191,13 +208,34 @@ export async function dailyDeleteDaily(id: string): Promise<DailyVoidCloudResult
 
 const DAILY_MEDIA_TEMP_URL_BATCH = MEDIA_TEMP_URL_BATCH
 
+/** 配图临时链接缓存：cloud://fileID → { url, resolvedAt }，8 分钟内复用，减少云函数调用。 */
+const dailyMediaTempUrlCache = new Map<string, { url: string; resolvedAt: number }>()
+const DAILY_MEDIA_TEMP_URL_TTL_MS = 8 * 60 * 1000
+
+/** 清空日常配图临时链接缓存（下拉刷新等全量重载场景调用）。 */
+export function invalidateDailyMediaTempUrlCache(): void {
+  dailyMediaTempUrlCache.clear()
+}
+
 /** 将日常配图 cloud fileID 换为临时 HTTPS（云函数校验路径为 `daily/{情侣一方 openId}/`）。 */
 export async function dailyMapMediaTempUrls(fileIDs: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>()
   const unique = [...new Set(fileIDs.filter((x) => typeof x === 'string' && x.startsWith('cloud://')))]
   if (unique.length === 0 || !wx.cloud) return out
-  for (let i = 0; i < unique.length; i += DAILY_MEDIA_TEMP_URL_BATCH) {
-    const chunk = unique.slice(i, i + DAILY_MEDIA_TEMP_URL_BATCH)
+
+  const now = Date.now()
+  const uncached: string[] = []
+  for (const fid of unique) {
+    const entry = dailyMediaTempUrlCache.get(fid)
+    if (entry && now - entry.resolvedAt < DAILY_MEDIA_TEMP_URL_TTL_MS) {
+      out.set(fid, entry.url)
+    } else {
+      uncached.push(fid)
+    }
+  }
+
+  for (let i = 0; i < uncached.length; i += DAILY_MEDIA_TEMP_URL_BATCH) {
+    const chunk = uncached.slice(i, i + DAILY_MEDIA_TEMP_URL_BATCH)
     try {
       const res = await wx.cloud.callFunction({
         name: DAILY_CLOUD_FUNCTION,
@@ -206,7 +244,10 @@ export async function dailyMapMediaTempUrls(fileIDs: string[]): Promise<Map<stri
       const body = res.result as TempFileUrlsCloudResult
       if (!body || body.ok !== true || !body.urls) continue
       for (const [fid, url] of Object.entries(body.urls)) {
-        if (typeof url === 'string' && url) out.set(fid, url)
+        if (typeof url === 'string' && url) {
+          out.set(fid, url)
+          dailyMediaTempUrlCache.set(fid, { url, resolvedAt: now })
+        }
       }
     } catch {
       // 单批失败时跳过，避免 toast 刷屏

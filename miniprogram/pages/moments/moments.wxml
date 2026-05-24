@@ -14,14 +14,25 @@
     refresher-triggered="{{dailyRefreshing}}"
     bindrefresherrefresh="onDailyRefresh"
     bindscrolltolower="onDailyScrollToLower"
+    bindscroll="onDailyScroll"
+    scroll-top="{{dailyScrollToTop}}"
+    scroll-with-animation="{{true}}"
     lower-threshold="{{120}}"
   >
     <view class="moments-feed">
-      <view wx:if="{{dailyStats && dailyList.length > 0}}" class="daily-stats-card">
-        <text class="daily-stats-card__text">本周已记录 {{dailyStats.weekCount}} 天 · 连续 {{dailyStats.streak}} 天</text>
+      <view class="daily-filter-bar">
+        <picker class="daily-filter-bar__picker" mode="date" value="{{dailyFilterDateKey}}" bindchange="onDailyFilterDateChange">
+          <view class="daily-filter-bar__label">
+            <text>{{dailyFilterDateKey || '全部'}}</text>
+            <text class="daily-filter-bar__arrow">▾</text>
+          </view>
+        </picker>
+        <view wx:if="{{dailyFilterDateKey}}" class="daily-filter-bar__clear" bind:tap="onDailyFilterClear">
+          <text>✕</text>
+        </view>
       </view>
 
-      <block wx:for="{{dailyGroups}}" wx:key="dateKey">
+      <block wx:for="{{dailyFilteredGroups}}" wx:key="dateKey">
         <view class="daily-date-head">
           <view class="daily-date-head__line" />
           <text class="daily-date-head__label">{{item.dateLabel}}</text>
@@ -133,6 +144,10 @@
 
   <view class="moments-compose-fab moments-compose-fab--fixed" bind:tap="onComposeFabTap" bind:longpress="onComposeFabLongPress" aria-role="button" aria-label="写日常">
     <template is="moments-compose-plus" />
+  </view>
+
+  <view wx:if="{{dailyShowBackTop}}" class="daily-back-top" bind:tap="onDailyBackTop" aria-role="button" aria-label="回到顶部">
+    <view class="daily-back-top__arrow" />
   </view>
 
   <template name="moments-compose-plus">

@@ -13,7 +13,8 @@ import {
 import { setReportEditStaging } from '../../utils/report-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
 import { enrichReportPostForDisplay, enrichReportPostsForDisplay, groupReportPostsByDate, type ReportGroup } from '../../utils/display/report-feed-display'
-import { reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
+import { saveFeedCache, loadFeedCache } from '../../utils/feed-cache'
+import { invalidateReportMediaTempUrlCache, reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type ReportFilter = 'mine' | 'action_needed' | 'all'
@@ -28,6 +29,8 @@ type TabSlot = {
   filter: ReportFilter
   list: ReportPostPublic[]
   groups: ReportGroup[]
+  showBackTop: boolean
+  scrollToTop: number
   hasMore: boolean
   nextOffset: number
   bootstrapping: boolean
@@ -42,6 +45,8 @@ function freshTabSlot(filter: ReportFilter): TabSlot {
     filter,
     list: [],
     groups: [],
+    showBackTop: false,
+    scrollToTop: 0,
     hasMore: true,
     nextOffset: 0,
     bootstrapping: false,
@@ -155,6 +160,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
           ['tabs[' + index + '].everLoaded']: true,
           ['tabs[' + index + '].bootstrapping']: false,
         })
+        saveFeedCache('report_' + tab.filter, chunk, moCoupleScopeKey())
       } catch (_) {
         this.setData({ ['tabs[' + index + '].bootstrapping']: false })
       }
@@ -168,6 +174,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
         return
       }
 
+      invalidateReportMediaTempUrlCache()
       this.setData({ ['tabs[' + index + '].refreshing']: true })
       try {
         const r = await reportListReports(0, tab.filter)
@@ -185,6 +192,7 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
           ['tabs[' + index + '].everLoaded']: true,
           ['tabs[' + index + '].refreshing']: false,
         })
+        saveFeedCache('report_' + tab.filter, chunk, moCoupleScopeKey())
       } catch (_) {
         this.setData({ ['tabs[' + index + '].refreshing']: false })
       }
@@ -254,7 +262,40 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
       const tab = this.data.tabs[this.data.reportFilterIndex]
       if (tab.list.length > 0) return
       if (tab.bootstrapping || tab.refreshing) return
+
+      // 优先从 Storage 缓存恢复，即时渲染，再静默刷新
+      const scopeKey = moCoupleScopeKey()
+      const filter = tab.filter
+      const cached = loadFeedCache<ReportPostPublic>('report_' + filter, scopeKey)
+      if (cached) {
+        const groups = groupReportPostsByDate(cached)
+        this.setData({
+          ['tabs[' + this.data.reportFilterIndex + '].list']: cached,
+          ['tabs[' + this.data.reportFilterIndex + '].groups']: groups,
+          ['tabs[' + this.data.reportFilterIndex + '].hasMore']: true,
+          ['tabs[' + this.data.reportFilterIndex + '].everLoaded']: true,
+        })
+        void this.silentRefreshTab(this.data.reportFilterIndex)
+        return
+      }
+
       void this.bootstrapTab(this.data.reportFilterIndex)
+    },
+
+    onReportScroll(e: WechatMiniprogram.ScrollViewScroll) {
+      const index = parseTabIndexFromDataset(e)
+      const t = e.detail.scrollTop
+      const show = t > 200
+      const tab = this.data.tabs[index]
+      if (show !== tab.showBackTop) {
+        this.setData({ ['tabs[' + index + '].showBackTop']: show })
+      }
+    },
+
+    onReportBackTop() {
+      const idx = this.data.reportFilterIndex
+      const cur = this.data.tabs[idx].scrollToTop
+      this.setData({ ['tabs[' + idx + '].scrollToTop']: cur === 0 ? 1 : 0 })
     },
 
     onReportRefresh(e: WechatMiniprogram.CustomEvent) {

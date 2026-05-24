@@ -8,6 +8,15 @@ export const DEFAULT_AVATAR_PATH = '/images/default.png'
 const AVATAR_CLOUD_PREFIX = '/avatars/'
 const TEMP_URL_BATCH_SIZE = 20
 
+/** 头像临时链接缓存：cloud://fileID → { url, resolvedAt }，8 分钟内复用。 */
+const avatarTempUrlCache = new Map<string, { url: string; resolvedAt: number }>()
+const AVATAR_TEMP_URL_TTL_MS = 8 * 60 * 1000
+
+/** 清空头像临时链接缓存（用户资料变更后调用）。 */
+export function invalidateAvatarTempUrlCache(): void {
+  avatarTempUrlCache.clear()
+}
+
 function isAvatarCloudFileId(s: string): boolean {
   return s.startsWith('cloud://') && s.includes(AVATAR_CLOUD_PREFIX)
 }
@@ -26,6 +35,7 @@ export function avatarImageSrcWhileCloudPending(ref: string | undefined | null):
 /**
  * 经云函数 user.getTempFileURLs 换临时 HTTPS（服务端权限，避免读对方 avatars 时 STORAGE_EXCEED_AUTHORITY）。
  * 仅提交路径含 `/avatars/` 的 fileID，与登录/资料页上传路径一致。
+ * 已换链接在 8 分钟内缓存复用，减少云函数调用。
  */
 async function fetchAvatarTempUrlsViaUserFn(fileList: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>()
@@ -33,18 +43,35 @@ async function fetchAvatarTempUrlsViaUserFn(fileList: string[]): Promise<Map<str
     ...new Set(fileList.filter((x): x is string => typeof x === 'string' && isAvatarCloudFileId(x))),
   ]
   if (unique.length === 0 || !wx.cloud) return out
-  try {
-    const res = await wx.cloud.callFunction({
-      name: USER_CLOUD_FUNCTION,
-      data: { action: 'getTempFileURLs', fileIDs: unique.slice(0, TEMP_URL_BATCH_SIZE) },
-    })
-    const body = res.result as TempFileUrlsCloudResult
-    if (!body || body.ok !== true || !body.urls) return out
-    for (const [fid, url] of Object.entries(body.urls)) {
-      if (typeof url === 'string' && url) out.set(fid, url)
+
+  const now = Date.now()
+  const uncached: string[] = []
+  for (const fid of unique) {
+    const entry = avatarTempUrlCache.get(fid)
+    if (entry && now - entry.resolvedAt < AVATAR_TEMP_URL_TTL_MS) {
+      out.set(fid, entry.url)
+    } else {
+      uncached.push(fid)
     }
-  } catch {
-    // ignore
+  }
+
+  if (uncached.length > 0) {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: USER_CLOUD_FUNCTION,
+        data: { action: 'getTempFileURLs', fileIDs: uncached.slice(0, TEMP_URL_BATCH_SIZE) },
+      })
+      const body = res.result as TempFileUrlsCloudResult
+      if (!body || body.ok !== true || !body.urls) return out
+      for (const [fid, url] of Object.entries(body.urls)) {
+        if (typeof url === 'string' && url) {
+          out.set(fid, url)
+          avatarTempUrlCache.set(fid, { url, resolvedAt: now })
+        }
+      }
+    } catch {
+      // ignore
+    }
   }
   return out
 }
