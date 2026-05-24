@@ -1,7 +1,7 @@
 <!--
   报备详情页 · moilike-ui · Skyline
-  [Layering] L0 灰底 + L1 白卡 左柔光（对齐共鸣卡）
-  [Structure] 完全对齐列表卡：圆点+名称+标签同行 → 记录于 → 正文+配图+评价
+  [Layering] L0 灰底 + L1 统一白卡（左柔光对齐共鸣列表卡）
+  [Structure] 头部 → 正文+配图 → 评价/表单 → 标记已阅 → 全在一张卡内
 -->
 <view class="report-detail-page">
   <view class="report-detail-bg" aria-hidden="true">
@@ -23,9 +23,11 @@
       bounces="{{true}}"
     >
       <view class="report-detail-inner">
+
+        <!-- ═══ 统一白卡 ═══ -->
         <view class="report-detail-card report-detail-card--{{post.partnerState}}">
 
-          <!-- 头部（对齐 report-card-head） -->
+          <!-- 头部 -->
           <view class="report-detail-card-head">
             <view class="report-detail-card-head-row">
               <view class="report-detail-card-status-dot"></view>
@@ -44,15 +46,13 @@
                   <text class="report-tag-chip-text">{{chip.name}}</text>
                 </view>
               </view>
-              <view
+              <text
                 wx:if="{{post.isMine}}"
                 class="report-detail-card-more"
                 bind:tap="onMoreActions"
                 aria-role="button"
                 aria-label="更多操作"
-              >
-                <text class="report-detail-card-more-icon">⋯</text>
-              </view>
+              >⋯</text>
             </view>
             <view class="report-detail-card-head-sub">
               <text class="report-detail-card-record-label">记录于</text>
@@ -60,9 +60,10 @@
             </view>
           </view>
 
-          <!-- 内容区（对齐 report-card-body-zone） -->
+          <!-- 内容区 -->
           <view class="report-detail-card-body-zone">
 
+            <!-- 正文 + 配图 -->
             <view
               wx:if="{{post.body || (post.images && post.images.length)}}"
               class="report-detail-card-main"
@@ -92,75 +93,74 @@
               </view>
             </view>
 
-            <!-- 对方评价 -->
+            <!-- 对方评价（已评价、非编辑态、无需自己评价） -->
             <view
               wx:if="{{post.partnerEvalText && !evalEditing && !post.canEvaluate}}"
               class="report-detail-card-eval"
             >
               <view class="report-detail-card-eval-top">
                 <text class="report-detail-card-eval-label">对方的评价</text>
-                <view
+                <text
                   wx:if="{{post.canEditEval}}"
                   class="report-detail-card-eval-edit"
                   bind:tap="onStartEditEval"
                   aria-role="button"
                   aria-label="编辑评价"
-                >
-                  <text class="report-detail-card-eval-edit-text">编辑</text>
-                </view>
+                >编辑</text>
               </view>
               <text class="report-detail-card-eval-text">{{post.partnerEvalText}}</text>
             </view>
 
-          </view>
-
-        </view>
-
-        <!-- 评价编辑表单（独立卡片） -->
-        <view
-          wx:if="{{post.canEvaluate || evalEditing}}"
-          class="report-detail-card report-detail-eval-form-card"
-        >
-          <view class="report-detail-eval-form-top">
-            <text class="report-detail-eval-form-lab">{{evalEditing ? '编辑评价' : '写一句评价'}}</text>
+            <!-- 评价表单（需要评价 或 编辑态） -->
             <view
-              wx:if="{{evalEditing}}"
-              class="report-detail-eval-cancel"
-              bind:tap="onCancelEditEval"
+              wx:if="{{post.canEvaluate || evalEditing}}"
+              class="report-detail-card-eval-form"
+            >
+              <view class="report-detail-card-eval-form-top">
+                <text class="report-detail-card-eval-form-label">{{evalEditing ? '编辑评价' : '写一句评价'}}</text>
+                <text
+                  wx:if="{{evalEditing}}"
+                  class="report-detail-card-eval-form-cancel"
+                  bind:tap="onCancelEditEval"
+                  aria-role="button"
+                >取消</text>
+              </view>
+              <view class="report-detail-card-eval-form-shell">
+                <textarea
+                  class="report-detail-card-eval-form-area"
+                  placeholder="对方会先看到你的已阅，再读这里…"
+                  placeholder-class="report-detail-ph"
+                  maxlength="{{500}}"
+                  value="{{evalDraft}}"
+                  bindinput="onEvalInput"
+                  auto-height
+                  show-confirm-bar="{{false}}"
+                  cursor-spacing="{{24}}"
+                />
+              </view>
+              <view class="report-detail-card-eval-form-actions">
+                <view
+                  class="report-detail-btn"
+                  bind:tap="onSubmitEval"
+                  aria-role="button"
+                >
+                  <text class="report-detail-btn-text">{{evalEditing ? '更新评价' : '提交评价'}}</text>
+                </view>
+              </view>
+            </view>
+
+            <!-- 标记已阅 -->
+            <view
+              wx:if="{{post.canMarkRead}}"
+              class="report-detail-card-mark-read"
+              bind:tap="onMarkRead"
               aria-role="button"
             >
-              <text class="report-detail-eval-cancel-text">取消</text>
+              <text class="report-detail-card-mark-read-text">标记已阅</text>
             </view>
-          </view>
-          <view class="report-detail-eval-shell">
-            <textarea
-              class="report-detail-eval-area"
-              placeholder="对方会先看到你的已阅，再读这里…"
-              placeholder-class="report-detail-ph"
-              maxlength="{{500}}"
-              value="{{evalDraft}}"
-              bindinput="onEvalInput"
-              auto-height
-              show-confirm-bar="{{false}}"
-              cursor-spacing="{{24}}"
-            />
-          </view>
-          <view class="report-detail-eval-form-actions">
-            <view
-              class="report-detail-btn"
-              bind:tap="onSubmitEval"
-              aria-role="button"
-            >
-              <text class="report-detail-btn-text">{{evalEditing ? '更新评价' : '提交评价'}}</text>
-            </view>
-          </view>
-        </view>
 
-        <!-- 标记已阅 -->
-        <view wx:if="{{post.canMarkRead}}" class="report-detail-actions">
-          <view class="report-detail-btn" bind:tap="onMarkRead" aria-role="button">
-            <text class="report-detail-btn-text">标记已阅</text>
           </view>
+
         </view>
 
         <view class="report-detail-pad" />

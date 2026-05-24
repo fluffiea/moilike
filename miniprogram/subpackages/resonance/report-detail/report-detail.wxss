@@ -52,7 +52,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
- * L1 白卡 · 左侧柔光 · 色彩即状态（对齐列表卡 report-card）
+ * L1 统一白卡 · 左侧柔光 · 色彩即状态（对齐列表卡 report-card）
  * ═══════════════════════════════════════════════════════════════════════ */
 
 .report-detail-card {
@@ -66,7 +66,7 @@
   overflow: hidden;
 }
 
-/* 左侧柔光 — 从边缘淡入，天然贴合圆角 */
+/* 左侧柔光 — 与列表卡完全一致的色彩方案 */
 .report-detail-card--pending_read {
   background: linear-gradient(90deg, rgba(232, 168, 124, 0.09) 0%, transparent 48rpx), #ffffff;
 }
@@ -79,7 +79,7 @@
   background: linear-gradient(90deg, rgba(155, 142, 196, 0.10) 0%, transparent 48rpx), #ffffff;
 }
 
-/* 状态圆点 */
+/* 状态圆点 — 与列表卡一致 */
 .report-detail-card-status-dot {
   flex-shrink: 0;
   width: 22rpx;
@@ -92,7 +92,7 @@
 .report-detail-card--read        .report-detail-card-status-dot { background: #6BBF8A; }
 .report-detail-card--evaluated   .report-detail-card-status-dot { background: #9B8EC4; }
 
-/* ── 头部（对齐 report-card-head） ── */
+/* ── 头部 ── */
 
 .report-detail-card-head {
   padding: 0 0 24rpx;
@@ -123,26 +123,20 @@
   flex-direction: row;
   flex-wrap: wrap;
   gap: 8rpx;
-  margin-left: auto;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
 }
 
+/* ⋯ 更多操作 — 纯文字，不抢戏 */
 .report-detail-card-more {
   flex-shrink: 0;
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
-}
-
-.report-detail-card-more-icon {
-  font-size: 24rpx;
+  margin-left: 4rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: #8e8e93;
   line-height: 1;
+  padding: 4rpx 8rpx;
 }
 
 .report-detail-card-head-sub {
@@ -164,28 +158,27 @@
   color: #8e8e93;
 }
 
-/* ── 内容区（对齐 report-card-body-zone） ── */
+/* ── 内容区 ── */
 
 .report-detail-card-body-zone {
   padding: 40rpx 0 40rpx;
 }
 
-.report-detail-card-main {
-  /* 正文+配图容器 */
-}
-
+/* 正文 */
 .report-detail-card-body-text {
   display: block;
   font-size: 30rpx;
   color: #1c1c1e;
   line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .report-detail-card-body + .report-detail-card-media {
   margin-top: 24rpx;
 }
 
-/* ── 配图（对齐 report-card-media） ── */
+/* ── 配图（与列表卡 report-card-media 对齐 + inset 高光）── */
 
 .report-detail-card-media {
   box-sizing: border-box;
@@ -197,7 +190,10 @@
   width: 100%;
   border-radius: 32rpx;
   overflow: hidden;
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  background-color: #fbfbfd;
+  box-shadow:
+    inset 0 0 0 1rpx rgba(0, 0, 0, 0.035),
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.55);
 }
 
 .report-detail-card-media--one .report-detail-card-media-cell {
@@ -205,8 +201,6 @@
   padding-bottom: 58%;
   height: 0;
   position: relative;
-  border-radius: 32rpx;
-  overflow: hidden;
 }
 
 /* 2 张 */
@@ -225,16 +219,23 @@
   position: relative;
   border-radius: 28rpx;
   overflow: hidden;
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  background-color: #fbfbfd;
   flex-shrink: 0;
+  box-shadow:
+    inset 0 0 0 1rpx rgba(0, 0, 0, 0.035),
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.5);
 }
 
 /* 3+ 张 */
 .report-detail-card-media--many {
+  border-radius: 36rpx;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10rpx;
+  padding: 10rpx;
+  background-color: #f2f2f7;
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
 .report-detail-card-media--many .report-detail-card-media-cell {
@@ -245,6 +246,13 @@
   border-radius: 24rpx;
   overflow: hidden;
   border: 1rpx solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.report-detail-card-media-cell {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .report-detail-card-media-thumb {
@@ -255,7 +263,7 @@
   height: 100%;
 }
 
-/* ── 对方评价（对齐 report-card-eval） ── */
+/* ── 对方评价（与列表卡 report-card-eval 对齐）── */
 
 .report-detail-card-eval {
   padding: 24rpx;
@@ -278,17 +286,12 @@
   color: #668f80;
 }
 
+/* 编辑 — 纯文字链接 */
 .report-detail-card-eval-edit {
-  padding: 6rpx 18rpx;
-  border-radius: 20rpx;
-  background-color: rgba(102, 143, 128, 0.08);
-  border: 1rpx solid rgba(102, 143, 128, 0.15);
-}
-
-.report-detail-card-eval-edit-text {
   font-size: 22rpx;
-  font-weight: 600;
+  font-weight: 500;
   color: #668f80;
+  padding: 4rpx 4rpx;
 }
 
 .report-detail-card-eval-text {
@@ -296,16 +299,19 @@
   font-size: 28rpx;
   color: #1c1c1e;
   line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* ── 评价编辑表单卡 ── */
+/* ── 评价表单（卡内内嵌）── */
 
-.report-detail-eval-form-card {
-  margin-top: 28rpx;
-  padding: 36rpx 40rpx 40rpx;
+.report-detail-card-eval-form {
+  margin-top: 32rpx;
+  padding-top: 32rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
-.report-detail-eval-form-top {
+.report-detail-card-eval-form-top {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -313,32 +319,26 @@
   margin-bottom: 16rpx;
 }
 
-.report-detail-eval-form-lab {
+.report-detail-card-eval-form-label {
   font-size: 26rpx;
   font-weight: 600;
   color: #1c1c1e;
 }
 
-.report-detail-eval-cancel {
-  padding: 8rpx 20rpx;
-  border-radius: 20rpx;
-  background-color: rgba(60, 60, 67, 0.06);
-}
-
-.report-detail-eval-cancel-text {
+.report-detail-card-eval-form-cancel {
   font-size: 24rpx;
   font-weight: 500;
   color: #8e8e93;
 }
 
-.report-detail-eval-shell {
+.report-detail-card-eval-form-shell {
   padding: 24rpx 28rpx;
   border-radius: 24rpx;
   background-color: #f2f2f7;
   border: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
-.report-detail-eval-area {
+.report-detail-card-eval-form-area {
   width: 100%;
   min-height: 180rpx;
   font-size: 28rpx;
@@ -351,46 +351,58 @@
   color: #8e8e93;
 }
 
-.report-detail-eval-form-actions {
+.report-detail-card-eval-form-actions {
   margin-top: 24rpx;
 }
 
-/* ── 标记已阅 ── */
-
-.report-detail-actions {
-  margin-top: 28rpx;
-}
-
-/* ── 操作按钮 ── */
+/* ── 提交 / 更新评价按钮 ── */
 
 .report-detail-btn {
-  padding: 24rpx 32rpx;
-  border-radius: 28rpx;
+  padding: 22rpx 32rpx;
+  border-radius: 24rpx;
   background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
   border: 1rpx solid rgba(74, 102, 112, 0.35);
   box-shadow:
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
     0 4px 12px rgba(0, 0, 0, 0.02),
-    0 12px 28px rgba(74, 102, 112, 0.22);
+    0 8px 24px rgba(74, 102, 112, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .report-detail-btn-text {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+}
+
+/* ── 标记已阅（轻量居中文字）── */
+
+.report-detail-card-mark-read {
+  margin-top: 32rpx;
+  padding-top: 32rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.report-detail-card-mark-read-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #668f80;
+  padding: 8rpx 8rpx;
 }
 
 /* ── 底部留白 ── */
 
 .report-detail-pad {
-  height: calc(200rpx + env(safe-area-inset-bottom));
+  height: calc(80rpx + env(safe-area-inset-bottom));
 }
 
-/* ── 空态 ── */
+/* ── 空态 / 加载 ── */
 
 .report-detail-empty {
   flex: 1;
@@ -405,7 +417,7 @@
   color: #8e8e93;
 }
 
-/* ── tag 色阶（与共鸣列表一致） ── */
+/* ── tag 色阶（与共鸣列表一致，保持不变）── */
 
 .report-tag-chip {
   padding: 8rpx 18rpx;

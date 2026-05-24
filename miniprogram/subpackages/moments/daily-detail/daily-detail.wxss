@@ -98,13 +98,6 @@ page {
   box-shadow: none;
 }
 
-.daily-detail-unified__sep {
-  height: 1rpx;
-  margin: 0 40rpx;
-  box-sizing: border-box;
-  background-color: rgba(0, 0, 0, 0.06);
-}
-
 .daily-detail-unified__thread.cm-thread {
   box-sizing: border-box;
   margin: 0 40rpx 40rpx;

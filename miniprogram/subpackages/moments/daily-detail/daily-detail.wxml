@@ -103,8 +103,6 @@
               </view>
             </view>
 
-            <view class="daily-detail-unified__sep" aria-hidden="true" />
-
             <view class="daily-detail-unified__thread cm-thread">
               <view class="cm-thread__head">
                 <view class="cm-thread__head-left">
