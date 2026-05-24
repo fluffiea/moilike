@@ -107,6 +107,7 @@
                     <view class="report-card-status-dot"></view>
                     <text class="report-card-name">{{post.userName}}</text>
                     <text class="report-card-suffix"> 的报备</text>
+                    <text class="report-card-status-label report-card-status-label--{{post.partnerState}}">{{post.statusLabel}}</text>
                     <view wx:if="{{post.tagChips && post.tagChips.length}}" class="report-card-head-tags">
                       <view
                         wx:for="{{post.tagChips}}"

@@ -105,15 +105,9 @@ function toPublicReport(doc, id, OPENID, partner) {
   const canEditEval =
     !isMine && partnerState === 'evaluated' && partner && authorOpenId === partner
   let statusLabel = ''
-  if (isMine) {
-    if (partnerState === 'pending_read') statusLabel = '待对方阅读'
-    else if (partnerState === 'read') statusLabel = '对方已读'
-    else statusLabel = '对方已评价'
-  } else {
-    if (partnerState === 'pending_read') statusLabel = '未阅'
-    else if (partnerState === 'read') statusLabel = '已阅'
-    else statusLabel = '已评价'
-  }
+  if (partnerState === 'pending_read') statusLabel = '未阅'
+  else if (partnerState === 'read') statusLabel = '已阅'
+  else statusLabel = '已评价'
   return {
     id,
     userName: authorNickName || '对方',

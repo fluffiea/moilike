@@ -118,6 +118,21 @@
   color: #8e8e93;
 }
 
+/* 状态文字 pill — 与圆点同色系 */
+.report-detail-card-status-label {
+  flex-shrink: 0;
+  margin-left: 8rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  border: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+
+.report-detail-card-status-label--pending_read { color: #C07A5E; background-color: rgba(232, 168, 124, 0.12); }
+.report-detail-card-status-label--read        { color: #4A9A6A; background-color: rgba(107, 191, 138, 0.12); }
+.report-detail-card-status-label--evaluated   { color: #7B6EA8; background-color: rgba(155, 142, 196, 0.14); }
+
 .report-detail-card-head-tags {
   display: flex;
   flex-direction: row;

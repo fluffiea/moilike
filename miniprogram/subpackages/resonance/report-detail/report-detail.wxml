@@ -33,6 +33,7 @@
               <view class="report-detail-card-status-dot"></view>
               <text class="report-detail-card-name">{{post.userName}}</text>
               <text class="report-detail-card-suffix"> 的报备</text>
+              <text class="report-detail-card-status-label report-detail-card-status-label--{{post.partnerState}}">{{post.statusLabel}}</text>
               <view
                 wx:if="{{post.tagChips && post.tagChips.length}}"
                 class="report-detail-card-head-tags"
