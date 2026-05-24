@@ -450,13 +450,3 @@ page {
   box-shadow: none;
 }
 
-.login-footnote {
-  display: block;
-  box-sizing: border-box;
-  margin: 28rpx 0 0;
-  padding: 0 56rpx;
-  text-align: center;
-  font-size: 22rpx;
-  line-height: 1.55;
-  color: rgba(90, 82, 74, 0.48);
-}

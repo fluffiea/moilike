@@ -46,12 +46,12 @@
   border-radius: 56rpx;
   background:
     radial-gradient(
-      ellipse 65% 48% at 92% 8%,
+      circle at 92% 8%,
       rgba(214, 162, 173, 0.06) 0%,
       rgba(255, 255, 255, 0) 58%
     ),
     radial-gradient(
-      ellipse 58% 42% at 8% 94%,
+      circle at 8% 94%,
       rgba(102, 143, 128, 0.045) 0%,
       rgba(255, 255, 255, 0) 55%
     );
@@ -78,14 +78,14 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 260rpx;
-  height: 260rpx;
-  margin-left: -130rpx;
-  margin-top: -130rpx;
+  width: 232rpx;
+  height: 232rpx;
+  margin-left: -116rpx;
+  margin-top: -116rpx;
   pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(
-    ellipse at 50% 45%,
+    circle at 50% 45%,
     rgba(102, 143, 128, 0.14) 0%,
     rgba(102, 143, 128, 0.04) 42%,
     rgba(255, 255, 255, 0) 72%
@@ -96,8 +96,8 @@
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  width: 196rpx;
-  height: 196rpx;
+  width: 176rpx;
+  height: 176rpx;
   padding: 6rpx;
   border-radius: 50%;
   background: linear-gradient(158deg, #668f80 0%, #4a6670 52%, #668f80 100%);
@@ -150,7 +150,7 @@
   position: relative;
   z-index: 1;
   display: block;
-  margin-top: 28rpx;
+  margin-top: 24rpx;
   text-align: center;
   font-size: 24rpx;
   line-height: 1.5;
@@ -164,6 +164,11 @@
   border-radius: 48rpx;
   box-sizing: border-box;
   background-color: #ffffff;
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(102, 143, 128, 0.025) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }

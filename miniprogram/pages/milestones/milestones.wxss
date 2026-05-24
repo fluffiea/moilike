@@ -1,5 +1,5 @@
 /**
- * 朝夕 · moilike-ui（层次略强 + 头像留白 + 几何链）
+ * 朝夕 · moilike-ui（卡片氛围 wash + 渐变头像环 + 丝带连接 + pill 倒计时）
  * L0 #F2F2F7 · L1 §2.3 · 主按钮渐变
  */
 
@@ -26,13 +26,13 @@
 
 /* —— 引导 / 占位 —— */
 .ms-card {
-  margin: 0 40rpx 28rpx;
+  margin: 0 40rpx 32rpx;
   padding: 0;
   overflow: hidden;
-  border-radius: 52rpx;
+  border-radius: 56rpx;
   box-sizing: border-box;
   background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
@@ -97,17 +97,38 @@
 
 /* —— 主态 —— */
 .ms-hero {
-  margin: 0 40rpx 28rpx;
+  position: relative;
+  margin: 0 40rpx 32rpx;
   padding: 0;
   overflow: hidden;
-  border-radius: 52rpx;
+  border-radius: 56rpx;
   box-sizing: border-box;
   background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
 
+.ms-hero__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 56rpx;
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(214, 162, 173, 0.05) 0%,
+      rgba(255, 255, 255, 0) 58%
+    ),
+    radial-gradient(
+      circle at 8% 94%,
+      rgba(102, 143, 128, 0.04) 0%,
+      rgba(255, 255, 255, 0) 55%
+    );
+}
+
 .ms-hero__inner {
+  position: relative;
+  z-index: 1;
   padding: 44rpx 40rpx 44rpx;
   box-sizing: border-box;
 }
@@ -129,11 +150,11 @@
   font-weight: 700;
   letter-spacing: 0.01em;
   color: #1c1c1e;
-  margin-bottom: 36rpx;
+  margin-bottom: 40rpx;
 }
 
 .ms-hero-portrait {
-  margin: 0 auto 32rpx;
+  margin: 0 auto 36rpx;
   padding: 0;
   box-sizing: border-box;
 }
@@ -147,95 +168,118 @@
   gap: 32rpx;
 }
 
+/* 头像堆叠 + 辉光 */
+.ms-avatar-stack {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ms-avatar-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 156rpx;
+  height: 156rpx;
+  margin-left: -78rpx;
+  margin-top: -78rpx;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(102, 143, 128, 0.1) 0%,
+    rgba(102, 143, 128, 0.03) 42%,
+    rgba(255, 255, 255, 0) 72%
+  );
+}
+
 .ms-avatar-ring {
+  position: relative;
+  z-index: 1;
   width: 118rpx;
   height: 118rpx;
-  border-radius: 59rpx;
-  padding: 4rpx;
   box-sizing: border-box;
-  background-color: #ffffff;
-  border: 2rpx solid rgba(102, 143, 128, 0.38);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 4rpx;
+  border-radius: 50%;
+  background: linear-gradient(158deg, #668f80 0%, #4a6670 52%, #668f80 100%);
+  box-shadow:
+    0 4px 16px rgba(74, 102, 112, 0.1),
+    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.28);
 }
 
 .ms-avatar-img {
   width: 100%;
   height: 100%;
-  border-radius: 55rpx;
-  background-color: #eceef0;
+  border-radius: 50%;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: #f2f2f7;
+  border: 3rpx solid rgba(255, 255, 255, 0.95);
 }
 
-/* 几何「链」：短线 — 结扣 — 短线 */
-.ms-avatar-link {
+/* 丝带连接：左臂 淡茶绿→玫瑰  /  宝石  /  右臂 玫瑰→淡茶绿 */
+.ms-avatar-ribbon {
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 132rpx;
-  height: 118rpx;
+  width: 96rpx;
+  height: 64rpx;
   box-sizing: border-box;
 }
 
-.ms-avatar-link__arm {
-  width: 34rpx;
-  height: 5rpx;
-  border-radius: 3rpx;
+.ms-avatar-ribbon__bar {
+  flex: 1;
+  height: 3rpx;
+  border-radius: 2rpx;
+}
+
+.ms-avatar-ribbon__bar:first-child {
   background: linear-gradient(
     90deg,
-    rgba(102, 143, 128, 0.35) 0%,
-    rgba(102, 143, 128, 0.95) 50%,
-    rgba(74, 102, 112, 0.85) 100%
+    rgba(102, 143, 128, 0.08) 0%,
+    rgba(214, 162, 173, 0.5) 100%
   );
 }
 
-.ms-avatar-link__arm:first-child {
+.ms-avatar-ribbon__bar:last-child {
   background: linear-gradient(
     90deg,
-    rgba(102, 143, 128, 0.25) 0%,
-    rgba(102, 143, 128, 0.92) 100%
+    rgba(214, 162, 173, 0.5) 0%,
+    rgba(102, 143, 128, 0.08) 100%
   );
 }
 
-.ms-avatar-link__arm:last-child {
-  background: linear-gradient(
-    90deg,
-    rgba(102, 143, 128, 0.92) 0%,
-    rgba(74, 102, 112, 0.75) 100%
-  );
+.ms-avatar-ribbon__gem {
+  flex-shrink: 0;
+  width: 16rpx;
+  height: 16rpx;
+  margin: 0 8rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #d6a2ad 0%, #c3b59f 100%);
+  box-shadow: 0 0 8rpx rgba(214, 162, 173, 0.25);
 }
 
-.ms-avatar-link__knot {
-  width: 44rpx;
-  height: 44rpx;
-  margin: 0 10rpx;
-  border-radius: 22rpx;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border: 3rpx solid rgba(102, 143, 128, 0.5);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    inset 0 1rpx 0 0 rgba(255, 255, 255, 0.9);
-}
-
-.ms-avatar-link__knot-dot {
-  width: 12rpx;
-  height: 12rpx;
-  border-radius: 6rpx;
-  background: linear-gradient(145deg, #668f80 0%, #4a6670 100%);
-}
-
+/* 渐变分割线 */
 .ms-hero__divider {
   height: 1rpx;
   margin: 0 4rpx 28rpx;
-  background-color: rgba(0, 0, 0, 0.08);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.03) 18%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.03) 82%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .ms-hero__quote {
-  margin-bottom: 28rpx;
+  margin-bottom: 32rpx;
   padding: 0 4rpx;
   box-sizing: border-box;
 }
@@ -249,56 +293,58 @@
   color: #8e8e93;
 }
 
-/* 倒计时：略深底 + 清晰分割 */
-.ms-count-grid {
+/* —— 倒计时：独立 pill 卡片 —— */
+.ms-count-row {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  border-radius: 32rpx;
-  overflow: hidden;
-  background-color: #e8eaed;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
 }
 
-.ms-count-cell {
+.ms-count-card {
   flex: 1;
   min-width: 0;
-  padding: 26rpx 8rpx 22rpx;
+  margin-right: 12rpx;
+  padding: 24rpx 6rpx 20rpx;
   text-align: center;
   box-sizing: border-box;
-  border-right: 1rpx solid rgba(0, 0, 0, 0.07);
-  background-color: #f2f2f7;
+  border-radius: 28rpx;
+  background-color: #fbfbfd;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.015),
+    0 4px 12px rgba(0, 0, 0, 0.025);
 }
 
-.ms-count-cell--last {
-  border-right: none;
+.ms-count-card:last-child {
+  margin-right: 0;
 }
 
-.ms-count-cell--days {
+.ms-count-card--days {
   background-color: #ffffff;
+  border: 1rpx solid rgba(102, 143, 128, 0.12);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.015),
+    0 4px 16px rgba(102, 143, 128, 0.07);
 }
 
-.ms-count-val {
+.ms-count-card__val {
   display: block;
   font-size: 34rpx;
+  line-height: 48rpx;
   font-weight: 700;
   color: #1c1c1e;
   margin-bottom: 8rpx;
 }
 
-.ms-count-cell--days .ms-count-val {
+.ms-count-card--days .ms-count-card__val {
   font-size: 40rpx;
   font-weight: 700;
   color: #4a6670;
 }
 
-.ms-count-lab {
+.ms-count-card__lab {
   display: block;
   font-size: 22rpx;
   font-weight: 600;
   color: #8e8e93;
-}
-
-.ms-count-cell--days .ms-count-lab {
-  color: #668f80;
 }

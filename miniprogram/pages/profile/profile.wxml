@@ -1,7 +1,7 @@
 <!--
-  [Layering] L0 #F2F2F7 · L1 身份卡 + 下方 profile-module 列表组（§2.3）· 顶栏 L2 app-nav glass
-  [Spacing] 水平 40rpx；模块间距 32rpx；组内标题与行 40rpx 对齐
-  [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀在头像环与行首图标槽
+  [Layering] L0 #F2F2F7 · L1 身份卡 + wash · 模块卡片 + 微 wash · 顶栏 L2 app-nav
+  [Spacing] 水平 40rpx；模块间距 32rpx；行内 padding 40rpx
+  [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀仅在头像环与图标槽
 -->
 <view class="profile-shell">
   <app-nav title="独白" variant="glass" />
@@ -11,6 +11,9 @@
     type="list"
     enhanced
     show-scrollbar="{{false}}"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshTriggered}}"
+    bind:refresherrefresh="onRefresh"
   >
     <view class="profile-scroll-body">
       <view class="profile-identity-card">
@@ -30,9 +33,9 @@
             </view>
           </view>
           <view class="profile-identity-text">
-            <text class="profile-nick">{{nickName}}</text>
+            <text class="profile-nick">{{profileBooted ? nickName : '…'}}</text>
             <view class="profile-sign-wrap">
-              <text class="profile-sign">{{signature}}</text>
+              <text class="profile-sign">{{profileBooted ? signature : '…'}}</text>
             </view>
           </view>
         </view>
@@ -50,7 +53,9 @@
           aria-label="{{item.label}}"
         >
           <view class="profile-module-icon" aria-hidden="true">
-            <text class="profile-module-icon-emoji">{{item.icon}}</text>
+            <view class="profile-module-icon-slot">
+              <text class="profile-module-icon-glyph">{{item.iconGlyph}}</text>
+            </view>
           </view>
           <text class="profile-module-label">{{item.label}}</text>
           <text class="profile-module-chevron" aria-hidden="true">›</text>
@@ -76,26 +81,23 @@
           <view wx:else class="profile-module-lead profile-module-lead--ph" aria-hidden="true" />
           <view class="profile-module-stack">
             <text wx:if="{{partner && partner.openId}}" class="profile-module-strong">与「{{partner.nickName || 'Ta'}}」已结伴</text>
-            <text wx:else class="profile-module-strong">还没有结伴对象</text>
-            <text wx:if="{{partner && partner.openId}}" class="profile-module-muted">绑定码与申请进度 · 轻点查看</text>
-            <text wx:else class="profile-module-muted">分享绑定码，或处理对方发来的申请</text>
+            <text wx:else class="profile-module-strong">添加结伴对象</text>
+            <text wx:if="{{partner && partner.openId}}" class="profile-module-muted">轻点管理绑定与纪念日</text>
+            <text wx:else class="profile-module-muted">与对方绑定，解锁全部功能</text>
           </view>
           <text class="profile-module-chevron" aria-hidden="true">›</text>
         </view>
       </view>
 
-      <view class="profile-module">
-        <view
-          class="profile-module-row profile-module-row--solo"
-          bind:tap="onLogoutTap"
-          aria-role="button"
-          aria-label="退出登录"
-        >
-          <text class="profile-module-logout">退出登录</text>
-        </view>
+      <view
+        class="profile-logout-row"
+        bind:tap="onLogoutTap"
+        aria-role="button"
+        aria-label="退出登录"
+      >
+        <text class="profile-module-logout">退出登录</text>
       </view>
 
-      <text class="profile-footer">{{tagLine}}</text>
     </view>
   </scroll-view>
 </view>

@@ -18,9 +18,9 @@ import moSession from '../../utils/session'
 
 type SettingId = 'editProfile' | 'preferences'
 
-const SETTINGS_ROWS: { id: SettingId; label: string; icon: string }[] = [
-  { id: 'editProfile', label: '编辑资料', icon: '✨' },
-  { id: 'preferences', label: '偏好设置', icon: '☰' },
+const SETTINGS_ROWS: { id: SettingId; label: string; iconGlyph: string }[] = [
+  { id: 'editProfile', label: '编辑资料', iconGlyph: '✎' },
+  { id: 'preferences', label: '偏好设置', iconGlyph: '◈' },
 ]
 
 const SETTING_NAV_URL: Record<SettingId, string> = {
@@ -45,10 +45,12 @@ Component<{}, {}, {}, ProfileCustomInstanceProperty>({
     avatarUrl: DEFAULT_AVATAR_PATH,
     nickName: '未设置昵称',
     signature: '写点什么介绍自己吧。',
-    tagLine: 'Moilike，只属于我们两个人',
+    tagLine: '',
     settingsRows: SETTINGS_ROWS,
     /** 独白摘要行：是否已绑定对象（详情见 partner-hub） */
     partner: null as MoPartner | null,
+    profileBooted: false,
+    refreshTriggered: false,
   },
   methods: {
     applyLocalUser() {
@@ -77,6 +79,7 @@ Component<{}, {}, {}, ProfileCustomInstanceProperty>({
         nickName: u.nickName || '未设置昵称',
         signature: u.signature || '写点什么介绍自己吧。',
         partner,
+        profileBooted: true,
       })
       void this.resolveSessionAvatars()
     },
@@ -137,6 +140,12 @@ Component<{}, {}, {}, ProfileCustomInstanceProperty>({
       } catch (_e) {
         // 离线时忽略
       }
+    },
+    onRefresh() {
+      this.setData({ refreshTriggered: true })
+      void this.refreshFromCloud().finally(() => {
+        this.setData({ refreshTriggered: false })
+      })
     },
     onSettingTap(e: WechatMiniprogram.TouchEvent) {
       const id = e.currentTarget.dataset.id as SettingId | undefined

@@ -16,7 +16,7 @@
       <view class="pref-card">
         <view class="pref-card__wash" aria-hidden="true" />
         <text class="pref-card-title">共鸣</text>
-        <text class="pref-card-desc">打开「共鸣」时报备列表的默认筛选</text>
+        <text class="pref-card-desc">共鸣页默认显示</text>
         <view class="pref-slider" aria-label="共鸣默认筛选">
           <view class="pref-slider-track pref-slider-track--triple">
             <view
@@ -56,18 +56,6 @@
         </view>
       </view>
 
-      <text class="pref-footnote">设置将保存在云端，换机登录后仍有效。</text>
     </view>
   </scroll-view>
-  <view class="pref-footer">
-    <button
-      class="pref-save"
-      bind:tap="onSave"
-      disabled="{{submitting}}"
-      loading="{{submitting}}"
-      aria-label="保存偏好设置"
-    >
-      {{submitting ? '保存中…' : '保存'}}
-    </button>
-  </view>
 </view>

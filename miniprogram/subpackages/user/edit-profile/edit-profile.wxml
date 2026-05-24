@@ -32,7 +32,7 @@
             </view>
           </view>
         </view>
-        <text class="edit-avatar-tip">轻触头像更换，可与微信头像一致</text>
+        <text class="edit-avatar-tip">轻触更换头像</text>
       </view>
 
       <view class="edit-form-card">

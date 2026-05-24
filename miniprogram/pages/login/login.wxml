@@ -98,7 +98,6 @@
         </button>
       </view>
 
-      <text class="login-footnote">首次使用需填写头像与昵称；若在「独白」中退出登录，返回后需点「重新进入」才会再次进入应用。</text>
     </view>
   </scroll-view>
 </view>

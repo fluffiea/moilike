@@ -1,8 +1,8 @@
 /**
  * 独白页 · moilike-ui
- * [Layering] L0 #F2F2F7；身份卡 L1；下方「账户 / 结伴 / 退出」共用 profile-module §2.3；顶栏 L2 app-nav
- * [Spacing] 水平 40rpx；模块间距 32rpx（8rpx 阶梯）；模块内标题与行左右 40rpx 对齐
- * [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀仅在头像环与图标底
+ * [Layering] L0 #F2F2F7；身份卡 L1 + wash；模块卡片 L1 + 微 wash；顶栏 L2 app-nav
+ * [Spacing] 水平 40rpx；模块间距 32rpx；行内 padding 40rpx
+ * [Palette 6-3-1] #1C1C1E / #8E8E93；品牌点缀仅在头像环与图标槽
  */
 
 .profile-shell {
@@ -23,14 +23,14 @@
   box-sizing: border-box;
   width: 100%;
   min-height: 100%;
-  padding: 32rpx 0 calc(32rpx + 120rpx + env(safe-area-inset-bottom));
+  padding: 32rpx 0 calc(32rpx + 80rpx + env(safe-area-inset-bottom));
 }
 
 /* ---------- L1 身份卡 ---------- */
 .profile-identity-card {
   position: relative;
   margin: 0 40rpx 32rpx;
-  padding: 44rpx 40rpx 40rpx;
+  padding: 44rpx 40rpx 44rpx;
   overflow: hidden;
   border-radius: 56rpx;
   box-sizing: border-box;
@@ -46,12 +46,12 @@
   border-radius: 56rpx;
   background:
     radial-gradient(
-      ellipse 65% 48% at 92% 8%,
+      circle at 92% 8%,
       rgba(214, 162, 173, 0.06) 0%,
       rgba(255, 255, 255, 0) 58%
     ),
     radial-gradient(
-      ellipse 58% 42% at 8% 94%,
+      circle at 8% 94%,
       rgba(102, 143, 128, 0.045) 0%,
       rgba(255, 255, 255, 0) 55%
     );
@@ -77,27 +77,26 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 260rpx;
-  height: 260rpx;
-  margin-left: -130rpx;
-  margin-top: -130rpx;
+  width: 232rpx;
+  height: 232rpx;
+  margin-left: -116rpx;
+  margin-top: -116rpx;
   pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(
-    ellipse at 50% 45%,
+    circle at 50% 45%,
     rgba(102, 143, 128, 0.14) 0%,
     rgba(102, 143, 128, 0.04) 42%,
     rgba(255, 255, 255, 0) 72%
   );
 }
 
-/* 头像环：品牌 teal→slate 渐变（§2.4），内嵌圆Content */
 .profile-avatar-ring {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  width: 196rpx;
-  height: 196rpx;
+  width: 176rpx;
+  height: 176rpx;
   padding: 6rpx;
   border-radius: 50%;
   background: linear-gradient(158deg, #668f80 0%, #4a6670 52%, #668f80 100%);
@@ -125,7 +124,7 @@
 
 .profile-identity-text {
   width: 100%;
-  margin-top: 36rpx;
+  margin-top: 40rpx;
 }
 
 .profile-nick {
@@ -137,9 +136,8 @@
   color: #1c1c1e;
 }
 
-/* 签名：浅盏阅读条，与纯白卡区分层次 */
 .profile-sign-wrap {
-  margin-top: 24rpx;
+  margin-top: 28rpx;
   padding: 26rpx 32rpx;
   border-radius: 28rpx;
   box-sizing: border-box;
@@ -157,13 +155,18 @@
   color: #8e8e93;
 }
 
-/* ---------- L1 分组模块（账户 / 结伴 / 退出 · 统一 §2.3 与行结构） ---------- */
+/* ---------- L1 分组模块（账户 / 结伴 · 统一卡片 + 微 wash） ---------- */
 .profile-module {
   margin: 0 40rpx 32rpx;
   border-radius: 48rpx;
   box-sizing: border-box;
   overflow: hidden;
   background-color: #ffffff;
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(102, 143, 128, 0.025) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
@@ -200,10 +203,6 @@
   align-self: center;
 }
 
-.profile-module-row--solo {
-  justify-content: center;
-}
-
 .profile-module-icon {
   flex-shrink: 0;
   display: flex;
@@ -214,12 +213,20 @@
   margin-right: 20rpx;
   border-radius: 22rpx;
   box-sizing: border-box;
-  background-color: rgba(102, 143, 128, 0.1);
-  border: 1rpx solid rgba(102, 143, 128, 0.12);
+  background: linear-gradient(155deg, rgba(102, 143, 128, 0.12) 0%, rgba(74, 102, 112, 0.07) 100%);
+  border: 1rpx solid rgba(102, 143, 128, 0.1);
 }
 
-.profile-module-icon-emoji {
-  font-size: 30rpx;
+.profile-module-icon-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-module-icon-glyph {
+  font-size: 28rpx;
   line-height: 1;
   color: #4a6670;
 }
@@ -279,7 +286,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+}
+
+.profile-module-stack .profile-module-strong {
+  margin-bottom: 6rpx;
+}
+
+.profile-module-stack .profile-module-muted:last-child {
+  margin-bottom: 0;
 }
 
 .profile-module-strong {
@@ -299,30 +313,31 @@
   color: #8e8e93;
 }
 
+/* ---------- 退出登录（ghost 按钮） ---------- */
+.profile-logout-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 96rpx;
+  margin: 8rpx 40rpx 0;
+  box-sizing: border-box;
+}
+
 .profile-module-logout {
   font-size: 30rpx;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #4a6670;
+  padding: 16rpx 40rpx;
 }
 
-.profile-footer {
-  display: block;
-  box-sizing: border-box;
-  margin-top: 8rpx;
-  padding: 0 48rpx;
-  text-align: center;
-  font-size: 22rpx;
-  line-height: 1.65;
-  font-weight: 500;
-  color: #8e8e93;
-  letter-spacing: 0.12em;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    sans-serif;
+/* ---------- 结伴模块红点 ---------- */
+.profile-module-badge {
+  display: inline-block;
+  width: 14rpx;
+  height: 14rpx;
+  margin-left: 8rpx;
+  border-radius: 50%;
+  background: #d6a2ad;
+  vertical-align: middle;
 }
-

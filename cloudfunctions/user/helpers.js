@@ -31,7 +31,7 @@ function sanitizePreferences(raw) {
   if (!raw || typeof raw !== 'object') return {}
   const out = {}
   const rf = raw.resonanceReportFilter
-  if (rf === 'pending' || rf === 'all' || rf === 'to_comment') {
+  if (rf === 'mine' || rf === 'action_needed' || rf === 'all') {
     out.resonanceReportFilter = rf
   }
   return out

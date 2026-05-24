@@ -59,11 +59,17 @@
   inset: 0;
   pointer-events: none;
   border-radius: 56rpx;
-  background: radial-gradient(
-    ellipse 60% 45% at 88% 12%,
-    rgba(102, 143, 128, 0.07) 0%,
-    rgba(255, 255, 255, 0) 55%
-  );
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(214, 162, 173, 0.055) 0%,
+      rgba(255, 255, 255, 0) 55%
+    ),
+    radial-gradient(
+      circle at 8% 94%,
+      rgba(102, 143, 128, 0.05) 0%,
+      rgba(255, 255, 255, 0) 55%
+    );
 }
 
 .profile-partner-hero {
@@ -74,7 +80,35 @@
   align-items: center;
 }
 
+.profile-partner-avatar-stack {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-partner-avatar-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 188rpx;
+  height: 188rpx;
+  margin-left: -94rpx;
+  margin-top: -94rpx;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(102, 143, 128, 0.12) 0%,
+    rgba(102, 143, 128, 0.03) 42%,
+    rgba(255, 255, 255, 0) 72%
+  );
+}
+
 .profile-partner-avatar-ring {
+  position: relative;
+  z-index: 1;
   width: 144rpx;
   height: 144rpx;
   padding: 4rpx;
@@ -91,6 +125,8 @@
   height: 100%;
   border-radius: 50%;
   background-color: #f2f2f7;
+  border: 3rpx solid rgba(255, 255, 255, 0.95);
+  box-sizing: border-box;
 }
 
 .profile-partner-nick {
@@ -120,15 +156,6 @@
   color: #8e8e93;
 }
 
-.profile-partner-hint {
-  display: block;
-  margin: 0 40rpx 32rpx;
-  text-align: center;
-  font-size: 24rpx;
-  line-height: 1.5;
-  color: #8e8e93;
-}
-
 /* —— 在一起的时间（L1 白卡） —— */
 .together-card {
   position: relative;
@@ -148,7 +175,7 @@
   pointer-events: none;
   border-radius: 48rpx;
   background: radial-gradient(
-    ellipse 55% 40% at 12% 0%,
+    circle at 12% 0%,
     rgba(214, 162, 173, 0.09) 0%,
     rgba(255, 255, 255, 0) 55%
   );
@@ -189,13 +216,17 @@
   z-index: 1;
   display: flex;
   flex-direction: row;
-  gap: 24rpx;
   margin-bottom: 28rpx;
 }
 
 .together-picker-col {
   flex: 1;
   min-width: 0;
+  margin-right: 24rpx;
+}
+
+.together-picker-col:last-child {
+  margin-right: 0;
 }
 
 .together-picker-lab {
@@ -252,6 +283,11 @@
   border-radius: 48rpx;
   box-sizing: border-box;
   background-color: #ffffff;
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(102, 143, 128, 0.02) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }
@@ -388,6 +424,11 @@
   border-radius: 48rpx;
   box-sizing: border-box;
   background-color: #ffffff;
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(102, 143, 128, 0.02) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
   border: 1rpx solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
 }

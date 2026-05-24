@@ -1,7 +1,7 @@
 <!--
-  [Layering] L0 #F2F2F7 · L1 白卡 §2.3 · 顶栏白底
-  [Spacing] 头像行留白加大；中线为「臂 + 结扣」装饰链
-  [Palette] #1C1C1E / #8E8E93；teal 点缀链接与主按钮
+  [Layering] L0 #F2F2F7 · 白卡 56rpx 圆角 + 氛围 wash · 顶栏白底
+  [Spacing] 渐变头像环 + 背光辉晕 + 丝带连接 + pill 倒计时卡片
+  [Palette] #1C1C1E / #8E8E93；teal/rose 渐变点缀
 -->
 <view class="ms-shell">
   <app-nav title="朝夕" bg="#ffffff" />
@@ -35,7 +35,7 @@
           <view class="ms-card">
             <view class="ms-card__body">
               <text class="ms-card__title">还差纪念日这一笔</text>
-              <text class="ms-card__desc">在独白打开「恋爱与绑定」，选你们心里认定的那一天、那一刻（精确到分钟）。保存后，两个人的朝夕会共用同一枚起点。</text>
+              <text class="ms-card__desc">在独白打开「结伴」，选你们心里认定的那一天、那一刻（精确到分钟）。保存后，两个人的朝夕会共用同一枚起点。</text>
             </view>
             <view class="ms-card__footer">
               <view class="ms-cta" bind:tap="onOpenPartnerHub" aria-role="button">
@@ -47,34 +47,39 @@
 
         <block wx:elif="{{scene === 'hero'}}">
           <view class="ms-hero">
+            <view class="ms-hero__wash" aria-hidden="true" />
             <view class="ms-hero__inner">
               <text class="ms-hero__kicker">你们的朝夕</text>
               <text class="ms-hero__nick">{{partnerNickLine}}</text>
 
               <view class="ms-hero-portrait">
                 <view class="ms-avatars">
-                  <view class="ms-avatar-ring">
-                    <image
-                      class="ms-avatar-img"
-                      src="{{myAvatarUrl || defaultAvatar}}"
-                      mode="aspectFill"
-                      binderror="onMyAvatarError"
-                    />
-                  </view>
-                  <view class="ms-avatar-link" aria-hidden="true">
-                    <view class="ms-avatar-link__arm" />
-                    <view class="ms-avatar-link__knot">
-                      <view class="ms-avatar-link__knot-dot" />
+                  <view class="ms-avatar-stack">
+                    <view class="ms-avatar-glow" aria-hidden="true" />
+                    <view class="ms-avatar-ring">
+                      <image
+                        class="ms-avatar-img"
+                        src="{{myAvatarUrl || defaultAvatar}}"
+                        mode="aspectFill"
+                        binderror="onMyAvatarError"
+                      />
                     </view>
-                    <view class="ms-avatar-link__arm" />
                   </view>
-                  <view class="ms-avatar-ring">
-                    <image
-                      class="ms-avatar-img"
-                      src="{{partnerAvatarUrl || defaultAvatar}}"
-                      mode="aspectFill"
-                      binderror="onPartnerAvatarError"
-                    />
+                  <view class="ms-avatar-ribbon" aria-hidden="true">
+                    <view class="ms-avatar-ribbon__bar" />
+                    <view class="ms-avatar-ribbon__gem" />
+                    <view class="ms-avatar-ribbon__bar" />
+                  </view>
+                  <view class="ms-avatar-stack">
+                    <view class="ms-avatar-glow" aria-hidden="true" />
+                    <view class="ms-avatar-ring">
+                      <image
+                        class="ms-avatar-img"
+                        src="{{partnerAvatarUrl || defaultAvatar}}"
+                        mode="aspectFill"
+                        binderror="onPartnerAvatarError"
+                      />
+                    </view>
                   </view>
                 </view>
               </view>
@@ -85,22 +90,22 @@
                 <text class="ms-hero__sub">{{togetherSubtitle}}</text>
               </view>
 
-              <view class="ms-count-grid">
-                <view class="ms-count-cell ms-count-cell--days">
-                  <text class="ms-count-val">{{togetherDaysStr}}</text>
-                  <text class="ms-count-lab">天</text>
+              <view class="ms-count-row">
+                <view class="ms-count-card ms-count-card--days">
+                  <text class="ms-count-card__val">{{togetherDaysStr}}</text>
+                  <text class="ms-count-card__lab">天</text>
                 </view>
-                <view class="ms-count-cell">
-                  <text class="ms-count-val">{{togetherHoursStr}}</text>
-                  <text class="ms-count-lab">时</text>
+                <view class="ms-count-card">
+                  <text class="ms-count-card__val">{{togetherHoursStr}}</text>
+                  <text class="ms-count-card__lab">时</text>
                 </view>
-                <view class="ms-count-cell">
-                  <text class="ms-count-val">{{togetherMinutesStr}}</text>
-                  <text class="ms-count-lab">分</text>
+                <view class="ms-count-card">
+                  <text class="ms-count-card__val">{{togetherMinutesStr}}</text>
+                  <text class="ms-count-card__lab">分</text>
                 </view>
-                <view class="ms-count-cell ms-count-cell--last">
-                  <text class="ms-count-val">{{togetherSecondsStr}}</text>
-                  <text class="ms-count-lab">秒</text>
+                <view class="ms-count-card">
+                  <text class="ms-count-card__val">{{togetherSecondsStr}}</text>
+                  <text class="ms-count-card__lab">秒</text>
                 </view>
               </view>
             </view>

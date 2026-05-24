@@ -2,7 +2,6 @@ import { redirectIfNotAuthed } from '../../../utils/auth-guard'
 import type { UserCloudResult } from '../../../types/cloud'
 import { USER_CLOUD_FUNCTION } from '../../../types/cloud'
 import { TAB_PROFILE } from '../../../constants/paths'
-import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../../utils/cloud-invoke'
 import moSession from '../../../utils/session'
 import type { MoPreferences } from '../../../types/user'
 import {
@@ -12,13 +11,17 @@ import {
 
 type ReportFilterPref = 'mine' | 'action_needed' | 'all'
 
+interface PreferencesCustomInstanceProperty {
+  _saving: boolean
+}
+
 function reportFilterToIndex(f: ReportFilterPref): number {
   if (f === 'mine') return 0
   if (f === 'action_needed') return 1
   return 2
 }
 
-Component({
+Component<{}, {}, {}, PreferencesCustomInstanceProperty>({
   pageLifetimes: {
     show() {
       if (redirectIfNotAuthed()) return
@@ -28,7 +31,6 @@ Component({
   data: {
     resonanceReportFilter: DEFAULT_RESONANCE_REPORT_FILTER as ReportFilterPref,
     reportFilterIndex: 0,
-    submitting: false,
   },
   methods: {
     loadFormFromSession() {
@@ -44,28 +46,19 @@ Component({
     onPickReportFilter(e: WechatMiniprogram.TouchEvent) {
       const f = e.currentTarget.dataset.filter as ReportFilterPref | undefined
       if (f !== 'mine' && f !== 'action_needed' && f !== 'all') return
+      if (this.data.resonanceReportFilter === f) return
+      if (this._saving) return
+      const prev = this.data.resonanceReportFilter
       this.setData({ resonanceReportFilter: f, reportFilterIndex: reportFilterToIndex(f) })
+      void this.savePreference(f, prev)
     },
 
-    onNavBack() {
-      wx.navigateBack({
-        fail: () => {
-          wx.switchTab({ url: TAB_PROFILE })
-        },
-      })
-    },
-
-    async onSave() {
-      if (!wx.cloud) {
-        wx.showToast({ title: '当前环境不支持云开发', icon: 'none' })
-        return
-      }
-      if (this.data.submitting) return
-      this.setData({ submitting: true })
-      wx.showLoading({ title: '保存中' })
+    async savePreference(current: ReportFilterPref, previous: ReportFilterPref) {
+      if (!wx.cloud) return
+      this._saving = true
       try {
         const preferences: MoPreferences = {
-          resonanceReportFilter: this.data.resonanceReportFilter,
+          resonanceReportFilter: current,
         }
         const res = await wx.cloud.callFunction({
           name: USER_CLOUD_FUNCTION,
@@ -75,28 +68,32 @@ Component({
           },
         })
         const result = res.result as UserCloudResult | undefined
-        if (!result || result.ok !== true) {
-          const raw =
-            result && result.ok === false && result.error != null ? result.error : '保存失败'
-          wx.showToast({ title: formatUserCloudBizError(raw), icon: 'none', duration: 4500 })
+        if (result && result.ok === true && result.user) {
+          moSession.saveMoUser(result.user)
           return
         }
-        if (!result.user) {
-          wx.showToast({ title: '同步后未返回用户数据', icon: 'none' })
-          return
-        }
-        moSession.saveMoUser(result.user)
-        wx.navigateBack({
-          fail: () => {
-            wx.switchTab({ url: TAB_PROFILE })
-          },
+        wx.showToast({ title: '设置未保存，请重试', icon: 'none' })
+        this.setData({
+          resonanceReportFilter: previous,
+          reportFilterIndex: reportFilterToIndex(previous),
         })
-      } catch (err) {
-        showCloudInvokeErrorToast(err)
+      } catch (_e) {
+        wx.showToast({ title: '设置未保存，请重试', icon: 'none' })
+        this.setData({
+          resonanceReportFilter: previous,
+          reportFilterIndex: reportFilterToIndex(previous),
+        })
       } finally {
-        wx.hideLoading()
-        this.setData({ submitting: false })
+        this._saving = false
       }
+    },
+
+    onNavBack() {
+      wx.navigateBack({
+        fail: () => {
+          wx.switchTab({ url: TAB_PROFILE })
+        },
+      })
     },
   },
 })

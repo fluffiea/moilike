@@ -4,7 +4,7 @@
   [Palette 6-3-1] 正文 #1C1C1E / #8E8E93；品牌渐变仅主按钮
 -->
 <view class="hub-shell">
-  <app-nav title="恋爱与绑定" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+  <app-nav title="结伴" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
   <scroll-view class="hub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="hub-scroll-body">
       <view wx:if="{{partnerLoading}}" class="hub-loading">
@@ -15,13 +15,16 @@
         <view class="profile-partner-card">
           <view class="profile-partner-card__wash" aria-hidden="true" />
           <view class="profile-partner-hero">
-            <view class="profile-partner-avatar-ring">
-              <image
-                class="profile-partner-avatar-img"
-                src="{{partner.avatarUrl || defaultAvatar}}"
-                mode="aspectFill"
-                binderror="onPartnerAvatarError"
-              />
+            <view class="profile-partner-avatar-stack">
+              <view class="profile-partner-avatar-glow" aria-hidden="true" />
+              <view class="profile-partner-avatar-ring">
+                <image
+                  class="profile-partner-avatar-img"
+                  src="{{partner.avatarUrl || defaultAvatar}}"
+                  mode="aspectFill"
+                  binderror="onPartnerAvatarError"
+                />
+              </view>
             </view>
             <text class="profile-partner-nick">{{partner.nickName}}</text>
             <view class="profile-partner-sign-wrap">
@@ -33,7 +36,7 @@
         <view class="together-card">
           <view class="together-card__wash" aria-hidden="true" />
           <text class="together-card__title">纪念日</text>
-          <text class="together-card__desc">选你们心里认定的那一天、那一刻，精确到分钟。保存后，双方资料一致，朝夕页会从这一刻起为你们读秒。</text>
+          <text class="together-card__desc">设置你们在一起的日期与时间</text>
           <text wx:if="{{togetherSavedLabel}}" class="together-card__saved">{{togetherSavedLabel}}</text>
           <view class="together-pickers">
             <view class="together-picker-col">
@@ -54,7 +57,6 @@
           </view>
         </view>
 
-        <text class="profile-partner-hint">关系已锁定，剩下的日子慢慢写就好</text>
       </block>
 
       <block wx:else>
@@ -120,11 +122,11 @@
               <text class="profile-bind-copy-text">复制</text>
             </view>
           </view>
-          <text class="profile-bind-tip">请把绑定码私下发给对方。对方在本页底部填入后，你会在上方列表里看到一条待确认的结伴申请。</text>
+          <text class="profile-bind-tip">将绑定码发给对方，对方填入后即可发起申请</text>
         </view>
 
         <view class="profile-bind-card">
-          <text class="profile-bind-label">用对方的绑定码发起申请</text>
+          <text class="profile-bind-label">输入对方绑定码</text>
           <input
             class="profile-bind-input"
             value="{{bindCodeDraft}}"
