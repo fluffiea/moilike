@@ -65,15 +65,6 @@
       ]
     },
     {
-      "root": "subpackages/letters",
-      "name": "letters_pack",
-      "pages": [
-        "letter-list/letter-list",
-        "letter-compose/letter-compose",
-        "letter-detail/letter-detail"
-      ]
-    },
-    {
       "root": "subpackages/user",
       "name": "user",
       "pages": [
@@ -103,8 +94,7 @@
     "pages/milestones/milestones": {
       "network": "all",
       "packages": [
-        "extra",
-        "letters_pack"
+        "extra"
       ]
     },
     "pages/profile/profile": {

@@ -35,12 +35,3 @@ export const PAGE_REPORT_COMPOSE = '/subpackages/resonance/report-compose/report
 
 /** 报备详情（对象已阅/评价 · 分包 resonance） */
 export const PAGE_REPORT_DETAIL = '/subpackages/resonance/report-detail/report-detail' as const
-
-/** 信件列表（朝夕入口 navigateTo · 分包 letters） */
-export const PAGE_LETTER_LIST = '/subpackages/letters/letter-list/letter-list' as const
-
-/** 写新信（信件列表 navigateTo · 分包 letters） */
-export const PAGE_LETTER_COMPOSE = '/subpackages/letters/letter-compose/letter-compose' as const
-
-/** 信件详情（朝夕入口 navigateTo · 分包 letters） */
-export const PAGE_LETTER_DETAIL = '/subpackages/letters/letter-detail/letter-detail' as const

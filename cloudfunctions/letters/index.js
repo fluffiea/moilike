@@ -15,7 +15,6 @@ const ACTIONS = {
   create: require('./actions/create'),
   list: require('./actions/list'),
   get: require('./actions/get'),
-  summary: require('./actions/summary'),
 }
 
 /** @param {{ action?: string }} event */
