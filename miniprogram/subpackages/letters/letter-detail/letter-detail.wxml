@@ -1,0 +1,121 @@
+<!--
+  [Layering] L0 bg · 信封翻盖 + 信纸展开动画 · L1 信纸内容
+  [Animation] 信封 flap rotateX 翻开 → 信纸 slideUp + 内容淡入
+  [Palette] 按 type 微调色调：text→teal, image→rose, voice→sage
+-->
+<view class="letter-page">
+  <view class="letter-bg" aria-hidden="true">
+    <view class="letter-bg-wash" />
+  </view>
+
+  <view class="letter-stack">
+    <app-nav
+      title="{{navTitle}}"
+      variant="glass"
+      show-back="{{true}}"
+      bind:back="onNavBack"
+    />
+
+    <scroll-view
+      class="letter-scroll"
+      scroll-y
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+      bounces="{{true}}"
+    >
+      <view class="letter-scroll-inner">
+        <view wx:if="{{loading}}" class="letter-state">
+          <text class="letter-state-text">展开中...</text>
+        </view>
+
+        <block wx:elif="{{letter}}">
+          <!-- 信封外框 -->
+          <view
+            class="letter-envelope {{opened ? 'letter-envelope--open' : ''}}"
+          >
+            <!-- 信纸主体（展开后可见） -->
+            <view class="letter-paper {{opened ? 'letter-paper--open' : ''}}">
+              <view class="letter-paper-inner">
+
+                <!-- 标题 -->
+                <view wx:if="{{letter.title}}" class="letter-head">
+                  <text class="letter-head__title">{{letter.title}}</text>
+                </view>
+
+                <!-- 寄/收信人信息 -->
+                <view class="letter-people">
+                  <view class="letter-person">
+                    <image
+                      class="letter-person__avatar"
+                      src="{{senderAvatar}}"
+                      mode="aspectFill"
+                    />
+                    <text class="letter-person__label">寄信人</text>
+                    <text class="letter-person__name">{{senderName}}</text>
+                  </view>
+                  <view class="letter-people__sep" aria-hidden="true">
+                    <view class="letter-people__sep-dot" />
+                    <view class="letter-people__sep-line" />
+                    <view class="letter-people__sep-dot" />
+                  </view>
+                  <view class="letter-person">
+                    <image
+                      class="letter-person__avatar"
+                      src="{{receiverAvatar}}"
+                      mode="aspectFill"
+                    />
+                    <text class="letter-person__label">收信人</text>
+                    <text class="letter-person__name">{{receiverName}}</text>
+                  </view>
+                </view>
+
+                <!-- 时间戳 -->
+                <text class="letter-time">{{letter.time}}</text>
+
+                <!-- 分隔装饰线 -->
+                <view class="letter-divider" aria-hidden="true" />
+
+                <!-- 信件正文 -->
+                <view wx:if="{{letter.content}}" class="letter-body">
+                  <text class="letter-body__text">{{letter.content}}</text>
+                </view>
+
+                <!-- 图片 -->
+                <view wx:if="{{letter.images.length > 0}}" class="letter-media">
+                  <view class="letter-media__grid {{letter.images.length === 1 ? 'letter-media__grid--single' : (letter.images.length === 2 ? 'letter-media__grid--dual' : 'letter-media__grid--multi')}}">
+                    <view
+                      wx:for="{{letter.images}}"
+                      wx:for-item="imgUrl"
+                      wx:for-index="imgIdx"
+                      wx:key="imgIdx"
+                      class="letter-media__cell"
+                      data-img-index="{{imgIdx}}"
+                      catch:tap="onImageTap"
+                    >
+                      <image class="letter-media__img" src="{{imgUrl}}" mode="aspectFill" />
+                    </view>
+                  </view>
+                </view>
+
+              </view>
+            </view>
+
+            <!-- 信封盖（flap） -->
+            <view class="letter-flap {{opened ? 'letter-flap--open' : ''}}">
+              <view class="letter-flap-face {{typeTone}}">
+                <view class="letter-flap-seal {{typeTone}}">
+                  <text class="letter-flap-seal__icon">♡</text>
+                </view>
+              </view>
+            </view>
+
+          </view>
+        </block>
+
+        <view wx:else class="letter-state">
+          <text class="letter-state-text">无法加载这封信</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

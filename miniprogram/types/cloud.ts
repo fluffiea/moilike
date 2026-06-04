@@ -14,6 +14,15 @@ export {
 } from './cloud-user'
 
 export {
+  LETTERS_CLOUD_FUNCTION,
+  type LetterPublic,
+  type LettersListCloudResult,
+  type LetterSummaryCloudResult,
+  type LetterGetCloudResult,
+  type LetterCreateCloudResult,
+} from './cloud-letter'
+
+export {
   DAILY_CLOUD_FUNCTION,
   type DailyPostPublic,
   type DailyListCloudResult,
