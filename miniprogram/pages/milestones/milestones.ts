@@ -1,5 +1,5 @@
 import requireAuth from '../../behaviors/require-auth'
-import { PAGE_PARTNER_HUB } from '../../constants/paths'
+import { PAGE_PARTNER_HUB, PAGE_LETTER_LIST } from '../../constants/paths'
 import { USER_CLOUD_FUNCTION, type UserCloudResult } from '../../types/cloud'
 import type { MoUser } from '../../types/user'
 import {
@@ -13,6 +13,7 @@ import {
   splitDurationFromMs,
 } from '../../utils/together-since'
 import { togetherSinceMsFromUser } from '../../utils/togetherSinceMs'
+import { lettersGetSummary } from '../../utils/api/letter-api'
 
 type MilestonesScene = 'empty' | 'needPartner' | 'needSet' | 'hero'
 
@@ -28,6 +29,9 @@ type MilestonesPageData = {
   togetherHoursStr: string
   togetherMinutesStr: string
   togetherSecondsStr: string
+  letterTotal: number
+  letterRecent: Array<{ title: string; id: string }>
+  letterLoading: boolean
 }
 
 interface MilestonesCustomInstanceProperty {
@@ -83,6 +87,9 @@ Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstancePro
     togetherHoursStr: '00',
     togetherMinutesStr: '00',
     togetherSecondsStr: '00',
+    letterTotal: 0,
+    letterRecent: [],
+    letterLoading: false,
   },
   pageLifetimes: {
     show() {
@@ -164,6 +171,7 @@ Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstancePro
         togetherSubtitle: sub,
         ...grid,
       })
+      void this.loadLetterSummary()
     },
     refreshTogetherDurationOnly() {
       if (this.data.scene !== 'hero') return
@@ -175,6 +183,30 @@ Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstancePro
     },
     onOpenPartnerHub() {
       wx.navigateTo({ url: PAGE_PARTNER_HUB })
+    },
+    async loadLetterSummary() {
+      this.setData({ letterLoading: true })
+      try {
+        const res = await lettersGetSummary()
+        if (res && res.ok === true) {
+          const recent = res.recent.map((l) => ({
+            title: l.title || '(无标题)',
+            id: l.id,
+          }))
+          this.setData({
+            letterTotal: res.total,
+            letterRecent: recent,
+            letterLoading: false,
+          })
+        } else {
+          this.setData({ letterLoading: false })
+        }
+      } catch {
+        this.setData({ letterLoading: false })
+      }
+    },
+    onOpenLetterList() {
+      wx.navigateTo({ url: PAGE_LETTER_LIST })
     },
     onMyAvatarError() {
       this.setData({ myAvatarUrl: DEFAULT_AVATAR_PATH })

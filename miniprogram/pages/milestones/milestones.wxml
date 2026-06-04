@@ -110,6 +110,40 @@
               </view>
             </view>
           </view>
+
+          <!-- 信件入口卡片 -->
+          <view class="ms-card ms-card--letter" bind:tap="onOpenLetterList" aria-role="button">
+            <view class="ms-card__body ms-card__body--letter">
+              <view class="ms-letter-header">
+                <text class="ms-letter-header__label">信件</text>
+                <view class="ms-letter-badge">
+                  <text class="ms-letter-badge__num">{{letterTotal}}</text>
+                  <text class="ms-letter-badge__unit">封</text>
+                </view>
+                <view class="ms-letter-arrow" aria-hidden="true">
+                  <text class="ms-letter-arrow__icon">›</text>
+                </view>
+              </view>
+              <block wx:if="{{letterLoading}}">
+                <text class="ms-letter-loading">加载中…</text>
+              </block>
+              <block wx:elif="{{letterRecent.length > 0}}">
+                <view class="ms-letter-list">
+                  <view
+                    class="ms-letter-item"
+                    wx:for="{{letterRecent}}"
+                    wx:key="id"
+                  >
+                    <text class="ms-letter-item__title" wx:if="{{item.title}}">{{item.title}}</text>
+                    <text class="ms-letter-item__title ms-letter-item__title--empty" wx:else>无标题信件</text>
+                  </view>
+                </view>
+              </block>
+              <block wx:else>
+                <text class="ms-letter-empty">还没有信件，去写第一封</text>
+              </block>
+            </view>
+          </view>
         </block>
 
         <block wx:else>

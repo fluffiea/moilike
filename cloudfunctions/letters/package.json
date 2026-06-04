@@ -1,0 +1,9 @@
+{
+  "name": "letters",
+  "version": "1.0.0",
+  "description": "信件模块：集合 letters（仅云函数读写）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~3.0.1"
+  }
+}

@@ -28,6 +28,15 @@ export {
 } from './cloud-daily'
 
 export {
+  LETTERS_CLOUD_FUNCTION,
+  type LetterPublic,
+  type LettersListCloudResult,
+  type LetterSummaryCloudResult,
+  type LetterGetCloudResult,
+  type LetterCreateCloudResult,
+} from './cloud-letter'
+
+export {
   REPORT_CLOUD_FUNCTION,
   type ReportPartnerState,
   type ReportPostPublic,
