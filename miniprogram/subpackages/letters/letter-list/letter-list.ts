@@ -1,7 +1,7 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersList } from '../../../utils/api/letter-api'
 import moSession from '../../../utils/session'
-import { PAGE_LETTER_COMPOSE } from '../../../constants/paths'
+import { PAGE_LETTER_COMPOSE, PAGE_LETTER_DETAIL } from '../../../constants/paths'
 
 const PAGE_SIZE = 20
 
@@ -130,6 +130,19 @@ Component<LetterListData, {}, LetterListMethods, {}>({
     onGoCompose() {
       wx.navigateTo({
         url: PAGE_LETTER_COMPOSE,
+        fail: () => {
+          wx.showToast({ title: '\u8DF3\u8F6C\u5931\u8D25', icon: 'none' })
+        },
+      })
+    },
+
+    onGoDetail(e: WechatMiniprogram.TouchEvent) {
+      const dataset = e.currentTarget && e.currentTarget.dataset
+      const raw = dataset && typeof dataset.id === 'string' ? dataset.id : ''
+      const id = raw.trim()
+      if (!id) return
+      wx.navigateTo({
+        url: PAGE_LETTER_DETAIL + '?id=' + encodeURIComponent(id),
         fail: () => {
           wx.showToast({ title: '\u8DF3\u8F6C\u5931\u8D25', icon: 'none' })
         },

@@ -35,7 +35,7 @@
         </view>
 
         <!-- 信件列表 -->
-        <view wx:for="{{list}}" wx:for-index="idx" wx:key="id" class="letter-list-card" data-id="{{item.id}}">
+        <view wx:for="{{list}}" wx:for-index="idx" wx:key="id" class="letter-list-card" data-id="{{item.id}}" bind:tap="onGoDetail">
           <view class="letter-list-card-head">
             <!-- 类型标签 -->
             <view class="letter-list-type-badge {{item.isMine ? 'letter-list-type-badge--sent' : 'letter-list-type-badge--received'}}">

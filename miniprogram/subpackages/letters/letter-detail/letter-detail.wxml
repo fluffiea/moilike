@@ -1,0 +1,74 @@
+<!--
+  信件详情页 · moilike-ui · Skyline
+  信纸展开动画 + 类型色调节点 + 配图预览
+-->
+<view class="letter-detail-page">
+  <view class="letter-detail-bg" aria-hidden="true">
+    <view class="letter-detail-bg-wash" />
+  </view>
+  <view class="letter-detail-stack">
+    <app-nav title="信件详情" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+
+    <scroll-view
+      wx:if="{{letter}}"
+      class="letter-detail-scroll"
+      scroll-y
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+      bounces="{{true}}"
+    >
+      <view class="letter-detail-scroll-inner">
+
+        <!-- 信纸卡片 -->
+        <view class="letter-detail-paper {{paperOpen ? 'letter-detail-paper--open' : 'letter-detail-paper--closed'}}">
+          <!-- 类型色带 -->
+          <view class="letter-detail-paper-band letter-detail-paper-band--{{typeClass}}" />
+
+          <!-- 类型徽标 -->
+          <view class="letter-detail-type-badge letter-detail-type-badge--{{typeClass}}">
+            <text class="letter-detail-type-badge-text">{{typeLabel}}</text>
+          </view>
+
+          <!-- 标题 -->
+          <text wx:if="{{letter.title}}" class="letter-detail-title">{{letter.title}}</text>
+
+          <!-- 正文 -->
+          <text class="letter-detail-content">{{letter.content}}</text>
+
+          <!-- 收/发信人 -->
+          <view class="letter-detail-direction">
+            <text class="letter-detail-direction-text">
+              <text wx:if="{{letter.isMine}}">寄给 <strong>{{receiverName}}</strong></text>
+              <text wx:else><strong>{{senderName}}</strong> 写给你的信</text>
+            </text>
+          </view>
+
+          <!-- 配图区（3列） -->
+          <view wx:if="{{images && images.length > 0}}" class="letter-detail-images">
+            <view
+              wx:for="{{images}}"
+              wx:for-index="ix"
+              wx:key="ix"
+              class="letter-detail-image-cell"
+            >
+              <image
+                class="letter-detail-image"
+                src="{{item}}"
+                mode="aspectFill"
+                data-index="{{ix}}"
+                bind:tap="onImageTap"
+              />
+            </view>
+          </view>
+
+        </view>
+
+        <view class="letter-detail-pad" />
+      </view>
+    </scroll-view>
+
+    <view wx:else class="letter-detail-empty">
+      <text class="letter-detail-empty-text">{{loading ? '加载中…' : '无法加载'}}</text>
+    </view>
+  </view>
+</view>

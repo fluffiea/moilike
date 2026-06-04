@@ -94,7 +94,8 @@
       "name": "letters_pack",
       "pages": [
         "letter-list/letter-list",
-        "letter-compose/letter-compose"
+        "letter-compose/letter-compose",
+        "letter-detail/letter-detail"
       ]
     }
   ],
