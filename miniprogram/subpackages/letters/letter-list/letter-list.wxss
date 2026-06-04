@@ -57,7 +57,6 @@
   padding: 28rpx 40rpx;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 /* ── 空态 ── */
