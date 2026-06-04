@@ -25,13 +25,13 @@
             />
             <view class="pref-slider-cells pref-slider-cells--triple">
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
-                data-filter="mine"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
+                data-filter="all"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{resonanceReportFilter === 'mine'}}"
+                aria-selected="{{resonanceReportFilter === 'all'}}"
               >
-                <text class="pref-slider-cell-text pref-slider-cell-text--compact">我的报备</text>
+                <text class="pref-slider-cell-text pref-slider-cell-text--compact">全部</text>
               </view>
               <view
                 class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'action_needed' ? 'pref-slider-cell--on' : ''}}"
@@ -43,13 +43,13 @@
                 <text class="pref-slider-cell-text pref-slider-cell-text--compact">待处理</text>
               </view>
               <view
-                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'all' ? 'pref-slider-cell--on' : ''}}"
-                data-filter="all"
+                class="pref-slider-cell pref-slider-cell--compact {{resonanceReportFilter === 'mine' ? 'pref-slider-cell--on' : ''}}"
+                data-filter="mine"
                 bind:tap="onPickReportFilter"
                 aria-role="tab"
-                aria-selected="{{resonanceReportFilter === 'all'}}"
+                aria-selected="{{resonanceReportFilter === 'mine'}}"
               >
-                <text class="pref-slider-cell-text pref-slider-cell-text--compact">全部</text>
+                <text class="pref-slider-cell-text pref-slider-cell-text--compact">我的报备</text>
               </view>
             </view>
           </view>
