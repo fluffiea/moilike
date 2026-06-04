@@ -57,8 +57,12 @@
   padding: 28rpx 40rpx 0;
 }
 
-.letter-compose-scroll-inner > * + * {
+.letter-compose-scroll-inner > view {
   margin-top: 24rpx;
+}
+
+.letter-compose-scroll-inner > view:first-child {
+  margin-top: 0;
 }
 
 /* ── 页级引导语 ── */
@@ -319,8 +323,12 @@
   overflow: hidden;
 }
 
-.letter-compose-add-fill > * + * {
+.letter-compose-add-fill > view {
   margin-top: 6rpx;
+}
+
+.letter-compose-add-fill > view:first-child {
+  margin-top: 0;
 }
 
 .letter-compose-add-plus {
