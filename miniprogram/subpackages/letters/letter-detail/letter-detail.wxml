@@ -37,10 +37,7 @@
 
           <!-- 收/发信人 -->
           <view class="letter-detail-direction">
-            <text class="letter-detail-direction-text">
-              <text wx:if="{{letter.isMine}}">寄给 <strong>{{receiverName}}</strong></text>
-              <text wx:else><strong>{{senderName}}</strong> 写给你的信</text>
-            </text>
+            <text class="letter-detail-direction-text">{{directionText}}</text>
           </view>
 
           <!-- 配图区（3列） -->

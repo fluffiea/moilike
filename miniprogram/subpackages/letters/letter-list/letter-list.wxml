@@ -68,9 +68,7 @@
           <view class="letter-list-card-foot">
             <text class="letter-list-card-time">{{item.time}}</text>
             <view class="letter-list-card-direction {{item.isMine ? 'letter-list-card-direction--sent' : 'letter-list-card-direction--received'}}">
-              <text class="letter-list-card-direction-text">
-                {{item.isMine ? '→ ' + item.receiverName : '← ' + item.senderName}}
-              </text>
+              <text class="letter-list-card-direction-text">{{item.directionText}}</text>
             </view>
           </view>
         </view>

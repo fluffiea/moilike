@@ -28,6 +28,7 @@ type LetterComposeData = {
   content: string
   images: string[]
   imageDisplays: string[]
+  remainText: string
   canSubmit: boolean
   typeRows: TypeRow[]
   selectedType: string
@@ -58,6 +59,7 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
     content: '',
     images: [],
     imageDisplays: [],
+    remainText: '还可 9 张',
     canSubmit: false,
     typeRows: [],
     selectedType: '',
@@ -180,9 +182,11 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
           const next = res.tempFiles.map((f) => f.tempFilePath)
           const merged = [...this.data.images, ...next].slice(0, MAX_IMAGES)
           const mergedD = [...this.data.imageDisplays, ...next].slice(0, MAX_IMAGES)
+          const remain = MAX_IMAGES - merged.length
           this.setData({
             images: merged,
             imageDisplays: mergedD,
+            remainText: '还可 ' + remain + ' 张',
           })
           this.syncCanSubmit()
         },
@@ -196,7 +200,8 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
       const imageDisplays = [...this.data.imageDisplays]
       images.splice(idx, 1)
       imageDisplays.splice(idx, 1)
-      this.setData({ images, imageDisplays })
+      const remain = MAX_IMAGES - images.length
+      this.setData({ images, imageDisplays, remainText: '还可 ' + remain + ' 张' })
       this.syncCanSubmit()
     },
 

@@ -31,6 +31,7 @@ type LetterDetailData = {
   typeClass: string
   images: string[]
   paperOpen: boolean
+  directionText: string
 }
 
 type LetterDetailMethods = WechatMiniprogram.Component.MethodOption
@@ -59,6 +60,7 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
     typeClass: 'default',
     images: [],
     paperOpen: false,
+    directionText: '',
   },
   lifetimes: {
     ready() {
@@ -123,6 +125,7 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
 
       const senderName = letter.isMine ? myName : partnerName
       const receiverName = letter.isMine ? partnerName : myName
+      const directionText = letter.isMine ? '寄给 ' + receiverName : senderName + ' 写给你的信'
 
       this.setData({
         letter,
@@ -132,6 +135,7 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
         typeLabel: makeTypeLabel(letter.type),
         typeClass: makeTypeClass(letter.type),
         images,
+        directionText,
       })
 
       // 延迟一帧触发信纸展开动画

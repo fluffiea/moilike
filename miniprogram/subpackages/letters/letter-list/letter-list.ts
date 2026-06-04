@@ -24,6 +24,7 @@ type LetterDisplayItem = {
   isMine: boolean
   senderName: string
   receiverName: string
+  directionText: string
 }
 
 type LetterListData = {
@@ -112,6 +113,7 @@ Component<LetterListData, {}, LetterListMethods, {}>({
           isMine: doc.isMine === true,
           senderName: doc.isMine ? myName : partnerName,
           receiverName: doc.isMine ? partnerName : myName,
+          directionText: doc.isMine ? '→ ' + partnerName : '← ' + myName,
         }))
 
         if (replace) {

@@ -150,12 +150,8 @@
 
 .letter-detail-direction-text {
   font-size: 26rpx;
-  color: var(--mo-text-tertiary, #9a9a9a);
-  line-height: 1.4;
-}
-
-.letter-detail-direction-text strong {
   color: var(--mo-text-secondary, #5c5c5c);
+  line-height: 1.4;
   font-weight: 500;
 }
 

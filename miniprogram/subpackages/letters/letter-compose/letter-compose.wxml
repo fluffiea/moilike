@@ -115,7 +115,7 @@
               <view class="letter-compose-add-fill" bind:tap="onAddImagesFromAlbum" bind:longpress="onAddImagesFromCamera" aria-role="button" aria-label="添加图片，轻点相册或长按拍摄">
                 <text class="letter-compose-add-plus">+</text>
                 <text class="letter-compose-add-line">添加</text>
-                <text class="letter-compose-add-sub">还可 {{9 - images.length}} 张</text>
+                <text class="letter-compose-add-sub">{{remainText}}</text>
               </view>
             </view>
           </view>
