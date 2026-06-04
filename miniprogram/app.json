@@ -88,13 +88,22 @@
         "report-compose/report-compose",
         "report-detail/report-detail"
       ]
+    },
+    {
+      "root": "subpackages/letters",
+      "name": "letters_pack",
+      "pages": [
+        "letter-list/letter-list",
+        "letter-compose/letter-compose"
+      ]
     }
   ],
   "preloadRule": {
     "pages/milestones/milestones": {
       "network": "all",
       "packages": [
-        "extra"
+        "extra",
+        "letters_pack"
       ]
     },
     "pages/profile/profile": {

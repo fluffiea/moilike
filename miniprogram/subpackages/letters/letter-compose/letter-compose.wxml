@@ -1,0 +1,139 @@
+<!--
+  写信页 · moilike-ui · Skyline — 多卡表单
+  [Layering] L0 灰底 + L1 独立卡片 + L2 玻璃顶栏/底栏
+  [Spacing] 40rpx 水平起点，卡片间 24rpx gap
+-->
+<view class="letter-compose-page">
+  <view class="letter-compose-bg" aria-hidden="true">
+    <view class="letter-compose-bg-wash" />
+  </view>
+
+  <view class="letter-compose-stack">
+    <app-nav title="{{navTitle}}" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+
+    <scroll-view class="letter-compose-scroll" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}" bounces="{{true}}">
+      <view class="letter-compose-scroll-inner">
+
+        <!-- 页级引导语 -->
+        <text class="letter-compose-kicker">{{heroKicker}}</text>
+
+        <!-- Card 1: 信件类型 -->
+        <view class="letter-compose-card letter-compose-card--compact">
+          <view class="letter-compose-card-head">
+            <text class="letter-compose-card-label letter-compose-card-label--sm">信件类型</text>
+            <text class="letter-compose-card-meta">单选</text>
+          </view>
+          <view class="letter-compose-type-wrap">
+            <view
+              wx:for="{{typeRows}}"
+              wx:key="name"
+              class="letter-compose-type-chip {{item.selected ? 'letter-compose-type-chip--on' : ''}}"
+              data-type="{{item.name}}"
+              data-label="{{item.label}}"
+              bind:tap="onToggleType"
+              aria-role="button"
+              aria-pressed="{{item.selected}}"
+            >
+              <text class="letter-compose-type-chip-text">{{item.label}}</text>
+            </view>
+            <view wx:if="{{showCustomTypeInput}}" class="letter-compose-type-custom-wrap">
+              <text class="letter-compose-type-custom-prefix">✏️</text>
+              <input
+                class="letter-compose-type-custom-input"
+                value="{{customTypeValue}}"
+                bindinput="onCustomTypeInput"
+                bindconfirm="onCustomTypeConfirm"
+                placeholder="输入自定义类型…"
+                placeholder-class="letter-compose-type-custom-placeholder"
+                maxlength="{{20}}"
+                confirm-type="done"
+                adjust-position="{{false}}"
+              />
+            </view>
+          </view>
+        </view>
+
+        <!-- Card 2: 标题 -->
+        <view class="letter-compose-card letter-compose-card--compact">
+          <view class="letter-compose-card-head">
+            <text class="letter-compose-card-label letter-compose-card-label--sm">标题</text>
+            <text class="letter-compose-card-meta">可选</text>
+          </view>
+          <view class="letter-compose-field-shell">
+            <input
+              class="letter-compose-title-input"
+              value="{{title}}"
+              bindinput="onTitleInput"
+              placeholder="给你的信起个标题…"
+              placeholder-class="letter-compose-title-placeholder"
+              maxlength="{{200}}"
+              confirm-type="done"
+              adjust-position="{{false}}"
+            />
+          </view>
+        </view>
+
+        <!-- Card 3: 正文 -->
+        <view class="letter-compose-card">
+          <view class="letter-compose-card-head">
+            <text class="letter-compose-card-label">正文</text>
+            <text class="letter-compose-card-meta">{{content.length}} / 5000</text>
+          </view>
+          <view class="letter-compose-field-shell">
+            <textarea
+              id="letter-textarea-{{textareaMountKey}}"
+              class="letter-compose-textarea"
+              placeholder="写你想说的话…"
+              placeholder-class="letter-compose-placeholder"
+              maxlength="{{5000}}"
+              model:value="{{content}}"
+              bindinput="onContentInput"
+              auto-height
+              show-confirm-bar="{{false}}"
+              cursor-spacing="{{24}}"
+            />
+          </view>
+        </view>
+
+        <!-- Card 4: 配图 -->
+        <view class="letter-compose-card">
+          <view class="letter-compose-card-head">
+            <text class="letter-compose-card-label">配图</text>
+            <view class="letter-compose-chip">
+              <text class="letter-compose-chip-text">{{images.length}} / 9</text>
+            </view>
+          </view>
+          <view class="letter-compose-grid" aria-label="配图网格">
+            <view wx:for="{{images}}" wx:for-index="imgIdx" wx:key="imgIdx" class="letter-compose-cell letter-compose-cell--pic">
+              <image class="letter-compose-thumb" src="{{imageDisplays[imgIdx]}}" mode="aspectFill" />
+              <view class="letter-compose-remove" data-index="{{imgIdx}}" catch:tap="onRemoveImage" aria-role="button" aria-label="删除此图">
+                <view class="letter-compose-remove-x">×</view>
+              </view>
+            </view>
+
+            <view wx:if="{{images.length < 9}}" class="letter-compose-cell letter-compose-cell--add">
+              <view class="letter-compose-add-fill" bind:tap="onAddImagesFromAlbum" bind:longpress="onAddImagesFromCamera" aria-role="button" aria-label="添加图片，轻点相册或长按拍摄">
+                <text class="letter-compose-add-plus">+</text>
+                <text class="letter-compose-add-line">添加</text>
+                <text class="letter-compose-add-sub">还可 {{9 - images.length}} 张</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="letter-compose-scroll-pad" />
+      </view>
+    </scroll-view>
+
+    <view class="letter-compose-footer">
+      <view wx:if="{{!canSubmit}}" class="letter-compose-footer-hint">
+        <text class="letter-compose-footer-hint-text">填写内容后即可发送</text>
+      </view>
+      <view class="letter-compose-footer-inner">
+        <view class="letter-compose-publish {{canSubmit ? '' : 'letter-compose-publish--disabled'}}" bind:tap="onSubmit" aria-role="button" aria-label="发送信件">
+          <text class="letter-compose-publish-label">寄出这封信 ✉️</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
