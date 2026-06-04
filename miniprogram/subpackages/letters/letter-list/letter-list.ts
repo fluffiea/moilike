@@ -85,10 +85,16 @@ Component<LetterListData, {}, LetterListMethods, {}>({
 
       try {
         const r = await lettersList(offset)
-        if (!r) return
+        if (!r) {
+          if (replace) this.setData({ list: [] })
+          this.setData({ hasMore: false, loading: false, loadingMore: false })
+          wx.showToast({ title: '加载失败', icon: 'none' })
+          return
+        }
         if (!r.ok || !Array.isArray(r.list)) {
           if (replace) this.setData({ list: [] })
           this.setData({ hasMore: false })
+          wx.showToast({ title: r && r.ok === false ? (r.error || '加载失败') : '加载失败', icon: 'none' })
           return
         }
 
