@@ -20,9 +20,9 @@ import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../ut
 type ReportFilter = 'mine' | 'action_needed' | 'all'
 
 const REPORT_FILTER_TO_INDEX: Record<ReportFilter, number> = {
-  mine: 0,
+  all: 0,
   action_needed: 1,
-  all: 2,
+  mine: 2,
 }
 
 type TabSlot = {
@@ -109,9 +109,9 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
   data: {
     reportFilterIndex: resolveTabIndex(DEFAULT_RESONANCE_REPORT_FILTER),
     tabs: [
-      freshTabSlot('mine'),
-      freshTabSlot('action_needed'),
       freshTabSlot('all'),
+      freshTabSlot('action_needed'),
+      freshTabSlot('mine'),
     ],
   },
   lifetimes: {
@@ -241,9 +241,9 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
       this._resonanceProfileStampKey = stamp
       this.setData({
         tabs: [
-          freshTabSlot('mine'),
-          freshTabSlot('action_needed'),
           freshTabSlot('all'),
+          freshTabSlot('action_needed'),
+          freshTabSlot('mine'),
         ],
       })
     },

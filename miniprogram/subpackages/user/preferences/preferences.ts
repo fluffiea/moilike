@@ -16,7 +16,7 @@ interface PreferencesCustomInstanceProperty {
 }
 
 function reportFilterToIndex(f: ReportFilterPref): number {
-  if (f === 'mine') return 0
+  if (f === 'all') return 0
   if (f === 'action_needed') return 1
   return 2
 }
