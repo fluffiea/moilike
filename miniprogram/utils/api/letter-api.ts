@@ -4,6 +4,8 @@ import {
   type LettersListCloudResult,
   type LetterCreateCloudResult,
   type LetterGetCloudResult,
+  type LetterDeleteCloudResult,
+  type LetterMediaTempUrlsCloudResult,
 } from '../../types/cloud'
 
 /** letters 云函数客户端封装 */
@@ -61,6 +63,35 @@ export async function lettersCreate(
       data: { action: 'create', title, content, receiverId, type, images },
     })
     return res.result as LetterCreateCloudResult
+  } catch {
+    return null
+  }
+}
+
+export async function lettersDelete(id: string): Promise<LetterDeleteCloudResult | null> {
+  if (!wx.cloud) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: LETTERS_CLOUD_FUNCTION,
+      data: { action: 'delete', id },
+    })
+    return res.result as LetterDeleteCloudResult
+  } catch {
+    return null
+  }
+}
+
+export async function lettersGetMediaTempURLs(
+  fileIDs: string[],
+  letterId?: string,
+): Promise<LetterMediaTempUrlsCloudResult | null> {
+  if (!wx.cloud) return null
+  try {
+    const res = await wx.cloud.callFunction({
+      name: LETTERS_CLOUD_FUNCTION,
+      data: { action: 'getMediaTempURLs', fileIDs, letterId },
+    })
+    return res.result as LetterMediaTempUrlsCloudResult
   } catch {
     return null
   }

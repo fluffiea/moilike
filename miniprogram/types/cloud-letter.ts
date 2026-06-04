@@ -34,3 +34,13 @@ export type LetterGetCloudResult =
 export type LetterCreateCloudResult =
   | { ok: true; letter: LetterPublic }
   | { ok: false; error?: string }
+
+/** 云函数 letters · action delete */
+export type LetterDeleteCloudResult =
+  | { ok: true }
+  | { ok: false; error?: string }
+
+/** 云函数 letters · action getMediaTempURLs */
+export type LetterMediaTempUrlsCloudResult =
+  | { ok: true; urls: Record<string, string> }
+  | { ok: false; error?: string }

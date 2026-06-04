@@ -34,6 +34,8 @@ export {
   type LetterSummaryCloudResult,
   type LetterGetCloudResult,
   type LetterCreateCloudResult,
+  type LetterDeleteCloudResult,
+  type LetterMediaTempUrlsCloudResult,
 } from './cloud-letter'
 
 export {

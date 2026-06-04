@@ -16,6 +16,8 @@ const ACTIONS = {
   list: require('./actions/list'),
   get: require('./actions/get'),
   summary: require('./actions/summary'),
+  delete: require('./actions/delete'),
+  getMediaTempURLs: require('./actions/getMediaTempURLs'),
 }
 
 /** @param {{ action?: string }} event */
