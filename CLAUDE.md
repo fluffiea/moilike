@@ -142,6 +142,32 @@ Skyline 下 `<text>` 标签内换行+大量前导空格+`{{ }}` 插值与中文�
 - **`<text>` 内文案与插值写在同一行**，不要在正文前保留与 WXML 缩进对齐的空格。
 - **「共 {{n}} 条」**类整句，优先在 TS 里拼好字符串，WXML 只绑定一个变量。
 
+## 📝 Git 工作流
+
+### 分支规则（重要）
+- **`main` 分支受保护**：禁止直接提交任何代码到 `main`
+- **`dev` 分支**：所有代码开发和提交只能在 `dev` 分支上进行
+- **合并审批**：`dev` → `main` 的合并需要项目负责人审批后才能操作
+
+### 日常操作
+```bash
+# 确保在 dev 分支
+git checkout dev
+
+# 写代码、提交
+git add .
+git commit -m "feat: xxx"
+
+# 推送到远程 dev
+git push origin dev
+
+# 合并到 main（需要负责人审批后执行）
+git checkout main
+git merge dev
+git push origin main
+git checkout dev  # 切回 dev 继续开发
+```
+
 ### Skyline / WXSS：flex 与 input 兼容注意
 
 Skyline 对以下 CSS 模式支持不完整，真机表现与模拟器不符：
