@@ -11,12 +11,23 @@ page {
   --mo-text-primary: #1c1c1e;
   --mo-text-secondary: #8e8e93;
   --mo-text-muted: #aeaeb2;
+  --mo-text-tertiary: #9a9a9a;
+  /* 深色底（品牌渐变按钮、状态底）上的文字与图标 */
+  --mo-text-inverse: #ffffff;
 
   /* 品牌色 */
   --mo-brand-teal: #668f80;
   --mo-brand-slate: #4a6670;
   --mo-brand-rose: #d6a2ad;
   --mo-brand-sage: #a0af84;
+
+  /* 报备状态色（圆点 + 文字） */
+  --mo-status-pending: #e8a87c;
+  --mo-status-pending-text: #c07a5e;
+  --mo-status-read: #6bbf8a;
+  --mo-status-read-text: #4a9a6a;
+  --mo-status-evaluated: #9b8ec4;
+  --mo-status-evaluated-text: #7b6ea8;
 
   /* 品牌渐变（主 CTA / 头像环 / 按钮） */
   --mo-gradient-brand: linear-gradient(155deg, #668f80 0%, #4a6670 100%);

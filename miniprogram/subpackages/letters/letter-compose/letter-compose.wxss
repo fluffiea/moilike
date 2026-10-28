@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: #f2f2f7;
+  background-color: var(--mo-l0-bg);
 }
 
 .letter-compose-bg {
@@ -70,7 +70,7 @@
   font-size: 26rpx;
   line-height: 1.45;
   font-weight: 400;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── L1 卡片 ── */
@@ -78,10 +78,10 @@
 .letter-compose-card {
   box-sizing: border-box;
   padding: 36rpx;
-  border-radius: 48rpx;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  border-radius: var(--mo-radius-module);
+  background-color: var(--mo-l1-card);
+  border: var(--mo-border-card);
+  box-shadow: var(--mo-shadow-card);
 }
 
 .letter-compose-card-head {
@@ -96,7 +96,7 @@
   font-size: 28rpx;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .letter-compose-card-label--sm {
@@ -115,7 +115,7 @@
   flex-shrink: 0;
   font-size: 22rpx;
   line-height: 1.2;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 信件类型 ── */
@@ -130,9 +130,9 @@
 
 .letter-compose-type-chip {
   padding: 12rpx 20rpx;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
 .letter-compose-type-chip--on {
@@ -143,7 +143,7 @@
 .letter-compose-type-chip-text {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .letter-compose-type-custom-wrap {
@@ -152,7 +152,7 @@
   align-items: center;
   gap: 8rpx;
   padding: 12rpx 20rpx;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   background-color: rgba(60, 60, 67, 0.06);
   border: 1rpx solid rgba(102, 143, 128, 0.45);
 }
@@ -172,14 +172,14 @@
   font-size: 26rpx;
   font-weight: 600;
   line-height: 44rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   background: transparent;
 }
 
 .letter-compose-type-custom-placeholder {
   font-size: 26rpx;
   font-weight: 600;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 标题 ── */
@@ -187,9 +187,9 @@
 .letter-compose-field-shell {
   box-sizing: border-box;
   padding: 24rpx 28rpx;
-  border-radius: 28rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l0-bg);
+  border: var(--mo-border-field);
 }
 
 .letter-compose-title-input {
@@ -199,11 +199,11 @@
   padding: 0;
   font-size: 30rpx;
   line-height: 60rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .letter-compose-title-placeholder {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 正文输入 ── */
@@ -215,11 +215,11 @@
   padding: 0;
   font-size: 30rpx;
   line-height: 1.55;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .letter-compose-placeholder {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 配图 ── */
@@ -227,7 +227,7 @@
 .letter-compose-chip {
   flex-shrink: 0;
   padding: 8rpx 16rpx;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-chip);
   background-color: rgba(60, 60, 67, 0.06);
   border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
@@ -235,7 +235,7 @@
 .letter-compose-chip-text {
   font-size: 22rpx;
   font-weight: 600;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .letter-compose-grid {
@@ -251,12 +251,12 @@
   width: calc((100% - 32rpx) / 3);
   padding-bottom: calc((100% - 32rpx) / 3);
   height: 0;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   overflow: hidden;
 }
 
 .letter-compose-cell--pic {
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
 .letter-compose-thumb {
@@ -314,8 +314,8 @@
   justify-content: center;
   padding: 12rpx 8rpx;
   border-radius: 26rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.08);
-  background-color: #fbfbfd;
+  border: var(--mo-border-divider);
+  background-color: var(--mo-l1-accent);
   overflow: hidden;
 }
 
@@ -327,13 +327,13 @@
   font-size: 48rpx;
   font-weight: 300;
   line-height: 1;
-  color: #668f80;
+  color: var(--mo-brand-teal);
 }
 
 .letter-compose-add-line {
   font-size: 24rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .letter-compose-add-sub {
@@ -368,7 +368,7 @@
 .letter-compose-footer-hint-text {
   font-size: 24rpx;
   line-height: 1.4;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .letter-compose-footer-inner {
@@ -381,8 +381,8 @@
   width: 100%;
   min-height: 96rpx;
   padding: 24rpx 32rpx;
-  border-radius: 28rpx;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border-radius: var(--mo-radius-btn);
+  background: var(--mo-gradient-brand);
   border: 1rpx solid rgba(74, 102, 112, 0.35);
   box-shadow:
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),

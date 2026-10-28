@@ -63,12 +63,15 @@ miniprogram/behaviors/   # require-auth.ts — 鉴权 Behavior，挂载到需登
 
 全局 CSS 变量定义在 `miniprogram/app.wxss` 的 `page` 选择器：
 
-- `--mo-l0-bg` / `--mo-l1-card` — 背景色层级
-- `--mo-text-primary` / `--mo-text-secondary` / `--mo-text-tertiary` — 文字层级
-- `--mo-brand-teal` (#668f80) / `--mo-brand-slate` (#4a6670) — 品牌色
-- `--mo-gradient-brand` — 品牌渐变
+- `--mo-l0-bg` / `--mo-l1-card` / `--mo-l1-accent` — 背景层级
+- `--mo-text-primary` / `--mo-text-secondary` / `--mo-text-muted` / `--mo-text-tertiary` — 文字层级
+- `--mo-text-inverse` (#ffffff) — 深色底上的文字与图标
+- `--mo-brand-teal` (#668f80) / `--mo-brand-slate` (#4a6670) / `--mo-brand-rose` / `--mo-brand-sage` — 品牌色
+- `--mo-status-pending` / `--mo-status-read` / `--mo-status-evaluated`（各带 `-text` 深色变体）— 报备状态
+- `--mo-gradient-brand` / `--mo-gradient-warm` — 品牌渐变
+- `--mo-shadow-card` / `--mo-border-card|field|divider` / `--mo-radius-card|module|btn|chip` — 阴影、边框、圆角
 
-使用变量而非硬编码颜色值。
+使用变量而非硬编码颜色值；`npm run check` 会校验所有 `var(--mo-*)` 引用都已在 `app.wxss` 中定义。
 
 ---
 

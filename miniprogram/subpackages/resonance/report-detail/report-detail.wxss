@@ -6,7 +6,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: #f2f2f7;
+  background-color: var(--mo-l0-bg);
 }
 
 .report-detail-bg {
@@ -59,10 +59,10 @@
   position: relative;
   box-sizing: border-box;
   padding: 40rpx 40rpx 0;
-  border-radius: 56rpx;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  border-radius: var(--mo-radius-card);
+  background-color: var(--mo-l1-card);
+  border: var(--mo-border-card);
+  box-shadow: var(--mo-shadow-card);
   overflow: hidden;
 }
 
@@ -88,9 +88,9 @@
   margin-right: 10rpx;
 }
 
-.report-detail-card--pending_read .report-detail-card-status-dot { background: #E8A87C; }
-.report-detail-card--read        .report-detail-card-status-dot { background: #6BBF8A; }
-.report-detail-card--evaluated   .report-detail-card-status-dot { background: #9B8EC4; }
+.report-detail-card--pending_read .report-detail-card-status-dot { background: var(--mo-status-pending); }
+.report-detail-card--read        .report-detail-card-status-dot { background: var(--mo-status-read); }
+.report-detail-card--evaluated   .report-detail-card-status-dot { background: var(--mo-status-evaluated); }
 
 /* ── 头部 ── */
 
@@ -110,12 +110,12 @@
 .report-detail-card-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-detail-card-suffix {
   font-size: 26rpx;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* 状态文字 pill — 与圆点同色系 */
@@ -126,12 +126,12 @@
   border-radius: 999rpx;
   font-size: 22rpx;
   font-weight: 600;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
-.report-detail-card-status-label--pending_read { color: #C07A5E; background-color: rgba(232, 168, 124, 0.12); }
-.report-detail-card-status-label--read        { color: #4A9A6A; background-color: rgba(107, 191, 138, 0.12); }
-.report-detail-card-status-label--evaluated   { color: #7B6EA8; background-color: rgba(155, 142, 196, 0.14); }
+.report-detail-card-status-label--pending_read { color: var(--mo-status-pending-text); background-color: rgba(232, 168, 124, 0.12); }
+.report-detail-card-status-label--read        { color: var(--mo-status-read-text); background-color: rgba(107, 191, 138, 0.12); }
+.report-detail-card-status-label--evaluated   { color: var(--mo-status-evaluated-text); background-color: rgba(155, 142, 196, 0.14); }
 
 .report-detail-card-head-tags {
   display: flex;
@@ -149,7 +149,7 @@
   margin-left: 4rpx;
   font-size: 28rpx;
   font-weight: 600;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
   line-height: 1;
   padding: 4rpx 8rpx;
 }
@@ -164,13 +164,13 @@
 
 .report-detail-card-record-label {
   font-size: 23rpx;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-detail-card-record-time {
   font-size: 23rpx;
   font-weight: 500;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 内容区 ── */
@@ -183,7 +183,7 @@
 .report-detail-card-body-text {
   display: block;
   font-size: 30rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
@@ -205,7 +205,7 @@
   width: 100%;
   border-radius: 32rpx;
   overflow: hidden;
-  background-color: #fbfbfd;
+  background-color: var(--mo-l1-accent);
   box-shadow:
     inset 0 0 0 1rpx rgba(0, 0, 0, 0.035),
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.55);
@@ -232,9 +232,9 @@
   padding-bottom: calc((100% - 12rpx) / 2);
   height: 0;
   position: relative;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   overflow: hidden;
-  background-color: #fbfbfd;
+  background-color: var(--mo-l1-accent);
   flex-shrink: 0;
   box-shadow:
     inset 0 0 0 1rpx rgba(0, 0, 0, 0.035),
@@ -249,7 +249,7 @@
   flex-wrap: wrap;
   gap: 10rpx;
   padding: 10rpx;
-  background-color: #f2f2f7;
+  background-color: var(--mo-l0-bg);
   border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
@@ -258,7 +258,7 @@
   padding-bottom: calc((100% - 20rpx) / 3);
   height: 0;
   position: relative;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-chip);
   overflow: hidden;
   border: 1rpx solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
@@ -282,7 +282,7 @@
 
 .report-detail-card-eval {
   padding: 24rpx;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-chip);
   background-color: rgba(102, 143, 128, 0.045);
   margin-top: 32rpx;
 }
@@ -298,21 +298,21 @@
 .report-detail-card-eval-label {
   font-size: 22rpx;
   font-weight: 600;
-  color: #668f80;
+  color: var(--mo-brand-teal);
 }
 
 /* 编辑 — 纯文字链接 */
 .report-detail-card-eval-edit {
   font-size: 22rpx;
   font-weight: 500;
-  color: #668f80;
+  color: var(--mo-brand-teal);
   padding: 4rpx 4rpx;
 }
 
 .report-detail-card-eval-text {
   display: block;
   font-size: 28rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
@@ -323,7 +323,7 @@
 .report-detail-card-eval-form {
   margin-top: 32rpx;
   padding-top: 32rpx;
-  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-top: var(--mo-border-field);
 }
 
 .report-detail-card-eval-form-top {
@@ -337,33 +337,33 @@
 .report-detail-card-eval-form-label {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-detail-card-eval-form-cancel {
   font-size: 24rpx;
   font-weight: 500;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-detail-card-eval-form-shell {
   padding: 24rpx 28rpx;
-  border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--mo-radius-chip);
+  background-color: var(--mo-l0-bg);
+  border: var(--mo-border-field);
 }
 
 .report-detail-card-eval-form-area {
   width: 100%;
   min-height: 180rpx;
   font-size: 28rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   line-height: 1.55;
   padding: 0;
 }
 
 .report-detail-ph {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-detail-card-eval-form-actions {
@@ -374,8 +374,8 @@
 
 .report-detail-btn {
   padding: 22rpx 32rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border-radius: var(--mo-radius-chip);
+  background: var(--mo-gradient-brand);
   border: 1rpx solid rgba(74, 102, 112, 0.35);
   box-shadow:
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),
@@ -398,7 +398,7 @@
 .report-detail-card-mark-read {
   margin-top: 32rpx;
   padding-top: 32rpx;
-  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-top: var(--mo-border-field);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -407,7 +407,7 @@
 .report-detail-card-mark-read-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: #668f80;
+  color: var(--mo-brand-teal);
   padding: 8rpx 8rpx;
 }
 
@@ -429,7 +429,7 @@
 
 .report-detail-empty-text {
   font-size: 28rpx;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── tag 色阶（与共鸣列表一致，保持不变）── */
@@ -437,7 +437,7 @@
 .report-tag-chip {
   padding: 8rpx 18rpx;
   border-radius: 999rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
 .report-tag-chip-text {
@@ -445,7 +445,7 @@
   font-weight: 600;
 }
 
-.report-tag-chip--c0 { color: #4a6670; background-color: rgba(74, 102, 112, 0.12); }
+.report-tag-chip--c0 { color: var(--mo-brand-slate); background-color: rgba(74, 102, 112, 0.12); }
 .report-tag-chip--c1 { color: #5c4a6b; background-color: rgba(120, 90, 130, 0.12); }
 .report-tag-chip--c2 { color: #3d5a4d; background-color: rgba(102, 143, 128, 0.16); }
 .report-tag-chip--c3 { color: #6b5a3d; background-color: rgba(180, 140, 80, 0.14); }

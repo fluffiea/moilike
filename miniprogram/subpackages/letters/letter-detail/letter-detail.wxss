@@ -90,7 +90,7 @@
 .letter-detail-paper-band--thankyou { background: #e88a8a; }
 .letter-detail-paper-band--wish { background: #b8a0d8; }
 .letter-detail-paper-band--whisper { background: #8ab8d8; }
-.letter-detail-paper-band--default { background: var(--mo-brand-teal, #668f80); }
+.letter-detail-paper-band--default { background: var(--mo-brand-teal); }
 
 /* ── 类型徽标 ── */
 .letter-detail-type-badge {
@@ -106,7 +106,7 @@
 .letter-detail-type-badge--thankyou { background: rgba(232,138,138,0.15); color: #c06060; }
 .letter-detail-type-badge--wish { background: rgba(184,160,216,0.15); color: #8870a8; }
 .letter-detail-type-badge--whisper { background: rgba(138,184,216,0.15); color: #6090a8; }
-.letter-detail-type-badge--default { background: rgba(102,143,128,0.15); color: var(--mo-brand-teal, #668f80); }
+.letter-detail-type-badge--default { background: rgba(102,143,128,0.15); color: var(--mo-brand-teal); }
 
 .letter-detail-type-badge-text {
   font-size: 24rpx;
@@ -145,12 +145,12 @@
 .letter-detail-direction-arrow {
   font-size: 28rpx;
   margin: 0 12rpx;
-  color: var(--mo-text-tertiary, #9a9a9a);
+  color: var(--mo-text-tertiary);
 }
 
 .letter-detail-direction-text {
   font-size: 26rpx;
-  color: var(--mo-text-tertiary, #9a9a9a);
+  color: var(--mo-text-tertiary);
   line-height: 1.4;
 }
 
@@ -194,5 +194,5 @@
 
 .letter-detail-empty-text {
   font-size: 28rpx;
-  color: var(--mo-text-tertiary, #9a9a9a);
+  color: var(--mo-text-tertiary);
 }

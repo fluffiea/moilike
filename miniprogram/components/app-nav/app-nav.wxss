@@ -57,13 +57,13 @@
   font-size: 48rpx;
   font-weight: 300;
   line-height: 1;
-  color: #4a6670;
+  color: var(--mo-brand-slate);
 }
 
 .app-nav-title {
   font-size: 34rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   max-width: 58%;
   overflow: hidden;
   text-overflow: ellipsis;

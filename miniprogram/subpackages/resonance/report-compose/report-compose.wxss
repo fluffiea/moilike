@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: #f2f2f7;
+  background-color: var(--mo-l0-bg);
 }
 
 .report-compose-bg {
@@ -67,7 +67,7 @@
   font-size: 26rpx;
   line-height: 1.45;
   font-weight: 400;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── L1 卡片 ── */
@@ -75,10 +75,10 @@
 .report-compose-card {
   box-sizing: border-box;
   padding: 36rpx;
-  border-radius: 48rpx;
-  background-color: #ffffff;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
+  border-radius: var(--mo-radius-module);
+  background-color: var(--mo-l1-card);
+  border: var(--mo-border-card);
+  box-shadow: var(--mo-shadow-card);
 }
 
 /* 卡片头部行 */
@@ -94,7 +94,7 @@
   font-size: 28rpx;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-compose-card-label--sm {
@@ -114,7 +114,7 @@
   flex-shrink: 0;
   font-size: 22rpx;
   line-height: 1.2;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 正文输入 ── */
@@ -122,9 +122,9 @@
 .report-compose-field-shell {
   box-sizing: border-box;
   padding: 24rpx 28rpx;
-  border-radius: 28rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l0-bg);
+  border: var(--mo-border-field);
 }
 
 .report-compose-textarea {
@@ -134,11 +134,11 @@
   padding: 0;
   font-size: 30rpx;
   line-height: 1.55;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-compose-placeholder {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 记录时间 ── */
@@ -171,11 +171,11 @@
 }
 
 .report-compose-time-badge--now .report-compose-time-badge-dot {
-  color: #668f80;
+  color: var(--mo-brand-teal);
 }
 
 .report-compose-time-badge--custom .report-compose-time-badge-dot {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-compose-time-badge-text {
@@ -184,11 +184,11 @@
 }
 
 .report-compose-time-badge--now .report-compose-time-badge-text {
-  color: #668f80;
+  color: var(--mo-brand-teal);
 }
 
 .report-compose-time-badge--custom .report-compose-time-badge-text {
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-compose-pickers {
@@ -218,11 +218,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 24rpx 28rpx;
-  border-radius: 24rpx;
-  background-color: #f2f2f7;
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--mo-radius-chip);
+  background-color: var(--mo-l0-bg);
+  border: var(--mo-border-field);
   font-size: 28rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
   font-weight: 500;
 }
 
@@ -236,7 +236,7 @@
   flex-shrink: 0;
   margin-left: 16rpx;
   font-size: 28rpx;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
   font-weight: 400;
 }
 
@@ -252,9 +252,9 @@
 
 .report-compose-tag-chip {
   padding: 14rpx 22rpx;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
 .report-compose-tag-chip--on {
@@ -265,7 +265,7 @@
 .report-compose-tag-chip-text {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-compose-card--compact .report-compose-tag-wrap {
@@ -283,19 +283,19 @@
   height: 60rpx;
   box-sizing: border-box;
   padding: 12rpx 20rpx;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   background-color: rgba(60, 60, 67, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
   font-size: 26rpx;
   font-weight: 600;
   line-height: 36rpx;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-compose-tag-input-placeholder {
   font-size: 26rpx;
   font-weight: 600;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 /* ── 配图 ── */
@@ -303,7 +303,7 @@
 .report-compose-chip {
   flex-shrink: 0;
   padding: 8rpx 16rpx;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-chip);
   background-color: rgba(60, 60, 67, 0.06);
   border: 1rpx solid rgba(0, 0, 0, 0.05);
 }
@@ -311,7 +311,7 @@
 .report-compose-chip-text {
   font-size: 22rpx;
   font-weight: 600;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-compose-grid {
@@ -327,12 +327,12 @@
   width: calc((100% - 32rpx) / 3);
   padding-bottom: calc((100% - 32rpx) / 3);
   height: 0;
-  border-radius: 28rpx;
+  border-radius: var(--mo-radius-btn);
   overflow: hidden;
 }
 
 .report-compose-cell--pic {
-  border: 1rpx solid rgba(0, 0, 0, 0.06);
+  border: var(--mo-border-field);
 }
 
 .report-compose-thumb {
@@ -391,8 +391,8 @@
   gap: 6rpx;
   padding: 12rpx 8rpx;
   border-radius: 26rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.08);
-  background-color: #fbfbfd;
+  border: var(--mo-border-divider);
+  background-color: var(--mo-l1-accent);
   overflow: hidden;
 }
 
@@ -400,13 +400,13 @@
   font-size: 48rpx;
   font-weight: 300;
   line-height: 1;
-  color: #668f80;
+  color: var(--mo-brand-teal);
 }
 
 .report-compose-add-line {
   font-size: 24rpx;
   font-weight: 600;
-  color: #1c1c1e;
+  color: var(--mo-text-primary);
 }
 
 .report-compose-add-sub {
@@ -441,7 +441,7 @@
 .report-compose-footer-hint-text {
   font-size: 24rpx;
   line-height: 1.4;
-  color: #8e8e93;
+  color: var(--mo-text-secondary);
 }
 
 .report-compose-footer-inner {
@@ -454,8 +454,8 @@
   width: 100%;
   min-height: 96rpx;
   padding: 24rpx 32rpx;
-  border-radius: 28rpx;
-  background: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
+  border-radius: var(--mo-radius-btn);
+  background: var(--mo-gradient-brand);
   border: 1rpx solid rgba(74, 102, 112, 0.35);
   box-shadow:
     inset 0 1rpx 0 0 rgba(255, 255, 255, 0.22),

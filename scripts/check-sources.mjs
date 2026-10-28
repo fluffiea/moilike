@@ -72,6 +72,26 @@ for (const file of walk(MINIPROGRAM_DIR, (f) => f.endsWith('.js'))) {
   }
 }
 
+/* ---------- 4. WXSS 引用的设计令牌必须已定义 ---------- */
+const APP_WXSS = join(MINIPROGRAM_DIR, 'app.wxss')
+if (existsSync(APP_WXSS)) {
+  const defined = new Set(
+    [...readFileSync(APP_WXSS, 'utf8').matchAll(/--mo-[a-z0-9-]+(?=\s*:)/g)].map((m) => m[0]),
+  )
+  for (const file of walk(MINIPROGRAM_DIR, (f) => f.endsWith('.wxss'))) {
+    if (file === APP_WXSS) continue
+    readFileSync(file, 'utf8')
+      .split(/\r?\n/)
+      .forEach((line, i) => {
+        for (const m of line.matchAll(/var\((--mo-[a-z0-9-]+)/g)) {
+          if (!defined.has(m[1])) {
+            problems.push(`${toRel(file)}:${i + 1} 引用了未定义的令牌 ${m[1]}（在 app.wxss 的 page 选择器中定义）`)
+          }
+        }
+      })
+  }
+}
+
 /* ---------- 输出 ---------- */
 if (problems.length === 0) {
   console.log('[check-sources] 通过')
