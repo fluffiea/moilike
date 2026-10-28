@@ -7,46 +7,23 @@ import {
   type LetterDeleteCloudResult,
   type LetterMediaTempUrlsCloudResult,
 } from '../../types/cloud'
+import { callCloud } from './cloud-call'
 
-/** letters 云函数客户端封装 */
+/**
+ * letters 云函数客户端封装。
+ * 失败时静默返回 null（页面自行展示空态/「无法加载」），因此统一传 silent。
+ */
 
 export async function lettersGetSummary(): Promise<LetterSummaryCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'summary' },
-    })
-    return res.result as LetterSummaryCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LetterSummaryCloudResult>(LETTERS_CLOUD_FUNCTION, { action: 'summary' }, true)
 }
 
 export async function lettersList(offset: number): Promise<LettersListCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'list', offset },
-    })
-    return res.result as LettersListCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LettersListCloudResult>(LETTERS_CLOUD_FUNCTION, { action: 'list', offset }, true)
 }
 
 export async function lettersGet(id: string): Promise<LetterGetCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'get', id },
-    })
-    return res.result as LetterGetCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LetterGetCloudResult>(LETTERS_CLOUD_FUNCTION, { action: 'get', id }, true)
 }
 
 export async function lettersCreate(
@@ -56,43 +33,24 @@ export async function lettersCreate(
   type?: string,
   images?: string[],
 ): Promise<LetterCreateCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'create', title, content, receiverId, type, images },
-    })
-    return res.result as LetterCreateCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LetterCreateCloudResult>(
+    LETTERS_CLOUD_FUNCTION,
+    { action: 'create', title, content, receiverId, type, images },
+    true,
+  )
 }
 
 export async function lettersDelete(id: string): Promise<LetterDeleteCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'delete', id },
-    })
-    return res.result as LetterDeleteCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LetterDeleteCloudResult>(LETTERS_CLOUD_FUNCTION, { action: 'delete', id }, true)
 }
 
 export async function lettersGetMediaTempURLs(
   fileIDs: string[],
   letterId?: string,
 ): Promise<LetterMediaTempUrlsCloudResult | null> {
-  if (!wx.cloud) return null
-  try {
-    const res = await wx.cloud.callFunction({
-      name: LETTERS_CLOUD_FUNCTION,
-      data: { action: 'getMediaTempURLs', fileIDs, letterId },
-    })
-    return res.result as LetterMediaTempUrlsCloudResult
-  } catch {
-    return null
-  }
+  return callCloud<LetterMediaTempUrlsCloudResult>(
+    LETTERS_CLOUD_FUNCTION,
+    { action: 'getMediaTempURLs', fileIDs, letterId },
+    true,
+  )
 }

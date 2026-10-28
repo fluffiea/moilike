@@ -8,7 +8,7 @@ import {
 } from '../../../utils/api/daily-api'
 import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { takeDailyEditStaging } from '../../../utils/daily-edit-staging'
-import { uploadDailyImagesIfNeeded } from '../../../utils/upload/daily-upload'
+import { uploadImagesToCloud } from '../../../utils/upload/images'
 import { TAB_MOMENTS } from '../../../constants/paths'
 import { MAX_POST_IMAGES } from '../../../constants/limits'
 
@@ -251,7 +251,7 @@ Component<ComposeData, {}, ComposeMethods, ComposeCustomInstanceProperty>({
       try {
         let fileIds: string[]
         try {
-          fileIds = await uploadDailyImagesIfNeeded(images)
+          fileIds = await uploadImagesToCloud('daily', images)
         } catch (e) {
           const msg = e instanceof Error ? e.message : '图片上传失败'
           wx.showToast({ title: msg, icon: 'none' })

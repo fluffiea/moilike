@@ -1,6 +1,6 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersCreate } from '../../../utils/api/letter-api'
-import { uploadLetterImagesIfNeeded } from '../../../utils/upload/letter-upload'
+import { uploadImagesToCloud } from '../../../utils/upload/images'
 import moSession from '../../../utils/session'
 import { PAGE_LETTER_LIST } from '../../../constants/paths'
 import {
@@ -236,7 +236,7 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
       try {
         let fileIds: string[]
         try {
-          fileIds = await uploadLetterImagesIfNeeded(this.data.images)
+          fileIds = await uploadImagesToCloud('letters', this.data.images)
         } catch (e) {
           const msg = e instanceof Error ? e.message : '\u56FE\u7247\u4E0A\u4F20\u5931\u8D25'
           wx.showToast({ title: msg, icon: 'none' })

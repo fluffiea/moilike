@@ -17,7 +17,7 @@ import {
   reportUpdate,
 } from '../../../utils/api/report-api'
 import { takeReportEditStaging } from '../../../utils/report-edit-staging'
-import { uploadReportImagesIfNeeded } from '../../../utils/upload/report-upload'
+import { uploadImagesToCloud } from '../../../utils/upload/images'
 import { TAB_RESONANCE } from '../../../constants/paths'
 
 const MAX_IMAGES = 9
@@ -448,7 +448,7 @@ Component<ReportComposeData, {}, ReportComposeMethods, ReportComposeCustomInstan
       try {
         let fileIds: string[]
         try {
-          fileIds = await uploadReportImagesIfNeeded(images)
+          fileIds = await uploadImagesToCloud('reports', images)
         } catch (e) {
           const msg = e instanceof Error ? e.message : '图片上传失败'
           wx.showToast({ title: msg, icon: 'none' })
