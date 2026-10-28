@@ -1,5 +1,6 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersGet, lettersGetMediaTempURLs } from '../../../utils/api/letter-api'
+import { imageIndexFromDataset, previewImagesAt } from '../../../utils/image-preview'
 import type { LetterPublic } from '../../../types/cloud-letter'
 import moSession from '../../../utils/session'
 
@@ -147,22 +148,14 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
     async onImageTap(e: WechatMiniprogram.TouchEvent) {
       const images = this.data.images
       if (!images || images.length === 0) return
-      const rawIdx = e.currentTarget && e.currentTarget.dataset ? e.currentTarget.dataset.index : undefined
-      let imgIndex = 0
-      if (rawIdx !== undefined && rawIdx !== null && rawIdx !== '') {
-        const n = Number(rawIdx)
-        if (!Number.isNaN(n)) imgIndex = Math.floor(n)
-      }
-      const urls = images
-      const max = urls.length - 1
-      const idx = imgIndex < 0 ? 0 : imgIndex > max ? max : imgIndex
-      const cur = urls[idx]
-      if (typeof cur !== 'string' || cur.length === 0) return
+      const dataset = e.currentTarget && e.currentTarget.dataset ? e.currentTarget.dataset : undefined
+      const idx = imageIndexFromDataset(dataset ? dataset.index : undefined)
+      if (typeof images[idx] !== 'string' || images[idx].length === 0) return
 
       // 将 cloud:// 文件 ID 转为临时链接（否则 wx.previewImage 可能无法展示云存储文件）
-      const r = await lettersGetMediaTempURLs(urls)
-      const tempUrls = r && r.ok && r.urls ? urls.map((u) => r.urls[u] || u) : urls
-      wx.previewImage({ current: tempUrls[idx], urls: tempUrls })
+      const r = await lettersGetMediaTempURLs(images)
+      const tempUrls = r && r.ok && r.urls ? images.map((u) => r.urls[u] || u) : images
+      previewImagesAt(tempUrls, idx)
     },
   },
 })

@@ -9,6 +9,7 @@ import {
 } from '../../../utils/api/daily-api'
 import { enrichDailyPostsForDisplay } from '../../../utils/display/daily-feed-display'
 import { formatCloudBizError } from '../../../utils/cloud-invoke'
+import { imageIndexFromDataset, previewImagesAt } from '../../../utils/image-preview'
 import { moUserProfileDisplayStamp } from '../../../utils/session'
 import { MAX_COMMENT_TEXT } from '../../../constants/limits'
 
@@ -216,26 +217,7 @@ Component<DetailPageData, {}, DetailMethods, DetailCustomInstanceProperty>({
     onPostImageTap(e: WechatMiniprogram.TouchEvent) {
       const post = this.data.post
       if (!post || !post.images || post.images.length === 0) return
-      const rawIdx = e.currentTarget.dataset.imgIndex
-      let imgIndex = 0
-      if (rawIdx !== undefined && rawIdx !== null && rawIdx !== '') {
-        const n = Number(rawIdx)
-        if (!Number.isNaN(n)) imgIndex = Math.floor(n)
-      }
-      const urls = post.images
-      const max = urls.length - 1
-      let idx = imgIndex
-      if (idx < 0) {
-        idx = 0
-      } else if (idx > max) {
-        idx = max
-      }
-      const cur = urls[idx]
-      if (typeof cur !== 'string' || cur.length === 0) return
-      wx.previewImage({
-        current: cur,
-        urls,
-      })
+      previewImagesAt(post.images, imageIndexFromDataset(e.currentTarget.dataset.imgIndex))
     },
 
     onCommentRowTap(e: WechatMiniprogram.TouchEvent) {

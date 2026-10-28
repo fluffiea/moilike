@@ -14,6 +14,7 @@ import { setReportEditStaging } from '../../utils/report-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
 import { enrichReportPostForDisplay, enrichReportPostsForDisplay, groupReportPostsByDate, type ReportGroup } from '../../utils/display/report-feed-display'
 import { saveFeedCache, loadFeedCache } from '../../utils/feed-cache'
+import { imageIndexFromDataset, previewImagesAt } from '../../utils/image-preview'
 import { invalidateReportMediaTempUrlCache, reportDelete, reportGetReportFeedItem, reportListReports } from '../../utils/api/report-api'
 import moSession, { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
@@ -63,14 +64,6 @@ function resolveTabIndex(filter: ReportFilter): number {
 
 function normalizeReportPostId(raw: string | undefined): string {
   return typeof raw === 'string' ? raw.trim() : ''
-}
-
-function clampReportImageIndex(idx: number, len: number): number {
-  if (len <= 0) return 0
-  const max = len - 1
-  if (idx < 0) return 0
-  if (idx > max) return max
-  return idx
 }
 
 function parseTabIndexFromDataset(e: WechatMiniprogram.CustomEvent): number {
@@ -394,23 +387,10 @@ Component<ResonancePageData, {}, ResonanceMethods, ResonanceCustomInstanceProper
     onReportImageTap(e: WechatMiniprogram.TouchEvent) {
       const postId = e.currentTarget.dataset.postId as string | undefined
       if (!postId) return
-      const rawIdx = e.currentTarget.dataset.imgIndex
-      var imgIndex = 0
-      if (rawIdx !== undefined && rawIdx !== null && rawIdx !== '') {
-        const n = Number(rawIdx)
-        if (!Number.isNaN(n)) imgIndex = Math.floor(n)
-      }
       const tab = this.data.tabs[this.data.reportFilterIndex]
       const row = tab.list.find(function (x) { return x.id === postId })
       if (!row || !row.images || row.images.length === 0) return
-      const urls = row.images
-      const idx = clampReportImageIndex(imgIndex, urls.length)
-      const cur = urls[idx]
-      if (typeof cur !== 'string' || cur.length === 0) return
-      wx.previewImage({
-        current: cur,
-        urls: urls,
-      })
+      previewImagesAt(row.images, imageIndexFromDataset(e.currentTarget.dataset.imgIndex))
     },
 
     onReportPostLongPress(e: WechatMiniprogram.TouchEvent) {

@@ -2,6 +2,7 @@ import requireAuth from '../../../behaviors/require-auth'
 import type { ReportPostPublic } from '../../../types/cloud'
 import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { enrichReportPostForDisplay } from '../../../utils/display/report-feed-display'
+import { imageIndexFromDataset, previewImagesAt } from '../../../utils/image-preview'
 import { reportDelete, reportEvaluate, reportGetReport, reportMarkRead } from '../../../utils/api/report-api'
 import { setReportEditStaging } from '../../../utils/report-edit-staging'
 import { PAGE_REPORT_COMPOSE, TAB_RESONANCE } from '../../../constants/paths'
@@ -141,18 +142,7 @@ Component<ReportDetailData, {}, ReportDetailMethods, ReportDetailCustomInstanceP
     onImageTap(e: WechatMiniprogram.TouchEvent) {
       const post = this.data.post
       if (!post || !post.images || post.images.length === 0) return
-      const rawIdx = e.currentTarget.dataset.index
-      let imgIndex = 0
-      if (rawIdx !== undefined && rawIdx !== null && rawIdx !== '') {
-        const n = Number(rawIdx)
-        if (!Number.isNaN(n)) imgIndex = Math.floor(n)
-      }
-      const urls = post.images
-      const max = urls.length - 1
-      const idx = imgIndex < 0 ? 0 : imgIndex > max ? max : imgIndex
-      const cur = urls[idx]
-      if (typeof cur !== 'string' || cur.length === 0) return
-      wx.previewImage({ current: cur, urls })
+      previewImagesAt(post.images, imageIndexFromDataset(e.currentTarget.dataset.index))
     },
 
     async onMarkRead() {

@@ -6,6 +6,7 @@ import { setDailyEditStaging } from '../../utils/daily-edit-staging'
 import { formatCloudBizError } from '../../utils/cloud-invoke'
 import { enrichDailyPostsForDisplay, groupDailyPostsByDate, type DailyGroup } from '../../utils/display/daily-feed-display'
 import { saveFeedCache, loadFeedCache } from '../../utils/feed-cache'
+import { imageIndexFromDataset, previewImagesAt } from '../../utils/image-preview'
 import { moCoupleScopeKey, moUserProfileDisplayStamp } from '../../utils/session'
 
 type MomentsPageData = {
@@ -59,24 +60,6 @@ function mergeDailyEditPreservingCommentPreview(
     firstCommentText:
       typeof prev.firstCommentText === 'string' ? prev.firstCommentText : '',
   }
-}
-
-function clampDailyImageIndex(rawIdx: unknown, maxIndex: number): number {
-  if (rawIdx === undefined || rawIdx === null || rawIdx === '') {
-    return 0
-  }
-  const n = Number(rawIdx)
-  if (Number.isNaN(n)) {
-    return 0
-  }
-  const i = Math.floor(n)
-  if (i < 0) {
-    return 0
-  }
-  if (i > maxIndex) {
-    return maxIndex
-  }
-  return i
 }
 
 function computeFilteredGroups(groups: DailyGroup[], dateKey: string): DailyGroup[] {
@@ -312,14 +295,7 @@ Component<MomentsPageData, {}, MomentsMethods, MomentsCustomInstanceProperty>({
       if (!postId) return
       const daily = this.data.dailyList.find((x) => x.id === postId)
       if (!daily || !daily.images || daily.images.length === 0) return
-      const urls = daily.images
-      const idx = clampDailyImageIndex(e.currentTarget.dataset.imgIndex, urls.length - 1)
-      const cur = urls[idx]
-      if (typeof cur !== 'string' || cur.length === 0) return
-      wx.previewImage({
-        current: cur,
-        urls,
-      })
+      previewImagesAt(daily.images, imageIndexFromDataset(e.currentTarget.dataset.imgIndex))
     },
 
     onDailyPostLongPress(e: WechatMiniprogram.TouchEvent) {
