@@ -5,8 +5,9 @@
   "description": "情侣私密互动小程序（微信云开发）— 本 package.json 仅用于开发期质量检查，不参与小程序构建",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test \"tests/**/*.test.mjs\"",
     "check:sources": "node scripts/check-sources.mjs",
-    "check": "npm run typecheck && npm run check:sources",
+    "check": "npm run typecheck && npm run test && npm run check:sources",
     "sync:cloud-utils": "node scripts/sync-cloud-common.mjs"
   },
   "devDependencies": {

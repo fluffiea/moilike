@@ -10,8 +10,6 @@
  * 使用方式: const { isDocNotFound, getUserDocRow, ... } = require('./common/utils')
  */
 
-const cloud = require('wx-server-sdk')
-
 /** @param {Date} d */
 function formatTime(d) {
   const off = 8 * 3600000

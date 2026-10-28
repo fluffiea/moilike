@@ -66,8 +66,9 @@ cd cloudfunctions/letters && npm install && cd ../..
 
 ```bash
 npm install         # 安装 typescript（仅 devDependency）
-npm run check       # 类型检查 + 源码规范自检
+npm run check       # 类型检查 + 单测 + 源码规范自检（提交前跑这个）
 npm run typecheck   # 仅 tsc --noEmit
+npm test            # 云函数公共工具的单元测试（node --test）
 npm run check:sources  # 禁止 ?./??、云函数公共模块一致性、僵尸 .js 检查
 ```
 
