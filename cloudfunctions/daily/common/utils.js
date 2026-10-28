@@ -1,4 +1,10 @@
 /**
+ * ⚠️ 自动生成，请勿直接编辑。
+ * 单一源：cloudfunctions/_shared/common-utils.js
+ * 修改后执行：npm run sync:cloud-utils
+ */
+
+/**
  * 云函数公共工具模块
  * 从 daily / report / user 三个云函数中抽离的共享函数。
  * 使用方式: const { isDocNotFound, getUserDocRow, ... } = require('./common/utils')
