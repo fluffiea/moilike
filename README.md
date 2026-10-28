@@ -38,6 +38,7 @@ cp project.private.config.example.json project.private.config.json
 cd cloudfunctions/user && npm install && cd ../..
 cd cloudfunctions/daily && npm install && cd ../..
 cd cloudfunctions/report && npm install && cd ../..
+cd cloudfunctions/letters && npm install && cd ../..
 
 # 4. 用微信开发者工具打开项目根目录
 ```
@@ -47,15 +48,28 @@ cd cloudfunctions/report && npm install && cd ../..
 在微信开发者工具中：
 
 1. 右键 `cloudfunctions/user` → **上传并部署：云端安装依赖**
-2. 对 `cloudfunctions/daily` 和 `cloudfunctions/report` 重复上述操作
+2. 对 `cloudfunctions/daily`、`cloudfunctions/report` 和 `cloudfunctions/letters` 重复上述操作
 3. 在「云开发控制台」→「数据库」中创建集合：
    - `users` — 用户资料与结伴关系
    - `dailies` — 日常记录
    - `reports` — 报备记录
    - `bind_requests` — 绑定请求
    - `report_tags` — 报备标签（全局共享）
+   - `letters` — 信件（收发双方可见）
 
 > 数据库权限建议：除 `report_tags` 可设为「所有用户可读，仅云函数可写」外，其余集合均设为「仅云函数可读写」。
+> `letters` 的索引建议见 `cloudfunctions/letters/SCHEMA.md`。
+
+## 本地检查
+
+根目录 `package.json` 只用于开发期检查，不参与小程序构建（TS 仍由开发者工具编译）：
+
+```bash
+npm install         # 安装 typescript（仅 devDependency）
+npm run check       # 类型检查 + 源码规范自检
+npm run typecheck   # 仅 tsc --noEmit
+npm run check:sources  # 禁止 ?./??、云函数公共模块一致性、僵尸 .js 检查
+```
 
 ## 项目结构
 

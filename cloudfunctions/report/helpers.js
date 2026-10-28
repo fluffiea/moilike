@@ -4,7 +4,6 @@
 
 const {
   sanitizeImages,
-  getUserDocRow,
   getMutualPartnerOpenId,
   coupleAuthorOpenIds,
   recordTempFileUrlsFromSdk,

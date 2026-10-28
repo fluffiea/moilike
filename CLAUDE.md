@@ -14,14 +14,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 后端 | 微信云函数（Node.js，`wx-server-sdk ~3.0.1`） |
 | 数据库 | CloudBase 文档数据库 |
 
-- **前端无 `package.json`**：TS 编译由微信开发者工具 `useCompilerPlugins: ["typescript"]` 处理，`es6: false`。
-- `cloudfunctions/` 下三个云函数各有自己的 `package.json` 和 `node_modules/`。
-- 数据库集合：`users`、`dailies`、`reports`、`bind_requests`、`report_tags`。除 `report_tags` 外均仅云函数可读写。
+- **前端无构建管线**：TS 编译由微信开发者工具 `useCompilerPlugins: ["typescript"]` 处理，`es6: false`。根目录 `package.json` 仅用于本地质量检查（`npm run check`），不参与小程序编译。
+- `cloudfunctions/` 下四个云函数各有自己的 `package.json` 和 `node_modules/`（`common/utils.js` 因部署隔离需各存一份，由 `npm run sync:cloud-utils` 同步）。
+- 数据库集合：`users`、`dailies`、`reports`、`bind_requests`、`report_tags`、`letters`。除 `report_tags` 外均仅云函数可读写。
 
 ### 分包与预加载
 
 - 主包 5 个 Tab 页：`login`、`milestones`、`moments`、`resonance`、`profile`
-- 3 个分包：`moments_pack`（详情/编辑）、`resonance_pack`（详情/编辑）、`user`（资料编辑/结伴/偏好）
+- 4 个分包：`moments_pack`（详情/编辑）、`resonance_pack`（详情/编辑）、`user`（资料编辑/结伴/偏好）、`letters_pack`（信件列表/写信/详情）
 - 每个主 Tab 通过 `preloadRule` 预加载对应分包（`"network": "all"`）
 
 ### 云函数模式
@@ -49,11 +49,11 @@ exports.main = async ({ event, cloud, db, dailyCol, usersCol, helpers, OPENID })
 
 ```
 miniprogram/utils/
-  api/          # 云函数调用封装（daily-api.ts, report-api.ts）
+  api/          # 云函数调用封装（daily-api.ts, report-api.ts, letter-api.ts）
   display/      # 展示数据转换（Feed 显示逻辑）
   upload/       # 图片上传逻辑
 miniprogram/constants/   # limits.ts, paths.ts, resonance-preferences.ts
-miniprogram/types/       # cloud.ts, cloud-daily.ts, cloud-report.ts, cloud-user.ts, user.ts
+miniprogram/types/       # cloud.ts, cloud-daily.ts, cloud-report.ts, cloud-letter.ts, cloud-user.ts, user.ts
 miniprogram/behaviors/   # require-auth.ts — 鉴权 Behavior，挂载到需登录的页面/组件
 ```
 

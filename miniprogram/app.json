@@ -58,13 +58,6 @@
   },
   "subpackages": [
     {
-      "root": "subpackages/extra",
-      "name": "extra",
-      "pages": [
-        "index/index"
-      ]
-    },
-    {
       "root": "subpackages/user",
       "name": "user",
       "pages": [
@@ -103,7 +96,6 @@
     "pages/milestones/milestones": {
       "network": "all",
       "packages": [
-        "extra",
         "letters_pack"
       ]
     },

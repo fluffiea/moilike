@@ -5,7 +5,6 @@
 async function list(ctx) {
   const { event, db, _, lettersCol, usersCol, helpers, OPENID } = ctx
   const { toPublicLetter, PAGE_SIZE } = helpers
-  const { getUserRowsByOpenIds } = require('../common/utils')
 
   const offset = Math.max(0, parseInt(String(event.offset || 0), 10) || 0)
 

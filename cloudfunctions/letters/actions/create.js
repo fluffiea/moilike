@@ -5,7 +5,6 @@
 async function create(ctx) {
   const { event, db, lettersCol, usersCol, helpers, OPENID } = ctx
   const { MAX_TITLE, MAX_CONTENT, toPublicLetter } = helpers
-  const { getUserDocRow } = require('../common/utils')
 
   const title = typeof event.title === 'string' ? event.title.trim().slice(0, MAX_TITLE) : ''
   const content = typeof event.content === 'string' ? event.content.trim() : ''
