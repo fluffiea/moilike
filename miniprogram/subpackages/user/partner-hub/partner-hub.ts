@@ -43,7 +43,6 @@ function messageFromPartnerCloudFailure(
 }
 
 Component({
-  _lastPanelFetchMs: 0,
   pageLifetimes: {
     show() {
       if (redirectIfNotAuthed()) return

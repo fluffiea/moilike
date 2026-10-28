@@ -137,11 +137,8 @@ Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstancePro
         this.setData({ scene: 'empty' })
         return
       }
-      const hasPartner =
-        u.partner != null &&
-        typeof u.partner.openId === 'string' &&
-        u.partner.openId.length > 0
-      if (!hasPartner) {
+      const partner = u.partner
+      if (partner == null || typeof partner.openId !== 'string' || partner.openId.length === 0) {
         this.setData({ scene: 'needPartner' })
         return
       }
@@ -151,7 +148,6 @@ Component<MilestonesPageData, {}, MilestonesMethods, MilestonesCustomInstancePro
         return
       }
 
-      const partner = u.partner
       const myAv = await resolveDisplayAvatarUrl(u.avatarUrl)
       const paAv = await resolveDisplayAvatarUrl(
         typeof partner.avatarUrl === 'string' ? partner.avatarUrl : undefined,

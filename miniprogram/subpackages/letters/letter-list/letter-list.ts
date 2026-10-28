@@ -3,8 +3,6 @@ import { lettersList } from '../../../utils/api/letter-api'
 import moSession from '../../../utils/session'
 import { PAGE_LETTER_COMPOSE, PAGE_LETTER_DETAIL } from '../../../constants/paths'
 
-const PAGE_SIZE = 20
-
 /** 预置信件类型映射 */
 const TYPE_LABELS: Record<string, string> = {
   confession: '\u{1F48C} 表白',

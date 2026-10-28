@@ -15,13 +15,20 @@ interface PreferencesCustomInstanceProperty {
   _saving: boolean
 }
 
+type PreferencesData = {
+  resonanceReportFilter: ReportFilterPref
+  reportFilterIndex: number
+}
+
+type PreferencesMethods = WechatMiniprogram.Component.MethodOption
+
 function reportFilterToIndex(f: ReportFilterPref): number {
   if (f === 'all') return 0
   if (f === 'action_needed') return 1
   return 2
 }
 
-Component<{}, {}, {}, PreferencesCustomInstanceProperty>({
+Component<PreferencesData, {}, PreferencesMethods, PreferencesCustomInstanceProperty>({
   pageLifetimes: {
     show() {
       if (redirectIfNotAuthed()) return

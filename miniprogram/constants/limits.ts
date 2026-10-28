@@ -9,3 +9,12 @@ export const MAX_COMMENT_TEXT = 500
 
 /** 单次换取临时 URL 的 batch 大小 */
 export const MEDIA_TEMP_URL_BATCH = 20
+
+/** 信件配图上限（与 letters 云函数一致） */
+export const MAX_LETTER_IMAGES = 9
+
+/** 信件标题最大长度 */
+export const MAX_LETTER_TITLE = 200
+
+/** 信件正文最大长度 */
+export const MAX_LETTER_CONTENT = 5000

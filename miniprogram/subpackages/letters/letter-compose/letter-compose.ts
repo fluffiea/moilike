@@ -3,10 +3,11 @@ import { lettersCreate } from '../../../utils/api/letter-api'
 import { uploadLetterImagesIfNeeded } from '../../../utils/upload/letter-upload'
 import moSession from '../../../utils/session'
 import { PAGE_LETTER_LIST } from '../../../constants/paths'
-
-const MAX_IMAGES = 9
-const MAX_TITLE = 200
-const MAX_CONTENT = 5000
+import {
+  MAX_LETTER_CONTENT,
+  MAX_LETTER_IMAGES,
+  MAX_LETTER_TITLE,
+} from '../../../constants/limits'
 
 type TypeRow = { name: string; label: string; selected: boolean }
 
@@ -168,7 +169,7 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
     },
 
     pickImages(sourceType: Array<'album' | 'camera'>, maxCount?: number) {
-      const remain = MAX_IMAGES - this.data.images.length
+      const remain = MAX_LETTER_IMAGES - this.data.images.length
       if (remain <= 0) return
       const count = maxCount != null ? Math.min(maxCount, remain) : remain
       wx.chooseMedia({
@@ -178,8 +179,8 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
         sourceType,
         success: (res) => {
           const next = res.tempFiles.map((f) => f.tempFilePath)
-          const merged = [...this.data.images, ...next].slice(0, MAX_IMAGES)
-          const mergedD = [...this.data.imageDisplays, ...next].slice(0, MAX_IMAGES)
+          const merged = [...this.data.images, ...next].slice(0, MAX_LETTER_IMAGES)
+          const mergedD = [...this.data.imageDisplays, ...next].slice(0, MAX_LETTER_IMAGES)
           this.setData({
             images: merged,
             imageDisplays: mergedD,
@@ -221,8 +222,8 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
         return
       }
 
-      const content = this.data.content.trim().slice(0, MAX_CONTENT)
-      const title = this.data.title.trim().slice(0, MAX_TITLE)
+      const content = this.data.content.trim().slice(0, MAX_LETTER_CONTENT)
+      const title = this.data.title.trim().slice(0, MAX_LETTER_TITLE)
       let type = this.data.resolvedType
       if (!type) {
         type = this.data.selectedType === '_custom' ? (this.data.customTypeValue || '').trim() : this.data.selectedType
@@ -242,16 +243,11 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
           return
         }
 
-        const result = await lettersCreate(title, content, receiverId, fileIds, type)
+        const result = await lettersCreate(title, content, receiverId, type, fileIds)
         if (!result) return
         if (!result.ok) {
           wx.showToast({ title: bizErrMsg(result), icon: 'none' })
           return
-        }
-
-        const ch = this.getOpenerEventChannel()
-        if (ch && typeof ch.emit === 'function') {
-          ch.emit('letterSent', {})
         }
 
         wx.showToast({ title: '\u4FE1\u5DF2\u5BC4\u51FA \u{1F48C}', icon: 'success', duration: 900 })

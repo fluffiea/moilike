@@ -32,7 +32,21 @@ interface ProfileCustomInstanceProperty {
   _lastProfileFetchMs: number
 }
 
-Component<{}, {}, {}, ProfileCustomInstanceProperty>({
+type ProfileData = {
+  defaultAvatar: string
+  avatarUrl: string
+  nickName: string
+  signature: string
+  tagLine: string
+  settingsRows: { id: SettingId; label: string; iconGlyph: string }[]
+  partner: MoPartner | null
+  profileBooted: boolean
+  refreshTriggered: boolean
+}
+
+type ProfileMethods = WechatMiniprogram.Component.MethodOption
+
+Component<ProfileData, {}, ProfileMethods, ProfileCustomInstanceProperty>({
   pageLifetimes: {
     show() {
       if (redirectIfNotAuthed()) return
