@@ -1,0 +1,9 @@
+{
+  "desc": "moilike V1",
+  "rules": [
+    {
+      "action": "disallow",
+      "page": "*"
+    }
+  ]
+}

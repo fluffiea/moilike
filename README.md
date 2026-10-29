@@ -1,122 +1,123 @@
-# Moilike
+# moilike
 
-情侣间私密互动小程序，基于微信云开发。包含日常记录（浮生）、报备（共鸣）、纪念日（朝夕）、个人资料（独白）四大模块。
+两人之间的餐食报备。微信小程序 + 云开发。V1 只有两个 Tab：**今日**、**我的**。
+
+旧版（朝夕 / 浮生 / 共鸣 / 独白）打了标签 [`legacy-pre-v1`](https://github.com/fluffiea/moilike/tree/legacy-pre-v1)，不要把这个标签移到 V1 分支上。
 
 ## 技术栈
 
 | 层 | 技术 |
 |---|------|
-| 渲染引擎 | Skyline（微信小程序新一代渲染） |
-| 前端语言 | TypeScript |
-| 样式 | WXSS（CSS 自定义属性做设计令牌） |
-| 后端 | 微信云开发 · 云函数（Node.js） |
-| 数据库 | 微信云开发 · CloudBase 文档数据库 |
-| 存储 | 微信云开发 · 云存储 |
+| 渲染 | Skyline，glass-easel |
+| 前端 | TypeScript（开发者工具编译，`es6: false`） |
+| 样式 | WXSS |
+| 后端 | 云函数 `user`、`meal`、`migrate`（`wx-server-sdk ~3.0.1`） |
+| 数据 | CloudBase 文档数据库 |
 
-## 前置条件
+云环境使用**新环境**。`miniprogram/constants/env.ts` 里的 `CLOUD_ENV_ID` 留空时，跟随开发者工具当前选中的环境。不要把旧环境 ID 写进去。
 
-- [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)（最新稳定版）
-- 已注册的微信小程序 AppID（[注册地址](https://mp.weixin.qq.com/)）
-- 开通云开发能力（在微信开发者工具中点击「云开发」按指引开通）
+## 在微信开发者工具里预览
 
-## 快速开始
+1. 复制配置并填入**同一个**小程序 AppID：
+
+   ```bash
+   cp project.config.example.json project.config.json
+   cp project.private.config.example.json project.private.config.json
+   ```
+
+2. 用开发者工具打开仓库根目录。云开发里**新建环境**，在工具顶部选中它。若要写死环境，只改 `miniprogram/constants/env.ts` 的 `CLOUD_ENV_ID`。
+3. 上传并部署（云端安装依赖）：
+   - `cloudfunctions/user`
+   - `cloudfunctions/meal`
+   - `cloudfunctions/migrate`（只在要迁历史餐食时需要）
+4. 数据库新建集合，权限设为**仅云函数可读写**：
+   - `users`
+   - `meals`
+   - 迁移时再加 `legacy_users`、`legacy_reports`
+5. 若控制台提示缺索引，按提示为 `meals` 建 `dayKey` + `authorOpenId`，为 `users` 建 `inviteCode`。
+6. 编译预览。未登录会停在登录页；登录后是今日账本。结伴入口在「我的」。
+
+V1 没有订阅消息，也没有解绑。
+
+## 页面
+
+| 页面 | 路径 |
+|---|---|
+| 登录 | `pages/login/login` |
+| 今日 | `pages/today/today` |
+| 我的 | `pages/mine/mine` |
+| 发报备 | `subpackages/meal/compose/compose` |
+| 详情 | `subpackages/meal/detail/detail` |
+| 结伴 | `subpackages/pair/pair/pair` |
+
+餐次按手机本地时间：5:00–11:00 早餐，11:00–16:00 午餐，其余晚餐。可改。同一餐次可以有多条，账本全部列出。凌晨的晚餐记在你正在看的那一天，不会自动算到前一天。
+
+账本缩略图用报备文字（超过 8 字截断）；没写文字时显示时间。详情里是全文。
+
+对方第一次打开详情才记已读。心意六词：好吃！ / 想尝一口 / 记得按时吃饭 / 辛苦啦 / 看着眼馋 / 抱抱。短句最多 50 字，只保留对方最新一条。
+
+## 结伴迁移
+
+同一 AppID，关系按 openId 对齐。两条路，直接导入优先。
+
+1. **直接导入（推荐）**  
+   从旧环境导出 `users`，导入新环境的 `users`。保留 `_id` = openId，保留 `partnerOpenId` 和 `partner`。用户再登录时仍是一对。旧的 8 位 `bindCode` 不再使用，需要新邀请码时会生成 6 位数字。
+
+2. **登录时从 `legacy_users` 认领**  
+   若不想整表覆盖 `users`，把旧用户导入 `legacy_users`（`_id` 或 `openId` 为 openId，带 `partnerOpenId`）。用户打开小程序时，`getProfile` 会写成一对。已经和别人结伴的记录不会被覆盖。
+
+批量预热（可选）：给云函数 `user` 配置环境变量 `MIGRATE_KEY`，云端测试：
+
+```json
+{ "action": "migrateLegacyPairs", "key": "你的口令", "offset": 0, "limit": 10 }
+```
+
+看返回里的 `done`，为 false 时用 `nextOffset` 再调，直到结束。口令不要提交到仓库。
+
+头像若仍是旧环境的 `cloud://` fileID，新环境显示不出来。「我的」里点头像可以重选。V1 没有改昵称的页面。
+
+不迁移 `bind_requests`。V1 不能解绑。
+
+## 历史餐食迁移
+
+只迁旧集合 **`report_posts`**（共鸣报备）。浮生日记不迁。
+
+1. 在**旧环境**把每条报备的 `images` 换成临时 https，按相同顺序写入 `imageTempUrls`。
+2. 把这些文档导入新环境集合 `legacy_reports`，保留 `_id`。
+3. 给云函数 `migrate` 配置环境变量 `MIGRATE_KEY`，上传部署。
+4. 先预览映射，不写库：
+
+   ```json
+   { "action": "migrateLegacyMeals", "key": "你的口令", "dryRun": true, "offset": 0, "limit": 3 }
+   ```
+
+5. 去掉 `dryRun` 再执行。有临时链接的图片会下载并上传到 `meals/{openId}/legacy-{id}-{i}.jpg`，`meals.images` 只保存新 fileID。  
+   返回 `needsMedia` 的是缺链接、没法拷贝的记录，不会写入。无图的旧报备会跳过。`legacyReportId` 用于去重，可以重复跑。
+
+字段对照也在云函数 `migrate` 的 `action: "notes"`（不需要口令），以及 `cloudfunctions/migrate/mapping.js` 文件头。
+
+| 旧字段 | 新字段 |
+|---|---|
+| `authorOpenId` / 昵称 / 头像 | 同名 |
+| `body` | `text`（最多 200 字） |
+| `images` + `imageTempUrls` | 新的 `images` fileID |
+| `recordAt` | `recordAt`；餐次与 `dayKey` 按北京时间 |
+| `partnerReadAt` | `partnerReadAt` |
+| `partnerEvalText` | `response.note`（最多 50 字，无贴纸） |
+| `partnerEvaluatedAt` | `response.updatedAt` |
+| `tags` 及其余共鸣字段 | 丢弃 |
+
+## 实现约定
+
+- 小程序 TypeScript 里不要写 `?.` 和 `??`（当前编译配置会出问题）。
+- 纵向 flex 不要用 `gap`，间距写在子元素的 `margin` 上。
+- `<input>` 同时给 `height` 和 `line-height`。
+- `<text>` 里的中文和插值写在同一行。
+
+本地可跑：
 
 ```bash
-# 1. 克隆仓库
-git clone <repo-url> moilike
-cd moilike
-
-# 2. 配置项目文件
-cp project.config.example.json project.config.json
-cp project.private.config.example.json project.private.config.json
+node cloudfunctions/user/pair-decision.test.js
+node cloudfunctions/migrate/mapping.test.js
+npx --yes typescript@5.6.3 tsc --noEmit --pretty false
 ```
-
-编辑 `project.config.json`，将 `"appid": "your-appid-here"` 替换为你的小程序 AppID。
-
-```bash
-# 3. 安装云函数依赖
-cd cloudfunctions/user && npm install && cd ../..
-cd cloudfunctions/daily && npm install && cd ../..
-cd cloudfunctions/report && npm install && cd ../..
-
-# 4. 用微信开发者工具打开项目根目录
-```
-
-## 部署云函数
-
-在微信开发者工具中：
-
-1. 右键 `cloudfunctions/user` → **上传并部署：云端安装依赖**
-2. 对 `cloudfunctions/daily` 和 `cloudfunctions/report` 重复上述操作
-3. 在「云开发控制台」→「数据库」中创建集合：
-   - `users` — 用户资料与结伴关系
-   - `dailies` — 日常记录
-   - `reports` — 报备记录
-   - `bind_requests` — 绑定请求
-   - `report_tags` — 报备标签（全局共享）
-
-> 数据库权限建议：除 `report_tags` 可设为「所有用户可读，仅云函数可写」外，其余集合均设为「仅云函数可读写」。
-
-## 项目结构
-
-```
-moilike/
-├── miniprogram/                  # 小程序前端
-│   ├── app.json                  # 应用配置（路由、TabBar、Skyline）
-│   ├── app.ts                    # 应用入口
-│   ├── app.wxss                  # 全局样式 + CSS 设计令牌
-│   ├── behaviors/                # 通用 Behavior（如 require-auth）
-│   ├── components/               # 全局组件（app-nav）
-│   ├── constants/                # 常量与路径定义
-│   ├── images/                   # 图标资源
-│   ├── pages/                    # 主 Tab 页面
-│   │   ├── login/                # 登录页
-│   │   ├── milestones/           # 朝夕 — 纪念日
-│   │   ├── moments/              # 浮生 — 日常记录
-│   │   ├── resonance/            # 共鸣 — 报备
-│   │   └── profile/              # 独白 — 个人资料
-│   ├── subpackages/              # 分包
-│   │   ├── moments/              # 日常详情/编辑页
-│   │   ├── resonance/            # 报备详情/编辑页
-│   │   └── user/                 # 资料编辑/结伴/偏好
-│   ├── types/                    # TypeScript 类型定义
-│   └── utils/                    # 工具函数
-│       ├── api/                  # 云函数调用封装
-│       ├── display/              # 展示逻辑（头像/Feed 数据转换）
-│       └── upload/               # 上传逻辑
-├── cloudfunctions/               # 云函数
-│   ├── user/                     # 用户：资料/绑定/纪念日/偏好
-│   ├── daily/                    # 日常：CRUD/评论/媒体
-│   └── report/                   # 报备：CRUD/评价/媒体/标签
-├── typings/                      # 微信 API 类型声明
-├── project.config.example.json   # 项目配置模板（需复制并填 AppID）
-└── project.private.config.example.json
-```
-
-## 开发说明
-
-### 设计令牌
-
-全局样式变量定义在 `miniprogram/app.wxss` 的 `page` 选择器中：
-
-```css
-page {
-  --mo-l0-bg: #f2f2f7;
-  --mo-l1-card: #ffffff;
-  --mo-text-primary: #1c1c1e;
-  --mo-brand-teal: #668f80;
-  --mo-brand-slate: #4a6670;
-  --mo-gradient-brand: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  /* ... */
-}
-```
-
-### 代码规范
-
-- 页面/组件使用 TypeScript 编写，遵循 `Component<Data, Property, Methods, CustomInstanceProperty>` 泛型模式
-- 云函数采用薄路由 + action 文件 + helpers 提取的模式
-- 无拼音命名、无中文注释、英文 commit message
-
-## License
-
-Private — 仅供个人使用。

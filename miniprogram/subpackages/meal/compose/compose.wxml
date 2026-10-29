@@ -1,0 +1,55 @@
+<view class="screen">
+  <view class="glow glow-a"></view>
+  <scroll-view class="page-scroll" type="list" scroll-y show-scrollbar="{{false}}">
+    <view class="page-body" style="padding-top: {{statusBarHeight}}px; padding-bottom: {{safeBottom}}px;">
+      <view class="nav">
+        <view class="nav-side" bindtap="onCancel"><text class="cancel">取消</text></view>
+        <text class="nav-title">报备这一餐</text>
+        <view class="nav-side nav-side-end">
+          <button class="publish {{canPublish ? 'publish-on' : ''}}" hover-class="none" bindtap="onPublish">
+            <text class="publish-text">发布</text>
+          </button>
+        </view>
+      </view>
+
+      <view class="mo-card photo-card">
+        <view class="grid">
+          <block wx:for="{{cells}}" wx:key="index">
+            <view wx:if="{{item.kind === 'photo'}}" class="cell {{item.end ? 'cell-end' : ''}}">
+              <image class="shot" src="{{item.src}}" mode="aspectFill" />
+              <view class="remove" data-index="{{item.index}}" catchtap="onRemove"><text class="remove-mark">×</text></view>
+            </view>
+            <view wx:else class="cell {{item.end ? 'cell-end' : ''}}" bindtap="onAdd">
+              <view class="add">
+                <text class="add-plus">+</text>
+                <text class="add-label">添加照片</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="mo-card say-card">
+        <text class="say-label">说一句（可选）</text>
+        <textarea class="say" maxlength="200" value="{{text}}" bindinput="onText" placeholder="今天吃得怎么样" placeholder-class="ph" show-confirm-bar="{{false}}" />
+      </view>
+
+      <view class="mo-card time-card">
+        <picker mode="time" value="{{timeLabel}}" bindchange="onTime">
+          <view class="time-row">
+            <view class="clock"><view class="hand"></view></view>
+            <text class="time-k">时间</text>
+            <text class="time-v">{{timeLabel}}</text>
+          </view>
+        </picker>
+        <text class="meal-k">餐次</text>
+        <view class="chips">
+          <view wx:for="{{slotChips}}" wx:key="slot" class="chip {{item.on ? 'chip-on' : ''}}" data-slot="{{item.slot}}" bindtap="onSlot">
+            <text class="chip-text">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="tail"></view>
+    </view>
+  </scroll-view>
+</view>

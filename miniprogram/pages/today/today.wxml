@@ -1,0 +1,72 @@
+<view class="screen">
+  <view class="glow glow-a"></view>
+  <view class="glow glow-b"></view>
+  <scroll-view class="page-scroll" type="list" scroll-y show-scrollbar="{{false}}">
+    <view class="page-body" style="padding-top: {{statusBarHeight}}px;">
+      <view class="date-nav">
+        <view class="chev" bindtap="onPrev"><text class="chev-mark {{canPrev ? '' : 'chev-off'}}">‹</text></view>
+        <text class="date-label">{{dateLabel}}</text>
+        <view class="chev" bindtap="onNext"><text class="chev-mark {{canNext ? '' : 'chev-off'}}">›</text></view>
+      </view>
+
+      <view class="ledger mo-card" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+        <view wx:if="{{!loaded}}" class="wait"><text class="wait-text">正在整理这一天</text></view>
+        <block wx:else>
+          <view wx:for="{{slots}}" wx:key="slot" class="slot">
+            <view class="slot-head">
+              <text class="slot-name">{{item.label}}</text>
+              <text class="who">我</text>
+              <view class="vline"></view>
+              <text class="who-ta">TA</text>
+            </view>
+            <view class="slot-body">
+              <view class="mine">
+                <view wx:if="{{item.mineEmpty}}" class="empty"><text class="empty-text">未报</text></view>
+                <block wx:else>
+                  <view wx:for="{{item.mine}}" wx:for-item="meal" wx:key="id" class="meal" data-id="{{meal.id}}" bindtap="onOpen">
+                    <view class="thumbs">
+                      <block wx:for="{{meal.thumbs}}" wx:for-item="src" wx:for-index="ti" wx:key="ti">
+                        <image wx:if="{{src}}" class="thumb" style="width: {{meal.thumb}}rpx; height: {{meal.thumb}}rpx;" src="{{src}}" mode="aspectFill" />
+                        <view wx:else class="thumb thumb-ph" style="width: {{meal.thumb}}rpx; height: {{meal.thumb}}rpx;"></view>
+                      </block>
+                    </view>
+                    <text wx:if="{{meal.caption}}" class="cap" style="{{meal.capStyle}}">{{meal.caption}}</text>
+                  </view>
+                </block>
+              </view>
+              <view class="ta">
+                <view class="ta-main">
+                  <view wx:if="{{item.partnerEmpty}}" class="empty"><text class="empty-text">{{item.emptyText}}</text></view>
+                  <block wx:else>
+                    <view wx:for="{{item.partner}}" wx:for-item="meal" wx:key="id" class="meal" data-id="{{meal.id}}" bindtap="onOpen">
+                      <view class="thumbs">
+                        <block wx:for="{{meal.thumbs}}" wx:for-item="src" wx:for-index="ti" wx:key="ti">
+                          <image wx:if="{{src}}" class="thumb" style="width: {{meal.thumb}}rpx; height: {{meal.thumb}}rpx;" src="{{src}}" mode="aspectFill" />
+                          <view wx:else class="thumb thumb-ph" style="width: {{meal.thumb}}rpx; height: {{meal.thumb}}rpx;"></view>
+                        </block>
+                      </view>
+                      <text wx:if="{{meal.caption}}" class="cap" style="{{meal.capStyle}}">{{meal.caption}}</text>
+                    </view>
+                  </block>
+                </view>
+                <view wx:if="{{item.showDot}}" class="dot"></view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <view class="entry mo-card" bindtap="onEntry">
+        <view class="entry-ico">
+          <view class="clip"><view class="clip-tab"></view></view>
+        </view>
+        <view class="entry-copy">
+          <text class="entry-title">{{entryTitle}}</text>
+          <text class="entry-sub">{{entrySub}}</text>
+        </view>
+        <view class="entry-btn"><text class="entry-btn-text">{{entryBtn}}</text></view>
+      </view>
+      <view class="tail"></view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,41 @@
+<view class="screen">
+  <view class="glow glow-a"></view>
+  <view class="glow glow-b"></view>
+  <scroll-view class="page-scroll" type="list" scroll-y show-scrollbar="{{false}}">
+    <view class="page-body" style="padding-top: {{statusBarHeight}}px; padding-bottom: {{safeBottom}}px;">
+      <view class="nav">
+        <view class="nav-side" bindtap="onBack"><text class="plain-back">‹</text></view>
+      </view>
+      <text class="title">结伴</text>
+      <text class="sub">一对一结伴后才能互相报备餐食</text>
+
+      <view class="mo-card invite">
+        <view class="invite-label">
+          <text class="invite-k">我的邀请码</text>
+          <text class="star">✦</text>
+        </view>
+        <text class="code">{{codeLabel}}</text>
+        <view class="actions">
+          <button class="ghost" hover-class="none" bindtap="onCopy"><text class="ghost-text">复制</text></button>
+          <button wx:if="{{!paired}}" class="ghost ghost-gap" hover-class="none" bindtap="onRefresh"><text class="ghost-text">刷新</text></button>
+        </view>
+      </view>
+
+      <view wx:if="{{!paired}}" class="mo-card enter">
+        <text class="enter-k">输入对方邀请码</text>
+        <view class="code-box">
+          <input class="code-input" type="number" maxlength="6" value="{{codeInput}}" bindinput="onCode" />
+          <view class="cells">
+            <view wx:for="{{cells}}" wx:for-index="ci" wx:key="ci" class="cell"><text class="cell-text">{{item}}</text></view>
+          </view>
+        </view>
+        <button class="confirm" hover-class="none" bindtap="onConfirm"><text class="confirm-text">确认结伴</text></button>
+      </view>
+
+      <view wx:else class="mo-card done">
+        <text class="done-text">{{pairedLabel}}</text>
+      </view>
+      <view class="tail"></view>
+    </view>
+  </scroll-view>
+</view>

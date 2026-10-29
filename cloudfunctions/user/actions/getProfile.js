@@ -1,19 +1,8 @@
-/**
- * action: getProfile - 获取个人资料
- * @param {{ usersCol: any, helpers: any }} ctx
- */
 async function getProfile(ctx) {
-  const { usersCol, helpers } = ctx
-  const { toPublicUser } = helpers
-  const { isDocNotFound } = require('../common/utils')
-
-  try {
-    const res = await usersCol.doc(ctx.OPENID).get()
-    return { ok: true, user: toPublicUser(res.data, ctx.OPENID) }
-  } catch (e) {
-    if (isDocNotFound(e)) return { ok: true, user: null }
-    throw e
-  }
+  const doc = await ctx.helpers.ensureUserFromLegacy(ctx.db, ctx.usersCol, ctx.OPENID)
+  if (!doc) return { ok: true, user: null }
+  const user = await ctx.helpers.toPublicUser(ctx.usersCol, ctx.cloud, doc)
+  return { ok: true, user: user }
 }
 
 module.exports = getProfile

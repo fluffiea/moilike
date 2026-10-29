@@ -1,0 +1,18 @@
+const assert = require('assert')
+const { decidePair, partnerIdOf } = require('./pair-decision')
+
+assert.strictEqual(decidePair('a', '', 'b', ''), 'link')
+assert.strictEqual(decidePair('a', 'b', 'b', 'a'), 'already')
+assert.strictEqual(decidePair('a', 'b', 'b', ''), 'repair-other')
+assert.strictEqual(decidePair('a', '', 'b', 'a'), 'repair-me')
+assert.strictEqual(decidePair('a', 'c', 'b', ''), 'blocked-me')
+assert.strictEqual(decidePair('a', '', 'b', 'c'), 'blocked-other')
+assert.strictEqual(decidePair('a', '', 'a', ''), 'invalid')
+assert.strictEqual(decidePair('', '', 'b', ''), 'invalid')
+assert.strictEqual(partnerIdOf({ partnerOpenId: '  x ' }), 'x')
+assert.strictEqual(partnerIdOf({ partnerOpenId: null }), '')
+assert.strictEqual(partnerIdOf(null), '')
+assert.strictEqual(partnerIdOf({ partner: { openId: 'p' } }), 'p')
+assert.strictEqual(partnerIdOf({ partnerOpenId: 'a', partner: { openId: 'b' } }), 'a')
+
+console.log('pair-decision ok')

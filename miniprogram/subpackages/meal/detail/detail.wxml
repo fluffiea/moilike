@@ -1,0 +1,51 @@
+<view class="screen">
+  <view class="glow glow-a"></view>
+  <scroll-view class="page-scroll" type="list" scroll-y show-scrollbar="{{false}}">
+    <view class="page-body" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav">
+        <view class="nav-side" bindtap="onBack"><view class="back"><text class="back-mark">‹</text></view></view>
+        <text class="nav-title">报备详情</text>
+        <view class="nav-side"></view>
+      </view>
+
+      <view wx:if="{{missing}}" class="wait"><text class="wait-text">这条报备不在了</text></view>
+
+      <block wx:if="{{ready && !missing}}">
+        <view class="who mo-card">
+          <image class="who-avatar" src="{{avatar}}" mode="aspectFill" />
+          <view class="who-meta">
+            <view class="who-line">
+              <text class="who-name">{{authorName}}</text>
+              <text class="slot-chip">{{slotLabel}}</text>
+            </view>
+            <text class="who-time">{{timeLabel}}</text>
+          </view>
+        </view>
+
+        <view class="photos">
+          <image wx:for="{{photos}}" wx:for-index="pi" wx:key="pi" class="photo" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="onPreview" />
+        </view>
+
+        <text wx:if="{{text}}" class="caption">{{text}}</text>
+        <text wx:if="{{readLine}}" class="read">{{readLine}}</text>
+
+        <view class="heart mo-card">
+          <text class="heart-title">心意</text>
+          <view class="chips">
+            <view wx:for="{{stickers}}" wx:key="text" class="chip {{item.on ? 'chip-on' : ''}}" data-text="{{item.text}}" bindtap="onPick">
+              <text class="chip-text">{{item.text}}</text>
+            </view>
+          </view>
+          <text wx:if="{{quiet}}" class="quiet">还没有回应</text>
+          <text wx:if="{{partnerNote}}" class="partner-note">{{partnerNote}}</text>
+        </view>
+      </block>
+      <view style="height: {{canReply ? 160 : 40}}px;"></view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{canReply}}" class="reply" style="bottom: {{replyBottom}}px;">
+    <input class="reply-input" maxlength="50" value="{{note}}" placeholder="说一句（可选）" placeholder-class="ph" bindinput="onNote" />
+    <button class="send" hover-class="none" bindtap="onSend"><text class="send-text">发送</text></button>
+  </view>
+</view>

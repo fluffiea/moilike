@@ -1,0 +1,9 @@
+{
+  "name": "meal",
+  "version": "1.0.0",
+  "description": "餐食报备：创建、按日对账、已读、心意回应",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~3.0.1"
+  }
+}

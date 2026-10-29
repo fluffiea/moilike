@@ -1,25 +1,26 @@
-// app.ts
-import { loadMoUser, removeLegacyUnusedStorageKeys } from './utils/session'
+import { CLOUD_ENV_ID } from './constants/env'
+import { loadMoUser } from './utils/session'
 
 App<IAppOption>({
   globalData: {},
   onLaunch() {
-    removeLegacyUnusedStorageKeys()
+    try {
+      wx.removeStorageSync('mo_wait_explicit_relogin')
+    } catch {
+      // 旧版退出标记，V1 不再使用
+    }
     if (wx.cloud) {
-      wx.cloud.init({
-        // 在云开发控制台创建环境后，可在此填写 env: '环境ID'；调试时不填则使用开发者工具当前关联的默认环境
-        traceUser: true,
-      })
+      const options: ICloudConfig = { traceUser: true }
+      if (CLOUD_ENV_ID) options.env = CLOUD_ENV_ID
+      wx.cloud.init(options)
     }
     const cached = loadMoUser()
-    if (cached) {
-      this.globalData.moUser = cached
-    }
-
+    if (cached) this.globalData.moUser = cached
     setTimeout(() => {
-      if (typeof wx.preloadSkylineView === 'function') {
-        wx.preloadSkylineView({})
-      }
+      if (typeof wx.preloadSkylineView === 'function') wx.preloadSkylineView({})
     }, 400)
+    if (typeof wx.hideShareMenu === 'function') {
+      wx.hideShareMenu({ menus: ['shareAppMessage', 'shareTimeline'] })
+    }
   },
 })

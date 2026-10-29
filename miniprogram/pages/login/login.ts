@@ -1,20 +1,13 @@
-import type { UserCloudResult } from '../../types/cloud'
-import { USER_CLOUD_FUNCTION } from '../../types/cloud'
-import type { MoUser } from '../../types/user'
-import { TAB_MILESTONES } from '../../constants/paths'
-import { formatUserCloudBizError, showCloudInvokeErrorToast } from '../../utils/cloud-invoke'
-import moSession from '../../utils/session'
-
-/** 服务端已有昵称则视为已注册，可直接进主流程 */
-function isRegisteredUser(u: MoUser | null | undefined): boolean {
-  return !!u && typeof u.nickName === 'string' && u.nickName.trim().length > 0
-}
+import { TAB_TODAY } from '../../constants/paths'
+import { fetchProfile, syncProfile } from '../../utils/api/user-api'
+import { readChrome } from '../../utils/chrome'
+import { formatBizError, showCloudInvokeErrorToast } from '../../utils/cloud-invoke'
+import { loadMoUser, saveMoUser } from '../../utils/session'
 
 Component({
   data: {
-    /** checking | needProfile | reenter（退出后须点「重新进入」） */
-    sessionPhase: 'checking' as 'checking' | 'needProfile' | 'reenter',
-    pendingUser: null as MoUser | null,
+    sessionPhase: 'checking' as 'checking' | 'form',
+    statusBarHeight: 20,
     nickName: '',
     avatarUrl: '/images/default.png',
     hasChosenAvatar: false,
@@ -22,103 +15,51 @@ Component({
   },
   lifetimes: {
     attached() {
-      void this.bootstrapEntry()
+      const chrome = readChrome()
+      this.setData({ statusBarHeight: chrome.statusBarHeight })
+      if (loadMoUser()) {
+        wx.switchTab({ url: TAB_TODAY })
+        return
+      }
+      void this.bootstrap()
     },
   },
   methods: {
-    /** 已注册：进 Tab；未注册或换机无缓存：展示表单（仅头像+昵称） */
-    async bootstrapEntry() {
-      this.setData({ sessionPhase: 'checking' })
-      const local = moSession.loadMoUser()
-      const waitExplicit = moSession.loadWaitExplicitRelogin()
-
+    async bootstrap() {
       if (!wx.cloud) {
-        if (isRegisteredUser(local) && !waitExplicit) {
-          wx.switchTab({ url: TAB_MILESTONES })
-          return
-        }
-        this.setData({ sessionPhase: 'needProfile' })
+        this.setData({ sessionPhase: 'form' })
         return
       }
-
       try {
-        const res = await wx.cloud.callFunction({
-          name: USER_CLOUD_FUNCTION,
-          data: { action: 'getProfile' },
-        })
-        const result = res.result as UserCloudResult | undefined
-
-        if (result && result.ok === true && !result.user) {
-          moSession.clearMoUser()
-          moSession.clearWaitExplicitRelogin()
-          this.setData({ sessionPhase: 'needProfile' })
+        const res = await fetchProfile()
+        if (res.ok && res.user && res.user.nickName && res.user.nickName.trim()) {
+          saveMoUser(res.user)
+          wx.switchTab({ url: TAB_TODAY })
           return
         }
-
-        if (result && result.ok === true && result.user) {
-          const serverUser = result.user
-          if (isRegisteredUser(serverUser)) {
-            if (waitExplicit) {
-              this.setData({
-                sessionPhase: 'reenter',
-                pendingUser: serverUser,
-              })
-              return
-            }
-            moSession.saveMoUser(serverUser)
-            wx.switchTab({ url: TAB_MILESTONES })
-            return
-          }
-          this.applyPrefill(serverUser)
-          this.setData({ sessionPhase: 'needProfile' })
-          return
+        if (res.ok && res.user) {
+          this.setData({
+            nickName: res.user.nickName || '',
+            avatarUrl: res.user.avatarDisplay || '/images/default.png',
+          })
         }
       } catch (err) {
-        if (isRegisteredUser(local) && !waitExplicit) {
-          wx.switchTab({ url: TAB_MILESTONES })
-          return
-        }
-        showCloudInvokeErrorToast(err)
+        showCloudInvokeErrorToast(err, 'user')
       }
-
-      if (local && !isRegisteredUser(local)) {
-        this.applyPrefill(local)
-      }
-      this.setData({ sessionPhase: 'needProfile' })
-    },
-
-    onConfirmReenter() {
-      const u = this.data.pendingUser
-      if (!u || !isRegisteredUser(u)) {
-        this.setData({ sessionPhase: 'needProfile', pendingUser: null })
-        return
-      }
-      moSession.clearWaitExplicitRelogin()
-      moSession.saveMoUser(u)
-      wx.switchTab({ url: TAB_MILESTONES })
-    },
-
-    applyPrefill(u: MoUser) {
-      const cloudAv =
-        u.avatarUrl && u.avatarUrl.startsWith('cloud://') ? u.avatarUrl : ''
-      this.setData({
-        nickName: u.nickName != null ? u.nickName : '',
-        avatarUrl: cloudAv || '/images/default.png',
-        hasChosenAvatar: false,
-      })
+      this.setData({ sessionPhase: 'form' })
     },
 
     onChooseAvatar(e: { detail: { avatarUrl: string } }) {
       const url = e.detail.avatarUrl
-      if (url) {
-        this.setData({ avatarUrl: url, hasChosenAvatar: true })
-      }
+      if (url) this.setData({ avatarUrl: url, hasChosenAvatar: true })
     },
-    onNickNameInput(e: WechatMiniprogram.Input) {
+
+    onNick(e: WechatMiniprogram.Input) {
       this.setData({ nickName: e.detail.value })
     },
 
     async onSubmit() {
+      if (this.data.submitting) return
       if (!wx.cloud) {
         wx.showToast({ title: '当前环境不支持云开发', icon: 'none' })
         return
@@ -128,67 +69,41 @@ Component({
         wx.showToast({ title: '请填写昵称', icon: 'none' })
         return
       }
-      const avPath = this.data.avatarUrl
-      const hasCloudAvatar =
-        typeof avPath === 'string' && avPath.startsWith('cloud://')
-      if (!hasCloudAvatar && !this.data.hasChosenAvatar) {
+      const chosen = this.data.hasChosenAvatar || this.data.avatarUrl.indexOf('cloud://') === 0
+      if (!chosen) {
         wx.showToast({ title: '请选择头像', icon: 'none' })
         return
       }
-      if (this.data.submitting) return
       this.setData({ submitting: true })
       wx.showLoading({ title: '登录中' })
       try {
         await new Promise<void>((resolve, reject) => {
-          wx.login({ success: () => resolve(), fail: (e) => reject(e) })
+          wx.login({ success: () => resolve(), fail: (err) => reject(err) })
         })
         let avatarForCloud = ''
-        if (typeof this.data.avatarUrl === 'string' && this.data.avatarUrl.startsWith('cloud://')) {
+        if (this.data.avatarUrl.indexOf('cloud://') === 0) {
           avatarForCloud = this.data.avatarUrl
-        } else if (this.data.hasChosenAvatar && this.data.avatarUrl) {
-          try {
-            const up = await wx.cloud.uploadFile({
-              cloudPath: `avatars/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`,
-              filePath: this.data.avatarUrl,
-            })
-            avatarForCloud = up.fileID
-          } catch {
-            wx.showToast({ title: '头像上传失败，请重试', icon: 'none' })
-            return
-          }
+        } else {
+          const up = await wx.cloud.uploadFile({
+            cloudPath: 'avatars/' + Date.now() + '-' + Math.floor(Math.random() * 10000) + '.jpg',
+            filePath: this.data.avatarUrl,
+          })
+          avatarForCloud = up.fileID
         }
-        if (!avatarForCloud.trim()) {
-          wx.showToast({ title: '请选择头像', icon: 'none' })
+        const res = await syncProfile(nickName, avatarForCloud)
+        wx.hideLoading()
+        if (!res.ok || !res.user) {
+          const message = res.ok ? '登录失败' : formatBizError(res.error)
+          wx.showToast({ title: message, icon: 'none' })
+          this.setData({ submitting: false })
           return
         }
-        const res = await wx.cloud.callFunction({
-          name: USER_CLOUD_FUNCTION,
-          data: {
-            action: 'syncProfile',
-            nickName,
-            signature: '',
-            avatarUrl: avatarForCloud,
-          },
-        })
-        const result = res.result as UserCloudResult | undefined
-        if (!result || result.ok !== true) {
-          const raw =
-            result && result.ok === false && result.error != null ? result.error : '登录失败'
-          wx.showToast({ title: formatUserCloudBizError(raw), icon: 'none', duration: 4500 })
-          return
-        }
-        if (!result.user) {
-          wx.showToast({ title: '同步后未返回用户数据', icon: 'none' })
-          return
-        }
-        moSession.saveMoUser(result.user)
-        moSession.clearWaitExplicitRelogin()
-        wx.switchTab({ url: TAB_MILESTONES })
+        saveMoUser(res.user)
+        wx.switchTab({ url: TAB_TODAY })
       } catch (err) {
-        showCloudInvokeErrorToast(err)
-      } finally {
         wx.hideLoading()
         this.setData({ submitting: false })
+        showCloudInvokeErrorToast(err, 'user')
       }
     },
   },

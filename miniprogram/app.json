@@ -2,15 +2,15 @@
   "cloud": true,
   "pages": [
     "pages/login/login",
-    "pages/milestones/milestones",
-    "pages/moments/moments",
-    "pages/resonance/resonance",
-    "pages/profile/profile"
+    "pages/today/today",
+    "pages/mine/mine"
   ],
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "Moilike",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarTitleText": "moilike",
+    "navigationBarBackgroundColor": "#F6F2EC",
+    "navigationStyle": "custom",
+    "backgroundColor": "#F6F2EC"
   },
   "renderer": "skyline",
   "rendererOptions": {
@@ -24,102 +24,58 @@
     }
   },
   "tabBar": {
-    "color": "#C3B59F",
-    "selectedColor": "#668F80",
-    "backgroundColor": "#ffffff",
+    "custom": true,
+    "color": "#8E8E93",
+    "selectedColor": "#1C1C1E",
+    "backgroundColor": "#F6F2EC",
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/milestones/milestones",
-        "text": "朝夕",
-        "iconPath": "images/tabbar/milestones.png",
-        "selectedIconPath": "images/tabbar/milestones-active.png"
+        "pagePath": "pages/today/today",
+        "text": "今日",
+        "iconPath": "images/tabbar/today.png",
+        "selectedIconPath": "images/tabbar/today-active.png"
       },
       {
-        "pagePath": "pages/moments/moments",
-        "text": "浮生",
-        "iconPath": "images/tabbar/moments.png",
-        "selectedIconPath": "images/tabbar/moments-active.png"
-      },
-      {
-        "pagePath": "pages/resonance/resonance",
-        "text": "共鸣",
-        "iconPath": "images/tabbar/resonance.png",
-        "selectedIconPath": "images/tabbar/resonance-active.png"
-      },
-      {
-        "pagePath": "pages/profile/profile",
-        "text": "独白",
-        "iconPath": "images/tabbar/profile.png",
-        "selectedIconPath": "images/tabbar/profile-active.png"
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "images/tabbar/mine.png",
+        "selectedIconPath": "images/tabbar/mine-active.png"
       }
-    ],
-    "position": "bottom"
+    ]
   },
   "subpackages": [
     {
-      "root": "subpackages/extra",
-      "name": "extra",
+      "root": "subpackages/meal",
+      "name": "meal",
       "pages": [
-        "index/index"
+        "compose/compose",
+        "detail/detail"
       ]
     },
     {
-      "root": "subpackages/user",
-      "name": "user",
+      "root": "subpackages/pair",
+      "name": "pair",
       "pages": [
-        "edit-profile/edit-profile",
-        "preferences/preferences",
-        "partner-hub/partner-hub"
-      ]
-    },
-    {
-      "root": "subpackages/moments",
-      "name": "moments_pack",
-      "pages": [
-        "daily-compose/daily-compose",
-        "daily-detail/daily-detail"
-      ]
-    },
-    {
-      "root": "subpackages/resonance",
-      "name": "resonance_pack",
-      "pages": [
-        "report-compose/report-compose",
-        "report-detail/report-detail"
+        "pair/pair"
       ]
     }
   ],
   "preloadRule": {
-    "pages/milestones/milestones": {
+    "pages/today/today": {
       "network": "all",
-      "packages": [
-        "extra"
-      ]
+      "packages": ["meal", "pair"]
     },
-    "pages/profile/profile": {
+    "pages/mine/mine": {
       "network": "all",
-      "packages": [
-        "user"
-      ]
-    },
-    "pages/moments/moments": {
-      "network": "all",
-      "packages": [
-        "moments_pack"
-      ]
-    },
-    "pages/resonance/resonance": {
-      "network": "all",
-      "packages": [
-        "resonance_pack"
-      ]
+      "packages": ["pair"]
     }
+  },
+  "miniApp": {
+    "useAuthorizePage": true
   },
   "style": "v2",
   "componentFramework": "glass-easel",
   "lazyCodeLoading": "requiredComponents",
-  "miniApp": {
-    "useAuthorizePage": true
-  }
+  "sitemapLocation": "sitemap.json"
 }

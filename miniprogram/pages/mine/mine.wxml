@@ -1,0 +1,50 @@
+<view class="screen">
+  <view class="glow glow-a"></view>
+  <view class="glow glow-b"></view>
+  <scroll-view class="page-scroll" type="list" scroll-y show-scrollbar="{{false}}">
+    <view class="page-body" style="padding-top: {{statusBarHeight}}px;">
+      <view class="nav"><text class="nav-title">我的</text></view>
+      <view class="hero mo-card">
+        <view class="avatar-wrap">
+          <view class="wash"></view>
+          <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onAvatar" hover-class="none">
+            <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+          </button>
+        </view>
+        <text class="name">{{nickName}}</text>
+        <view class="badge">
+          <text class="heart">♡</text>
+          <text class="badge-text">{{badge}}</text>
+        </view>
+      </view>
+
+      <view class="panel mo-card">
+        <view class="panel-head">
+          <text class="heart">♡</text>
+          <text class="panel-title">伴侣</text>
+        </view>
+        <view wx:if="{{showPartner}}" class="partner-row">
+          <image class="p-avatar" src="{{partnerAvatar}}" mode="aspectFill" />
+          <view class="p-meta">
+            <text class="p-name">{{partnerName}}</text>
+            <view class="badge badge-sm">
+              <text class="heart">♡</text>
+              <text class="badge-text">已结伴</text>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="partner-empty" bindtap="onPartner">
+          <text class="empty-copy">还没有伴侣</text>
+          <view class="go"><text class="go-text">去结伴</text></view>
+        </view>
+      </view>
+
+      <view class="panel mo-card">
+        <text class="about-title">关于 moilike</text>
+        <text class="about-body">记录与伴侣的每一餐，分享美食，分享心意。</text>
+        <text class="version">v1.0.0</text>
+      </view>
+      <view class="tail"></view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,24 @@
+<view class="tab-root">
+  <view class="island">
+    <view class="tab" data-index="{{0}}" bindtap="onSwitch">
+      <view class="mark {{selected === 0 ? 'mark-on' : ''}}">
+        <view class="home">
+          <view class="roof {{selected === 0 ? 'ink' : ''}}"></view>
+          <view class="house {{selected === 0 ? 'ink' : ''}}"></view>
+        </view>
+      </view>
+      <text class="label {{selected === 0 ? 'label-on' : ''}}">今日</text>
+      <view class="dot {{selected === 0 ? 'dot-on' : ''}}"></view>
+    </view>
+    <view class="tab" data-index="{{1}}" bindtap="onSwitch">
+      <view class="mark {{selected === 1 ? 'mark-on' : ''}}">
+        <view class="person">
+          <view class="head {{selected === 1 ? 'ink' : ''}}"></view>
+          <view class="body {{selected === 1 ? 'ink' : ''}}"></view>
+        </view>
+      </view>
+      <text class="label {{selected === 1 ? 'label-on' : ''}}">我的</text>
+      <view class="dot {{selected === 1 ? 'dot-on' : ''}}"></view>
+    </view>
+  </view>
+</view>

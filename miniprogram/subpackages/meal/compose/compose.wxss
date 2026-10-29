@@ -1,0 +1,203 @@
+.cancel {
+  font-size: 30rpx;
+  line-height: 88rpx;
+  color: #1c1c1e;
+}
+
+.publish {
+  height: 60rpx;
+  padding: 0 28rpx;
+  border-radius: 999rpx;
+  background: #efeae6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.publish-on {
+  background: #f3e4de;
+}
+
+.publish-text {
+  font-size: 26rpx;
+  line-height: 60rpx;
+  color: #aeaeb2;
+}
+
+.publish-on .publish-text {
+  color: #1c1c1e;
+}
+
+.photo-card {
+  padding: 28rpx 28rpx 12rpx;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.cell {
+  width: 194rpx;
+  height: 194rpx;
+  margin-right: 16rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+}
+
+.cell-end {
+  margin-right: 0;
+}
+
+.shot {
+  width: 194rpx;
+  height: 194rpx;
+  border-radius: 28rpx;
+}
+
+.remove {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-mark {
+  font-size: 28rpx;
+  line-height: 36rpx;
+  height: 36rpx;
+  color: #1c1c1e;
+}
+
+.add {
+  width: 194rpx;
+  height: 194rpx;
+  border-radius: 28rpx;
+  border: 1rpx dashed rgba(28, 28, 30, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-plus {
+  font-size: 48rpx;
+  line-height: 52rpx;
+  height: 52rpx;
+  color: #c8c2bc;
+}
+
+.add-label {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  color: #8e8e93;
+}
+
+.say-card,
+.time-card {
+  margin-top: 24rpx;
+  padding: 32rpx 36rpx;
+}
+
+.say-label,
+.meal-k {
+  display: block;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  color: #8e8e93;
+}
+
+.say {
+  margin-top: 12rpx;
+  height: 140rpx;
+  line-height: 44rpx;
+  font-size: 30rpx;
+  color: #1c1c1e;
+}
+
+.time-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.clock {
+  width: 32rpx;
+  height: 32rpx;
+  border: 3rpx solid #1c1c1e;
+  border-radius: 50%;
+  position: relative;
+  margin-right: 16rpx;
+}
+
+.hand {
+  position: absolute;
+  width: 3rpx;
+  height: 10rpx;
+  background: #1c1c1e;
+  left: 13rpx;
+  top: 6rpx;
+}
+
+.time-k {
+  font-size: 30rpx;
+  line-height: 42rpx;
+  color: #1c1c1e;
+  margin-right: 16rpx;
+}
+
+.time-v {
+  font-size: 32rpx;
+  line-height: 44rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.meal-k {
+  margin-top: 28rpx;
+  margin-bottom: 16rpx;
+}
+
+.chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.chip {
+  height: 72rpx;
+  padding: 0 36rpx;
+  margin-right: 16rpx;
+  border-radius: 999rpx;
+  background: #f3f1ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chip-on {
+  background: #c9a59c;
+}
+
+.chip-text {
+  font-size: 28rpx;
+  line-height: 72rpx;
+  color: #1c1c1e;
+}
+
+.chip-on .chip-text {
+  color: #ffffff;
+}
+
+.tail {
+  height: 40rpx;
+}

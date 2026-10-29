@@ -1,7 +1,6 @@
-import { loadMoUser } from './session'
 import { PAGE_LOGIN, ROUTE_LOGIN } from '../constants/paths'
+import { loadMoUser } from './session'
 
-/** @returns 若已执行重定向到登录页则返回 true */
 export function redirectIfNotAuthed(): boolean {
   const pages = getCurrentPages()
   if (pages.length === 0) return false

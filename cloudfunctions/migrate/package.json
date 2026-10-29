@@ -1,0 +1,9 @@
+{
+  "name": "migrate",
+  "version": "1.0.0",
+  "description": "旧报备迁移骨架：字段映射、临时链接下载、写回新 fileID",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~3.0.1"
+  }
+}
