@@ -45,5 +45,10 @@
     "include": []
   },
   "appid": "your-appid-here",
-  "projectname": "moilike"
+  "projectname": "moilike",
+  "scripts": {
+    "beforeCompile": "npm run build",
+    "beforePreview": "npm run build",
+    "beforeUpload": "npm run build"
+  }
 }
