@@ -1,0 +1,52 @@
+.counter {
+  display: block;
+  margin-bottom: 24rpx;
+  text-align: right;
+}
+
+.when {
+  display: flex;
+  flex-direction: row;
+}
+
+.when__item {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.when__item--last {
+  margin-right: 0;
+}
+
+.when__field {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+}
+
+.when__text {
+  font-size: 28rpx;
+  color: var(--mo-text-primary);
+}
+
+.tag-input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 8rpx 0 16rpx;
+}
+
+.tag-input__field {
+  flex: 1;
+}
+
+.tag-input__add {
+  padding: 0 8rpx 0 24rpx;
+  font-size: 26rpx;
+  line-height: 88rpx;
+  color: var(--mo-brand-slate);
+}
+
+.tag-input__add--off {
+  color: var(--mo-text-muted);
+}

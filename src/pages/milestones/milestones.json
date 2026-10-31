@@ -1,0 +1,6 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "together-clock": "/components/together-clock/together-clock"
+  }
+}

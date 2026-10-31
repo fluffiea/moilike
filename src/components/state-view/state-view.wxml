@@ -1,0 +1,31 @@
+<view wx:if="{{status === 'loading'}}" class="skeleton" aria-label="加载中">
+  <view wx:for="{{skeleton}}" wx:key="*this" class="skeleton__card">
+    <view class="skeleton__head">
+      <view class="skeleton__avatar" />
+      <view class="skeleton__line skeleton__line--short" />
+    </view>
+    <view class="skeleton__line" />
+    <view class="skeleton__line skeleton__line--mid" />
+  </view>
+</view>
+
+<view wx:elif="{{status === 'empty' || status === 'error'}}" class="state">
+  <text class="state__title">{{title || (status === 'error' ? '加载失败' : '这里还空着')}}</text>
+  <text wx:if="{{hint}}" class="state__hint">{{hint}}</text>
+  <view wx:if="{{action}}" class="state__btn" bind:tap="onAction" aria-role="button">
+    <text class="state__btn-text">{{action}}</text>
+  </view>
+</view>
+
+<view wx:elif="{{status === 'more-loading'}}" class="more">
+  <view class="more__spinner" />
+  <text class="more__text">加载中</text>
+</view>
+
+<view wx:elif="{{status === 'more-error'}}" class="more" bind:tap="onAction" aria-role="button">
+  <text class="more__text more__text--link">加载失败，轻触重试</text>
+</view>
+
+<view wx:elif="{{status === 'end'}}" class="more">
+  <text class="more__text">没有更多了</text>
+</view>

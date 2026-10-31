@@ -4,74 +4,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目架构
 
-情侣间私密互动小程序，基于微信云开发。四大模块：朝夕（纪念日）、浮生（日常记录）、共鸣（报备）、独白（个人资料）。
+情侣间私密互动小程序，基于微信云开发。四大模块：朝夕（纪念日 + 信件）、浮生（日常记录）、共鸣（报备）、独白（个人资料）。
 
 | 层 | 技术 |
 |---|------|
 | 渲染引擎 | Skyline（glass-easel 组件框架） |
-| 前端语言 | TypeScript（ES2020 + strict，微信开发者工具内置编译，无独立构建管线） |
-| 样式 | WXSS + CSS 自定义属性（设计令牌定义在 `app.wxss` 的 `page` 选择器） |
-| 后端 | 微信云函数（Node.js，`wx-server-sdk ~3.0.1`） |
-| 数据库 | CloudBase 文档数据库 |
+| 前端语言 | TypeScript（strict），`scripts/build.mjs` 用 esbuild 把 `src/` 逐文件编译为 ES2017 CommonJS 到 `miniprogram/` |
+| 样式 | WXSS + CSS 自定义属性（设计令牌定义在 `src/app.wxss` 的 `page` 选择器） |
+| 后端 | 单一云函数 `cloudfunctions/api`（Node.js，`wx-server-sdk ~3.0.1`） |
+| 数据库 | CloudBase 文档数据库，集合与索引见 `docs/DATABASE.md`，全部仅云函数可读写 |
 
-- **前端无构建管线**：TS 编译由微信开发者工具 `useCompilerPlugins: ["typescript"]` 处理，`es6: false`。根目录 `package.json` 仅用于本地质量检查（`npm run check`），不参与小程序编译。
-- `cloudfunctions/` 下四个云函数各有自己的 `package.json` 和 `node_modules/`（`common/utils.js` 因部署隔离需各存一份，由 `npm run sync:cloud-utils` 同步）。
-- 数据库集合：`users`、`dailies`、`reports`、`bind_requests`、`report_tags`、`letters`。除 `report_tags` 外均仅云函数可读写。
+- **源码只改 `src/`**：`miniprogram/` 是编译产物（已 gitignore），开发时 `npm run dev` 监听编译，开发者工具不再编译 TS（`useCompilerPlugins: false`）。
+- 提交前跑 `npm run check`：类型检查 + `cloudfunctions/api` 端到端测试 + Skyline 规则自检 + 构建。
+- 云存储保持私有：图片与头像链接由云函数在同一次响应里批量签名（含缩略图参数），前端不单独换链。
 
 ### 分包与预加载
 
-- 主包 5 个 Tab 页：`login`、`milestones`、`moments`、`resonance`、`profile`
+- 主包：Tab 页 `milestones`（首页）、`moments`、`resonance`、`profile`，以及 `login`
 - 4 个分包：`moments_pack`（详情/编辑）、`resonance_pack`（详情/编辑）、`user`（资料编辑/结伴/偏好）、`letters_pack`（信件列表/写信/详情）
-- 每个主 Tab 通过 `preloadRule` 预加载对应分包（`"network": "all"`）
+- 已登录用户直接进朝夕，用本地缓存渲染；只有无缓存或服务端判定未注册时才去 `login`
 
-### 云函数模式
-
-所有云函数遵循统一的分发模式：
+### 云函数
 
 ```
-cloudfunctions/<name>/
-  index.js      # 入口：按 event.action 分发到 actions/<action>.js
-  helpers.js    # 领域内共享逻辑
-  actions/      # 每个 action 一个文件，导出一个异步函数
-  common/       # 跨云函数公共工具
+cloudfunctions/api/
+  index.js      # 入口：event.route = '<域>.<动作>'，返回 { ok, data } 或 { ok: false, code, message }
+  lib/          # context（本次请求的本人/伴侣文档，按需读取并复用）、media（签名）、paging（游标分页）、util、profile
+  routes/       # home / user / daily / report / letters，每个导出的函数就是一个路由
 ```
 
-`index.js` 的 `exports.main` 从 `ACTIONS` 表查找 `event.action`，将 `{ event, cloud, db, <集合>, helpers, OPENID }` 传入处理器。每个 action 文件格式：
-
-```js
-exports.main = async ({ event, cloud, db, dailyCol, usersCol, helpers, OPENID }) => {
-  // ...
-  return { ok: true, data: { ... } }
-}
-```
+路由函数签名为 `async (ctx, event) => data`，业务错误用 `fail(code, message)` 抛出。只有路由函数可以从 `routes/*.js` 导出（导出即对外可调用）。
 
 ### 前端模块组织
 
 ```
-miniprogram/utils/
-  api/          # 云函数调用封装（daily-api.ts, report-api.ts, letter-api.ts）
-  display/      # 展示数据转换（Feed 显示逻辑）
-  upload/       # 图片上传逻辑
-miniprogram/constants/   # limits.ts, paths.ts, resonance-preferences.ts
-miniprogram/types/       # cloud.ts, cloud-daily.ts, cloud-report.ts, cloud-letter.ts, cloud-user.ts, user.ts
-miniprogram/behaviors/   # require-auth.ts — 鉴权 Behavior，挂载到需登录的页面/组件
+src/core/
+  api.ts        # call(route, data)：唯一的云函数调用入口，类型来自 types/api.ts 的 Routes
+  store.ts      # 当前用户（内存为准、Storage 只做冷启动恢复）、跨页事件 on/emit、页面交接 handoff、列表缓存
+  feed.ts       # 列表控制器：缓存先渲染再刷新、游标分页按路径追加 setData、增删改
+  views.ts      # 接口数据 → 展示数据（中文整句在这里拼好）
+  compose.ts    # 发布页 Behavior：配图、提交状态、未保存离开提醒
+  format.ts / media.ts / ui.ts / paths.ts
+src/components/ # app-nav、state-view、daily-card、report-card、image-grid、image-picker、together-clock
 ```
+
+- 页面间传数据用 `store` 的事件和 `handoff`，不要用 EventChannel 或 Storage 暂存。
+- `data` 只放模板用到的字段；原始数据放实例属性。列表翻页用 `items[n]` 路径更新，不要整表 setData。
 
 ---
 
 ## 设计令牌
 
-全局 CSS 变量定义在 `miniprogram/app.wxss` 的 `page` 选择器：
+全局 CSS 变量定义在 `src/app.wxss` 的 `page` 选择器（组件内同样可用）：
 
-- `--mo-l0-bg` / `--mo-l1-card` / `--mo-l1-accent` — 背景层级
-- `--mo-text-primary` / `--mo-text-secondary` / `--mo-text-muted` / `--mo-text-tertiary` — 文字层级
-- `--mo-text-inverse` (#ffffff) — 深色底上的文字与图标
-- `--mo-brand-teal` (#668f80) / `--mo-brand-slate` (#4a6670) / `--mo-brand-rose` / `--mo-brand-sage` — 品牌色
-- `--mo-status-pending` / `--mo-status-read` / `--mo-status-evaluated`（各带 `-text` 深色变体）— 报备状态
+- `--mo-l0-bg` / `--mo-l1-card` / `--mo-l1-accent` / `--mo-skeleton` — 背景层级
+- `--mo-text-primary|secondary|muted|inverse|danger` — 文字
+- `--mo-brand-teal` / `--mo-brand-slate` / `--mo-brand-rose` / `--mo-brand-sand` — 品牌色
+- `--mo-status-pending|read|evaluated`（各带 `-text` 深色变体）— 报备状态
 - `--mo-gradient-brand` / `--mo-gradient-warm` — 品牌渐变
-- `--mo-shadow-card` / `--mo-border-card|field|divider` / `--mo-radius-card|module|btn|chip` — 阴影、边框、圆角
+- `--mo-shadow-card` / `--mo-border-card|field` / `--mo-radius-card|inner|btn|chip` / `--mo-pad-h` / `--mo-safe-bottom`
 
-使用变量而非硬编码颜色值；`npm run check` 会校验所有 `var(--mo-*)` 引用都已在 `app.wxss` 中定义。
+页面可直接用 `app.wxss` 里的 `.mo-*` 公共类（卡片、按钮、底栏、悬浮按钮、输入框、标签）。使用变量而非硬编码颜色；`npm run check` 会校验 `var(--mo-*)` 都已定义。
 
 ---
 
@@ -121,22 +114,11 @@ miniprogram/behaviors/   # require-auth.ts — 鉴权 Behavior，挂载到需登
 
 ## 小程序脚本与表现层约定
 
-适用范围：`miniprogram/` 下由微信开发者工具编译的 TypeScript 脚本（`useCompilerPlugins: ["typescript"]`）及同目录 WXML（Skyline 页面/组件）。
+适用范围：`src/` 下的 TypeScript 与 WXML（Skyline 页面/组件）。
 
-### TS 语法兼容
+### TS 语法
 
-工具链对**可选链 `?.`** 支持不完整，可能导致单文件编译失败，进而不生成对应的 `.js`，表现为子包/页面在 `app.json` 中报错「找不到 `xxx.js`」。
-
-- **在 `miniprogram/**/*.ts` 中避免使用可选链 `?.`**，改用显式判空（`obj && obj.prop`、三元、`if` 收窄等）。
-- **避免空值合并 `??`**：在 `"es6": false` 配置下，上传/真机校验可能报 `Unexpected token ?`。改用 `a != null ? a : b` 等显式写法。
-
-```typescript
-// ❌ 易触发工具链编译失败
-const id = typeof options?.id === 'string' ? options.id.trim() : ''
-
-// ✅ 显式判断
-const id = options && typeof options.id === 'string' ? options.id.trim() : ''
-```
+esbuild 会把 `?.`、`??`、对象展开等降级为 ES2017，源码中可以正常使用。云函数（`cloudfunctions/api`）不经编译，需兼容 Node.js 12：不要用 `?.`、`??`、`Object.hasOwn`。
 
 ### Skyline / WXML：中文旁禁用多行 `<text>` + 缩进空白 + 插值
 

@@ -1,0 +1,59 @@
+<view class="mo-page">
+  <app-nav title="朝夕" />
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <view wx:if="{{scene === 'needPartner'}}" class="mo-card guide">
+        <text class="guide__title">先把 Ta 接到身边</text>
+        <text class="mo-hint">朝夕、信件只属于结伴的两个人。绑定之后，这里会为你们亮起一盏小小的计时灯。</text>
+        <view class="mo-btn guide__btn" bind:tap="onOpenPartnerHub" aria-role="button">
+          <text>去结伴</text>
+        </view>
+      </view>
+
+      <block wx:else>
+        <view class="mo-card hero">
+          <text class="hero__kicker">你们的朝夕</text>
+          <text class="hero__name">{{partner.name}}</text>
+          <view class="pair">
+            <view class="pair__avatar pair__avatar--me">
+              <image wx:if="{{me.avatarUrl}}" class="pair__img" src="{{me.avatarUrl}}" mode="aspectFill" data-who="me" binderror="onAvatarError" />
+              <text wx:else class="pair__initial">{{me.initial}}</text>
+            </view>
+            <view class="pair__ribbon">
+              <view class="pair__gem" />
+            </view>
+            <view class="pair__avatar">
+              <image wx:if="{{partner.avatarUrl}}" class="pair__img" src="{{partner.avatarUrl}}" mode="aspectFill" data-who="partner" binderror="onAvatarError" />
+              <text wx:else class="pair__initial">{{partner.initial}}</text>
+            </view>
+          </view>
+
+          <block wx:if="{{scene === 'hero'}}">
+            <text class="hero__since">{{sinceText}}</text>
+            <together-clock since="{{since}}" />
+          </block>
+          <block wx:else>
+            <text class="hero__since">还差纪念日这一笔：选下你们认定的那一天、那一刻，两个人会共用同一个起点。</text>
+            <view class="mo-btn mo-btn--warm" bind:tap="onOpenPartnerHub" aria-role="button">
+              <text>去设置纪念日</text>
+            </view>
+          </block>
+        </view>
+
+        <view class="mo-card letters" bind:tap="onOpenLetters" aria-role="button" aria-label="打开信件">
+          <view class="letters__head">
+            <text class="letters__title">信件</text>
+            <text class="letters__count">{{letters.totalText}}</text>
+            <view class="letters__arrow" />
+          </view>
+          <view wx:if="{{letters.recent.length}}">
+            <view wx:for="{{letters.recent}}" wx:key="id" class="letters__item" data-id="{{item.id}}" catch:tap="onOpenLetter">
+              <text class="letters__item-title">{{item.title || '无题'}}</text>
+            </view>
+          </view>
+          <text wx:else class="mo-hint">还没有信，写下第一封寄给 Ta</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

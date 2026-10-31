@@ -1,0 +1,41 @@
+.avatar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  position: relative;
+  width: 168rpx;
+  height: 168rpx;
+  margin-bottom: 16rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 6rpx solid var(--mo-brand-rose);
+  background-color: var(--mo-l1-accent);
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar__hit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+.signature-title {
+  display: block;
+  margin-top: 32rpx;
+}
+
+.signature {
+  min-height: 120rpx;
+}

@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "daily-card": "/components/daily-card/daily-card",
+    "state-view": "/components/state-view/state-view"
+  }
+}

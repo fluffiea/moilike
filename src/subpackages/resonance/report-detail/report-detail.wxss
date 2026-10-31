@@ -1,0 +1,30 @@
+.action {
+  margin-top: 24rpx;
+}
+
+.action__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.action__input {
+  min-height: 160rpx;
+}
+
+.action__btn {
+  margin-top: 28rpx;
+}
+
+.action__link {
+  padding: 12rpx 0;
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
+}
+
+.edit-eval {
+  display: flex;
+  justify-content: center;
+  margin-top: 32rpx;
+}

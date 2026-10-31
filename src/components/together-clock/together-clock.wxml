@@ -1,0 +1,18 @@
+<view class="clock">
+  <view class="cell cell--days">
+    <text class="cell__value">{{days}}</text>
+    <text class="cell__unit">天</text>
+  </view>
+  <view class="cell">
+    <text class="cell__value">{{hours}}</text>
+    <text class="cell__unit">时</text>
+  </view>
+  <view class="cell">
+    <text class="cell__value">{{minutes}}</text>
+    <text class="cell__unit">分</text>
+  </view>
+  <view class="cell cell--last">
+    <text class="cell__value">{{seconds}}</text>
+    <text class="cell__unit">秒</text>
+  </view>
+</view>

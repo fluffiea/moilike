@@ -1,0 +1,162 @@
+.card {
+  position: relative;
+  margin-bottom: 24rpx;
+  padding: 32rpx 36rpx 36rpx;
+  border-radius: var(--mo-radius-card);
+  border: var(--mo-border-card);
+  background-color: var(--mo-l1-card);
+  box-shadow: var(--mo-shadow-card);
+  --state-color: var(--mo-status-pending);
+  --state-text: var(--mo-status-pending-text);
+}
+
+.card--read {
+  --state-color: var(--mo-status-read);
+  --state-text: var(--mo-status-read-text);
+}
+
+.card--evaluated {
+  --state-color: var(--mo-status-evaluated);
+  --state-text: var(--mo-status-evaluated-text);
+}
+
+.card--detail {
+  margin-bottom: 0;
+}
+
+.card__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 56rpx;
+}
+
+.card__dot {
+  width: 14rpx;
+  height: 14rpx;
+  margin-right: 14rpx;
+  border-radius: 50%;
+  background-color: var(--state-color);
+}
+
+.card__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card__state {
+  margin-left: 16rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: var(--state-text);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  margin: -16rpx -24rpx -16rpx 0;
+}
+
+.more__dot {
+  width: 8rpx;
+  height: 8rpx;
+  margin: 0 4rpx;
+  border-radius: 50%;
+  background-color: var(--mo-text-secondary);
+}
+
+.card__time {
+  display: block;
+  margin: 6rpx 0 0 28rpx;
+  font-size: 22rpx;
+  color: var(--mo-text-secondary);
+}
+
+.tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 20rpx;
+}
+
+.tag {
+  margin: 0 12rpx 12rpx 0;
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+}
+
+.tag__text {
+  font-size: 22rpx;
+}
+
+.tag--c0 {
+  background-color: rgba(102, 143, 128, 0.12);
+  color: #4f7a6b;
+}
+
+.tag--c1 {
+  background-color: rgba(214, 162, 173, 0.18);
+  color: #a86e7b;
+}
+
+.tag--c2 {
+  background-color: rgba(195, 181, 159, 0.22);
+  color: #8a7a5f;
+}
+
+.tag--c3 {
+  background-color: rgba(155, 142, 196, 0.16);
+  color: #6f62a0;
+}
+
+.tag--c4 {
+  background-color: rgba(232, 168, 124, 0.18);
+  color: #b0704a;
+}
+
+.tag--c5 {
+  background-color: rgba(74, 102, 112, 0.12);
+  color: #4a6670;
+}
+
+.card__body {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 30rpx;
+  line-height: 1.7;
+  color: var(--mo-text-primary);
+  word-break: break-word;
+}
+
+.eval {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  background-color: rgba(155, 142, 196, 0.08);
+}
+
+.eval__label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--mo-status-evaluated-text);
+}
+
+.eval__text {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--mo-text-primary);
+}

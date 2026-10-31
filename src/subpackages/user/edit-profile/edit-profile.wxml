@@ -1,0 +1,41 @@
+<view class="mo-page">
+  <app-nav title="编辑资料" show-back />
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body mo-body--sheet">
+      <view class="mo-card avatar-card">
+        <view class="avatar">
+          <image wx:if="{{avatarSrc}}" class="avatar__img" src="{{avatarSrc}}" mode="aspectFill" />
+          <button class="avatar__hit" hover-class="none" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar" aria-label="更换头像" />
+        </view>
+        <text class="mo-hint">轻触更换头像</text>
+      </view>
+
+      <view class="mo-card">
+        <text class="mo-section-title">昵称</text>
+        <view class="mo-field">
+          <input class="mo-input" type="nickname" maxlength="32" value="{{nickName}}" placeholder="你的昵称" placeholder-class="mo-placeholder" bindinput="onNick" bindblur="onNick" />
+        </view>
+        <text class="mo-section-title signature-title">个性签名</text>
+        <view class="mo-field">
+          <textarea
+            class="mo-textarea signature"
+            maxlength="120"
+            value="{{signature}}"
+            placeholder="写点什么介绍自己吧"
+            placeholder-class="mo-placeholder"
+            auto-height
+            show-confirm-bar="{{false}}"
+            bindinput="onSignature"
+          />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="mo-footer">
+    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSave" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>保存</text>
+    </view>
+  </view>
+</view>

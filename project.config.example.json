@@ -4,9 +4,7 @@
   "cloudfunctionRoot": "cloudfunctions/",
   "compileType": "miniprogram",
   "setting": {
-    "useCompilerPlugins": [
-      "typescript"
-    ],
+    "useCompilerPlugins": false,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
@@ -47,7 +45,5 @@
     "include": []
   },
   "appid": "your-appid-here",
-  "projectname": "moilike",
-  "projectArchitecture": "multiPlatform",
-  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+  "projectname": "moilike"
 }

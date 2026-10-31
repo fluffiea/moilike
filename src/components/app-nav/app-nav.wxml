@@ -1,0 +1,8 @@
+<view class="nav" style="padding-top: {{top}}px;">
+  <view class="nav__bar">
+    <view wx:if="{{showBack}}" class="nav__back" bind:tap="onBack" aria-role="button" aria-label="返回">
+      <view class="nav__chevron" />
+    </view>
+    <text class="nav__title">{{title}}</text>
+  </view>
+</view>

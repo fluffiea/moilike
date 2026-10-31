@@ -1,0 +1,49 @@
+<view class="mo-page">
+  <app-nav title="报备" show-back />
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{1}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRetry" />
+
+      <block wx:else>
+        <report-card post="{{post}}" detail bind:more="onMore" />
+
+        <view wx:if="{{post.canMarkRead}}" class="mo-card action">
+          <text class="mo-hint">先告诉 Ta 你看到了，之后可以写一句评价。</text>
+          <view class="mo-btn action__btn {{busy === 'read' ? 'mo-btn--busy' : ''}}" bind:tap="onMarkRead" aria-role="button">
+            <view wx:if="{{busy === 'read'}}" class="mo-spinner" />
+            <text>标记已阅</text>
+          </view>
+        </view>
+
+        <view wx:elif="{{evalOpen}}" class="mo-card action">
+          <view class="action__head">
+            <text class="mo-section-title">{{post.canEditEval ? '修改评价' : '写一句评价'}}</text>
+            <text wx:if="{{post.canEditEval}}" class="action__link" bind:tap="onCancelEval">取消</text>
+          </view>
+          <view class="mo-field">
+            <textarea
+              class="mo-textarea action__input"
+              value="{{evalDraft}}"
+              placeholder="说说你的感受…"
+              placeholder-class="mo-placeholder"
+              maxlength="{{500}}"
+              auto-height
+              show-confirm-bar="{{false}}"
+              cursor-spacing="{{120}}"
+              bindinput="onEvalInput"
+            />
+          </view>
+          <view class="mo-btn action__btn {{evalDraft ? '' : 'mo-btn--disabled'}} {{busy === 'eval' ? 'mo-btn--busy' : ''}}" bind:tap="onSubmitEval" aria-role="button">
+            <view wx:if="{{busy === 'eval'}}" class="mo-spinner" />
+            <text>{{post.canEditEval ? '更新评价' : '提交评价'}}</text>
+          </view>
+        </view>
+
+        <view wx:elif="{{post.canEditEval}}" class="edit-eval" bind:tap="onEditEval" aria-role="button">
+          <text class="action__link">修改我的评价</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

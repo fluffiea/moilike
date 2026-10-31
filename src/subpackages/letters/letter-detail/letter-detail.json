@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "image-grid": "/components/image-grid/image-grid",
+    "state-view": "/components/state-view/state-view"
+  }
+}

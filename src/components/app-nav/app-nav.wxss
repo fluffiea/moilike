@@ -1,0 +1,46 @@
+.nav {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+}
+
+.nav__bar {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 88rpx 点击区，避开右上角胶囊 */
+.nav__back {
+  position: absolute;
+  left: 8rpx;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+}
+
+.nav__chevron {
+  width: 22rpx;
+  height: 22rpx;
+  margin-left: 8rpx;
+  border-left: 4rpx solid var(--mo-brand-slate);
+  border-bottom: 4rpx solid var(--mo-brand-slate);
+  transform: rotate(45deg);
+}
+
+.nav__title {
+  max-width: 56%;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

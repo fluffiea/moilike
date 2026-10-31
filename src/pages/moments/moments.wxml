@@ -1,0 +1,78 @@
+<view class="mo-page">
+  <app-nav title="浮生" />
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    type="list"
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{feed.refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+    bindscroll="onScroll"
+    lower-threshold="{{400}}"
+    scroll-top="{{scrollTop}}"
+    scroll-with-animation
+  >
+    <view class="toolbar">
+      <picker class="toolbar__picker" mode="date" value="{{filterDate || today}}" end="{{today}}" bindchange="onFilterDate">
+        <view class="toolbar__label">
+          <text class="toolbar__text">{{filterDate || '全部日期'}}</text>
+          <view class="toolbar__caret" />
+        </view>
+      </picker>
+      <view wx:if="{{filterDate}}" class="toolbar__clear" bind:tap="onClearFilter" aria-role="button" aria-label="清除日期筛选">
+        <text class="toolbar__clear-text">清除</text>
+      </view>
+    </view>
+
+    <view wx:if="{{unbound}}" class="row mo-card banner">
+      <text class="banner__text">还没有结伴，现在发布的日常只有你自己能看到。</text>
+      <view class="mo-btn mo-btn--small" bind:tap="onBind" aria-role="button">
+        <text>去结伴</text>
+      </view>
+    </view>
+
+    <view wx:for="{{feed.items}}" wx:key="id" class="row">
+      <view wx:if="{{item.day}}" class="mo-day">
+        <view class="mo-day__line" />
+        <text class="mo-day__label">{{item.day}}</text>
+        <view class="mo-day__line" />
+      </view>
+      <daily-card post="{{item}}" bind:open="onOpen" bind:more="onMore" />
+    </view>
+
+    <view class="row">
+    <state-view wx:if="{{feed.status === 'loading'}}" status="loading" />
+    <state-view
+      wx:elif="{{feed.status === 'error'}}"
+      status="error"
+      hint="{{feed.errorText}}"
+      action="重试"
+      bind:action="onRetry"
+    />
+    <state-view
+      wx:elif="{{feed.status === 'empty'}}"
+      status="empty"
+      title="{{filterDate ? '这一天没有日常' : '还没有日常'}}"
+      hint="记一条此刻的心情或影像吧"
+      action="{{filterDate ? '' : '写一条'}}"
+      bind:action="onCompose"
+    />
+    <state-view wx:elif="{{feed.more === 'loading'}}" status="more-loading" />
+    <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+    <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
+    </view>
+    <view class="feed-end" />
+  </scroll-view>
+
+  <view wx:if="{{showTop}}" class="mo-back-top" bind:tap="onBackTop" aria-role="button" aria-label="回到顶部">
+    <view class="mo-back-top__arrow" />
+  </view>
+  <view class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写日常">
+    <view class="mo-fab__plus">
+      <view class="mo-fab__bar mo-fab__bar--h" />
+      <view class="mo-fab__bar mo-fab__bar--v" />
+    </view>
+  </view>
+</view>

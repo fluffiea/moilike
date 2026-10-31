@@ -1,0 +1,62 @@
+<view class="mo-page">
+  <app-nav title="日常" show-back />
+
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{1}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRetry" />
+
+      <block wx:else>
+        <daily-card post="{{post}}" detail bind:more="onPostMore" />
+
+        <view class="mo-card thread">
+          <text class="mo-section-title">评论</text>
+          <text wx:if="{{!commentsLoaded}}" class="mo-hint">评论加载中</text>
+          <text wx:elif="{{comments.length === 0}}" class="mo-hint">还没有留言，在下方说点什么吧</text>
+          <view
+            wx:for="{{comments}}"
+            wx:key="id"
+            class="comment {{item.depth ? 'comment--reply' : ''}} {{item.pending ? 'comment--pending' : ''}}"
+            data-id="{{item.id}}"
+            bind:tap="onReply"
+            bind:longpress="onCommentMore"
+          >
+            <view class="comment__meta">
+              <text class="comment__name">{{item.authorName}}</text>
+              <text wx:if="{{item.replyHint}}" class="comment__hint">{{item.replyHint}}</text>
+              <text class="comment__time">{{item.pending ? '发送中' : item.time}}</text>
+            </view>
+            <text class="comment__text">{{item.text}}</text>
+          </view>
+          <text wx:if="{{comments.length}}" class="mo-hint thread__tip">轻触回复，长按自己的评论可编辑或删除</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{post}}" class="mo-footer composer">
+    <view wx:if="{{replyTo || editingId}}" class="composer__target" bind:tap="onCancelTarget" aria-role="button">
+      <text class="composer__target-text">{{placeholder}}</text>
+      <text class="composer__cancel">取消</text>
+    </view>
+    <view class="composer__row">
+      <textarea
+        class="composer__input"
+        value="{{draft}}"
+        placeholder="{{placeholder}}"
+        placeholder-class="mo-placeholder"
+        maxlength="{{500}}"
+        auto-height
+        fixed
+        show-confirm-bar="{{false}}"
+        confirm-type="send"
+        cursor-spacing="{{24}}"
+        bindinput="onDraftInput"
+        bindconfirm="onSend"
+      />
+      <view class="mo-btn mo-btn--small composer__send {{draft ? '' : 'mo-btn--disabled'}} {{sending ? 'mo-btn--busy' : ''}}" bind:tap="onSend" aria-role="button" aria-label="发送">
+        <text>{{editingId ? '保存' : '发送'}}</text>
+      </view>
+    </view>
+  </view>
+</view>

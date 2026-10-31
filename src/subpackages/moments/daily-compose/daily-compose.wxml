@@ -1,0 +1,31 @@
+<view class="mo-page">
+  <app-nav title="{{editId ? '编辑日常' : '写日常'}}" show-back confirm-leave="{{leaveHint}}" />
+
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body mo-body--sheet">
+      <state-view wx:if="{{loading}}" status="loading" rows="{{1}}" />
+      <view wx:else class="mo-card">
+        <textarea
+          class="mo-textarea"
+          value="{{initialText}}"
+          placeholder="此刻的心情、今天的小事…"
+          placeholder-class="mo-placeholder"
+          maxlength="{{2000}}"
+          auto-height
+          show-confirm-bar="{{false}}"
+          cursor-spacing="{{120}}"
+          bindinput="onInput"
+        />
+        <text class="mo-hint counter">{{count}}/2000</text>
+        <image-picker items="{{images}}" max="{{9}}" bind:change="onImagesChange" />
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="mo-footer">
+    <view class="mo-btn mo-btn--warm {{count || images.length ? '' : 'mo-btn--disabled'}} {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>{{submitting ? '正在发布' : (editId ? '保存修改' : '发布')}}</text>
+    </view>
+  </view>
+</view>

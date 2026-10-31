@@ -1,0 +1,69 @@
+.paper {
+  padding: 40rpx 44rpx 48rpx;
+  background: linear-gradient(180deg, #fffdf8 0%, var(--mo-l1-card) 100%);
+  opacity: 0;
+  transform: translateY(24rpx);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.paper--open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.paper__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 56rpx;
+}
+
+.paper__meta-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+}
+
+.paper__more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  margin: -16rpx -24rpx -16rpx 0;
+}
+
+.paper__dot {
+  width: 8rpx;
+  height: 8rpx;
+  margin: 0 4rpx;
+  border-radius: 50%;
+  background-color: var(--mo-text-secondary);
+}
+
+.paper__title {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: var(--mo-text-primary);
+}
+
+.paper__body {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 31rpx;
+  line-height: 1.9;
+  color: var(--mo-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.paper__sign {
+  display: block;
+  margin-top: 40rpx;
+  text-align: right;
+  font-size: 28rpx;
+  color: var(--mo-brand-slate);
+}

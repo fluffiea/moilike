@@ -1,0 +1,95 @@
+{
+  "cloud": true,
+  "pages": [
+    "pages/milestones/milestones",
+    "pages/moments/moments",
+    "pages/resonance/resonance",
+    "pages/profile/profile",
+    "pages/login/login"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f2f2f7"
+  },
+  "usingComponents": {
+    "app-nav": "/components/app-nav/app-nav"
+  },
+  "renderer": "skyline",
+  "componentFramework": "glass-easel",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "enableScrollViewAutoSize": true,
+      "keyframeStyleIsolation": "legacy",
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.2",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "color": "#C3B59F",
+    "selectedColor": "#668F80",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/milestones/milestones",
+        "text": "朝夕",
+        "iconPath": "images/tabbar/milestones.png",
+        "selectedIconPath": "images/tabbar/milestones-active.png"
+      },
+      {
+        "pagePath": "pages/moments/moments",
+        "text": "浮生",
+        "iconPath": "images/tabbar/moments.png",
+        "selectedIconPath": "images/tabbar/moments-active.png"
+      },
+      {
+        "pagePath": "pages/resonance/resonance",
+        "text": "共鸣",
+        "iconPath": "images/tabbar/resonance.png",
+        "selectedIconPath": "images/tabbar/resonance-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "独白",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile-active.png"
+      }
+    ]
+  },
+  "subpackages": [
+    {
+      "root": "subpackages/user",
+      "name": "user",
+      "pages": ["edit-profile/edit-profile", "preferences/preferences", "partner-hub/partner-hub"]
+    },
+    {
+      "root": "subpackages/moments",
+      "name": "moments_pack",
+      "pages": ["daily-compose/daily-compose", "daily-detail/daily-detail"]
+    },
+    {
+      "root": "subpackages/resonance",
+      "name": "resonance_pack",
+      "pages": ["report-compose/report-compose", "report-detail/report-detail"]
+    },
+    {
+      "root": "subpackages/letters",
+      "name": "letters_pack",
+      "pages": ["letter-list/letter-list", "letter-compose/letter-compose", "letter-detail/letter-detail"]
+    }
+  ],
+  "preloadRule": {
+    "pages/milestones/milestones": { "network": "all", "packages": ["letters_pack", "user"] },
+    "pages/moments/moments": { "network": "all", "packages": ["moments_pack"] },
+    "pages/resonance/resonance": { "network": "all", "packages": ["resonance_pack"] },
+    "pages/profile/profile": { "network": "all", "packages": ["user"] }
+  }
+}

@@ -1,0 +1,80 @@
+<view class="mo-page">
+  <app-nav title="{{editId ? '编辑报备' : '写报备'}}" show-back confirm-leave="{{leaveHint}}" />
+
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body mo-body--sheet">
+      <state-view wx:if="{{loading}}" status="loading" rows="{{1}}" />
+      <block wx:else>
+        <view class="mo-card">
+          <textarea
+            class="mo-textarea"
+            value="{{initialBody}}"
+            placeholder="想告诉 Ta 的一件小事…"
+            placeholder-class="mo-placeholder"
+            maxlength="{{2000}}"
+            auto-height
+            show-confirm-bar="{{false}}"
+            cursor-spacing="{{120}}"
+            bindinput="onInput"
+          />
+          <text class="mo-hint counter">{{count}}/2000</text>
+          <image-picker items="{{images}}" max="{{9}}" bind:change="onImagesChange" />
+        </view>
+
+        <view class="mo-card">
+          <text class="mo-section-title">记录时间</text>
+          <view class="when">
+            <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
+              <view class="mo-field when__field">
+                <text class="when__text">{{date}}</text>
+              </view>
+            </picker>
+            <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
+              <view class="mo-field when__field">
+                <text class="when__text">{{time}}</text>
+              </view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="mo-card">
+          <text class="mo-section-title">标签</text>
+          <view class="mo-chips">
+            <view
+              wx:for="{{tags}}"
+              wx:key="name"
+              class="mo-chip {{item.on ? 'mo-chip--on' : ''}}"
+              data-name="{{item.name}}"
+              bind:tap="onToggleTag"
+              bind:longpress="onRemoveTag"
+              aria-role="button"
+            >
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+          <view class="mo-field tag-input">
+            <input
+              class="mo-input tag-input__field"
+              value="{{tagDraft}}"
+              maxlength="16"
+              placeholder="新标签"
+              placeholder-class="mo-placeholder"
+              confirm-type="done"
+              bindinput="onTagDraft"
+              bindconfirm="onAddTag"
+            />
+            <text class="tag-input__add {{tagDraft ? '' : 'tag-input__add--off'}}" bind:tap="onAddTag">添加</text>
+          </view>
+          <text class="mo-hint">长按自定义标签可删除</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="mo-footer">
+    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>{{submitting ? '正在提交' : (editId ? '保存修改' : '发布报备')}}</text>
+    </view>
+  </view>
+</view>

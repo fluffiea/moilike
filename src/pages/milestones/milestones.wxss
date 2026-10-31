@@ -1,0 +1,133 @@
+.guide__title {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.guide__btn {
+  margin-top: 40rpx;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 36rpx 40rpx;
+  background: linear-gradient(180deg, rgba(214, 162, 173, 0.1) 0%, var(--mo-l1-card) 45%);
+}
+
+.hero__kicker {
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: var(--mo-text-secondary);
+}
+
+.hero__name {
+  margin-top: 8rpx;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--mo-text-primary);
+}
+
+.pair {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 40rpx 0 32rpx;
+}
+
+.pair__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 144rpx;
+  height: 144rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 6rpx solid var(--mo-brand-teal);
+  background-color: var(--mo-l1-accent);
+  box-shadow: 0 12px 28px rgba(102, 143, 128, 0.22);
+}
+
+.pair__avatar--me {
+  border-color: var(--mo-brand-rose);
+  box-shadow: 0 12px 28px rgba(214, 162, 173, 0.28);
+}
+
+.pair__img {
+  width: 100%;
+  height: 100%;
+}
+
+.pair__initial {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: var(--mo-brand-slate);
+}
+
+.pair__ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 4rpx;
+  margin: 0 12rpx;
+  border-radius: 2rpx;
+  background: linear-gradient(90deg, var(--mo-brand-rose), var(--mo-brand-teal));
+}
+
+.pair__gem {
+  width: 18rpx;
+  height: 18rpx;
+  transform: rotate(45deg);
+  background-color: #ffffff;
+  border: 3rpx solid var(--mo-brand-rose);
+}
+
+.hero__since {
+  margin-bottom: 32rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--mo-text-secondary);
+}
+
+.letters__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.letters__title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.letters__count {
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
+}
+
+.letters__arrow {
+  width: 16rpx;
+  height: 16rpx;
+  margin-left: 16rpx;
+  border-right: 4rpx solid var(--mo-text-muted);
+  border-top: 4rpx solid var(--mo-text-muted);
+  transform: rotate(45deg);
+}
+
+.letters__item {
+  padding: 18rpx 0;
+  border-top: var(--mo-border-field);
+}
+
+.letters__item-title {
+  font-size: 28rpx;
+  color: var(--mo-text-primary);
+}

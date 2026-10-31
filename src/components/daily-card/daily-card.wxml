@@ -1,0 +1,25 @@
+<view class="card {{detail ? 'card--detail' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
+  <view class="card__head">
+    <view class="avatar {{post.isMine ? 'avatar--mine' : 'avatar--partner'}}">
+      <image wx:if="{{post.author.avatarUrl}}" class="avatar__img" src="{{post.author.avatarUrl}}" mode="aspectFill" />
+      <text wx:else class="avatar__initial">{{post.initial}}</text>
+    </view>
+    <view class="card__meta">
+      <text class="card__name">{{post.author.name}}</text>
+      <text class="card__time">{{post.time}}</text>
+    </view>
+    <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+      <view class="more__dot" />
+      <view class="more__dot" />
+      <view class="more__dot" />
+    </view>
+  </view>
+
+  <text wx:if="{{post.text}}" class="card__text">{{post.text}}</text>
+  <image-grid images="{{post.images}}" />
+
+  <view wx:if="{{!detail && post.firstComment}}" class="preview">
+    <text class="preview__line" overflow="ellipsis" max-lines="2">{{post.previewLine}}</text>
+    <text class="preview__count">{{post.countLabel}}</text>
+  </view>
+</view>

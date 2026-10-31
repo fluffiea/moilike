@@ -1,0 +1,5 @@
+<view wx:if="{{images.length}}" class="grid grid--{{images.length === 1 ? 'one' : images.length === 2 ? 'two' : 'many'}}">
+  <view wx:for="{{images}}" wx:key="id" class="grid__cell" data-index="{{index}}" catch:tap="onTap">
+    <image wx:if="{{item.thumb}}" class="grid__img" src="{{item.thumb}}" mode="aspectFill" fade-in />
+  </view>
+</view>

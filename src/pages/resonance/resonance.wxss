@@ -1,0 +1,87 @@
+.tabs {
+  flex-shrink: 0;
+  padding: 20rpx var(--mo-pad-h) 8rpx;
+}
+
+.tabs__rail {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 72rpx;
+  padding: 6rpx;
+  border-radius: 24rpx;
+  background-color: rgba(118, 118, 128, 0.12);
+}
+
+/* 指示块按下标平移，切换时有过渡 */
+.tabs__thumb {
+  position: absolute;
+  left: 6rpx;
+  top: 6rpx;
+  bottom: 6rpx;
+  width: calc((100% - 12rpx) / 3);
+  border-radius: 18rpx;
+  background-color: var(--mo-l1-card);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.26s ease;
+}
+
+.tabs__thumb--1 {
+  transform: translateX(100%);
+}
+
+.tabs__thumb--2 {
+  transform: translateX(200%);
+}
+
+.tabs__item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.tabs__item--on {
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.panes {
+  flex: 1;
+  height: 0;
+}
+
+.pane {
+  height: 100%;
+}
+
+.pane__top {
+  height: 16rpx;
+}
+
+.pane__end {
+  height: calc(200rpx + var(--mo-safe-bottom));
+}
+
+.row {
+  margin: 0 var(--mo-pad-h);
+}
+
+.banner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding: 28rpx 32rpx;
+}
+
+.banner__text {
+  flex: 1;
+  margin-right: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: var(--mo-text-secondary);
+}

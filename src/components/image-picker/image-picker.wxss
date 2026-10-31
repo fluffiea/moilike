@@ -1,0 +1,95 @@
+.picker {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.cell {
+  position: relative;
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  margin: 0 16rpx 16rpx 0;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background-color: var(--mo-l1-accent);
+}
+
+.cell:nth-child(3n) {
+  margin-right: 0;
+}
+
+.cell__img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 删除按钮视觉 40rpx，点击区 72rpx */
+.cell__remove {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.cell__x {
+  position: absolute;
+  right: 12rpx;
+  top: 30rpx;
+  width: 28rpx;
+  height: 4rpx;
+  border-radius: 2rpx;
+  background-color: #ffffff;
+  box-shadow: 0 0 6rpx rgba(0, 0, 0, 0.35);
+}
+
+.cell__x--a {
+  transform: rotate(45deg);
+}
+
+.cell__x--b {
+  transform: rotate(-45deg);
+}
+
+.cell--add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx dashed rgba(74, 102, 112, 0.25);
+}
+
+.add__plus {
+  position: relative;
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.add__bar {
+  position: absolute;
+  border-radius: 2rpx;
+  background-color: var(--mo-brand-slate);
+}
+
+.add__bar--h {
+  left: 0;
+  right: 0;
+  top: 20rpx;
+  height: 4rpx;
+}
+
+.add__bar--v {
+  top: 0;
+  bottom: 0;
+  left: 20rpx;
+  width: 4rpx;
+}
+
+.add__count {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: var(--mo-text-secondary);
+}
