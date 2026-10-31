@@ -152,7 +152,7 @@ async function voidPendingForPair(ctx, a, b) {
 async function respondBind(ctx, e) {
   const requestId = id(e.requestId)
   if (!requestId) fail('INVALID', '缺少申请')
-  await ctx.viewer()
+  const { partnerId } = await ctx.viewer()
   const req = await getDoc(ctx.col.binds, requestId)
   if (!req || req.toOpenId !== ctx.openid) fail('NOT_FOUND', '申请不存在或已失效')
   if (req.status !== 'pending') fail('HANDLED', '这条申请已经处理过了')
@@ -164,6 +164,13 @@ async function respondBind(ctx, e) {
 
   const fromId = req.fromOpenId
   const now = ctx.db.serverDate()
+  const from = await getDoc(ctx.col.users, fromId)
+  if (!from) fail('NOT_FOUND', '对方资料不存在')
+  if (partnerId || partnerIdOf(from)) {
+    await ctx.col.binds.doc(requestId).update({ data: { status: 'voided', closedAt: now } })
+    fail('ALREADY_BOUND', '对方状态已变化，无法接受')
+  }
+  // 事务内再校验一次，防止两条申请被同时同意
   try {
     await ctx.db.runTransaction(async (t) => {
       const users = t.collection('users')
