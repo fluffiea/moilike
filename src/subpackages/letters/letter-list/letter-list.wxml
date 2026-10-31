@@ -1,0 +1,59 @@
+<view class="mo-page">
+  <app-nav title="信件" show-back />
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    type="list"
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{feed.refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+    lower-threshold="{{400}}"
+  >
+    <view class="top" />
+    <view wx:for="{{feed.items}}" wx:key="id" class="row">
+      <view wx:if="{{item.month}}" class="mo-day">
+        <text class="mo-day__label month">{{item.month}}</text>
+        <view class="mo-day__line" />
+      </view>
+      <view class="mo-card letter" data-id="{{item.id}}" bind:tap="onOpen" aria-role="button">
+        <view class="letter__head">
+          <view class="letter__dot {{item.isMine ? 'letter__dot--sent' : ''}}" />
+          <text class="letter__role">{{item.role}}</text>
+          <text class="letter__type">{{item.typeLabel}}</text>
+          <text class="letter__when">{{item.when}}</text>
+        </view>
+        <text class="letter__title">{{item.titleText}}</text>
+        <text class="letter__preview" overflow="ellipsis" max-lines="3">{{item.preview}}</text>
+        <view wx:if="{{item.thumbs.length}}" class="letter__thumbs">
+          <image wx:for="{{item.thumbs}}" wx:for-item="src" wx:key="*this" class="letter__thumb" src="{{src}}" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+
+    <view class="row">
+      <state-view wx:if="{{feed.status === 'loading'}}" status="loading" />
+      <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+      <state-view
+        wx:elif="{{feed.status === 'empty'}}"
+        status="empty"
+        title="{{bound ? '信箱还是空的' : '结伴后才能写信'}}"
+        hint="{{bound ? '写下第一封，寄到 Ta 心里' : '先和 Ta 绑定，再寄出第一封信'}}"
+        action="{{bound ? '写一封信' : '去结伴'}}"
+        bind:action="onCompose"
+      />
+      <state-view wx:elif="{{feed.more === 'loading'}}" status="more-loading" />
+      <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+      <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
+    </view>
+    <view class="end" />
+  </scroll-view>
+
+  <view wx:if="{{bound}}" class="mo-fab mo-fab--brand" bind:tap="onCompose" aria-role="button" aria-label="写信">
+    <view class="mo-fab__plus">
+      <view class="mo-fab__bar mo-fab__bar--h" />
+      <view class="mo-fab__bar mo-fab__bar--v" />
+    </view>
+  </view>
+</view>

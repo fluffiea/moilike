@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "image-picker": "/components/image-picker/image-picker",
+    "state-view": "/components/state-view/state-view"
+  }
+}

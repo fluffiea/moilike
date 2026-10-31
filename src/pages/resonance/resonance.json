@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "report-card": "/components/report-card/report-card",
+    "state-view": "/components/state-view/state-view"
+  }
+}

@@ -1,66 +1,46 @@
-/**
- * 顶栏安全区（px）：自定义导航下部分机型 env(safe-area) 不可靠，用系统信息兜底。
- * getSystemInfoSync 会链路到 getWindowInfo；多实例各调一次易与 AgentPage 等并发报错，
- * 故模块内只读一次并缓存（见开发者工具 getWindowInfo / temporarilyAllow 相关讨论）。
- */
-const NAV_SAFE_TOP_MIN_PX = 20
-const NAV_SAFE_TOP_FALLBACK_PX = 24
+/** 状态栏高度只读一次：自定义导航下 env(safe-area-inset-top) 在部分机型不可靠 */
+let statusBarPx = 0
 
-let navSafePaddingTopPxMemo: number | null = null
-
-function getNavSafePaddingTopPx(): number {
-  if (navSafePaddingTopPxMemo !== null) {
-    return navSafePaddingTopPxMemo
+function getStatusBarPx(): number {
+  if (!statusBarPx) {
+    try {
+      const win = wx.getWindowInfo()
+      statusBarPx = Math.max(win.statusBarHeight || 0, win.safeArea ? win.safeArea.top : 0, 20)
+    } catch {
+      statusBarPx = 24
+    }
   }
-  try {
-    const win = wx.getSystemInfoSync()
-    const safeArea = win.safeArea
-    const safeTop = safeArea && typeof safeArea.top === 'number' ? safeArea.top : 0
-    const status = typeof win.statusBarHeight === 'number' ? win.statusBarHeight : 0
-    const paddingTop = Math.max(safeTop, status, NAV_SAFE_TOP_MIN_PX)
-    navSafePaddingTopPxMemo = paddingTop
-    return paddingTop
-  } catch {
-    navSafePaddingTopPxMemo = NAV_SAFE_TOP_FALLBACK_PX
-    return NAV_SAFE_TOP_FALLBACK_PX
-  }
+  return statusBarPx
 }
 
 Component({
-  options: {
-    styleIsolation: 'isolated',
+  options: { styleIsolation: 'isolated' },
+  properties: {
+    title: { type: String, value: '' },
+    showBack: { type: Boolean, value: false },
+    /** 非空时返回前二次确认（有未保存内容）；系统返回手势由页面的 enableAlertBeforeUnload 兜住 */
+    confirmLeave: { type: String, value: '' },
   },
-  data: {
-    safePaddingTop: NAV_SAFE_TOP_FALLBACK_PX,
-  },
+  data: { top: 24 },
   lifetimes: {
     attached() {
-      this.setData({ safePaddingTop: getNavSafePaddingTopPx() })
-    },
-  },
-  properties: {
-    title: {
-      type: String,
-      value: '',
-    },
-    bg: {
-      type: String,
-      value: '#ffffff',
-    },
-    /** solid：使用 bg 实色底；glass：L2 玻璃顶栏（moilike-ui 玻璃三件套） */
-    variant: {
-      type: String,
-      value: 'solid',
-    },
-    /** 显示左侧返回；点击触发 `back` 事件（由页面内 wx.navigateBack） */
-    showBack: {
-      type: Boolean,
-      value: false,
+      this.setData({ top: getStatusBarPx() })
     },
   },
   methods: {
-    onBackTap() {
-      this.triggerEvent('back')
+    onBack() {
+      const leave = () => {
+        if (getCurrentPages().length > 1) wx.navigateBack()
+        else wx.switchTab({ url: '/pages/milestones/milestones' })
+      }
+      if (!this.data.confirmLeave) return leave()
+      wx.showModal({
+        title: '确定离开？',
+        content: this.data.confirmLeave,
+        confirmText: '离开',
+        confirmColor: '#c25b5b',
+        success: (r) => r.confirm && leave(),
+      })
     },
   },
 })

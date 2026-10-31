@@ -1,0 +1,47 @@
+<view class="mo-page login">
+  <app-nav title="Moilike" />
+
+  <view wx:if="{{phase === 'checking'}}" class="checking">
+    <view class="mo-spinner checking__spinner" />
+    <text class="checking__text">正在确认身份</text>
+  </view>
+
+  <scroll-view wx:else class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <view class="hero">
+        <text class="hero__brand">Moilike</text>
+        <text class="hero__tagline">只属于两个人的小宇宙</text>
+      </view>
+
+      <view class="mo-card form">
+        <view class="avatar">
+          <image wx:if="{{avatarSrc}}" class="avatar__img" src="{{avatarSrc}}" mode="aspectFill" />
+          <view wx:else class="avatar__empty">
+            <view class="avatar__bar avatar__bar--h" />
+            <view class="avatar__bar avatar__bar--v" />
+          </view>
+          <button class="avatar__hit" hover-class="none" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar" aria-label="选择头像" />
+        </view>
+        <text class="mo-hint avatar__tip">轻触选择头像</text>
+
+        <view class="mo-field form__field">
+          <input
+            class="mo-input"
+            type="nickname"
+            maxlength="32"
+            placeholder="你的昵称"
+            placeholder-class="mo-placeholder"
+            value="{{nickName}}"
+            bindinput="onNickInput"
+            bindblur="onNickInput"
+          />
+        </view>
+      </view>
+
+      <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+        <view wx:if="{{submitting}}" class="mo-spinner" />
+        <text>进入 Moilike</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

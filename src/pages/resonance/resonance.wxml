@@ -1,0 +1,81 @@
+<view class="mo-page">
+  <app-nav title="共鸣" />
+
+  <view class="tabs">
+    <view class="tabs__rail">
+      <view class="tabs__thumb tabs__thumb--{{tabIndex}}" />
+      <view class="tabs__item {{tabIndex === 0 ? 'tabs__item--on' : ''}}" data-index="{{0}}" bind:tap="onTabTap" aria-role="tab">
+        <text>全部</text>
+      </view>
+      <view class="tabs__item {{tabIndex === 1 ? 'tabs__item--on' : ''}}" data-index="{{1}}" bind:tap="onTabTap" aria-role="tab">
+        <text>待处理</text>
+      </view>
+      <view class="tabs__item {{tabIndex === 2 ? 'tabs__item--on' : ''}}" data-index="{{2}}" bind:tap="onTabTap" aria-role="tab">
+        <text>我的报备</text>
+      </view>
+    </view>
+  </view>
+
+  <swiper class="panes" current="{{tabIndex}}" duration="{{260}}" bindchange="onSwiperChange">
+    <swiper-item wx:for="{{tabs}}" wx:for-item="tab" wx:for-index="index" wx:key="key">
+      <scroll-view
+        class="pane"
+        scroll-y
+        type="list"
+        show-scrollbar="{{false}}"
+        refresher-enabled
+        refresher-triggered="{{tab.refreshing}}"
+        bindrefresherrefresh="onRefresh"
+        bindscrolltolower="onLoadMore"
+        bindscroll="onScroll"
+        lower-threshold="{{400}}"
+        scroll-top="{{scrollTop}}"
+        scroll-with-animation
+      >
+        <view class="pane__top" />
+        <view wx:if="{{unbound && index !== 2}}" class="row mo-card banner">
+          <text class="banner__text">结伴后，你们的报备会出现在彼此的共鸣里。</text>
+          <view class="mo-btn mo-btn--small" bind:tap="onBind" aria-role="button">
+            <text>去结伴</text>
+          </view>
+        </view>
+
+        <view wx:for="{{tab.items}}" wx:key="id" class="row">
+          <view wx:if="{{item.day}}" class="mo-day">
+            <view class="mo-day__line" />
+            <text class="mo-day__label">{{item.day}}</text>
+            <view class="mo-day__line" />
+          </view>
+          <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" />
+        </view>
+
+        <view class="row">
+          <state-view wx:if="{{tab.status === 'loading'}}" status="loading" />
+          <state-view wx:elif="{{tab.status === 'error'}}" status="error" hint="{{tab.errorText}}" action="重试" bind:action="onRetry" />
+          <state-view
+            wx:elif="{{tab.status === 'empty'}}"
+            status="empty"
+            title="{{index === 1 ? '没有待处理的报备' : '还没有报备'}}"
+            hint="{{index === 1 ? '对方的新报备会出现在这里' : '记一件想告诉对方的小事吧'}}"
+            action="{{index === 1 ? '' : '写报备'}}"
+            bind:action="onCompose"
+          />
+          <state-view wx:elif="{{tab.more === 'loading'}}" status="more-loading" />
+          <state-view wx:elif="{{tab.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+          <state-view wx:elif="{{tab.more === 'end'}}" status="end" />
+        </view>
+        <view class="pane__end" />
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+
+  <view wx:if="{{showTop}}" class="mo-back-top" bind:tap="onBackTop" aria-role="button" aria-label="回到顶部">
+    <view class="mo-back-top__arrow" />
+  </view>
+  <view class="mo-fab mo-fab--brand" bind:tap="onCompose" aria-role="button" aria-label="写报备">
+    <view class="mo-fab__plus">
+      <view class="mo-fab__bar mo-fab__bar--h" />
+      <view class="mo-fab__bar mo-fab__bar--v" />
+    </view>
+  </view>
+</view>

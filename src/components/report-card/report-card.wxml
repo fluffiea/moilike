@@ -1,0 +1,27 @@
+<view class="card card--{{post.state}} {{detail ? 'card--detail' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
+  <view class="card__head">
+    <view class="card__dot" />
+    <text class="card__name">{{post.title}}</text>
+    <text class="card__state">{{post.stateLabel}}</text>
+    <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+      <view class="more__dot" />
+      <view class="more__dot" />
+      <view class="more__dot" />
+    </view>
+  </view>
+  <text class="card__time">{{post.time}}</text>
+
+  <view wx:if="{{post.tagChips.length}}" class="tags">
+    <view wx:for="{{post.tagChips}}" wx:key="name" class="tag tag--c{{item.color}}">
+      <text class="tag__text">{{item.name}}</text>
+    </view>
+  </view>
+
+  <text wx:if="{{post.body}}" class="card__body">{{post.body}}</text>
+  <image-grid images="{{post.images}}" />
+
+  <view wx:if="{{post.evalText}}" class="eval">
+    <text class="eval__label">{{post.evalLabel}}</text>
+    <text class="eval__text">{{post.evalText}}</text>
+  </view>
+</view>

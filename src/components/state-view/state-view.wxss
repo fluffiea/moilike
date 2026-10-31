@@ -1,0 +1,123 @@
+.skeleton__card {
+  margin-bottom: 24rpx;
+  padding: 36rpx;
+  border-radius: var(--mo-radius-card);
+  background-color: var(--mo-l1-card);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.skeleton__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.skeleton__avatar {
+  width: 72rpx;
+  height: 72rpx;
+  margin-right: 24rpx;
+  border-radius: 50%;
+  background-color: var(--mo-skeleton);
+}
+
+.skeleton__line {
+  height: 26rpx;
+  margin-bottom: 18rpx;
+  border-radius: 13rpx;
+  background-color: var(--mo-skeleton);
+}
+
+.skeleton__line--short {
+  width: 30%;
+  margin-bottom: 0;
+}
+
+.skeleton__line--mid {
+  width: 64%;
+  margin-bottom: 0;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 96rpx 48rpx;
+}
+
+.state__title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.state__hint {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--mo-text-secondary);
+}
+
+.state__btn {
+  margin-top: 40rpx;
+  padding: 0 48rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 24rpx;
+  background: var(--mo-gradient-brand);
+}
+
+.state__btn-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--mo-text-inverse);
+}
+
+.more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+}
+
+.more__spinner {
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--mo-brand-teal);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.more__text {
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.more__text--link {
+  color: var(--mo-brand-slate);
+}

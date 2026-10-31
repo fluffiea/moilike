@@ -1,0 +1,90 @@
+.top {
+  height: 16rpx;
+}
+
+.end {
+  height: calc(200rpx + var(--mo-safe-bottom));
+}
+
+.row {
+  margin: 0 var(--mo-pad-h);
+}
+
+.month {
+  margin-left: 0;
+  font-weight: 600;
+  color: var(--mo-brand-slate);
+}
+
+.letter {
+  padding: 32rpx 36rpx;
+}
+
+.letter__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.letter__dot {
+  width: 12rpx;
+  height: 12rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background-color: var(--mo-brand-teal);
+}
+
+.letter__dot--sent {
+  background-color: var(--mo-brand-rose);
+}
+
+.letter__role {
+  font-size: 22rpx;
+  color: var(--mo-text-secondary);
+}
+
+.letter__type {
+  margin-left: 12rpx;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: var(--mo-brand-slate);
+  background-color: rgba(102, 143, 128, 0.1);
+}
+
+.letter__when {
+  flex: 1;
+  text-align: right;
+  font-size: 22rpx;
+  color: var(--mo-text-muted);
+}
+
+.letter__title {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.letter__preview {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--mo-text-secondary);
+}
+
+.letter__thumbs {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20rpx;
+}
+
+.letter__thumb {
+  width: 120rpx;
+  height: 120rpx;
+  margin-right: 12rpx;
+  border-radius: 16rpx;
+  background-color: var(--mo-l1-accent);
+}

@@ -1,0 +1,100 @@
+.thread {
+  margin-top: 24rpx;
+}
+
+.comment {
+  padding: 20rpx 0;
+  border-top: var(--mo-border-field);
+}
+
+.comment--reply {
+  margin-left: 40rpx;
+  padding-left: 20rpx;
+  border-top: none;
+  border-left: 4rpx solid rgba(102, 143, 128, 0.25);
+}
+
+.comment--pending {
+  opacity: 0.55;
+}
+
+.comment__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.comment__name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.comment__hint {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  color: var(--mo-brand-teal);
+}
+
+.comment__time {
+  flex: 1;
+  text-align: right;
+  font-size: 22rpx;
+  color: var(--mo-text-muted);
+}
+
+.comment__text {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--mo-text-primary);
+  word-break: break-word;
+}
+
+.thread__tip {
+  display: block;
+  margin-top: 16rpx;
+}
+
+.composer__target {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 56rpx;
+  margin-bottom: 12rpx;
+}
+
+.composer__target-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--mo-brand-teal);
+}
+
+.composer__cancel {
+  padding: 0 8rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+}
+
+.composer__row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.composer__input {
+  flex: 1;
+  min-height: 40rpx;
+  max-height: 240rpx;
+  margin-right: 20rpx;
+  padding: 18rpx 24rpx;
+  border-radius: 24rpx;
+  background-color: var(--mo-l1-accent);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.composer__send {
+  flex-shrink: 0;
+}

@@ -1,80 +1,46 @@
-.app-nav-root {
+.nav {
   flex-shrink: 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* L2 玻璃顶栏：与 moilike-ui §2.2 一致（blur 20px + 半透明底 + hairline） */
-.app-nav-root--glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
-/* padding-top 由 app-nav.ts 写入 safePaddingTop（px），兼容 Skyline + 自定义导航在真机上 env(safe-area) 不可靠的情况 */
-.app-nav-safe {
-  box-sizing: border-box;
-}
-
-.app-nav-bar {
+.nav__bar {
   position: relative;
-  box-sizing: border-box;
-  height: 88rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0 40rpx;
+  height: 88rpx;
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
 }
 
-.app-nav-leading {
+/* 88rpx 点击区，避开右上角胶囊 */
+.nav__back {
   position: absolute;
-  left: 16rpx;
+  left: 8rpx;
   top: 0;
-  bottom: 0;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 96rpx;
-  z-index: 1;
-}
-
-.app-nav-back {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 72rpx;
-  height: 72rpx;
-  margin-left: 4rpx;
-  border-radius: 22rpx;
+  width: 88rpx;
+  height: 88rpx;
 }
 
-.app-nav-back-icon {
-  font-size: 48rpx;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--mo-brand-slate);
+.nav__chevron {
+  width: 22rpx;
+  height: 22rpx;
+  margin-left: 8rpx;
+  border-left: 4rpx solid var(--mo-brand-slate);
+  border-bottom: 4rpx solid var(--mo-brand-slate);
+  transform: rotate(45deg);
 }
 
-.app-nav-title {
+.nav__title {
+  max-width: 56%;
   font-size: 34rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
-  max-width: 58%;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  text-align: center;
-}
-
-.app-nav-trailing {
-  position: absolute;
-  right: 16rpx;
-  top: 0;
-  bottom: 0;
-  width: 96rpx;
+  text-overflow: ellipsis;
 }

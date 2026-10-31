@@ -1,0 +1,87 @@
+<view class="mo-page">
+  <app-nav title="结伴" show-back />
+  <scroll-view class="mo-scroll" scroll-y refresher-enabled refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+    <view class="mo-body">
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRetry" />
+
+      <block wx:elif="{{partner}}">
+        <view class="mo-card partner">
+          <view class="partner__avatar">
+            <image wx:if="{{partner.avatarUrl}}" class="partner__img" src="{{partner.avatarUrl}}" mode="aspectFill" />
+          </view>
+          <text class="partner__name">{{partner.nickName}}</text>
+          <text class="mo-hint">{{partner.signature}}</text>
+        </view>
+
+        <view class="mo-card">
+          <text class="mo-section-title">纪念日</text>
+          <text class="mo-hint since">{{sinceLabel}}</text>
+          <view class="when">
+            <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
+              <view class="mo-field when__field">
+                <text class="when__text">{{date}}</text>
+              </view>
+            </picker>
+            <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
+              <view class="mo-field when__field">
+                <text class="when__text">{{time}}</text>
+              </view>
+            </picker>
+          </view>
+          <view class="mo-btn mo-btn--warm {{busy === 'since' ? 'mo-btn--busy' : ''}}" bind:tap="onSaveSince" aria-role="button">
+            <view wx:if="{{busy === 'since'}}" class="mo-spinner" />
+            <text>保存并同步给 Ta</text>
+          </view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view wx:if="{{inbound.length}}" class="mo-card">
+          <text class="mo-section-title">收到的申请</text>
+          <view wx:for="{{inbound}}" wx:key="id" class="request">
+            <image wx:if="{{item.avatarUrl}}" class="request__avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+            <view wx:else class="request__avatar" />
+            <view class="request__main">
+              <text class="request__name">{{item.name}}</text>
+              <text class="mo-hint">{{item.when}}</text>
+            </view>
+            <view class="mo-btn mo-btn--small mo-btn--ghost request__btn" data-id="{{item.id}}" data-accept="{{false}}" bind:tap="onRespond" aria-role="button">
+              <text>拒绝</text>
+            </view>
+            <view class="mo-btn mo-btn--small {{busy === item.id ? 'mo-btn--busy' : ''}}" data-id="{{item.id}}" data-accept="{{true}}" bind:tap="onRespond" aria-role="button">
+              <text>同意</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{outbound}}" class="mo-card pending">
+          <text class="mo-section-title">{{outbound.name}} 还没回应</text>
+          <text class="mo-hint">{{outbound.when}} 发出的申请，等 Ta 在结伴页同意即可。</text>
+        </view>
+
+        <view class="mo-card">
+          <text class="mo-section-title">我的绑定码</text>
+          <view class="code">
+            <text class="code__value" user-select>{{bindCode}}</text>
+            <view class="mo-btn mo-btn--small mo-btn--ghost" bind:tap="onCopyCode" aria-role="button">
+              <text>复制</text>
+            </view>
+          </view>
+          <text class="mo-hint">把绑定码发给 Ta，Ta 填入后向你发起申请。</text>
+        </view>
+
+        <view wx:if="{{!outbound}}" class="mo-card">
+          <text class="mo-section-title">输入 Ta 的绑定码</text>
+          <view class="mo-field">
+            <input class="mo-input code-input" value="{{codeDraft}}" maxlength="16" placeholder="例如 7KQ2M9XA" placeholder-class="mo-placeholder" bindinput="onCodeInput" />
+          </view>
+          <view class="mo-btn request-btn {{codeDraft ? '' : 'mo-btn--disabled'}} {{busy === 'request' ? 'mo-btn--busy' : ''}}" bind:tap="onRequest" aria-role="button">
+            <view wx:if="{{busy === 'request'}}" class="mo-spinner" />
+            <text>发送结伴申请</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

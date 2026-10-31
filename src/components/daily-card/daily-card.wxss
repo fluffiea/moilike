@@ -1,0 +1,118 @@
+.card {
+  margin-bottom: 24rpx;
+  padding: 36rpx 36rpx 40rpx;
+  border-radius: var(--mo-radius-card);
+  border: var(--mo-border-card);
+  background-color: var(--mo-l1-card);
+  box-shadow: var(--mo-shadow-card);
+}
+
+.card--detail {
+  margin-bottom: 0;
+}
+
+.card__head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 24rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3rpx solid var(--mo-brand-teal);
+  background-color: var(--mo-l1-accent);
+}
+
+.avatar--mine {
+  border-color: var(--mo-brand-rose);
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar__initial {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--mo-brand-slate);
+}
+
+.card__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.card__name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card__time {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--mo-text-secondary);
+}
+
+/* 88rpx 点击区 */
+.more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  margin-right: -20rpx;
+}
+
+.more__dot {
+  width: 8rpx;
+  height: 8rpx;
+  margin: 0 4rpx;
+  border-radius: 50%;
+  background-color: var(--mo-text-secondary);
+}
+
+.card__text {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 30rpx;
+  line-height: 1.7;
+  color: var(--mo-text-primary);
+  word-break: break-word;
+}
+
+.preview {
+  margin: 28rpx -36rpx -40rpx;
+  padding: 20rpx 36rpx 28rpx;
+  border-top: var(--mo-border-field);
+  border-radius: 0 0 var(--mo-radius-card) var(--mo-radius-card);
+  background-color: rgba(242, 242, 247, 0.55);
+}
+
+.preview__line {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: var(--mo-brand-slate);
+}
+
+.preview__count {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--mo-text-secondary);
+}

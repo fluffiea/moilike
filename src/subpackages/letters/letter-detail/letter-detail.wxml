@@ -1,0 +1,30 @@
+<view class="mo-page">
+  <app-nav title="信件" show-back />
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body mo-body--sheet">
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{1}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRetry" />
+
+      <view wx:else class="mo-card paper {{open ? 'paper--open' : ''}}">
+        <view class="paper__meta">
+          <text class="paper__meta-text">{{letter.meta}}</text>
+          <view wx:if="{{letter.isMine}}" class="paper__more" bind:tap="onMore" aria-role="button" aria-label="更多操作">
+            <view class="paper__dot" />
+            <view class="paper__dot" />
+            <view class="paper__dot" />
+          </view>
+        </view>
+        <text wx:if="{{letter.title}}" class="paper__title">{{letter.title}}</text>
+        <text class="paper__body" user-select>{{letter.content}}</text>
+        <image-grid images="{{letter.images}}" />
+        <text class="paper__sign">{{letter.signature}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{letter && !letter.isMine}}" class="mo-footer">
+    <view class="mo-btn" bind:tap="onReply" aria-role="button">
+      <text>写回信</text>
+    </view>
+  </view>
+</view>

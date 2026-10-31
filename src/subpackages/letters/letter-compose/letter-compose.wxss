@@ -1,0 +1,34 @@
+.types {
+  margin-bottom: 8rpx;
+}
+
+.custom {
+  margin-bottom: 24rpx;
+}
+
+.paper {
+  background: linear-gradient(180deg, #fffdf8 0%, var(--mo-l1-card) 100%);
+}
+
+.paper__salutation {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--mo-brand-slate);
+}
+
+.paper__title {
+  font-weight: 600;
+  border-bottom: var(--mo-border-field);
+}
+
+.paper__content {
+  min-height: 360rpx;
+}
+
+.counter {
+  display: block;
+  margin-bottom: 24rpx;
+  text-align: right;
+}

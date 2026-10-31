@@ -1,0 +1,51 @@
+<view class="mo-page">
+  <app-nav title="独白" />
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    refresher-enabled
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+  >
+    <view class="mo-body">
+      <view class="mo-card identity" bind:tap="onEdit" aria-role="button" aria-label="编辑资料">
+        <view class="identity__avatar">
+          <image wx:if="{{me.avatarUrl}}" class="identity__img" src="{{me.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
+          <text wx:else class="identity__initial">{{me.initial}}</text>
+        </view>
+        <text class="identity__name">{{me.nickName}}</text>
+        <text class="identity__sign">{{me.signature}}</text>
+      </view>
+
+      <view class="mo-card list">
+        <view class="row" bind:tap="onPartner" aria-role="button">
+          <view class="row__lead">
+            <image wx:if="{{me.partnerAvatarUrl}}" class="row__avatar" src="{{me.partnerAvatarUrl}}" mode="aspectFill" />
+            <view wx:else class="row__avatar row__avatar--empty" />
+          </view>
+          <view class="row__main">
+            <text class="row__title">{{me.partnerTitle}}</text>
+            <text class="row__hint">{{me.partnerHint}}</text>
+          </view>
+          <view class="row__arrow" />
+        </view>
+        <view class="row row--line" bind:tap="onEdit" aria-role="button">
+          <view class="row__main">
+            <text class="row__title">编辑资料</text>
+          </view>
+          <view class="row__arrow" />
+        </view>
+        <view class="row row--line" bind:tap="onPreferences" aria-role="button">
+          <view class="row__main">
+            <text class="row__title">偏好设置</text>
+          </view>
+          <view class="row__arrow" />
+        </view>
+      </view>
+
+      <view class="logout" bind:tap="onLogout" aria-role="button">
+        <text class="logout__text">退出登录</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

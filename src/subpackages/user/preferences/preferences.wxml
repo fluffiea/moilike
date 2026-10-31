@@ -1,0 +1,25 @@
+<view class="mo-page">
+  <app-nav title="偏好设置" show-back />
+  <scroll-view class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <view class="mo-card">
+        <text class="mo-section-title">共鸣默认显示</text>
+        <view class="segment">
+          <view class="segment__thumb segment__thumb--{{index}}" />
+          <view
+            wx:for="{{options}}"
+            wx:key="value"
+            class="segment__item {{index === idx ? 'segment__item--on' : ''}}"
+            wx:for-index="idx"
+            data-index="{{idx}}"
+            bind:tap="onPick"
+            aria-role="tab"
+          >
+            <text>{{item.label}}</text>
+          </view>
+        </view>
+        <text class="mo-hint tip">进入共鸣时先显示这一栏，随时可以左右滑动切换。</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>
