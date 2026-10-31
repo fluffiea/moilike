@@ -1,96 +1,87 @@
 <!--
-  信件列表页 · moilike-ui · Skyline
-  展示所有往来信件，收件/寄件用颜色区分
+  信箱 · moilike-ui · Skyline
+  按月分组的信匣：组头是月份，卡内是「寄出/收到 + 类型 + 日 + 标题 + 摘要 + 配图」
+  玫瑰点 = 我寄出，青点 = 对方寄来（与浮生头像色环一致）
 -->
 <view class="letter-list-page">
-  <view class="letter-list-bg" aria-hidden="true">
-    <view class="letter-list-bg-wash" />
-  </view>
+  <app-nav title="信件" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
 
-  <view class="letter-list-stack">
-    <app-nav title="信件" variant="glass" show-back="{{true}}" bind:back="onNavBack" />
+  <scroll-view
+    class="letter-list-scroll"
+    scroll-y
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+    bounces="{{true}}"
+    lower-threshold="{{120}}"
+    bind:scrolltolower="onLoadMore"
+  >
+    <view class="letter-list-feed">
 
-    <scroll-view
-      class="letter-list-scroll"
-      scroll-y
-      enhanced="{{true}}"
-      show-scrollbar="{{false}}"
-      bounces="{{true}}"
-      lower-threshold="{{120}}"
-      bind:scrolltolower="onLoadMore"
-    >
-      <view class="letter-list-scroll-inner">
+      <view wx:if="{{loading && list.length === 0}}" class="letter-list-tip">
+        <text class="letter-list-tip-text">加载中…</text>
+      </view>
 
-        <!-- 空态 -->
-        <view wx:if="{{loading && list.length === 0}}" class="letter-list-loading">
-          <text class="letter-list-loading-text">加载中…</text>
+      <view wx:elif="{{list.length === 0 && !loading}}" class="letter-list-empty">
+        <text class="letter-list-empty-title">信箱还是空的</text>
+        <text class="letter-list-empty-hint">写下第一封，寄到对方心里</text>
+        <view class="letter-list-empty-btn" bind:tap="onGoCompose" aria-role="button" aria-label="写一封信">
+          <text class="letter-list-empty-btn-text">写一封信</text>
         </view>
-        <view wx:elif="{{list.length === 0 && !loading}}" class="letter-list-empty">
-          <text class="letter-list-empty-icon">💌</text>
-          <text class="letter-list-empty-title">还没有信件</text>
-          <text class="letter-list-empty-desc">给对方写第一封信吧</text>
-          <view class="letter-list-empty-btn" bind:tap="onGoCompose" aria-role="button">
-            <text class="letter-list-empty-btn-text">写一封信</text>
-          </view>
+      </view>
+
+      <view wx:for="{{sections}}" wx:key="key" class="letter-mailbox">
+        <view class="letter-mailbox__head">
+          <text class="letter-mailbox__label">{{item.label}}</text>
+          <view class="letter-mailbox__line" />
         </view>
 
-        <!-- 信件列表 -->
-        <view wx:for="{{list}}" wx:for-index="idx" wx:key="id" class="letter-list-card" data-id="{{item.id}}" bind:tap="onGoDetail">
-          <view class="letter-list-card-head">
-            <!-- 类型标签 -->
-            <view class="letter-list-type-badge {{item.isMine ? 'letter-list-type-badge--sent' : 'letter-list-type-badge--received'}}">
-              <text class="letter-list-type-badge-text">{{item.typeLabel}}</text>
-            </view>
-            <!-- 角色标记 -->
-            <view class="letter-list-role-tag {{item.isMine ? 'letter-list-role-tag--mine' : 'letter-list-role-tag--theirs'}}">
-              <text class="letter-list-role-tag-text">{{item.isMine ? '寄出' : '收到'}}</text>
-            </view>
+        <view
+          wx:for="{{item.items}}"
+          wx:for-item="letter"
+          wx:key="id"
+          class="letter-card"
+          data-id="{{letter.id}}"
+          bind:tap="onGoDetail"
+          aria-role="button"
+          aria-label="{{letter.title ? letter.title : '无标题信件'}}"
+        >
+          <view class="letter-card__head">
+            <view class="letter-card__dot {{letter.isMine ? 'letter-card__dot--sent' : 'letter-card__dot--received'}}" />
+            <text class="letter-card__role">{{letter.isMine ? '寄出' : '收到'}}</text>
+            <text class="letter-card__type">{{letter.typeLabel}}</text>
+            <text class="letter-card__time">{{letter.dayLabel}}</text>
           </view>
 
-          <!-- 标题 -->
-          <text wx:if="{{item.title}}" class="letter-list-card-title">{{item.title}}</text>
+          <text wx:if="{{letter.title}}" class="letter-card__title">{{letter.title}}</text>
+          <text class="letter-card__preview {{letter.title ? '' : 'letter-card__preview--loose'}}">{{letter.preview}}</text>
 
-          <!-- 正文预览 -->
-          <text class="letter-list-card-preview {{item.title ? '' : 'letter-list-card-preview--no-title'}}">{{item.preview}}</text>
-
-          <!-- 配图缩略（最多 3 张小图） -->
-          <view wx:if="{{item.thumbImages && item.thumbImages.length > 0}}" class="letter-list-thumbs">
+          <view wx:if="{{letter.thumbImages.length > 0}}" class="letter-card__thumbs">
             <image
-              wx:for="{{item.thumbImages}}"
+              wx:for="{{letter.thumbImages}}"
               wx:key="*this"
-              class="letter-list-thumb"
+              class="letter-card__thumb"
               src="{{item}}"
               mode="aspectFill"
             />
           </view>
-
-          <!-- 底部信息 -->
-          <view class="letter-list-card-foot">
-            <text class="letter-list-card-time">{{item.time}}</text>
-            <view class="letter-list-card-direction {{item.isMine ? 'letter-list-card-direction--sent' : 'letter-list-card-direction--received'}}">
-              <text class="letter-list-card-direction-text">
-                {{item.isMine ? '→ ' + item.receiverName : '← ' + item.senderName}}
-              </text>
-            </view>
-          </view>
         </view>
-
-        <!-- 加载更多 -->
-        <view wx:if="{{loadingMore}}" class="letter-list-loading-more">
-          <text class="letter-list-loading-more-text">加载更多…</text>
-        </view>
-        <view wx:elif="{{!hasMore && list.length > 0}}" class="letter-list-end">
-          <text class="letter-list-end-text">— 已加载全部信件 —</text>
-        </view>
-
-        <view class="letter-list-scroll-pad" />
       </view>
-    </scroll-view>
 
-    <!-- 写新信 FAB -->
-    <view class="letter-list-fab" bind:tap="onGoCompose" aria-role="button" aria-label="写新信">
-      <text class="letter-list-fab-icon">✏️</text>
-      <text class="letter-list-fab-text">写信</text>
+      <view wx:if="{{loadingMore}}" class="letter-list-tip">
+        <text class="letter-list-tip-text">加载更多…</text>
+      </view>
+      <view wx:elif="{{!hasMore && list.length > 0}}" class="letter-list-tip">
+        <text class="letter-list-tip-text">— 已加载全部 —</text>
+      </view>
+
+      <view class="letter-list-pad" />
+    </view>
+  </scroll-view>
+
+  <view class="letter-list-fab" bind:tap="onGoCompose" aria-role="button" aria-label="写新信">
+    <view class="letter-list-fab__plus">
+      <view class="letter-list-fab__bar letter-list-fab__bar--h" />
+      <view class="letter-list-fab__bar letter-list-fab__bar--v" />
     </view>
   </view>
 </view>

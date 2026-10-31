@@ -1,6 +1,6 @@
 /**
  * ⚠️ 自动生成，请勿直接编辑。
- * 单一源：cloudfunctions/_shared/common-utils.js
+ * 单一源：cloud-common/common-utils.js（位于 cloudfunctionRoot 之外，避免被开发者工具当成云函数）
  * 修改后执行：npm run sync:cloud-utils
  */
 

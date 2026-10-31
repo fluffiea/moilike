@@ -1,15 +1,15 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersList } from '../../../utils/api/letter-api'
-import moSession from '../../../utils/session'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { PAGE_LETTER_COMPOSE, PAGE_LETTER_DETAIL } from '../../../constants/paths'
 
-/** 预置信件类型映射 */
+/** 预置信件类型映射（纯文字，不用 emoji：部分机型缺 emoji 字体会显示成方框） */
 const TYPE_LABELS: Record<string, string> = {
-  confession: '\u{1F48C} 表白',
-  apology: '\u{1F64F} 道歉',
-  thankyou: '\u2764\uFE0F 感谢',
-  wish: '\u2728 许愿',
-  whisper: '\u{1F92B} 悄悄话',
+  confession: '\u8868\u767D',
+  apology: '\u9053\u6B49',
+  thankyou: '\u611F\u8C22',
+  wish: '\u8BB8\u613F',
+  whisper: '\u6084\u6084\u8BDD',
 }
 
 type LetterDisplayItem = {
@@ -18,21 +18,32 @@ type LetterDisplayItem = {
   preview: string
   typeLabel: string
   thumbImages: string[]
-  time: string
+  dayLabel: string
+  createdAtMs: number
   isMine: boolean
-  senderName: string
-  receiverName: string
+}
+
+/** 信箱按月分组 */
+type LetterSection = {
+  key: string
+  label: string
+  items: LetterDisplayItem[]
 }
 
 type LetterListData = {
   loading: boolean
   list: LetterDisplayItem[]
+  sections: LetterSection[]
   loadingMore: boolean
   hasMore: boolean
   offset: number
 }
 
 type LetterListMethods = WechatMiniprogram.Component.MethodOption
+
+function pad2(n: number): string {
+  return n < 10 ? '0' + n : String(n)
+}
 
 function makeTypeLabel(type: string): string {
   const label = TYPE_LABELS[type]
@@ -50,11 +61,36 @@ function makeThumbImages(images: string[]): string[] {
   return images.slice(0, 3)
 }
 
+/** 组内只需「日 + 时分」，年份月份已由组头承担 */
+function makeDayLabel(ms: number, fallback: string): string {
+  if (!ms || Number.isNaN(ms)) return fallback
+  const d = new Date(ms)
+  return d.getDate() + '\u65E5 ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
+}
+
+function groupByMonth(items: LetterDisplayItem[]): LetterSection[] {
+  const out: LetterSection[] = []
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i]
+    const d = it.createdAtMs ? new Date(it.createdAtMs) : null
+    const key = d ? d.getFullYear() + '-' + pad2(d.getMonth() + 1) : 'earlier'
+    const label = d ? d.getFullYear() + '\u5E74' + (d.getMonth() + 1) + '\u6708' : '\u66F4\u65E9'
+    const last = out[out.length - 1]
+    if (last && last.key === key) {
+      last.items.push(it)
+    } else {
+      out.push({ key, label, items: [it] })
+    }
+  }
+  return out
+}
+
 Component<LetterListData, {}, LetterListMethods, {}>({
   behaviors: [requireAuth],
   data: {
     loading: true,
     list: [],
+    sections: [],
     loadingMore: false,
     hasMore: true,
     offset: 0,
@@ -84,43 +120,39 @@ Component<LetterListData, {}, LetterListMethods, {}>({
       try {
         const r = await lettersList(offset)
         if (!r) {
+          // 传输层失败已由 callCloud 弹出可定位原因的 toast，这里只收尾状态
           if (replace) this.setData({ list: [] })
           this.setData({ hasMore: false, loading: false, loadingMore: false })
-          wx.showToast({ title: '加载失败', icon: 'none' })
           return
         }
         if (!r.ok || !Array.isArray(r.list)) {
           if (replace) this.setData({ list: [] })
           this.setData({ hasMore: false })
-          wx.showToast({ title: r && r.ok === false ? (r.error || '加载失败') : '加载失败', icon: 'none' })
+          wx.showToast({ title: r && r.ok === false ? formatCloudBizError(r.error) : '加载失败', icon: 'none' })
           return
         }
 
-        const u = moSession.loadMoUser()
-        const myName = u && u.nickName ? u.nickName : '\u6211'
-        const partnerName = u && u.partner && u.partner.nickName ? u.partner.nickName : '\u5BF9\u65B9'
+        const items: LetterDisplayItem[] = r.list.map((doc) => {
+          const ms = typeof doc.createdAtMs === 'number' ? doc.createdAtMs : 0
+          return {
+            id: doc.id,
+            title: doc.title || '',
+            preview: makePreview(doc.content),
+            typeLabel: makeTypeLabel(doc.type),
+            thumbImages: makeThumbImages(doc.images),
+            dayLabel: makeDayLabel(ms, doc.time),
+            createdAtMs: ms,
+            isMine: doc.isMine === true,
+          }
+        })
 
-        const items: LetterDisplayItem[] = r.list.map((doc) => ({
-          id: doc.id,
-          title: doc.title || '',
-          preview: makePreview(doc.content),
-          typeLabel: makeTypeLabel(doc.type),
-          thumbImages: makeThumbImages(doc.images),
-          time: doc.time,
-          isMine: doc.isMine === true,
-          senderName: doc.isMine ? myName : partnerName,
-          receiverName: doc.isMine ? partnerName : myName,
-        }))
-
-        if (replace) {
-          this.setData({ list: items, offset: r.nextOffset, hasMore: r.hasMore })
-        } else {
-          this.setData({
-            list: [...this.data.list, ...items],
-            offset: r.nextOffset,
-            hasMore: r.hasMore,
-          })
-        }
+        const nextList = replace ? items : [...this.data.list, ...items]
+        this.setData({
+          list: nextList,
+          sections: groupByMonth(nextList),
+          offset: r.nextOffset,
+          hasMore: r.hasMore,
+        })
       } finally {
         this.setData({ loading: false, loadingMore: false })
       }

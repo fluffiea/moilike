@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
-const utils = require('../cloudfunctions/_shared/common-utils.js')
+const utils = require('../cloud-common/common-utils.js')
 
 test('formatTime 按 UTC+8 输出 MM-DD HH:mm', () => {
   assert.equal(utils.formatTime(new Date('2026-06-04T15:22:44Z')), '06-04 23:22')

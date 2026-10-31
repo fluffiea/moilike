@@ -51,7 +51,7 @@ for (const file of walk(MINIPROGRAM_DIR, (f) => f.endsWith('.ts'))) {
 }
 
 /* ---------- 2. 云函数公共模块一致性 ---------- */
-const sharedSource = join(CLOUDFUNCTIONS_DIR, '_shared', 'common-utils.js')
+const sharedSource = join(ROOT, 'cloud-common', 'common-utils.js')
 const copies = walk(CLOUDFUNCTIONS_DIR, (f) => /common[\\/]utils\.js$/.test(f))
 if (copies.length > 1) {
   const reference = existsSync(sharedSource) ? sharedSource : copies[0]
@@ -89,6 +89,21 @@ if (existsSync(APP_WXSS)) {
           }
         }
       })
+  }
+}
+
+/* ---------- 5. cloudfunctions/ 下只能有真正的云函数目录 ---------- */
+// cloudfunctionRoot 的每个子目录都会被开发者工具当成云函数；
+// 放非函数目录进去，误点「上传全部云函数」会生成 CreateFailed 记录（无法更新，只能删除重建）。
+// 空目录不算问题：开发者工具会按云端函数列表回写空目录，删了也可能再出现。
+for (const entry of readdirSync(CLOUDFUNCTIONS_DIR)) {
+  const full = join(CLOUDFUNCTIONS_DIR, entry)
+  if (!statSync(full).isDirectory()) continue
+  if (entry === 'node_modules' || entry.startsWith('.')) continue
+  const entries = readdirSync(full).filter((n) => n !== 'node_modules')
+  if (entries.length === 0) continue
+  if (!existsSync(join(full, 'index.js'))) {
+    problems.push(`cloudfunctions/${entry}/ 不是云函数（缺 index.js），不应放在 cloudfunctionRoot 下`)
   }
 }
 

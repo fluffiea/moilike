@@ -438,7 +438,7 @@
   display: block;
   font-size: 26rpx;
   line-height: 1.5;
-  color: #3a3a3c;
+  color: var(--mo-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -39,9 +39,24 @@ export function showCloudInvokeErrorToast(
   })
 }
 
-/** 云函数业务错误文案（日常、报备通用） */
+/** 云函数业务错误文案（日常、报备、信件通用） */
 export function formatCloudBizError(message: string | undefined): string {
   if (!message) return '操作失败'
+
+  // -502005：集合不存在。把平台的英文长报错换成可照做的提示。
+  if (
+    message.includes('-502005') ||
+    message.includes('COLLECTION_NOT_EXIST') ||
+    message.includes('collection not exists') ||
+    message.includes('Table not exist')
+  ) {
+    const named = message.match(/Table not exist[:：]?\s*([A-Za-z0-9_]+)/)
+    if (named && named[1]) {
+      return `数据库集合「${named[1]}」尚未创建：云开发控制台 → 数据库 → 新建集合，权限选「仅云函数可读写」`
+    }
+    return '数据库集合尚未创建：云开发控制台 → 数据库 → 新建集合，权限选「仅云函数可读写」'
+  }
+
   return message.length > 40 ? `${message.slice(0, 37)}…` : message
 }
 

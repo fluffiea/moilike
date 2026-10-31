@@ -18,6 +18,8 @@ export async function callCloud<T>(
     const res = await wx.cloud.callFunction({ name, data })
     return res.result as T
   } catch (e) {
+    // 无论是否静默都留日志：静默只影响 toast，不影响排查
+    console.error('[callCloud] ' + name + ' / ' + String(data.action) + ' 失败', e)
     if (!silent) showCloudInvokeErrorToast(e, 4200, name)
     return null
   }

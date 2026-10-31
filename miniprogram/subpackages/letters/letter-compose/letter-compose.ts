@@ -1,5 +1,6 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersCreate } from '../../../utils/api/letter-api'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { uploadImagesToCloud } from '../../../utils/upload/images'
 import moSession from '../../../utils/session'
 import { PAGE_LETTER_LIST } from '../../../constants/paths'
@@ -11,19 +12,18 @@ import {
 
 type TypeRow = { name: string; label: string; selected: boolean }
 
-/** 预置信件类型 */
+/** 预置信件类型（纯文字，不用 emoji：Skyline 与部分机型缺 emoji 字体会显示成方框） */
 const PRESET_TYPES: { name: string; label: string }[] = [
-  { name: 'confession', label: '\u{1F48C} 表白信' },
-  { name: 'apology', label: '\u{1F64F} 道歉信' },
-  { name: 'thankyou', label: '\u2764\uFE0F 感谢信' },
-  { name: 'wish', label: '\u2728 许愿信' },
-  { name: 'whisper', label: '\u{1F92B} 悄悄话' },
-  { name: '_custom', label: '\u270F\uFE0F 自定义' },
+  { name: 'confession', label: '\u8868\u767D' },
+  { name: 'apology', label: '\u9053\u6B49' },
+  { name: 'thankyou', label: '\u611F\u8C22' },
+  { name: 'wish', label: '\u8BB8\u613F' },
+  { name: 'whisper', label: '\u6084\u6084\u8BDD' },
+  { name: '_custom', label: '\u81EA\u5B9A\u4E49' },
 ]
 
 type LetterComposeData = {
   navTitle: string
-  heroKicker: string
   textareaMountKey: string
   title: string
   content: string
@@ -45,7 +45,7 @@ interface LetterComposeCustomInstanceProperty {
 type LetterComposeMethods = WechatMiniprogram.Component.MethodOption
 
 function bizErrMsg(r: { ok?: boolean; error?: string } | null | undefined): string {
-  if (r && r.ok === false) return r.error || '\u64CD\u4F5C\u5931\u8D25'
+  if (r && r.ok === false) return formatCloudBizError(r.error)
   return '\u64CD\u4F5C\u5931\u8D25'
 }
 
@@ -53,7 +53,6 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
   behaviors: [requireAuth],
   data: {
     navTitle: '\u5199\u4FE1',
-    heroKicker: '\u5199\u4E00\u5C01\u4FE1\uFF0C\u6295\u9012\u5230\u5BF9\u65B9\u7684\u5FC3\u5E95\u3002',
     textareaMountKey: 'letter-new',
     title: '',
     content: '',
@@ -74,8 +73,8 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
     },
   },
   pageLifetimes: {
-    onLoad() {
-      // no-op
+    onLoad(options: Record<string, string | undefined> | undefined) {
+      this.applyPresetFromOptions(options)
     },
   },
   methods: {
@@ -84,8 +83,17 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
       const name =
         u && u.partner && u.partner.nickName ? u.partner.nickName : '\u5BF9\u65B9'
       if (name !== this.data.receiverName) {
-        this.setData({ receiverName: name, heroKicker: '\u5199\u4E00\u5C01\u4FE1\u7ED9 ' + name + '\uFF0C\u6295\u9012\u5230 ta \u7684\u5FC3\u5E95\u3002' })
+        this.setData({ receiverName: name })
       }
+    },
+
+    /** 从读信页「写回信」进入时，预选同一类型 */
+    applyPresetFromOptions(options: Record<string, string | undefined> | undefined) {
+      const opts = options || {}
+      if (opts.reply !== '1') return
+      this.setData({ navTitle: '\u5199\u56DE\u4FE1' })
+      const type = typeof opts.type === 'string' ? opts.type.trim() : ''
+      if (type) this.selectType(type)
     },
 
     buildTypeRows() {
@@ -110,8 +118,13 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
     },
 
     onToggleType(e: WechatMiniprogram.TouchEvent) {
-      const name = e.currentTarget.dataset.name as string | undefined
+      // WXML 传的是 data-type（此前误读 dataset.name，导致类型点了没反应）
+      const name = e.currentTarget.dataset.type as string | undefined
       if (!name || typeof name !== 'string') return
+      this.selectType(name)
+    },
+
+    selectType(name: string) {
       if (name === '_custom') {
         this.setData({
           selectedType: '_custom',
@@ -239,18 +252,21 @@ Component<LetterComposeData, {}, LetterComposeMethods, LetterComposeCustomInstan
           fileIds = await uploadImagesToCloud('letters', this.data.images)
         } catch (e) {
           const msg = e instanceof Error ? e.message : '\u56FE\u7247\u4E0A\u4F20\u5931\u8D25'
+          wx.hideLoading()
           wx.showToast({ title: msg, icon: 'none' })
           return
         }
 
         const result = await lettersCreate(title, content, receiverId, type, fileIds)
+        // 先收起 loading 再提示：hideLoading 会连带关掉 showToast 的内容
+        wx.hideLoading()
         if (!result) return
         if (!result.ok) {
           wx.showToast({ title: bizErrMsg(result), icon: 'none' })
           return
         }
 
-        wx.showToast({ title: '\u4FE1\u5DF2\u5BC4\u51FA \u{1F48C}', icon: 'success', duration: 900 })
+        wx.showToast({ title: '\u4FE1\u5DF2\u5BC4\u51FA', icon: 'success', duration: 900 })
         setTimeout(() => {
           wx.navigateBack({
             fail: () => {

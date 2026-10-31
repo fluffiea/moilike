@@ -1,25 +1,18 @@
 import requireAuth from '../../../behaviors/require-auth'
 import { lettersGet, lettersGetMediaTempURLs } from '../../../utils/api/letter-api'
+import { formatCloudBizError } from '../../../utils/cloud-invoke'
 import { imageIndexFromDataset, previewImagesAt } from '../../../utils/image-preview'
+import { PAGE_LETTER_COMPOSE } from '../../../constants/paths'
 import type { LetterPublic } from '../../../types/cloud-letter'
 import moSession from '../../../utils/session'
 
-/** 类型徽标文案 */
+/** 类型徽标文案（纯文字，不用 emoji：部分机型缺 emoji 字体会显示成方框） */
 const TYPE_LABELS: Record<string, string> = {
-  confession: '\u{1F48C} 表白',
-  apology: '\u{1F64F} 道歉',
-  thankyou: '\u2764\uFE0F 感谢',
-  wish: '\u2728 许愿',
-  whisper: '\u{1F92B} 悄悄话',
-}
-
-/** 类型对应 CSS class 后缀 */
-const TYPE_CLASSES: Record<string, string> = {
-  confession: 'confession',
-  apology: 'apology',
-  thankyou: 'thankyou',
-  wish: 'wish',
-  whisper: 'whisper',
+  confession: '\u8868\u767D',
+  apology: '\u9053\u6B49',
+  thankyou: '\u611F\u8C22',
+  wish: '\u8BB8\u613F',
+  whisper: '\u6084\u6084\u8BDD',
 }
 
 type LetterDetailData = {
@@ -29,7 +22,6 @@ type LetterDetailData = {
   senderName: string
   receiverName: string
   typeLabel: string
-  typeClass: string
   images: string[]
   paperOpen: boolean
 }
@@ -42,12 +34,6 @@ function makeTypeLabel(type: string): string {
   return type.length > 8 ? type.slice(0, 8) + '\u2026' : type
 }
 
-function makeTypeClass(type: string): string {
-  const cls = TYPE_CLASSES[type]
-  if (cls) return cls
-  return 'default'
-}
-
 Component<LetterDetailData, {}, LetterDetailMethods, {}>({
   behaviors: [requireAuth],
   data: {
@@ -57,7 +43,6 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
     senderName: '',
     receiverName: '',
     typeLabel: '',
-    typeClass: 'default',
     images: [],
     paperOpen: false,
   },
@@ -107,7 +92,7 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
       const r = await lettersGet(letterId)
       if (!r || !r.ok || !r.letter) {
         wx.showToast({
-          title: r && r.ok === false ? (r.error || '加载失败') : '加载失败',
+          title: r && r.ok === false ? formatCloudBizError(r.error) : '加载失败',
           icon: 'none',
         })
         this.setData({ letter: null, loading: false })
@@ -131,11 +116,10 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
         senderName,
         receiverName,
         typeLabel: makeTypeLabel(letter.type),
-        typeClass: makeTypeClass(letter.type),
         images,
       })
 
-      // 延迟一帧触发信纸展开动画
+      // 延迟一帧触发入场动画
       setTimeout(() => {
         this.setData({ paperOpen: true })
       }, 50)
@@ -143,6 +127,20 @@ Component<LetterDetailData, {}, LetterDetailMethods, {}>({
 
     onNavBack() {
       wx.navigateBack({ fail: () => {} })
+    },
+
+    /** 写回信：带上原信类型，写信页会预选 */
+    onReply() {
+      const letter = this.data.letter
+      const type = letter && typeof letter.type === 'string' ? letter.type.trim() : ''
+      const url =
+        PAGE_LETTER_COMPOSE + '?reply=1' + (type ? '&type=' + encodeURIComponent(type) : '')
+      wx.navigateTo({
+        url,
+        fail: () => {
+          wx.showToast({ title: '跳转失败', icon: 'none' })
+        },
+      })
     },
 
     async onImageTap(e: WechatMiniprogram.TouchEvent) {

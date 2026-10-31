@@ -1,190 +1,162 @@
-/* 信件详情页 · moilike-ui · Skyline */
-/* 信纸展开动画 + 类型色调节点 */
+/** 读信 · moilike-ui · Skyline —— 整页一张纸，底部「写回信」 */
 
 .letter-detail-page {
-  position: fixed;
-  inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--mo-l0-bg, #f5f0ea);
-}
-
-.letter-detail-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(180deg, #f5f0ea 0%, #eae3d8 100%);
-}
-
-.letter-detail-bg-wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
-}
-
-.letter-detail-stack {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: var(--mo-l0-bg);
 }
 
 .letter-detail-scroll {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
+  height: 0;
+  box-sizing: border-box;
 }
 
-.letter-detail-scroll-inner {
-  padding: 24rpx 32rpx 48rpx;
+/* ── 纸 ── */
+
+.letter-read {
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 44rpx 48rpx 64rpx;
+  background-color: var(--mo-l1-card);
 }
 
-/* ── 信纸卡片 ── */
-.letter-detail-paper {
-  background: #fffdfa;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.06), 0 1rpx 4rpx rgba(0,0,0,0.04);
-  padding: 40rpx 36rpx;
-  position: relative;
-  overflow: hidden;
-  transform-origin: top center;
-  /* animation set by data */
-}
-
-.letter-detail-paper--closed {
-  transform: scaleY(0);
-  opacity: 0;
-}
-
-.letter-detail-paper--open {
-  animation: paperUnfold 500ms ease-out forwards;
-}
-
-@keyframes paperUnfold {
-  0% {
-    transform: scaleY(0) rotateX(8deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scaleY(1.02) rotateX(2deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleY(1) rotateX(0deg);
-    opacity: 1;
-  }
-}
-
-/* ── 类型色带（顶部装饰条）── */
-.letter-detail-paper-band {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6rpx;
-  border-radius: 16rpx 16rpx 0 0;
-}
-
-.letter-detail-paper-band--confession { background: #f5a0b0; }
-.letter-detail-paper-band--apology { background: #f0c4a0; }
-.letter-detail-paper-band--thankyou { background: #e88a8a; }
-.letter-detail-paper-band--wish { background: #b8a0d8; }
-.letter-detail-paper-band--whisper { background: #8ab8d8; }
-.letter-detail-paper-band--default { background: var(--mo-brand-teal); }
-
-/* ── 类型徽标 ── */
-.letter-detail-type-badge {
-  display: inline-flex;
+.letter-read__meta {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  padding: 8rpx 20rpx;
-  border-radius: 20rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: 36rpx;
 }
 
-.letter-detail-type-badge--confession { background: rgba(245,160,176,0.15); color: #c47080; }
-.letter-detail-type-badge--apology { background: rgba(240,196,160,0.15); color: #c49060; }
-.letter-detail-type-badge--thankyou { background: rgba(232,138,138,0.15); color: #c06060; }
-.letter-detail-type-badge--wish { background: rgba(184,160,216,0.15); color: #8870a8; }
-.letter-detail-type-badge--whisper { background: rgba(138,184,216,0.15); color: #6090a8; }
-.letter-detail-type-badge--default { background: rgba(102,143,128,0.15); color: var(--mo-brand-teal); }
-
-.letter-detail-type-badge-text {
-  font-size: 24rpx;
-  font-weight: 500;
+.letter-read__type {
+  font-size: 22rpx;
   line-height: 1.3;
+  color: var(--mo-brand-slate);
+  letter-spacing: 0.02em;
 }
 
-/* ── 标题 ── */
-.letter-detail-title {
-  font-size: 36rpx;
+.letter-read__sep {
+  margin: 0 10rpx;
+  font-size: 22rpx;
+  line-height: 1.3;
+  color: var(--mo-text-muted);
+}
+
+.letter-read__time {
+  font-size: 22rpx;
+  line-height: 1.3;
+  color: var(--mo-text-secondary);
+}
+
+.letter-read__title {
+  display: block;
+  margin-bottom: 32rpx;
+  font-size: 40rpx;
   font-weight: 600;
-  line-height: 1.4;
-  color: var(--mo-text-primary, #3a3a3a);
-  margin-bottom: 20rpx;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--mo-text-primary);
+  word-break: break-word;
 }
 
-/* ── 正文 ── */
-.letter-detail-content {
-  font-size: 30rpx;
-  line-height: 1.7;
-  color: var(--mo-text-secondary, #5c5c5c);
+.letter-read__body {
+  display: block;
+  font-size: 31rpx;
+  line-height: 1.9;
+  color: var(--mo-text-primary);
   white-space: pre-wrap;
   word-break: break-word;
-  margin-bottom: 32rpx;
 }
 
-/* ── 收/发信人 ── */
-.letter-detail-direction {
+/* ── 配图：1 张整幅、2 张两列、3 张以上三列 ── */
+
+.letter-read__images {
   display: flex;
-  align-items: center;
-  padding: 20rpx 0;
-  border-top: 1rpx solid #f0ebe4;
-  margin-bottom: 24rpx;
-}
-
-.letter-detail-direction-arrow {
-  font-size: 28rpx;
-  margin: 0 12rpx;
-  color: var(--mo-text-tertiary);
-}
-
-.letter-detail-direction-text {
-  font-size: 26rpx;
-  color: var(--mo-text-tertiary);
-  line-height: 1.4;
-}
-
-.letter-detail-direction-text strong {
-  color: var(--mo-text-secondary, #5c5c5c);
-  font-weight: 500;
-}
-
-/* ── 配图区（3列网格）── */
-.letter-detail-images {
-  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  margin-bottom: 8rpx;
+  margin: 40rpx -4rpx 0;
 }
 
-.letter-detail-image-cell {
+.letter-read__image-cell {
   width: 33.33%;
   padding: 4rpx;
   box-sizing: border-box;
 }
 
-.letter-detail-image {
-  width: 100%;
-  height: 200rpx;
-  border-radius: 8rpx;
-  background: #f5f0ea;
+.letter-read__images--dual .letter-read__image-cell {
+  width: 50%;
 }
 
-/* ── 底部留白 ── */
-.letter-detail-pad {
-  height: 64rpx;
+.letter-read__images--single {
+  margin: 40rpx 0 0;
+}
+
+.letter-read__images--single .letter-read__image-cell {
+  width: 100%;
+  padding: 0;
+}
+
+.letter-read__image {
+  display: block;
+  width: 100%;
+  height: 200rpx;
+  border-radius: 22rpx;
+  background-color: var(--mo-l1-accent);
+}
+
+.letter-read__images--single .letter-read__image {
+  height: 460rpx;
+  border-radius: 28rpx;
+}
+
+/* ── 落款 ── */
+
+.letter-read__sign {
+  display: block;
+  margin-top: 56rpx;
+  text-align: right;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: var(--mo-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* ── 底部「写回信」 ── */
+
+.letter-detail-bar {
+  flex-shrink: 0;
+  padding: 16rpx 40rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: var(--mo-border-card);
+  box-sizing: border-box;
+}
+
+.letter-detail-reply {
+  box-sizing: border-box;
+  height: 88rpx;
+  border-radius: var(--mo-radius-btn);
+  background-color: rgba(102, 143, 128, 0.08);
+  border: 1rpx solid rgba(102, 143, 128, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter-detail-reply-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--mo-brand-slate);
+  letter-spacing: 0.04em;
 }
 
 /* ── 空态 ── */
+
 .letter-detail-empty {
   flex: 1;
   display: flex;
@@ -194,5 +166,5 @@
 
 .letter-detail-empty-text {
   font-size: 28rpx;
-  color: var(--mo-text-tertiary);
+  color: var(--mo-text-secondary);
 }
