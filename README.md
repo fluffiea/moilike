@@ -18,10 +18,13 @@
 npm install
 cp project.config.example.json project.config.json            # 填入 AppID
 cp project.private.config.example.json project.private.config.json
-npm run dev                                                    # 编译 src/ → miniprogram/ 并监听变更
+npm run build                                                  # 首次打开前必须先编译出 miniprogram/
 ```
 
-用微信开发者工具打开仓库根目录。开发者工具只读取编译产物 `miniprogram/`，源码一律改 `src/`。
+用微信开发者工具打开仓库根目录。开发者工具只读取编译产物 `miniprogram/`（不提交到 git），源码一律改 `src/`：
+
+- `project.config.json` 的 `scripts` 已配置编译 / 预览 / 上传前自动执行 `npm run build`，在开发者工具里点「编译」即可。
+- 想保存即生效，另开终端运行 `npm run dev` 监听 `src/` 变更。
 
 ## 部署
 
