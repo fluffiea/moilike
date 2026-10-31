@@ -121,7 +121,5 @@
   "style": "v2",
   "componentFramework": "glass-easel",
   "lazyCodeLoading": "requiredComponents",
-  "miniApp": {
-    "useAuthorizePage": true
-  }
+  "sitemapLocation": "sitemap.json"
 }

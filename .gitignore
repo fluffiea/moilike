@@ -16,6 +16,9 @@ yarn-error.log*
 .eslintcache
 .stylelintcache
 
+# ========== 编译产物：src/ 经 npm run build 生成 ==========
+miniprogram/
+
 # ========== 微信小程序：npm 构建产物 ==========
 # 开发者工具「构建 npm」后在小程序目录生成，勿提交
 miniprogram/miniprogram_npm/

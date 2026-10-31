@@ -2,15 +2,17 @@
   "name": "moilike",
   "version": "0.0.0",
   "private": true,
-  "description": "情侣私密互动小程序（微信云开发）— 本 package.json 仅用于开发期质量检查，不参与小程序构建",
+  "description": "情侣私密互动小程序（微信云开发）。src/ 为源码，npm run build 产出 miniprogram/ 供开发者工具使用",
   "scripts": {
+    "dev": "node scripts/build.mjs --watch",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "check:sources": "node scripts/check-sources.mjs",
-    "check": "npm run typecheck && npm run test && npm run check:sources",
-    "sync:cloud-utils": "node scripts/sync-cloud-common.mjs"
+    "check": "npm run typecheck && npm run test && npm run check:sources && npm run build"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "typescript": "5.6.3"
   }
 }

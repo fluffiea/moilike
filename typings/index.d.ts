@@ -2,8 +2,6 @@
 
 interface IAppOption {
   globalData: {
-    userInfo?: WechatMiniprogram.UserInfo
-    moUser?: import('../miniprogram/types/user').MoUser
+    moUser?: import('../src/types/user').MoUser
   }
-  userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback
 }
