@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="共鸣" />
+  <app-nav title="共鸣" large="{{true}}" />
 
   <view class="tabs">
     <view class="tabs__rail">
@@ -70,12 +70,9 @@
   </swiper>
 
   <view wx:if="{{showTop}}" class="mo-back-top" bind:tap="onBackTop" aria-role="button" aria-label="回到顶部">
-    <view class="mo-back-top__arrow" />
+    <image class="mo-back-top__icon" src="/images/icons/chevron.png" mode="aspectFit" />
   </view>
-  <view class="mo-fab mo-fab--brand" bind:tap="onCompose" aria-role="button" aria-label="写报备">
-    <view class="mo-fab__plus">
-      <view class="mo-fab__bar mo-fab__bar--h" />
-      <view class="mo-fab__bar mo-fab__bar--v" />
-    </view>
+  <view class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写报备">
+    <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
   </view>
 </view>

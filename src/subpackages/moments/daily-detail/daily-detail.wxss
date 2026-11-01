@@ -11,7 +11,7 @@
   margin-left: 40rpx;
   padding-left: 20rpx;
   border-top: none;
-  border-left: 4rpx solid rgba(102, 143, 128, 0.25);
+  border-left: 4rpx solid rgba(0, 0, 0, 0.08);
 }
 
 .comment--pending {
@@ -25,21 +25,21 @@
 }
 
 .comment__name {
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
 
 .comment__hint {
   margin-left: 12rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--mo-brand-teal);
 }
 
 .comment__time {
   flex: 1;
   text-align: right;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--mo-text-muted);
 }
 
@@ -67,13 +67,13 @@
 
 .composer__target-text {
   flex: 1;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--mo-brand-teal);
 }
 
 .composer__cancel {
   padding: 0 8rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 
@@ -89,9 +89,9 @@
   max-height: 240rpx;
   margin-right: 20rpx;
   padding: 18rpx 24rpx;
-  border-radius: 24rpx;
-  background-color: var(--mo-l1-accent);
-  font-size: 28rpx;
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l1-card);
+  font-size: 32rpx;
   line-height: 1.5;
 }
 

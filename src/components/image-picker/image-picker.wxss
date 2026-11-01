@@ -9,9 +9,9 @@
   width: calc((100% - 32rpx) / 3);
   aspect-ratio: 1;
   margin: 0 16rpx 16rpx 0;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-inner);
   overflow: hidden;
-  background-color: var(--mo-l1-accent);
+  background-color: var(--mo-l0-bg);
 }
 
 .cell:nth-child(3n) {
@@ -37,21 +37,20 @@
 
 .cell__x {
   position: absolute;
-  right: 12rpx;
-  top: 30rpx;
-  width: 28rpx;
-  height: 4rpx;
-  border-radius: 2rpx;
-  background-color: #ffffff;
-  box-shadow: 0 0 6rpx rgba(0, 0, 0, 0.35);
+  right: 10rpx;
+  top: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: rgba(28, 28, 30, 0.45);
 }
 
-.cell__x--a {
-  transform: rotate(45deg);
-}
-
-.cell__x--b {
-  transform: rotate(-45deg);
+.cell__x-icon {
+  width: 20rpx;
+  height: 20rpx;
 }
 
 .cell--add {
@@ -59,37 +58,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2rpx dashed rgba(74, 102, 112, 0.25);
 }
 
 .add__plus {
-  position: relative;
-  width: 44rpx;
-  height: 44rpx;
-}
-
-.add__bar {
-  position: absolute;
-  border-radius: 2rpx;
-  background-color: var(--mo-brand-slate);
-}
-
-.add__bar--h {
-  left: 0;
-  right: 0;
-  top: 20rpx;
-  height: 4rpx;
-}
-
-.add__bar--v {
-  top: 0;
-  bottom: 0;
-  left: 20rpx;
-  width: 4rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .add__count {
   margin-top: 12rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--mo-text-secondary);
 }

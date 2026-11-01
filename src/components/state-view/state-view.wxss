@@ -76,12 +76,12 @@
   padding: 0 48rpx;
   height: 80rpx;
   line-height: 80rpx;
-  border-radius: 24rpx;
-  background: var(--mo-gradient-brand);
+  border-radius: var(--mo-radius-btn);
+  background: var(--mo-fill-brand);
 }
 
 .state__btn-text {
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-text-inverse);
 }
@@ -114,7 +114,7 @@
 }
 
 .more__text {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--mo-text-muted);
 }
 

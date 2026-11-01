@@ -1,12 +1,9 @@
 <view class="card card--{{post.state}} {{detail ? 'card--detail' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
   <view class="card__head">
-    <view class="card__dot" />
     <text class="card__name">{{post.title}}</text>
     <text class="card__state">{{post.stateLabel}}</text>
     <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <view class="more__dot" />
-      <view class="more__dot" />
-      <view class="more__dot" />
+      <image class="more__icon" src="/images/icons/more.png" mode="aspectFit" />
     </view>
   </view>
   <text class="card__time">{{post.time}}</text>

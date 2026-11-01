@@ -50,10 +50,7 @@
     <view class="end" />
   </scroll-view>
 
-  <view wx:if="{{bound}}" class="mo-fab mo-fab--brand" bind:tap="onCompose" aria-role="button" aria-label="写信">
-    <view class="mo-fab__plus">
-      <view class="mo-fab__bar mo-fab__bar--h" />
-      <view class="mo-fab__bar mo-fab__bar--v" />
-    </view>
+  <view wx:if="{{bound}}" class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写信">
+    <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
   </view>
 </view>

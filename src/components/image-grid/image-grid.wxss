@@ -8,7 +8,7 @@
 .grid__cell {
   position: relative;
   overflow: hidden;
-  background-color: var(--mo-l1-accent);
+  background-color: var(--mo-l0-bg);
 }
 
 .grid__img {
@@ -28,7 +28,7 @@
 .grid--two .grid__cell {
   width: calc((100% - 12rpx) / 2);
   height: 240rpx;
-  border-radius: 24rpx;
+  border-radius: var(--mo-radius-inner);
 }
 
 .grid--two .grid__cell:first-child {
@@ -39,7 +39,7 @@
   width: calc((100% - 24rpx) / 3);
   aspect-ratio: 1;
   margin: 0 12rpx 12rpx 0;
-  border-radius: 20rpx;
+  border-radius: var(--mo-radius-inner);
 }
 
 .grid--many .grid__cell:nth-child(3n) {

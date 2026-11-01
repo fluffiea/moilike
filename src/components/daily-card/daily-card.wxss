@@ -1,10 +1,8 @@
 .card {
-  margin-bottom: 24rpx;
-  padding: 36rpx 36rpx 40rpx;
+  margin-bottom: 36rpx;
+  padding: 32rpx;
   border-radius: var(--mo-radius-card);
-  border: var(--mo-border-card);
   background-color: var(--mo-l1-card);
-  box-shadow: var(--mo-shadow-card);
 }
 
 .card--detail {
@@ -26,12 +24,8 @@
   margin-right: 24rpx;
   border-radius: 50%;
   overflow: hidden;
-  border: 3rpx solid var(--mo-brand-teal);
   background-color: var(--mo-l1-accent);
-}
-
-.avatar--mine {
-  border-color: var(--mo-brand-rose);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06);
 }
 
 .avatar__img {
@@ -52,7 +46,7 @@
 
 .card__name {
   display: block;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
   overflow: hidden;
@@ -63,7 +57,7 @@
 .card__time {
   display: block;
   margin-top: 4rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--mo-text-secondary);
 }
 
@@ -78,41 +72,36 @@
   margin-right: -20rpx;
 }
 
-.more__dot {
-  width: 8rpx;
-  height: 8rpx;
-  margin: 0 4rpx;
-  border-radius: 50%;
-  background-color: var(--mo-text-secondary);
+.more__icon {
+  width: 36rpx;
+  height: 36rpx;
 }
 
 .card__text {
   display: block;
   margin-top: 24rpx;
-  font-size: 30rpx;
+  font-size: 32rpx;
   line-height: 1.7;
   color: var(--mo-text-primary);
   word-break: break-word;
 }
 
 .preview {
-  margin: 28rpx -36rpx -40rpx;
-  padding: 20rpx 36rpx 28rpx;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
   border-top: var(--mo-border-field);
-  border-radius: 0 0 var(--mo-radius-card) var(--mo-radius-card);
-  background-color: rgba(242, 242, 247, 0.55);
 }
 
 .preview__line {
   display: block;
-  font-size: 26rpx;
+  font-size: 28rpx;
   line-height: 1.5;
-  color: var(--mo-brand-slate);
+  color: var(--mo-text-secondary);
 }
 
 .preview__count {
   display: block;
   margin-top: 8rpx;
-  font-size: 22rpx;
-  color: var(--mo-text-secondary);
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
 }

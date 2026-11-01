@@ -11,8 +11,8 @@
   margin-bottom: 20rpx;
   border-radius: 50%;
   overflow: hidden;
-  border: 6rpx solid var(--mo-brand-teal);
   background-color: var(--mo-l1-accent);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08);
 }
 
 .partner__img {
@@ -22,7 +22,7 @@
 
 .partner__name {
   margin-bottom: 8rpx;
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: 700;
   color: var(--mo-text-primary);
 }
@@ -54,7 +54,7 @@
 }
 
 .when__text {
-  font-size: 28rpx;
+  font-size: 32rpx;
   color: var(--mo-text-primary);
 }
 
@@ -80,17 +80,13 @@
 
 .request__name {
   display: block;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
 
 .request__btn {
   margin-right: 16rpx;
-}
-
-.pending {
-  background: linear-gradient(180deg, rgba(232, 168, 124, 0.1) 0%, var(--mo-l1-card) 100%);
 }
 
 .code {

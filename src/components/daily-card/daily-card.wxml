@@ -1,6 +1,6 @@
 <view class="card {{detail ? 'card--detail' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
   <view class="card__head">
-    <view class="avatar {{post.isMine ? 'avatar--mine' : 'avatar--partner'}}">
+    <view class="avatar">
       <image wx:if="{{post.author.avatarUrl}}" class="avatar__img" src="{{post.author.avatarUrl}}" mode="aspectFill" />
       <text wx:else class="avatar__initial">{{post.initial}}</text>
     </view>
@@ -9,9 +9,7 @@
       <text class="card__time">{{post.time}}</text>
     </view>
     <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <view class="more__dot" />
-      <view class="more__dot" />
-      <view class="more__dot" />
+      <image class="more__icon" src="/images/icons/more.png" mode="aspectFit" />
     </view>
   </view>
 

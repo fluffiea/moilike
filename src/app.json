@@ -33,7 +33,7 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "tabBar": {
-    "color": "#C3B59F",
+    "color": "#8E8E93",
     "selectedColor": "#668F80",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",

@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="朝夕" />
+  <app-nav title="朝夕" large="{{true}}" />
   <scroll-view class="mo-scroll" scroll-y>
     <view class="mo-body">
       <view wx:if="{{scene === 'needPartner'}}" class="mo-card guide">
@@ -11,30 +11,26 @@
       </view>
 
       <block wx:else>
-        <view class="mo-card hero">
-          <text class="hero__kicker">你们的朝夕</text>
-          <text class="hero__name">{{partner.name}}</text>
+        <view class="hero">
           <view class="pair">
-            <view class="pair__avatar pair__avatar--me">
+            <view class="pair__avatar">
               <image wx:if="{{me.avatarUrl}}" class="pair__img" src="{{me.avatarUrl}}" mode="aspectFill" data-who="me" binderror="onAvatarError" />
               <text wx:else class="pair__initial">{{me.initial}}</text>
             </view>
-            <view class="pair__ribbon">
-              <view class="pair__gem" />
-            </view>
-            <view class="pair__avatar">
+            <view class="pair__avatar pair__avatar--overlap">
               <image wx:if="{{partner.avatarUrl}}" class="pair__img" src="{{partner.avatarUrl}}" mode="aspectFill" data-who="partner" binderror="onAvatarError" />
               <text wx:else class="pair__initial">{{partner.initial}}</text>
             </view>
           </view>
+          <text class="hero__name">{{partner.name}}</text>
 
           <block wx:if="{{scene === 'hero'}}">
-            <text class="hero__since">{{sinceText}}</text>
             <together-clock since="{{since}}" />
+            <text class="hero__since">{{sinceText}}</text>
           </block>
           <block wx:else>
             <text class="hero__since">还差纪念日这一笔：选下你们认定的那一天、那一刻，两个人会共用同一个起点。</text>
-            <view class="mo-btn mo-btn--warm" bind:tap="onOpenPartnerHub" aria-role="button">
+            <view class="mo-btn hero__btn" bind:tap="onOpenPartnerHub" aria-role="button">
               <text>去设置纪念日</text>
             </view>
           </block>
@@ -44,7 +40,7 @@
           <view class="letters__head">
             <text class="letters__title">信件</text>
             <text class="letters__count">{{letters.totalText}}</text>
-            <view class="letters__arrow" />
+            <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
           <view wx:if="{{letters.recent.length}}">
             <view wx:for="{{letters.recent}}" wx:key="id" class="letters__item" data-id="{{item.id}}" catch:tap="onOpenLetter">

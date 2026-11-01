@@ -17,6 +17,8 @@ Component({
   options: { styleIsolation: 'isolated' },
   properties: {
     title: { type: String, value: '' },
+    /** Tab 根页面：标题靠左，和胶囊同一行 */
+    large: { type: Boolean, value: false },
     showBack: { type: Boolean, value: false },
     /** 非空时返回前二次确认（有未保存内容）；系统返回手势由页面的 enableAlertBeforeUnload 兜住 */
     confirmLeave: { type: String, value: '' },

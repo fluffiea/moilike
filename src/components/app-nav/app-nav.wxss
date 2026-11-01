@@ -1,7 +1,7 @@
 .nav {
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
+  background: rgba(242, 242, 247, 0.82);
+  backdrop-filter: blur(24px);
 }
 
 .nav__bar {
@@ -11,7 +11,11 @@
   align-items: center;
   justify-content: center;
   height: 88rpx;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav__bar--large {
+  justify-content: flex-start;
+  padding-left: var(--mo-pad-h);
 }
 
 /* 88rpx 点击区，避开右上角胶囊 */
@@ -26,13 +30,10 @@
   height: 88rpx;
 }
 
-.nav__chevron {
-  width: 22rpx;
-  height: 22rpx;
-  margin-left: 8rpx;
-  border-left: 4rpx solid var(--mo-brand-slate);
-  border-bottom: 4rpx solid var(--mo-brand-slate);
-  transform: rotate(45deg);
+.nav__icon {
+  width: 40rpx;
+  height: 40rpx;
+  transform: rotate(180deg);
 }
 
 .nav__title {
@@ -43,4 +44,10 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.nav__title--large {
+  max-width: 70%;
+  font-size: 44rpx;
+  font-weight: 600;
 }

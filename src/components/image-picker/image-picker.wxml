@@ -2,15 +2,13 @@
   <view wx:for="{{items}}" wx:key="src" class="cell" data-index="{{index}}" bind:tap="onPreview">
     <image class="cell__img" src="{{item.src}}" mode="aspectFill" />
     <view class="cell__remove" data-index="{{index}}" catch:tap="onRemove" aria-role="button" aria-label="移除这张图">
-      <view class="cell__x cell__x--a" />
-      <view class="cell__x cell__x--b" />
+      <view class="cell__x">
+        <image class="cell__x-icon" src="/images/icons/x-light.png" mode="aspectFit" />
+      </view>
     </view>
   </view>
   <view wx:if="{{items.length < max}}" class="cell cell--add" bind:tap="onAdd" aria-role="button" aria-label="添加图片">
-    <view class="add__plus">
-      <view class="add__bar add__bar--h" />
-      <view class="add__bar add__bar--v" />
-    </view>
+    <image class="add__plus" src="/images/icons/plus.png" mode="aspectFit" />
     <text class="add__count">{{items.length}}/{{max}}</text>
   </view>
 </view>

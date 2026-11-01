@@ -7,13 +7,13 @@
 }
 
 .paper {
-  background: linear-gradient(180deg, #fffdf8 0%, var(--mo-l1-card) 100%);
+  background: var(--mo-l1-paper);
 }
 
 .paper__salutation {
   display: block;
   margin-bottom: 8rpx;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-brand-slate);
 }

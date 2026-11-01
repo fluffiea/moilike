@@ -13,6 +13,7 @@ page {
   --mo-brand-teal: #668f80;
   --mo-brand-slate: #4a6670;
   --mo-brand-rose: #d6a2ad;
+  --mo-brand-rose-ink: #a86e7b;
   --mo-brand-sand: #c3b59f;
 
   --mo-status-pending: #e8a87c;
@@ -22,17 +23,15 @@ page {
   --mo-status-evaluated: #9b8ec4;
   --mo-status-evaluated-text: #7b6ea8;
 
-  --mo-gradient-brand: linear-gradient(155deg, #668f80 0%, #4a6670 100%);
-  --mo-gradient-warm: linear-gradient(155deg, #d6a2ad 0%, #c3b59f 100%);
+  --mo-l1-paper: #f4efe8;
+  --mo-fill-brand: #4a6670;
   --mo-skeleton: #ececf1;
 
-  --mo-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.02), 0 12px 32px rgba(0, 0, 0, 0.04);
-  --mo-border-card: 1rpx solid rgba(0, 0, 0, 0.04);
   --mo-border-field: 1rpx solid rgba(0, 0, 0, 0.06);
 
-  --mo-radius-card: 48rpx;
-  --mo-radius-inner: 28rpx;
-  --mo-radius-btn: 28rpx;
+  --mo-radius-card: 40rpx;
+  --mo-radius-inner: 24rpx;
+  --mo-radius-btn: 999rpx;
   --mo-radius-chip: 999rpx;
 
   --mo-pad-h: 32rpx;
@@ -64,26 +63,30 @@ page {
 }
 
 .mo-card {
-  margin-bottom: 24rpx;
-  padding: 36rpx;
+  margin-bottom: 36rpx;
+  padding: 32rpx;
   border-radius: var(--mo-radius-card);
-  border: var(--mo-border-card);
   background-color: var(--mo-l1-card);
-  box-shadow: var(--mo-shadow-card);
 }
 
 .mo-section-title {
   display: block;
-  margin-bottom: 20rpx;
-  font-size: 28rpx;
+  margin-bottom: 16rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
 
 .mo-hint {
-  font-size: 24rpx;
+  font-size: 26rpx;
   line-height: 1.5;
   color: var(--mo-text-secondary);
+}
+
+.mo-chevron {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
 }
 
 /* ---------- 日期分隔 ---------- */
@@ -91,18 +94,17 @@ page {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 16rpx 8rpx 20rpx;
+  padding: 8rpx 0 20rpx;
 }
 
 .mo-day__line {
-  flex: 1;
-  height: 1rpx;
-  background-color: rgba(0, 0, 0, 0.06);
+  display: none;
 }
 
 .mo-day__label {
-  margin: 0 20rpx;
-  font-size: 24rpx;
+  margin: 0;
+  font-size: 26rpx;
+  font-weight: 500;
   color: var(--mo-text-secondary);
 }
 
@@ -112,30 +114,28 @@ page {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 96rpx;
+  height: 88rpx;
   padding: 0 40rpx;
   border-radius: var(--mo-radius-btn);
-  background: var(--mo-gradient-brand);
+  background: var(--mo-fill-brand);
   color: var(--mo-text-inverse);
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
 }
 
 .mo-btn--warm {
-  background: var(--mo-gradient-warm);
+  background: var(--mo-fill-brand);
 }
 
 .mo-btn--ghost {
-  background: var(--mo-l1-accent);
+  background: var(--mo-l0-bg);
   color: var(--mo-brand-slate);
-  border: var(--mo-border-field);
 }
 
 .mo-btn--small {
-  height: 72rpx;
-  padding: 0 32rpx;
+  height: 64rpx;
+  padding: 0 28rpx;
   font-size: 26rpx;
-  border-radius: 22rpx;
 }
 
 .mo-btn--disabled {
@@ -169,8 +169,8 @@ page {
 /* ---------- 底部操作栏（发布 / 回复 / 评论） ---------- */
 .mo-footer {
   padding: 20rpx var(--mo-pad-h) calc(20rpx + var(--mo-safe-bottom));
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(20px);
+  background: rgba(242, 242, 247, 0.88);
+  backdrop-filter: blur(24px);
   border-top: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
@@ -183,42 +183,20 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 40rpx;
-  background: var(--mo-gradient-warm);
-  box-shadow: 0 12px 32px rgba(214, 162, 173, 0.32);
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: var(--mo-fill-brand);
+  box-shadow: 0 8px 24px rgba(28, 28, 30, 0.16);
 }
 
 .mo-fab--brand {
-  background: var(--mo-gradient-brand);
-  box-shadow: 0 12px 32px rgba(74, 102, 112, 0.28);
+  background: var(--mo-fill-brand);
 }
 
-.mo-fab__plus {
-  position: relative;
+.mo-fab__icon {
   width: 40rpx;
   height: 40rpx;
-}
-
-.mo-fab__bar {
-  position: absolute;
-  border-radius: 3rpx;
-  background-color: #ffffff;
-}
-
-.mo-fab__bar--h {
-  left: 0;
-  right: 0;
-  top: 18rpx;
-  height: 5rpx;
-}
-
-.mo-fab__bar--v {
-  top: 0;
-  bottom: 0;
-  left: 18rpx;
-  width: 5rpx;
 }
 
 /* ---------- 表单 ---------- */
@@ -226,14 +204,14 @@ page {
   padding: 0 28rpx;
   border-radius: var(--mo-radius-inner);
   border: var(--mo-border-field);
-  background-color: var(--mo-l1-accent);
+  background-color: var(--mo-l0-bg);
 }
 
 /* Skyline 下 input 必须显式 height + line-height，否则塌成一条线 */
 .mo-input {
   height: 88rpx;
   line-height: 88rpx;
-  font-size: 30rpx;
+  font-size: 32rpx;
   color: var(--mo-text-primary);
 }
 
@@ -241,7 +219,7 @@ page {
   width: 100%;
   min-height: 200rpx;
   padding: 24rpx 0;
-  font-size: 30rpx;
+  font-size: 32rpx;
   line-height: 1.7;
   color: var(--mo-text-primary);
 }
@@ -266,7 +244,7 @@ page {
 
 .mo-chip--on {
   border-color: transparent;
-  background: var(--mo-gradient-brand);
+  background: var(--mo-fill-brand);
   color: var(--mo-text-inverse);
 }
 
@@ -279,24 +257,21 @@ page {
 /* 回到顶部 */
 .mo-back-top {
   position: fixed;
-  right: 44rpx;
-  bottom: calc(176rpx + var(--mo-safe-bottom));
+  right: 40rpx;
+  bottom: calc(168rpx + var(--mo-safe-bottom));
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border: var(--mo-border-field);
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 20px rgba(28, 28, 30, 0.1);
 }
 
-.mo-back-top__arrow {
-  width: 20rpx;
-  height: 20rpx;
-  margin-top: 8rpx;
-  border-left: 4rpx solid var(--mo-brand-slate);
-  border-top: 4rpx solid var(--mo-brand-slate);
-  transform: rotate(45deg);
+.mo-back-top__icon {
+  width: 32rpx;
+  height: 32rpx;
+  transform: rotate(-90deg);
 }

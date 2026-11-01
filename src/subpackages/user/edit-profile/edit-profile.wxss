@@ -11,8 +11,8 @@
   margin-bottom: 16rpx;
   border-radius: 50%;
   overflow: hidden;
-  border: 6rpx solid var(--mo-brand-rose);
   background-color: var(--mo-l1-accent);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08);
 }
 
 .avatar__img {
