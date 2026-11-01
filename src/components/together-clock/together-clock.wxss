@@ -2,7 +2,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 28rpx;
+  margin-top: 64rpx;
+}
+
+.clock__days {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.clock__mark {
+  margin-bottom: 22rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--mo-text-secondary);
+}
+
+.clock__mark--lead {
+  margin-right: 28rpx;
+}
+
+.clock__mark--tail {
+  margin-left: 28rpx;
 }
 
 .clock__value {
@@ -14,17 +35,9 @@
   color: var(--mo-text-primary);
 }
 
-.clock__unit {
-  margin-top: 12rpx;
-  font-size: 26rpx;
-  font-weight: 500;
-  color: var(--mo-text-secondary);
-}
-
 .clock__rest {
-  margin-top: 6rpx;
-  font-size: 28rpx;
-  letter-spacing: 1rpx;
+  margin-top: 36rpx;
+  font-size: 24rpx;
   font-variant-numeric: tabular-nums;
-  color: var(--mo-text-secondary);
+  color: var(--mo-text-muted);
 }

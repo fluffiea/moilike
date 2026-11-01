@@ -76,6 +76,14 @@ export function durationSince(sinceMs: number, nowMs = Date.now()): Duration {
   return { days: `${days}`, hours: pad2(hours), minutes: pad2(minutes), seconds: pad2(s - minutes * 60) }
 }
 
+/** 第 N 天按本地日历，在一起当天为第 1 天；elapsed 是实际经过的时长，不满 1 天不写「0天」 */
+export function togetherReading(sinceMs: number, nowMs = Date.now()): { ordinal: string; elapsed: string } {
+  const dur = durationSince(sinceMs, nowMs)
+  const span = Math.round((dayStart(nowMs) - dayStart(sinceMs)) / 86400000)
+  const elapsed = dur.days === '0' ? `${dur.hours}:${dur.minutes}:${dur.seconds}` : `${dur.days}天 ${dur.hours}:${dur.minutes}:${dur.seconds}`
+  return { ordinal: `${Math.max(1, span + 1)}`, elapsed }
+}
+
 const LETTER_TYPES: Record<string, string> = {
   confession: '表白',
   apology: '道歉',

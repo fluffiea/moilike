@@ -82,7 +82,7 @@ Component<
           ? { avatarUrl: p.avatarUrl, initial: p.nickName.slice(0, 1), name: `和 ${p.nickName}` }
           : { avatarUrl: '', initial: '', name: '' },
         since: u.togetherSinceMs || 0,
-        sinceText: u.togetherSinceMs ? `${fullDate(u.togetherSinceMs)}，悄悄从这一秒数起` : '',
+        sinceText: u.togetherSinceMs ? `那天是 ${fullDate(u.togetherSinceMs)}` : '',
       })
     },
 

@@ -22,14 +22,13 @@
               <text wx:else class="pair__initial">{{partner.initial}}</text>
             </view>
           </view>
-          <text class="hero__name">{{partner.name}}</text>
 
           <block wx:if="{{scene === 'hero'}}">
             <together-clock since="{{since}}" />
             <text class="hero__since">{{sinceText}}</text>
           </block>
           <block wx:else>
-            <text class="hero__since">还差纪念日这一笔：选下你们认定的那一天、那一刻，两个人会共用同一个起点。</text>
+            <text class="hero__since hero__since--open">还差纪念日这一笔：选下你们认定的那一天、那一刻，两个人会共用同一个起点。</text>
             <view class="mo-btn hero__btn" bind:tap="onOpenPartnerHub" aria-role="button">
               <text>去设置纪念日</text>
             </view>

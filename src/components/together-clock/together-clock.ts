@@ -1,8 +1,8 @@
-import { durationSince } from '../../core/format'
+import { togetherReading } from '../../core/format'
 
-/** 「在一起」计时：每秒只更新本组件的 4 个数字，页面隐藏时停表 */
+/** 「在一起」计时：每秒只更新第 N 天和已过时长，页面隐藏时停表 */
 Component<
-  { days: string; hours: string; minutes: string; seconds: string },
+  { ordinal: string; elapsed: string },
   { since: { type: NumberConstructor; value: number } },
   WechatMiniprogram.Component.MethodOption,
   { timer: number }
@@ -11,7 +11,7 @@ Component<
   properties: {
     since: { type: Number, value: 0 },
   },
-  data: { days: '0', hours: '00', minutes: '00', seconds: '00' },
+  data: { ordinal: '1', elapsed: '00:00:00' },
   observers: {
     since() {
       this.tick()
@@ -35,7 +35,7 @@ Component<
   },
   methods: {
     tick() {
-      if (this.data.since > 0) this.setData(durationSince(this.data.since))
+      if (this.data.since > 0) this.setData(togetherReading(this.data.since))
     },
     start() {
       this.stop()

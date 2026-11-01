@@ -1,5 +1,8 @@
 <view class="clock">
-  <text class="clock__value">{{days}}</text>
-  <text class="clock__unit">天</text>
-  <text class="clock__rest">{{hours}}:{{minutes}}:{{seconds}}</text>
+  <view class="clock__days">
+    <text class="clock__mark clock__mark--lead">第</text>
+    <text class="clock__value">{{ordinal}}</text>
+    <text class="clock__mark clock__mark--tail">天</text>
+  </view>
+  <text class="clock__rest">连秒都算上 {{elapsed}}</text>
 </view>
