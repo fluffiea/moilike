@@ -1,0 +1,127 @@
+.hero__label {
+  display: block;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.hero__amount {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 64rpx;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--mo-text-primary);
+}
+
+.chart-empty {
+  display: block;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 72rpx;
+}
+
+.bar__name {
+  width: 72rpx;
+  margin-right: 16rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-primary);
+  flex-shrink: 0;
+}
+
+.bar__pct {
+  width: 120rpx;
+  margin-left: 12rpx;
+  font-size: 24rpx;
+  text-align: right;
+  color: var(--mo-text-secondary);
+  flex-shrink: 0;
+}
+
+.bar__amt {
+  width: 150rpx;
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  text-align: right;
+  color: var(--mo-text-primary);
+  flex-shrink: 0;
+}
+
+.track {
+  flex: 1;
+  height: 12rpx;
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l0-bg);
+  overflow: hidden;
+}
+
+.track__fill {
+  height: 100%;
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-brand-slate);
+}
+
+.bill {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 24rpx 0;
+}
+
+.bill--line {
+  border-top: var(--mo-border-field);
+}
+
+.dot {
+  width: 72rpx;
+  height: 72rpx;
+  margin-right: 20rpx;
+  border-radius: 50%;
+  background-color: var(--mo-l0-bg);
+  flex-shrink: 0;
+}
+
+.bill__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.bill__title {
+  display: block;
+  font-size: 32rpx;
+  color: var(--mo-text-primary);
+}
+
+.bill__note {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.bill__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.bill__amt {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.bill__when {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  text-align: right;
+  color: var(--mo-text-muted);
+}

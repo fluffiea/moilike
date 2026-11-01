@@ -18,6 +18,11 @@ export const PAGE_LETTER_LIST = '/subpackages/letters/letter-list/letter-list'
 export const PAGE_LETTER_COMPOSE = '/subpackages/letters/letter-compose/letter-compose'
 export const PAGE_LETTER_DETAIL = '/subpackages/letters/letter-detail/letter-detail'
 
+export const PAGE_LEDGER = '/subpackages/ledger/home/home'
+export const PAGE_LEDGER_COMPOSE = '/subpackages/ledger/compose/compose'
+export const PAGE_LEDGER_DETAIL = '/subpackages/ledger/detail/detail'
+export const PAGE_LEDGER_CATEGORY = '/subpackages/ledger/category/category'
+
 const TABS = [TAB_MILESTONES, TAB_MOMENTS, TAB_RESONANCE, TAB_PROFILE]
 
 /** 子页面返回；没有上一页（直达进入）时打开 fallback */

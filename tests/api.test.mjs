@@ -1,5 +1,6 @@
 import { test, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import Module, { createRequire } from 'node:module'
 import { createFakeCloud } from './helpers/fake-cloud.mjs'
 
@@ -11,6 +12,27 @@ Module._load = function (request, ...rest) {
 }
 const require = createRequire(import.meta.url)
 const { handle } = require('../cloudfunctions/api/index.js')
+const { monthStartMs, addMonths, currentMonthKey, monthKeyFromMs } = require('../cloudfunctions/api/lib/calendar.js')
+
+/** 落在该北京时间月内、且不晚于现在的一个时刻 */
+function at(month) {
+  const start = monthStartMs(month)
+  const end = monthStartMs(addMonths(month, 1))
+  const now = Date.now()
+  if (now >= start && now < end) return Math.max(start, now - 1000)
+  return start + 12 * 3600 * 1000
+}
+
+function spend(who, patch = {}) {
+  return ok(who, 'expense.create', {
+    amountFen: 100,
+    l1: 'food',
+    l2: 'takeout',
+    note: '',
+    occurredAtMs: at(currentMonthKey()),
+    ...patch,
+  })
+}
 
 let cloud
 const call = async (who, route, data = {}) => handle({ route, ...data }, cloud.as(who))
@@ -213,6 +235,156 @@ test('信件：收件人由服务端决定；列表只带摘要与缩略图；�
   await ok('A', 'letters.remove', { id: letter.id })
   await register('C', '路人')
   await failsWith('NO_PARTNER', 'C', 'letters.create', { content: 'hi' })
+})
+
+test('记账分类表前后端一致，月份按北京时间切分', () => {
+  const pair = (src) => [...src.matchAll(/id:\s*'([^']+)',\s*name:\s*'([^']+)'/g)].map((m) => `${m[1]}:${m[2]}`)
+  const js = readFileSync(new URL('../cloudfunctions/api/lib/categories.js', import.meta.url), 'utf8')
+  const ts = readFileSync(new URL('../src/core/expense-categories.ts', import.meta.url), 'utf8')
+  const pairs = pair(js)
+  assert.deepEqual(pairs, pair(ts))
+  assert.equal(pairs.length, 34)
+  assert.equal(pairs[0], 'food:餐饮')
+  assert.ok(pairs.includes('takeout:外卖'))
+  assert.ok(pairs.includes('living:居住'))
+
+  const nov1 = Date.UTC(2026, 10, 1) - 8 * 3600 * 1000
+  assert.equal(monthKeyFromMs(nov1), '2026-11')
+  assert.equal(monthKeyFromMs(nov1 - 1), '2026-10')
+  assert.equal(monthStartMs('2026-11'), nov1)
+  assert.equal(addMonths('2026-12', 1), '2027-01')
+  assert.equal(monthStartMs('1999-12'), null)
+})
+
+test('记账：未结伴可写，只有本人可见，金额分类时间和备注都要合法', async () => {
+  const cur = currentMonthKey()
+  await failsWith('NOT_REGISTERED', 'A', 'expense.list', { month: cur })
+  await register('A', '阿杏')
+
+  const raw = at(cur) + 5000
+  const { expense } = await spend('A', { amountFen: 8600, note: '  午餐  ', occurredAtMs: raw })
+  assert.equal(expense.l1Name, '餐饮')
+  assert.equal(expense.l2Name, '外卖')
+  assert.equal(expense.note, '午餐')
+  assert.equal(expense.amountFen, 8600)
+  assert.equal(expense.occurredAtMs, Math.floor(raw / 60000) * 60000)
+  assert.equal(cloud.row('expenses', expense.id).authorOpenId, 'A')
+
+  await register('B', '阿桃')
+  assert.equal((await ok('B', 'expense.list', { month: cur })).items.length, 0)
+  assert.equal((await ok('B', 'expense.monthSummary', { month: cur })).totalFen, 0)
+  await failsWith('NOT_FOUND', 'B', 'expense.get', { id: expense.id })
+  await failsWith('NOT_FOUND', 'B', 'expense.update', { id: expense.id, amountFen: 1, l1: 'food', l2: 'meal', occurredAtMs: at(cur) })
+  await failsWith('NOT_FOUND', 'B', 'expense.remove', { id: expense.id })
+
+  const bad = { amountFen: 100, l1: 'food', l2: 'takeout', occurredAtMs: at(cur) }
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 0 })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 1.5 })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 100000000 })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, l2: 'metro' })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, occurredAtMs: Date.now() + 10 * 60 * 1000 })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, note: '字'.repeat(51) })
+  await failsWith('INVALID', 'A', 'expense.list', { month: '2026-13' })
+  assert.equal((await spend('A', { note: '字'.repeat(50) })).expense.note.length, 50)
+})
+
+test('记账：按月倒序分页，改时间会离开原月份，删除后不可再读', async () => {
+  await register('A', '阿杏')
+  const cur = currentMonthKey()
+  const prev = addMonths(cur, -1)
+  const early = monthStartMs(prev) + 8 * 3600 * 1000
+  const late = monthStartMs(prev) + 20 * 3600 * 1000
+  const first = await spend('A', { amountFen: 100, occurredAtMs: early, note: '早' })
+  const second = await spend('A', { amountFen: 250, l1: 'transit', l2: 'metro', occurredAtMs: late, note: '晚' })
+  await spend('A', { amountFen: 999, occurredAtMs: at(cur), note: '这个月' })
+
+  const page = await ok('A', 'expense.list', { month: prev })
+  assert.deepEqual(page.items.map((item) => item.id), [second.expense.id, first.expense.id])
+  assert.equal((await ok('A', 'expense.list', { month: cur })).items.length, 1)
+
+  const stamp = early
+  for (let i = 0; i < 25; i++) await spend('A', { amountFen: 100 + i, l2: 'snack', occurredAtMs: stamp })
+  const seen = []
+  let cursor = ''
+  do {
+    const next = await ok('A', 'expense.list', { month: prev, l1: 'food', cursor })
+    seen.push(...next.items.map((item) => item.id))
+    cursor = next.nextCursor
+  } while (cursor)
+  assert.equal(seen.length, 26)
+  assert.equal(new Set(seen).size, 26)
+  assert.equal((await ok('A', 'expense.list', { month: prev, l1: 'transit' })).items.length, 1)
+
+  const moved = await ok('A', 'expense.update', {
+    id: second.expense.id,
+    amountFen: 888,
+    l1: 'health',
+    l2: 'drug',
+    note: '  感冒药  ',
+    occurredAtMs: at(cur),
+  })
+  assert.equal(moved.expense.amountFen, 888)
+  assert.equal(moved.expense.l1Name, '医疗')
+  assert.equal(moved.expense.note, '感冒药')
+  const curIds = (await ok('A', 'expense.list', { month: cur })).items.map((item) => item.id)
+  assert.ok(curIds.includes(second.expense.id))
+  assert.equal((await ok('A', 'expense.list', { month: prev, l1: 'transit' })).items.length, 0)
+
+  await ok('A', 'expense.remove', { id: first.expense.id })
+  await failsWith('NOT_FOUND', 'A', 'expense.get', { id: first.expense.id })
+})
+
+test('记账月报：TOP3、环比、不含本月的月均、未结束标记', async () => {
+  await register('A', '阿杏')
+  const cur = currentMonthKey()
+  const prev = addMonths(cur, -1)
+  const older = addMonths(cur, -2)
+  await spend('A', { amountFen: 10000, occurredAtMs: at(older) })
+  await spend('A', { amountFen: 30000, l1: 'transit', l2: 'metro', occurredAtMs: at(prev) })
+  await spend('A', { amountFen: 20000, l2: 'takeout', occurredAtMs: at(cur) })
+  await spend('A', { amountFen: 15000, l2: 'meal', occurredAtMs: at(cur) })
+  await spend('A', { amountFen: 10000, l1: 'shopping', l2: 'market', occurredAtMs: at(cur) })
+  await spend('A', { amountFen: 5000, l1: 'living', l2: 'rent', occurredAtMs: at(cur) })
+
+  const summary = await ok('A', 'expense.monthSummary', { month: cur, l1: 'food' })
+  assert.equal(summary.totalFen, 50000)
+  assert.equal(summary.count, 4)
+  assert.equal(summary.open, true)
+  assert.equal(summary.mom, '+67%')
+  assert.equal(summary.avgFen, 20000)
+  assert.deepEqual(summary.top.map((row) => row.l1), ['food', 'shopping', 'living'])
+  assert.equal(summary.categories.length, 3)
+  assert.equal(summary.breakdown.totalFen, 35000)
+  assert.deepEqual(
+    summary.breakdown.items.map((row) => [row.l2, row.amountFen]),
+    [
+      ['takeout', 20000],
+      ['meal', 15000],
+    ],
+  )
+
+  const past = await ok('A', 'expense.monthSummary', { month: prev })
+  assert.equal(past.totalFen, 30000)
+  assert.equal(past.open, false)
+  assert.equal(past.mom, '+200%')
+  assert.equal(past.avgFen, 20000)
+  assert.equal(past.breakdown, null)
+
+  const first = await ok('A', 'expense.monthSummary', { month: older })
+  assert.equal(first.mom, '—')
+
+  const brief = await ok('A', 'expense.monthSummary', { month: cur, scope: 'total' })
+  assert.equal(brief.totalFen, 50000)
+  assert.equal(brief.avgFen, null)
+  assert.deepEqual(brief.top, [])
+  assert.equal(brief.breakdown, null)
+
+  await register('C', '路人')
+  const empty = await ok('C', 'expense.monthSummary', { month: cur })
+  assert.equal(empty.totalFen, 0)
+  assert.equal(empty.mom, '—')
+  assert.equal(empty.avgFen, null)
+  assert.equal(empty.open, true)
 })
 
 test('请求成本：列表只读本人 + 伴侣 + 业务查询各一次', async () => {

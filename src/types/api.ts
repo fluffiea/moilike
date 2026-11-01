@@ -84,6 +84,37 @@ export type Letter = {
 
 export type BindRequest = { id: string; name: string; avatarUrl: string; createdAtMs: number }
 
+export type Expense = {
+  id: string
+  amountFen: number
+  l1: string
+  l2: string
+  l1Name: string
+  l2Name: string
+  note: string
+  occurredAtMs: number
+  createdAtMs: number
+  updatedAtMs: number
+}
+
+export type ExpenseL1Stat = { l1: string; name: string; amountFen: number }
+export type ExpenseL2Stat = { l2: string; name: string; amountFen: number }
+
+export type ExpenseMonthSummary = {
+  month: string
+  totalFen: number
+  count: number
+  /** 所看月份就是当前北京时间的自然月，还没过完 */
+  open: boolean
+  /** 较上月；上月没有支出时为 — */
+  mom: string
+  /** 已结束自然月的月均，不含本月；没有任何已结束月份时为 null */
+  avgFen: number | null
+  top: ExpenseL1Stat[]
+  categories: ExpenseL1Stat[]
+  breakdown: { l1: string; name: string; totalFen: number; items: ExpenseL2Stat[] } | null
+}
+
 export type Page<T> = { items: T[]; nextCursor: string }
 
 type UserResult = { user: User }
@@ -123,6 +154,14 @@ export interface Routes {
   'letters.get': [{ id: string }, { letter: Letter }]
   'letters.create': [{ title: string; content: string; type: string; images: string[] }, { letter: Letter }]
   'letters.remove': [{ id: string }, null]
+
+  'expense.list': [{ month: string; cursor?: string; l1?: string }, Page<Expense>]
+  'expense.get': [{ id: string }, { expense: Expense }]
+  'expense.create': [{ amountFen: number; l1: string; l2: string; note?: string; occurredAtMs: number }, { expense: Expense }]
+  'expense.update': [{ id: string; amountFen: number; l1: string; l2: string; note?: string; occurredAtMs: number }, { expense: Expense }]
+  'expense.remove': [{ id: string }, null]
+  /** scope=total 只返回本月合计，给独白入口用，不算环比和月均 */
+  'expense.monthSummary': [{ month: string; l1?: string; scope?: 'total' | 'full' }, ExpenseMonthSummary]
 }
 
 export type Route = keyof Routes

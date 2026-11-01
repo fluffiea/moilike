@@ -14,6 +14,7 @@ const ROUTES = {
   daily: require('./routes/daily'),
   report: require('./routes/report'),
   letters: require('./routes/letters'),
+  expense: require('./routes/expense'),
 }
 
 /** 测试可注入替身 cloud；线上只传 event */

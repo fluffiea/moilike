@@ -91,6 +91,12 @@
   color: var(--mo-text-secondary);
 }
 
+.row__extra {
+  margin-right: 8rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
 .logout {
   display: flex;
   align-items: center;

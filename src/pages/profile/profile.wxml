@@ -41,6 +41,13 @@
           </view>
           <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
         </view>
+        <view class="row row--line" bind:tap="onLedger" aria-role="button">
+          <view class="row__main">
+            <text class="row__title">记账</text>
+          </view>
+          <text wx:if="{{spentLabel}}" class="row__extra">{{spentLabel}}</text>
+          <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+        </view>
       </view>
 
       <view class="mo-card logout" bind:tap="onLogout" aria-role="button">

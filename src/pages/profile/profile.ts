@@ -1,6 +1,7 @@
 import type { User } from '../../types/api'
 import { call } from '../../core/api'
-import { PAGE_EDIT_PROFILE, PAGE_LOGIN, PAGE_PARTNER_HUB, PAGE_PREFERENCES } from '../../core/paths'
+import { beijingMonthKey, formatYuan } from '../../core/ledger'
+import { PAGE_EDIT_PROFILE, PAGE_LEDGER, PAGE_LOGIN, PAGE_PARTNER_HUB, PAGE_PREFERENCES } from '../../core/paths'
 import { getUser, isRegistered, logout, on, setUser } from '../../core/store'
 import { confirm } from '../../core/ui'
 
@@ -27,8 +28,8 @@ function toView(u: User): View {
   }
 }
 
-Component<{ me: View | null; refreshing: boolean }, {}, WechatMiniprogram.Component.MethodOption, { off: () => void }, true>({
-  data: { me: null, refreshing: false },
+Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, WechatMiniprogram.Component.MethodOption, { off: () => void }, true>({
+  data: { me: null, refreshing: false, spentLabel: '' },
   methods: {
     onLoad() {
       const u = getUser()
@@ -39,11 +40,21 @@ Component<{ me: View | null; refreshing: boolean }, {}, WechatMiniprogram.Compon
       this.off()
     },
 
+    onShow() {
+      void this.loadSpent()
+    },
+
+    async loadSpent() {
+      const r = await call('expense.monthSummary', { month: beijingMonthKey(), scope: 'total' })
+      this.setData({ spentLabel: r.ok ? `本月已花 ${formatYuan(r.data.totalFen)}` : '' })
+    },
+
     async onRefresh() {
       this.setData({ refreshing: true })
       const r = await call('user.me', {})
       this.setData({ refreshing: false })
       if (r.ok && isRegistered(r.data.user)) setUser(r.data.user)
+      void this.loadSpent()
     },
 
     onAvatarError() {
@@ -57,6 +68,9 @@ Component<{ me: View | null; refreshing: boolean }, {}, WechatMiniprogram.Compon
     },
     onPartner() {
       wx.navigateTo({ url: PAGE_PARTNER_HUB })
+    },
+    onLedger() {
+      wx.navigateTo({ url: PAGE_LEDGER })
     },
 
     async onLogout() {

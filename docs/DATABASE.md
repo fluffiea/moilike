@@ -39,6 +39,34 @@
 
 `senderId`、`receiverId`（服务端取当前伴侣，不信任客户端）、`title`、`content`、`type`、`images`、`createdAt`、`updatedAt`。
 
+### expenses
+
+每人一本支出账，不依赖结伴。查询一律带 `authorOpenId = 当前 openId`，伴侣也读不到。
+
+| 字段 | 说明 |
+|------|------|
+| `authorOpenId` | 记账人；只由云函数写入 |
+| `amountFen` | 金额，正整数，单位分 |
+| `l1` / `l2` | 固定分类 id，见下表；不可自定义 |
+| `note` | 备注，可空，最多 50 字 |
+| `occurredAt` | 发生时间，分钟对齐 |
+| `createdAt` / `updatedAt` | 写入时间 |
+
+自然月、环比和「本月未结束」都按北京时间切分。完整月均只统计已经结束的自然月（有支出的月份做平均），不含当前这个还没过完的月。
+
+分类 id 与展示名（前后端各有一份，必须一致）：
+
+| 一级 | id | 二级 |
+|------|----|------|
+| 餐饮 | `food` | 外卖 `takeout`、正餐 `meal`、奶茶 `tea`、零食 `snack` |
+| 交通 | `transit` | 地铁 `metro`、公交 `bus`、打车 `taxi`、火车 `rail`、单车 `bike` |
+| 购物 | `shopping` | 超市 `market`、日用 `daily`、服饰 `clothes`、数码 `digital` |
+| 居住 | `living` | 房租 `rent`、水电 `utility`、物业 `property`、家居 `furnish` |
+| 娱乐 | `fun` | 电影 `movie`、游戏 `game`、旅行 `travel`、运动 `sport` |
+| 医疗 | `health` | 药品 `drug`、门诊 `clinic` |
+| 学习 | `study` | 书籍 `book`、课程 `course` |
+| 其他 | `other` | 其他 `misc` |
+
 ### bind_requests
 
 `fromOpenId`、`toOpenId`、`fromNickName` / `fromAvatarUrl`、`toNickName` / `toAvatarUrl`（申请时快照）、`status`（`pending` / `accepted` / `rejected` / `voided`）、`createdAt`。
@@ -56,6 +84,8 @@
 | `letters` | `receiverId` 升序 + `createdAt` 降序 | 信件列表 |
 | `bind_requests` | `toOpenId` 升序 + `status` 升序 | 收到的申请 |
 | `bind_requests` | `fromOpenId` 升序 + `status` 升序 | 发出的申请 |
+| `expenses` | `authorOpenId` 升序 + `occurredAt` 降序 | 月流水、月度总结 |
+| `expenses` | `authorOpenId` 升序 + `l1` 升序 + `occurredAt` 降序 | 一级分类下钻 |
 
 ## 云函数配置
 
