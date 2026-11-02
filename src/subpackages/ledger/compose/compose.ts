@@ -15,6 +15,7 @@ type Data = {
   loading: boolean
   amountInitial: string
   l1Options: Chip[]
+  l1Name: string
   l2Options: Chip[]
   date: string
   time: string
@@ -34,6 +35,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     loading: false,
     amountInitial: '',
     l1Options: [],
+    l1Name: '',
     l2Options: [],
     date: '',
     time: '',
@@ -91,6 +93,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     renderChips() {
       const cat = categoryById(this.l1)
       this.setData({
+        l1Name: cat ? cat.name : '',
         l1Options: EXPENSE_CATEGORIES.map((item) => ({ id: item.id, name: item.name, on: item.id === this.l1 })),
         l2Options: (cat ? cat.children : []).map((item) => ({ id: item.id, name: item.name, on: item.id === this.l2 })),
       })

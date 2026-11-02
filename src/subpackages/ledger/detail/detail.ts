@@ -19,7 +19,7 @@ function toView(expense: Expense): View {
     amount: formatYuan(expense.amountFen),
     category: `${expense.l1Name} · ${expense.l2Name}`,
     when: ledgerDateTime(expense.occurredAtMs),
-    note: expense.note || '—',
+    note: expense.note,
   }
 }
 

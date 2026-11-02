@@ -2,7 +2,7 @@ import type { Expense, ExpenseMonthSummary } from '../../../types/api'
 import { call } from '../../../core/api'
 import { categoryById } from '../../../core/expense-categories'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
-import { barWidth, formatYuan, ledgerDay, shareText } from '../../../core/ledger'
+import { barWidth, formatYuan, ledgerDay, monthTitle, shareText } from '../../../core/ledger'
 import { PAGE_LEDGER, PAGE_LEDGER_DETAIL, back } from '../../../core/paths'
 import { handoff, on } from '../../../core/store'
 import { toast } from '../../../core/ui'
@@ -39,6 +39,7 @@ function toBreakdown(data: NonNullable<ExpenseMonthSummary['breakdown']>): Break
 
 type Data = {
   title: string
+  monthText: string
   status: 'loading' | 'ready' | 'error'
   errorText: string
   refreshing: boolean
@@ -59,6 +60,7 @@ type Custom = {
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   data: {
     title: '分类',
+    monthText: '',
     status: 'loading',
     errorText: '',
     refreshing: false,
@@ -78,7 +80,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.pending = false
       this.loadedAt = Date.now()
       this.summarySeq = 0
-      this.setData({ title: cat.name })
+      this.setData({ title: cat.name, monthText: monthTitle(this.month) })
       this.offs = [on('expense:changed', () => { this.pending = true })]
       this.open()
     },

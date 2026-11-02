@@ -1,11 +1,11 @@
 <view class="mo-page">
-  <app-nav title="{{editId ? '编辑' : '记一笔'}}" show-back confirm-leave="{{leaveHint}}" />
+  <app-nav title="{{editId ? '编辑记账' : '记一笔'}}" show-back confirm-leave="{{leaveHint}}" />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
-    <view class="mo-body mo-body--sheet">
+    <view class="mo-body mo-body--sheet sheet">
       <state-view wx:if="{{loading}}" status="loading" rows="{{1}}" />
-      <view wx:else class="mo-card form">
-        <view class="block block--first">
-          <text class="block__label">金额</text>
+      <block wx:else>
+        <view class="mo-card">
+          <text class="mo-section-title">金额</text>
           <view class="amount">
             <text class="amount__sign">¥</text>
             <input
@@ -21,13 +21,13 @@
           </view>
         </view>
 
-        <view class="block">
-          <text class="block__label">一级分类</text>
-          <view class="mo-chips">
+        <view class="mo-card">
+          <text class="mo-section-title">分类</text>
+          <view class="grid">
             <view
               wx:for="{{l1Options}}"
               wx:key="id"
-              class="mo-chip {{item.on ? 'mo-chip--on' : ''}}"
+              class="grid__item mo-chip {{item.on ? 'mo-chip--on' : ''}}"
               data-id="{{item.id}}"
               bind:tap="onPickL1"
               aria-role="button"
@@ -35,60 +35,64 @@
               <text>{{item.name}}</text>
             </view>
           </view>
-        </view>
-
-        <view class="block">
-          <text class="block__label">二级分类</text>
-          <view class="mo-chips">
-            <view
-              wx:for="{{l2Options}}"
-              wx:key="id"
-              class="mo-chip {{item.on ? 'mo-chip--on' : ''}}"
-              data-id="{{item.id}}"
-              bind:tap="onPickL2"
-              aria-role="button"
-            >
-              <text>{{item.name}}</text>
+          <view class="sub">
+            <text class="sub__label">{{l1Name}}</text>
+            <view class="grid">
+              <view
+                wx:for="{{l2Options}}"
+                wx:key="id"
+                class="grid__item mo-chip {{item.on ? 'mo-chip--on' : ''}}"
+                data-id="{{item.id}}"
+                bind:tap="onPickL2"
+                aria-role="button"
+              >
+                <text>{{item.name}}</text>
+              </view>
             </view>
           </view>
         </view>
 
-        <view class="block">
-          <text class="block__label">日期时间</text>
+        <view class="mo-card">
+          <text class="mo-section-title">时间</text>
           <view class="when">
-            <picker mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
-              <text class="when__text">{{date}}</text>
+            <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
+              <view class="mo-field when__field">
+                <text class="when__text">{{date}}</text>
+              </view>
             </picker>
-            <picker mode="time" value="{{time}}" bindchange="onTime">
-              <text class="when__text when__text--time">{{time}}</text>
+            <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
+              <view class="mo-field when__field">
+                <text class="when__text">{{time}}</text>
+              </view>
             </picker>
           </view>
         </view>
 
-        <view class="block">
-          <text class="block__label">备注（可选）</text>
+        <view class="mo-card">
+          <text class="mo-section-title">备注</text>
           <view class="mo-field">
             <textarea
-              class="mo-textarea"
+              class="mo-textarea note"
               value="{{noteInitial}}"
-              placeholder="添加备注..."
+              placeholder="补一句，也可以不写"
               placeholder-class="mo-placeholder"
               maxlength="50"
+              auto-height
               show-confirm-bar="{{false}}"
               cursor-spacing="{{120}}"
               bindinput="onNote"
             />
           </view>
-          <text class="note-count">{{noteCount}}/50</text>
+          <text class="mo-hint counter">{{noteCount}}/50</text>
         </view>
-      </view>
+      </block>
     </view>
   </scroll-view>
 
   <view class="mo-footer">
     <view class="mo-btn {{submitting || loading ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
       <view wx:if="{{submitting}}" class="mo-spinner" />
-      <text>保存</text>
+      <text>{{submitting ? '正在保存' : (editId ? '保存' : '记下')}}</text>
     </view>
   </view>
 </view>

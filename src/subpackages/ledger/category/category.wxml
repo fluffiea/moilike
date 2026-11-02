@@ -15,51 +15,48 @@
       <state-view wx:elif="{{status === 'error' && !breakdown}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRetry" />
 
       <block wx:elif="{{breakdown}}">
-        <view class="mo-card hero">
-          <text class="hero__label">{{title}}合计</text>
+        <view class="mo-card">
+          <text class="hero__label">{{monthText}}</text>
           <text class="hero__amount">{{breakdown.totalText}}</text>
         </view>
 
-        <view class="mo-card">
-          <text class="mo-section-title">L2 分类占比</text>
-          <text wx:if="{{breakdown.empty}}" class="chart-empty">这个分类还没有支出</text>
-          <view wx:for="{{breakdown.items}}" wx:key="name" class="bar">
-            <text class="bar__name">{{item.name}}</text>
+        <view wx:if="{{!breakdown.empty}}" class="mo-card">
+          <text class="mo-section-title">具体分类</text>
+          <view wx:for="{{breakdown.items}}" wx:key="name" class="cat {{index ? 'cat--line' : ''}}">
+            <view class="cat__top">
+              <text class="cat__name">{{item.name}}</text>
+              <text class="cat__pct">{{item.pct}}</text>
+              <text class="cat__amt">{{item.amount}}</text>
+            </view>
             <view class="track"><view class="track__fill" style="width: {{item.bar}};" /></view>
-            <text class="bar__pct">{{item.pct}}</text>
-            <text class="bar__amt">{{item.amount}}</text>
           </view>
         </view>
 
-        <view class="mo-card">
-          <text class="mo-section-title">相关支出明细</text>
-          <block wx:if="{{feed.status === 'ready'}}">
-            <view
-              wx:for="{{feed.items}}"
-              wx:key="id"
-              class="bill {{index ? 'bill--line' : ''}}"
-              data-id="{{item.id}}"
-              bind:tap="onOpen"
-              aria-role="button"
-            >
-              <view class="dot" />
-              <view class="bill__main">
-                <text class="bill__title">{{item.title}}</text>
-                <text wx:if="{{item.note}}" class="bill__note" overflow="ellipsis" max-lines="2">{{item.note}}</text>
-              </view>
-              <view class="bill__side">
-                <text class="bill__amt">{{item.amount}}</text>
-                <text class="bill__when">{{item.when}}</text>
-              </view>
+        <view wx:if="{{feed.status === 'ready'}}" class="mo-card">
+          <text class="mo-section-title">明细</text>
+          <view
+            wx:for="{{feed.items}}"
+            wx:key="id"
+            class="bill {{index ? 'bill--line' : ''}}"
+            data-id="{{item.id}}"
+            bind:tap="onOpen"
+            aria-role="button"
+          >
+            <view class="bill__main">
+              <text class="bill__title">{{item.title}}</text>
+              <text class="bill__meta">{{item.when}}</text>
+              <text wx:if="{{item.note}}" class="bill__note" overflow="ellipsis" max-lines="1">{{item.note}}</text>
             </view>
-          </block>
-          <state-view wx:elif="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
-          <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
-          <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="这个分类还没有支出" />
-          <state-view wx:if="{{feed.status === 'ready' && feed.more === 'loading'}}" status="more-loading" />
-          <state-view wx:elif="{{feed.status === 'ready' && feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
-          <state-view wx:elif="{{feed.status === 'ready' && feed.more === 'end'}}" status="end" />
+            <text class="bill__amt">{{item.amount}}</text>
+            <image class="mo-chevron bill__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+          </view>
+          <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
+          <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+          <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
         </view>
+        <state-view wx:elif="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
+        <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+        <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="还没有这类支出" hint="记一笔就好" />
       </block>
     </view>
   </scroll-view>

@@ -1,22 +1,3 @@
-.block {
-  margin-top: 28rpx;
-  padding-top: 28rpx;
-  border-top: var(--mo-border-field);
-}
-
-.block--first {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
-}
-
-.block__label {
-  display: block;
-  margin-bottom: 16rpx;
-  font-size: 26rpx;
-  color: var(--mo-text-secondary);
-}
-
 .amount {
   display: flex;
   flex-direction: row;
@@ -32,25 +13,81 @@
 
 .amount__input {
   flex: 1;
-  height: 96rpx;
-  line-height: 96rpx;
-  font-size: 64rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 40rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
 
-.form .mo-chip {
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.sheet .grid__item {
+  box-sizing: border-box;
+  justify-content: center;
+  width: calc((100% - 48rpx) / 4);
+  margin: 0 16rpx 16rpx 0;
+  padding: 0;
+  border-width: 0;
   background-color: var(--mo-l0-bg);
 }
 
-.form .mo-chip--on {
+.sheet .grid__item:nth-child(4n) {
+  margin-right: 0;
+}
+
+.sheet .grid__item.mo-chip--on {
+  background-color: var(--mo-fill-brand);
+}
+
+.sub {
+  padding: 24rpx;
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l0-bg);
+}
+
+.sub .grid {
+  margin-bottom: -16rpx;
+}
+
+.sub__label {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.sub .grid__item {
+  background-color: var(--mo-l1-card);
+  border-color: transparent;
+}
+
+.sub .grid__item.mo-chip--on {
   background-color: var(--mo-fill-brand);
 }
 
 .when {
   display: flex;
   flex-direction: row;
+}
+
+.when__item {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.when__item--last {
+  margin-right: 0;
+}
+
+.when__field {
+  display: flex;
   align-items: center;
+  height: 88rpx;
 }
 
 .when__text {
@@ -58,14 +95,12 @@
   color: var(--mo-text-primary);
 }
 
-.when__text--time {
-  margin-left: 24rpx;
+.note {
+  min-height: 88rpx;
 }
 
-.note-count {
+.counter {
   display: block;
   margin-top: 12rpx;
-  font-size: 24rpx;
   text-align: right;
-  color: var(--mo-text-muted);
 }

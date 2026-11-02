@@ -9,7 +9,6 @@ import { toast } from '../../../core/ui'
 const STALE_MS = 60 * 1000
 
 type Row = { id: string; title: string; meta: string; note: string; amount: string; when: string }
-type TopRow = { l1: string; rank: string; name: string; amount: string; bar: string }
 type CatRow = { l1: string; name: string; amount: string; pct: string; bar: string }
 type SummaryView = {
   totalText: string
@@ -18,7 +17,6 @@ type SummaryView = {
   avgText: string
   count: number
   empty: boolean
-  top: TopRow[]
   categories: CatRow[]
 }
 
@@ -34,7 +32,6 @@ function toRow(item: Expense): Row {
 }
 
 function toSummary(data: ExpenseMonthSummary): SummaryView {
-  const maxTop = data.top.reduce((m, x) => Math.max(m, x.amountFen), 0)
   const maxCat = data.categories.reduce((m, x) => Math.max(m, x.amountFen), 0)
   return {
     totalText: formatYuan(data.totalFen),
@@ -43,13 +40,6 @@ function toSummary(data: ExpenseMonthSummary): SummaryView {
     avgText: data.avgFen == null ? '—' : formatYuan(data.avgFen),
     count: data.count,
     empty: data.totalFen === 0,
-    top: data.top.map((item, i) => ({
-      l1: item.l1,
-      rank: `${i + 1}`,
-      name: item.name,
-      amount: formatYuan(item.amountFen),
-      bar: barWidth(item.amountFen, maxTop),
-    })),
     categories: data.categories.map((item) => ({
       l1: item.l1,
       name: item.name,

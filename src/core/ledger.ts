@@ -54,7 +54,7 @@ export function ledgerDay(ms: number, now = Date.now()): string {
 
 export function ledgerDateTime(ms: number): string {
   const p = beijingParts(ms)
-  return `${p.y}-${pad2(p.m)}-${pad2(p.day)} ${pad2(p.hh)}:${pad2(p.mm)}`
+  return `${ledgerDay(ms)} ${pad2(p.hh)}:${pad2(p.mm)}`
 }
 
 export function parseBeijingDateTime(date: string, time = '00:00'): number {

@@ -7,11 +7,15 @@
 .hero__amount {
   display: block;
   margin-top: 12rpx;
-  font-size: 64rpx;
+  font-size: 40rpx;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
   color: var(--mo-text-primary);
+}
+
+.meta {
+  margin-top: 24rpx;
 }
 
 .kv {
@@ -19,14 +23,7 @@
   flex-direction: row;
   align-items: flex-start;
   padding: 24rpx 0;
-}
-
-.kv--line {
   border-top: var(--mo-border-field);
-}
-
-.hero__amount + .kv--line {
-  margin-top: 32rpx;
 }
 
 .kv__k {
@@ -43,25 +40,37 @@
   color: var(--mo-text-primary);
 }
 
-.actions {
-  padding: 0 32rpx;
+.rowcard {
+  padding: 8rpx 32rpx;
 }
 
-.action {
+.row {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  min-height: 96rpx;
+  min-height: 104rpx;
 }
 
-.action--line {
-  border-top: var(--mo-border-field);
-}
-
-.action__text {
+.row__title {
+  flex: 1;
   font-size: 32rpx;
   color: var(--mo-text-primary);
 }
 
-.action__text--danger {
+.danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  padding: 0;
+}
+
+.danger--busy {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.danger__text {
+  font-size: 32rpx;
   color: var(--mo-text-danger);
 }
