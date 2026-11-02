@@ -10,9 +10,11 @@ type View = {
   initial: string
   nickName: string
   signature: string
+  hasSignature: boolean
+  bound: boolean
   partnerAvatarUrl: string
-  partnerTitle: string
-  partnerHint: string
+  partnerName: string
+  partnerInitial: string
 }
 
 function toView(u: User): View {
@@ -22,9 +24,11 @@ function toView(u: User): View {
     initial: u.nickName.slice(0, 1),
     nickName: u.nickName,
     signature: u.signature || '写点什么介绍自己吧',
+    hasSignature: Boolean(u.signature),
+    bound: Boolean(p),
     partnerAvatarUrl: p ? p.avatarUrl : '',
-    partnerTitle: p ? `与 ${p.nickName} 已结伴` : '添加结伴对象',
-    partnerHint: p ? '管理绑定与纪念日' : '与 Ta 绑定，解锁朝夕、素笺与共鸣',
+    partnerName: p ? p.nickName : '',
+    partnerInitial: p ? p.nickName.slice(0, 1) : '',
   }
 }
 
@@ -57,8 +61,10 @@ Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, Wech
       void this.loadSpent()
     },
 
-    onAvatarError() {
-      this.setData({ 'me.avatarUrl': '' })
+    onAvatarError(e: WechatMiniprogram.TouchEvent) {
+      const who = e.currentTarget.dataset.who as 'me' | 'partner'
+      if (who === 'partner') this.setData({ 'me.partnerAvatarUrl': '' })
+      else this.setData({ 'me.avatarUrl': '' })
     },
     onEdit() {
       wx.navigateTo({ url: PAGE_EDIT_PROFILE })

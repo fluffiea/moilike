@@ -4,15 +4,22 @@ import { dateStr, dateTime, fullDate, parseDateTime, timeStr } from '../../../co
 import { getUser, setUser } from '../../../core/store'
 import { confirm, toast, toastDone } from '../../../core/ui'
 
-type RequestView = BindRequest & { when: string }
+type RequestView = BindRequest & { when: string; initial: string }
+
+type Person = { avatarUrl: string; initial: string }
+
+type PartnerView = Person & { nickName: string; signature: string; hasSignature: boolean }
 
 type Data = {
   status: 'loading' | 'ready' | 'error'
   errorText: string
   refreshing: boolean
-  partner: { avatarUrl: string; nickName: string; signature: string } | null
-  sinceLabel: string
+  me: Person
+  partner: PartnerView | null
+  sinceSet: boolean
+  sinceHeadline: string
   date: string
+  dateText: string
   time: string
   today: string
   bindCode: string
@@ -22,16 +29,29 @@ type Data = {
   busy: string
 }
 
-const withWhen = (r: BindRequest): RequestView => ({ ...r, when: dateTime(r.createdAtMs) })
+function dayText(date: string): string {
+  const [y, m, d] = date.split('-').map(Number)
+  if (!y || !m || !d) return date
+  return `${y}年${m}月${d}日`
+}
+
+const withWhen = (r: BindRequest): RequestView => ({
+  ...r,
+  when: dateTime(r.createdAtMs),
+  initial: r.name.slice(0, 1),
+})
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
   data: {
     status: 'loading',
     errorText: '',
     refreshing: false,
+    me: { avatarUrl: '', initial: '' },
     partner: null,
-    sinceLabel: '',
+    sinceSet: false,
+    sinceHeadline: '',
     date: '',
+    dateText: '',
     time: '',
     today: '',
     bindCode: '',
@@ -65,14 +85,39 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
 
     renderUser(u: User) {
       const since = u.togetherSinceMs || Date.now()
+      const p = u.partner
+      const date = dateStr(since)
       this.setData({
         status: 'ready',
-        partner: u.partner ? { avatarUrl: u.partner.avatarUrl, nickName: u.partner.nickName, signature: u.partner.signature || 'Ta 还没有写签名' } : null,
-        sinceLabel: u.togetherSinceMs ? `已设为 ${fullDate(u.togetherSinceMs)}，双方同步` : '还没有设置纪念日',
-        date: dateStr(since),
+        me: { avatarUrl: u.avatarUrl, initial: u.nickName.slice(0, 1) },
+        partner: p
+          ? {
+              avatarUrl: p.avatarUrl,
+              initial: p.nickName.slice(0, 1),
+              nickName: p.nickName,
+              signature: p.signature,
+              hasSignature: Boolean(p.signature),
+            }
+          : null,
+        sinceSet: Boolean(u.togetherSinceMs),
+        sinceHeadline: u.togetherSinceMs ? fullDate(u.togetherSinceMs) : '',
+        date,
+        dateText: dayText(date),
         time: timeStr(since),
         today: dateStr(Date.now()),
       })
+    },
+
+    onAvatarError(e: WechatMiniprogram.TouchEvent) {
+      const who = e.currentTarget.dataset.who as 'me' | 'partner' | 'outbound'
+      if (who === 'me') this.setData({ 'me.avatarUrl': '' })
+      else if (who === 'outbound') this.setData({ 'outbound.avatarUrl': '' })
+      else this.setData({ 'partner.avatarUrl': '' })
+    },
+
+    onRequestAvatarError(e: WechatMiniprogram.TouchEvent) {
+      const index = Number(e.currentTarget.dataset.index)
+      this.setData({ [`inbound[${index}].avatarUrl`]: '' })
     },
 
     onRefresh() {
@@ -85,7 +130,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
     },
 
     onDate(e: WechatMiniprogram.PickerChange) {
-      this.setData({ date: String(e.detail.value) })
+      const date = String(e.detail.value)
+      this.setData({ date, dateText: dayText(date) })
     },
     onTime(e: WechatMiniprogram.PickerChange) {
       this.setData({ time: String(e.detail.value) })
@@ -127,7 +173,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
 
     async onRespond(e: WechatMiniprogram.TouchEvent) {
       const id = String(e.currentTarget.dataset.id)
-      const accept = e.currentTarget.dataset.accept === true
+      const raw = e.currentTarget.dataset.accept
+      const accept = raw === true || raw === 'true'
       if (this.data.busy) return
       if (accept) {
         const ok = await confirm({

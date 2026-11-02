@@ -3,33 +3,54 @@
   <scroll-view
     class="mo-scroll"
     scroll-y
+    show-scrollbar="{{false}}"
     refresher-enabled
     refresher-triggered="{{refreshing}}"
     bindrefresherrefresh="onRefresh"
   >
     <view class="mo-body">
-      <view class="identity" bind:tap="onEdit" aria-role="button" aria-label="编辑资料">
-        <view class="identity__avatar">
-          <image wx:if="{{me.avatarUrl}}" class="identity__img" src="{{me.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
-          <text wx:else class="identity__initial">{{me.initial}}</text>
+      <view wx:if="{{me}}" class="hero">
+        <view class="hero__people">
+          <view class="hero__slot" bind:tap="onEdit" aria-role="button" aria-label="编辑资料">
+            <view class="hero__avatar">
+              <image wx:if="{{me.avatarUrl}}" class="hero__img" src="{{me.avatarUrl}}" mode="aspectFill" data-who="me" binderror="onAvatarError" />
+              <text wx:else class="hero__initial">{{me.initial}}</text>
+            </view>
+            <text wx:if="{{me.bound}}" class="hero__mark hero__mark--me">我</text>
+          </view>
+          <view class="hero__slot hero__slot--next" bind:tap="onPartner" aria-role="button" aria-label="{{me.bound ? '结伴' : '去结伴'}}">
+            <view class="hero__avatar">
+              <block wx:if="{{me.bound}}">
+                <image wx:if="{{me.partnerAvatarUrl}}" class="hero__img" src="{{me.partnerAvatarUrl}}" mode="aspectFill" data-who="partner" binderror="onAvatarError" />
+                <text wx:else class="hero__initial">{{me.partnerInitial}}</text>
+              </block>
+              <image wx:else class="hero__plus" src="/images/icons/plus.png" mode="aspectFit" />
+            </view>
+            <text wx:if="{{me.bound}}" class="hero__mark hero__mark--ta">Ta</text>
+          </view>
         </view>
-        <text class="identity__name">{{me.nickName}}</text>
-        <text class="identity__sign">{{me.signature}}</text>
+
+        <view class="hero__words" bind:tap="onEdit" aria-role="button" aria-label="编辑资料">
+          <text class="hero__name">{{me.nickName}}</text>
+          <text class="hero__sign {{me.hasSignature ? '' : 'hero__sign--empty'}}">{{me.signature}}</text>
+        </view>
+
+        <view wx:if="{{me.bound}}" class="hero__with" bind:tap="onPartner" aria-role="button" aria-label="结伴">
+          <text class="hero__with-text" overflow="ellipsis" max-lines="1">与 {{me.partnerName}}</text>
+          <image class="mo-chevron hero__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view wx:if="{{me && !me.bound}}" class="mo-card bond" bind:tap="onPartner" aria-role="button" aria-label="去结伴">
+        <text class="bond__title">添加结伴对象</text>
+        <text class="mo-hint bond__hint">与 Ta 绑定，解锁朝夕、素笺与共鸣</text>
+        <view class="mo-btn bond__btn">
+          <text>去结伴</text>
+        </view>
       </view>
 
       <view class="mo-card list">
-        <view class="row" bind:tap="onPartner" aria-role="button">
-          <view class="row__lead">
-            <image wx:if="{{me.partnerAvatarUrl}}" class="row__avatar" src="{{me.partnerAvatarUrl}}" mode="aspectFill" />
-            <view wx:else class="row__avatar row__avatar--empty" />
-          </view>
-          <view class="row__main">
-            <text class="row__title">{{me.partnerTitle}}</text>
-            <text class="row__hint">{{me.partnerHint}}</text>
-          </view>
-          <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
-        </view>
-        <view class="row row--line" bind:tap="onEdit" aria-role="button">
+        <view class="row" bind:tap="onEdit" aria-role="button">
           <view class="row__main">
             <text class="row__title">编辑资料</text>
           </view>
