@@ -58,14 +58,14 @@
 
 | 一级 | id | 二级 |
 |------|----|------|
-| 餐饮 | `food` | 外卖 `takeout`、正餐 `meal`、奶茶 `tea`、零食 `snack` |
-| 交通 | `transit` | 地铁 `metro`、公交 `bus`、打车 `taxi`、火车 `rail`、单车 `bike` |
-| 购物 | `shopping` | 超市 `market`、日用 `daily`、服饰 `clothes`、数码 `digital` |
-| 居住 | `living` | 房租 `rent`、水电 `utility`、物业 `property`、家居 `furnish` |
-| 娱乐 | `fun` | 电影 `movie`、游戏 `game`、旅行 `travel`、运动 `sport` |
-| 医疗 | `health` | 药品 `drug`、门诊 `clinic` |
-| 学习 | `study` | 书籍 `book`、课程 `course` |
-| 其他 | `other` | 其他 `misc` |
+| 餐饮 | `food` | 外卖 `takeout`、正餐 `meal`、奶茶 `tea`、饮料 `drink`、零食 `snack`、水果 `fruit`、其他餐饮 `food-other` |
+| 交通 | `transit` | 公交地铁 `transit-public`、打车 `taxi`、共享单车 `bike`、加油停车 `fuel-park`、其他交通 `transit-other` |
+| 购物 | `shopping` | 日用 `daily`、服饰 `clothes`、美妆 `beauty`、数码 `digital`、其他购物 `shopping-other` |
+| 娱乐 | `fun` | 社交约会 `social`、影音游戏 `media-game`、出行玩乐 `outing`、其他娱乐 `fun-other` |
+| 居住 | `living` | 房租 `rent`、水电燃气 `utility`、物业 `property`、家具家电 `appliance`、其他居住 `living-other` |
+| 学习 | `study` | 课程书籍 `course-book`、办公文具 `stationery`、其他学习 `study-other` |
+| 医疗 | `health` | 就医购药 `treatment`、保健 `healthcare`、其他医疗 `health-other` |
+| 其他 | `other` | 转账红包 `transfer`、杂项 `misc`、未分类 `uncategorized` |
 
 ### bind_requests
 

@@ -243,10 +243,22 @@ test('记账分类表前后端一致，月份按北京时间切分', () => {
   const ts = readFileSync(new URL('../src/core/expense-categories.ts', import.meta.url), 'utf8')
   const pairs = pair(js)
   assert.deepEqual(pairs, pair(ts))
-  assert.equal(pairs.length, 34)
+  const { CATEGORIES } = require('../cloudfunctions/api/lib/categories.js')
+  assert.equal(CATEGORIES.length, 8)
+  assert.equal(
+    CATEGORIES.reduce((n, c) => n + c.children.length, 0),
+    35,
+  )
+  assert.deepEqual(
+    CATEGORIES.map((c) => c.name),
+    ['餐饮', '交通', '购物', '娱乐', '居住', '学习', '医疗', '其他'],
+  )
+  assert.equal(pairs.length, 43)
   assert.equal(pairs[0], 'food:餐饮')
-  assert.ok(pairs.includes('takeout:外卖'))
-  assert.ok(pairs.includes('living:居住'))
+  assert.ok(pairs.indexOf('fun:娱乐') < pairs.indexOf('living:居住'))
+  assert.ok(pairs.indexOf('study:学习') < pairs.indexOf('health:医疗'))
+  assert.ok(pairs.includes('transit-public:公交地铁'))
+  assert.ok(pairs.includes('uncategorized:未分类'))
 
   const nov1 = Date.UTC(2026, 10, 1) - 8 * 3600 * 1000
   assert.equal(monthKeyFromMs(nov1), '2026-11')
@@ -283,7 +295,7 @@ test('记账：未结伴可写，只有本人可见，金额分类时间和备�
   await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 0 })
   await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 1.5 })
   await failsWith('INVALID', 'A', 'expense.create', { ...bad, amountFen: 100000000 })
-  await failsWith('INVALID', 'A', 'expense.create', { ...bad, l2: 'metro' })
+  await failsWith('INVALID', 'A', 'expense.create', { ...bad, l2: 'taxi' })
   await failsWith('INVALID', 'A', 'expense.create', { ...bad, occurredAtMs: Date.now() + 10 * 60 * 1000 })
   await failsWith('INVALID', 'A', 'expense.create', { ...bad, note: '字'.repeat(51) })
   await failsWith('INVALID', 'A', 'expense.list', { month: '2026-13' })
@@ -297,7 +309,7 @@ test('记账：按月倒序分页，改时间会离开原月份，删除后不�
   const early = monthStartMs(prev) + 8 * 3600 * 1000
   const late = monthStartMs(prev) + 20 * 3600 * 1000
   const first = await spend('A', { amountFen: 100, occurredAtMs: early, note: '早' })
-  const second = await spend('A', { amountFen: 250, l1: 'transit', l2: 'metro', occurredAtMs: late, note: '晚' })
+  const second = await spend('A', { amountFen: 250, l1: 'transit', l2: 'taxi', occurredAtMs: late, note: '晚' })
   await spend('A', { amountFen: 999, occurredAtMs: at(cur), note: '这个月' })
 
   const page = await ok('A', 'expense.list', { month: prev })
@@ -321,7 +333,7 @@ test('记账：按月倒序分页，改时间会离开原月份，删除后不�
     id: second.expense.id,
     amountFen: 888,
     l1: 'health',
-    l2: 'drug',
+    l2: 'treatment',
     note: '  感冒药  ',
     occurredAtMs: at(cur),
   })
@@ -342,10 +354,10 @@ test('记账月报：TOP3、环比、不含本月的月均、未结束标记', a
   const prev = addMonths(cur, -1)
   const older = addMonths(cur, -2)
   await spend('A', { amountFen: 10000, occurredAtMs: at(older) })
-  await spend('A', { amountFen: 30000, l1: 'transit', l2: 'metro', occurredAtMs: at(prev) })
+  await spend('A', { amountFen: 30000, l1: 'transit', l2: 'taxi', occurredAtMs: at(prev) })
   await spend('A', { amountFen: 20000, l2: 'takeout', occurredAtMs: at(cur) })
   await spend('A', { amountFen: 15000, l2: 'meal', occurredAtMs: at(cur) })
-  await spend('A', { amountFen: 10000, l1: 'shopping', l2: 'market', occurredAtMs: at(cur) })
+  await spend('A', { amountFen: 10000, l1: 'shopping', l2: 'daily', occurredAtMs: at(cur) })
   await spend('A', { amountFen: 5000, l1: 'living', l2: 'rent', occurredAtMs: at(cur) })
 
   const summary = await ok('A', 'expense.monthSummary', { month: cur, l1: 'food' })
