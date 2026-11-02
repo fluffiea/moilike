@@ -36,8 +36,18 @@ function addMonths(key, delta) {
   return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}`
 }
 
+/**
+ * 下个月 1 日 00:00（北京时间）。不能走 monthStartMs(addMonths())：
+ * 2100-12 的下个月是 2101-01，会被年份上限判成非法，调用方再减 1 会变成 1970。
+ */
+function nextMonthStartMs(key) {
+  const p = parseMonth(key)
+  if (!p) return null
+  return Date.UTC(p.y, p.m, 1) - OFFSET
+}
+
 function currentMonthKey(now = Date.now()) {
   return monthKeyFromMs(now)
 }
 
-module.exports = { monthKeyFromMs, parseMonth, monthStartMs, addMonths, currentMonthKey }
+module.exports = { monthKeyFromMs, parseMonth, monthStartMs, nextMonthStartMs, addMonths, currentMonthKey }

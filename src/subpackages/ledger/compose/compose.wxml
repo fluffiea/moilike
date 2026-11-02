@@ -86,7 +86,7 @@
   </scroll-view>
 
   <view class="mo-footer">
-    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+    <view class="mo-btn {{submitting || loading ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
       <view wx:if="{{submitting}}" class="mo-spinner" />
       <text>保存</text>
     </view>

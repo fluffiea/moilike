@@ -9,6 +9,7 @@
     bindrefresherrefresh="onRefresh"
     bindscrolltolower="onLoadMore"
     lower-threshold="{{400}}"
+    scroll-top="{{scrollTop}}"
   >
     <view class="mo-body">
       <view class="month">

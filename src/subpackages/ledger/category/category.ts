@@ -88,7 +88,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
     onShow() {
       if (!this.feed) return
-      if (!this.pending && Date.now() - this.loadedAt < STALE_MS) return
+      const failed = this.data.status === 'error' || this.data.feed.status === 'error'
+      if (!this.pending && !failed && Date.now() - this.loadedAt < STALE_MS) return
       this.pending = false
       void this.reload()
     },
@@ -96,6 +97,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     open() {
       const month = this.month
       const l1 = this.l1
+      this.loadedAt = Date.now()
       if (this.feed) this.feed.dispose()
       this.setData({ status: 'loading', breakdown: null, errorText: '', feed: emptyFeed<Row>() })
       this.feed = new Feed<Expense, Row>({

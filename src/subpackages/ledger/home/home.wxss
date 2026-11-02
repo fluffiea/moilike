@@ -70,10 +70,10 @@
 }
 
 .summary__side {
-  width: 196rpx;
   margin-left: 20rpx;
   padding-left: 20rpx;
   border-left: var(--mo-border-field);
+  flex-shrink: 0;
 }
 
 .chart-label {
@@ -123,7 +123,6 @@
 }
 
 .top__amt {
-  width: 150rpx;
   margin-left: 12rpx;
   font-size: 24rpx;
   text-align: right;
@@ -133,6 +132,7 @@
 
 .track {
   flex: 1;
+  min-width: 48rpx;
   height: 12rpx;
   border-radius: var(--mo-radius-btn);
   background-color: var(--mo-l0-bg);
@@ -195,7 +195,6 @@
 }
 
 .cat__amt {
-  width: 160rpx;
   margin-left: 8rpx;
   font-size: 24rpx;
   text-align: right;

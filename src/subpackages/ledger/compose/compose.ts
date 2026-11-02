@@ -137,7 +137,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       if (!raw) return toast('请填写金额')
       const amountFen = yuanToFen(raw)
       if (amountFen == null) return toast('请填写正确金额')
-      if (!categoryById(this.l1)) return toast('请选择分类')
+      const picked = categoryById(this.l1)
+      if (!picked || !picked.children.some((item) => item.id === this.l2)) return toast('请选择分类')
       const occurredAtMs = Math.floor(parseBeijingDateTime(this.data.date, this.data.time) / 60000) * 60000
       if (!Number.isFinite(occurredAtMs)) return toast('请选择时间')
       if (occurredAtMs > Date.now() + 60000) return toast('不能记录未来的时间')
@@ -150,7 +151,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const r = editId ? await call('expense.update', { id: editId, ...input }) : await call('expense.create', input)
       this.setData({ submitting: false })
       if (!r.ok) return toast(r.message)
-      emit('expense:changed', { id: r.data.expense.id })
+      emit('expense:changed', { id: r.data.expense.id, occurredAtMs: r.data.expense.occurredAtMs })
       this.finish()
       toastDone(editId ? '已保存' : '已记下')
       back(PAGE_LEDGER)

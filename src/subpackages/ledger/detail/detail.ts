@@ -81,7 +81,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const r = await call('expense.remove', { id: this.raw.id })
       this.setData({ busy: false })
       if (!r.ok) return toast(r.message)
-      emit('expense:changed', { id: this.raw.id })
+      emit('expense:changed', { id: this.raw.id, occurredAtMs: this.raw.occurredAtMs })
       toastDone('已删除')
       back(PAGE_LEDGER)
     },

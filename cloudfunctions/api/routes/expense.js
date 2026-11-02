@@ -1,7 +1,7 @@
 const { fail, id, toMs, getDoc } = require('../lib/util')
 const { pageByTime } = require('../lib/paging')
 const { categoryById, resolveCategory, CATEGORIES } = require('../lib/categories')
-const { monthKeyFromMs, monthStartMs, addMonths, currentMonthKey } = require('../lib/calendar')
+const { monthKeyFromMs, monthStartMs, nextMonthStartMs, addMonths, currentMonthKey } = require('../lib/calendar')
 
 const PAGE_SIZE = 20
 const MAX_NOTE = 50
@@ -137,7 +137,13 @@ function rankL1(docs) {
     if (!Number.isInteger(doc.amountFen) || doc.amountFen <= 0) continue
     sums.set(doc.l1, (sums.get(doc.l1) || 0) + doc.amountFen)
   }
-  return CATEGORIES.map((c, index) => ({ l1: c.id, name: c.name, amountFen: sums.get(c.id) || 0, index }))
+  const rows = CATEGORIES.map((c, index) => ({ l1: c.id, name: c.name, amountFen: sums.get(c.id) || 0, index }))
+  const known = new Set(CATEGORIES.map((c) => c.id))
+  let extra = CATEGORIES.length
+  for (const [l1, amountFen] of sums) {
+    if (!known.has(l1)) rows.push({ l1, name: l1, amountFen, index: extra++ })
+  }
+  return rows
     .filter((row) => row.amountFen > 0)
     .sort((a, b) => b.amountFen - a.amountFen || a.index - b.index)
     .map(({ l1, name, amountFen }) => ({ l1, name, amountFen }))
@@ -163,11 +169,17 @@ function breakdownOf(l1, docs) {
   return { l1: cat.id, name: cat.name, totalFen: sumFen(mine), items }
 }
 
+function monthBounds(month) {
+  const start = monthStartMs(month)
+  const end = nextMonthStartMs(month)
+  if (start == null || end == null) fail('INVALID', '请选择月份')
+  return { start, end }
+}
+
 async function list(ctx, e) {
   await ctx.viewer()
   const month = readMonth(e.month)
-  const start = monthStartMs(month)
-  const end = monthStartMs(addMonths(month, 1))
+  const { start, end } = monthBounds(month)
   let l1 = ''
   if (e.l1) {
     l1 = id(e.l1)
@@ -216,8 +228,7 @@ async function remove(ctx, e) {
 async function monthSummary(ctx, e) {
   await ctx.viewer()
   const month = readMonth(e.month)
-  const start = monthStartMs(month)
-  const end = monthStartMs(addMonths(month, 1))
+  const { start, end } = monthBounds(month)
   const brief = e.scope === 'total'
   let l1 = ''
   if (!brief && e.l1) {

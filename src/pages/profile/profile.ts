@@ -46,7 +46,7 @@ Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, Wech
 
     async loadSpent() {
       const r = await call('expense.monthSummary', { month: beijingMonthKey(), scope: 'total' })
-      this.setData({ spentLabel: r.ok ? `本月已花 ${formatYuan(r.data.totalFen)}` : '' })
+      if (r.ok) this.setData({ spentLabel: `本月已花 ${formatYuan(r.data.totalFen)}` })
     },
 
     async onRefresh() {

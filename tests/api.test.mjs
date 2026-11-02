@@ -12,7 +12,7 @@ Module._load = function (request, ...rest) {
 }
 const require = createRequire(import.meta.url)
 const { handle } = require('../cloudfunctions/api/index.js')
-const { monthStartMs, addMonths, currentMonthKey, monthKeyFromMs } = require('../cloudfunctions/api/lib/calendar.js')
+const { monthStartMs, nextMonthStartMs, addMonths, currentMonthKey, monthKeyFromMs } = require('../cloudfunctions/api/lib/calendar.js')
 
 /** 落在该北京时间月内、且不晚于现在的一个时刻 */
 function at(month) {
@@ -254,6 +254,8 @@ test('记账分类表前后端一致，月份按北京时间切分', () => {
   assert.equal(monthStartMs('2026-11'), nov1)
   assert.equal(addMonths('2026-12', 1), '2027-01')
   assert.equal(monthStartMs('1999-12'), null)
+  assert.equal(nextMonthStartMs('2026-11'), monthStartMs('2026-12'))
+  assert.equal(nextMonthStartMs('2100-12'), Date.UTC(2101, 0, 1) - 8 * 3600 * 1000)
 })
 
 test('记账：未结伴可写，只有本人可见，金额分类时间和备注都要合法', async () => {
@@ -385,6 +387,43 @@ test('记账月报：TOP3、环比、不含本月的月均、未结束标记', a
   assert.equal(empty.mom, '—')
   assert.equal(empty.avgFen, null)
   assert.equal(empty.open, true)
+})
+
+test('记账：北京时间月初边界，未知一级仍计入合计', async () => {
+  await register('A', '阿杏')
+  const cur = currentMonthKey()
+  const start = monthStartMs(cur)
+  const prev = addMonths(cur, -1)
+  await spend('A', { amountFen: 111, occurredAtMs: start, note: '零点' })
+  await spend('A', { amountFen: 222, occurredAtMs: start - 60 * 1000, note: '上一分钟' })
+
+  assert.deepEqual(
+    (await ok('A', 'expense.list', { month: cur })).items.map((item) => item.note),
+    ['零点'],
+  )
+  const prevNotes = (await ok('A', 'expense.list', { month: prev })).items.map((item) => item.note)
+  assert.deepEqual(prevNotes, ['上一分钟'])
+
+  cloud.seed('expenses', {
+    _id: 'legacy',
+    authorOpenId: 'A',
+    amountFen: 5000,
+    l1: 'legacy',
+    l2: 'zzz',
+    note: '旧分类',
+    occurredAt: new Date(start + 60 * 1000),
+    createdAt: new Date(start),
+    updatedAt: new Date(start),
+  })
+  const summary = await ok('A', 'expense.monthSummary', { month: cur })
+  assert.equal(summary.totalFen, 5111)
+  assert.ok(summary.categories.some((row) => row.l1 === 'legacy' && row.amountFen === 5000))
+
+  const far = await ok('A', 'expense.monthSummary', { month: '2100-12' })
+  assert.equal(far.totalFen, 0)
+  assert.equal(far.open, false)
+  assert.equal(far.mom, '—')
+  assert.equal(far.avgFen, 222)
 })
 
 test('请求成本：列表只读本人 + 伴侣 + 业务查询各一次', async () => {

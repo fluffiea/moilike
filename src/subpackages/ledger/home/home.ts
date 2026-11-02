@@ -69,6 +69,7 @@ type Data = {
   summaryError: string
   summary: SummaryView | null
   feed: FeedData<Row>
+  scrollTop: number
 }
 
 type Custom = {
@@ -76,6 +77,7 @@ type Custom = {
   offs: Array<() => void>
   month: string
   pending: boolean
+  pendingMonth: string
   loadedAt: number
   summarySeq: number
 }
@@ -90,14 +92,21 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     summaryError: '',
     summary: null,
     feed: emptyFeed<Row>(),
+    scrollTop: 0,
   },
   methods: {
     onLoad() {
       this.month = beijingMonthKey()
       this.pending = false
+      this.pendingMonth = ''
       this.loadedAt = Date.now()
       this.summarySeq = 0
-      this.offs = [on('expense:changed', () => { this.pending = true })]
+      this.offs = [
+        on('expense:changed', (payload) => {
+          this.pending = true
+          this.pendingMonth = beijingMonthKey(payload.occurredAtMs)
+        }),
+      ]
       this.openMonth()
     },
     onUnload() {
@@ -106,13 +115,23 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
     onShow() {
       if (!this.feed) return
-      if (!this.pending && Date.now() - this.loadedAt < STALE_MS) return
+      const nowKey = beijingMonthKey()
+      if (this.pending && this.pendingMonth && this.pendingMonth !== this.month && this.pendingMonth <= nowKey) {
+        this.month = this.pendingMonth
+        this.pending = false
+        this.pendingMonth = ''
+        this.openMonth()
+        return
+      }
+      const failed = this.data.summaryStatus === 'error' || this.data.feed.status === 'error'
+      if (!this.pending && !failed && Date.now() - this.loadedAt < STALE_MS) return
       this.pending = false
       void this.reload()
     },
 
     openMonth() {
       const month = this.month
+      this.loadedAt = Date.now()
       if (this.feed) this.feed.dispose()
       this.setData({
         monthText: monthTitle(month),
@@ -122,6 +141,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
         summary: null,
         summaryError: '',
         feed: emptyFeed<Row>(),
+        scrollTop: this.data.scrollTop === 0 ? 1 : 0,
       })
       this.feed = new Feed<Expense, Row>({
         host: this,
