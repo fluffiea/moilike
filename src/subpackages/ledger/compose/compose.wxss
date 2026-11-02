@@ -20,12 +20,11 @@
 .amount {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .amount__sign {
   margin-right: 12rpx;
-  margin-bottom: 6rpx;
   font-size: 40rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
@@ -33,11 +32,19 @@
 
 .amount__input {
   flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
+  height: 96rpx;
+  line-height: 96rpx;
   font-size: 64rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
+}
+
+.form .mo-chip {
+  background-color: var(--mo-l0-bg);
+}
+
+.form .mo-chip--on {
+  background-color: var(--mo-fill-brand);
 }
 
 .when {
@@ -53,10 +60,6 @@
 
 .when__text--time {
   margin-left: 24rpx;
-}
-
-.note {
-  min-height: 160rpx;
 }
 
 .note-count {

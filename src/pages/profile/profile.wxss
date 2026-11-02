@@ -92,9 +92,10 @@
 }
 
 .row__extra {
-  margin-right: 8rpx;
+  margin-right: 16rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
+  flex-shrink: 0;
 }
 
 .logout {

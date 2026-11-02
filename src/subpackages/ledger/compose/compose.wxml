@@ -69,7 +69,7 @@
           <text class="block__label">备注（可选）</text>
           <view class="mo-field">
             <textarea
-              class="mo-textarea note"
+              class="mo-textarea"
               value="{{noteInitial}}"
               placeholder="添加备注..."
               placeholder-class="mo-placeholder"
