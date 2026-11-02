@@ -24,7 +24,7 @@ function toView(u: User): View {
     signature: u.signature || '写点什么介绍自己吧',
     partnerAvatarUrl: p ? p.avatarUrl : '',
     partnerTitle: p ? `与 ${p.nickName} 已结伴` : '添加结伴对象',
-    partnerHint: p ? '管理绑定与纪念日' : '与 Ta 绑定，解锁朝夕、信件与共鸣',
+    partnerHint: p ? '管理绑定与纪念日' : '与 Ta 绑定，解锁朝夕、素笺与共鸣',
   }
 }
 

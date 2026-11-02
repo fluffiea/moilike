@@ -1,5 +1,5 @@
 .top {
-  height: 16rpx;
+  height: 32rpx;
 }
 
 .end {
@@ -10,54 +10,48 @@
   margin: 0 var(--mo-pad-h);
 }
 
-.month {
-  margin-left: 0;
-  font-weight: 600;
-  color: var(--mo-text-secondary);
-}
-
 .letter {
   padding: 32rpx;
   background-color: var(--mo-l1-paper);
 }
 
-.letter__head {
+.letter__row {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.letter__dot {
-  width: 12rpx;
-  height: 12rpx;
+.letter__who {
+  width: 48rpx;
+  margin-top: 6rpx;
   margin-right: 12rpx;
-  border-radius: 50%;
-  background-color: var(--mo-brand-teal);
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--mo-brand-teal);
+  flex-shrink: 0;
 }
 
-.letter__dot--sent {
-  background-color: var(--mo-brand-rose-ink);
+.letter__who--mine {
+  color: var(--mo-brand-rose-ink);
 }
 
-.letter__role {
-  font-size: 24rpx;
-  color: var(--mo-text-secondary);
-}
-
-.letter__type {
-  margin-left: 12rpx;
-  padding: 2rpx 14rpx;
-  border-radius: 999rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-secondary);
-  background-color: rgba(28, 28, 30, 0.05);
-}
-
-.letter__when {
+.letter__main {
   flex: 1;
-  text-align: right;
+  min-width: 0;
+}
+
+.letter__to {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.letter__meta {
+  display: block;
+  margin-top: 12rpx;
   font-size: 24rpx;
-  color: var(--mo-text-muted);
+  color: var(--mo-text-secondary);
 }
 
 .letter__title {
@@ -70,7 +64,7 @@
 
 .letter__preview {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   font-size: 28rpx;
   line-height: 1.6;
   color: var(--mo-text-secondary);
@@ -79,7 +73,7 @@
 .letter__thumbs {
   display: flex;
   flex-direction: row;
-  margin-top: 20rpx;
+  margin-top: 16rpx;
 }
 
 .letter__thumb {
@@ -88,4 +82,8 @@
   margin-right: 12rpx;
   border-radius: var(--mo-radius-inner);
   background-color: var(--mo-l0-bg);
+}
+
+.letter__thumb:last-child {
+  margin-right: 0;
 }

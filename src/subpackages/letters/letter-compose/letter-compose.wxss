@@ -1,5 +1,14 @@
 .types {
-  margin-bottom: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.paper .mo-chip {
+  background-color: var(--mo-l1-card);
+  border-color: transparent;
+}
+
+.paper .mo-chip--on {
+  background-color: var(--mo-fill-brand);
 }
 
 .custom {
@@ -7,18 +16,23 @@
 }
 
 .paper {
-  background: var(--mo-l1-paper);
+  background-color: var(--mo-l1-paper);
+}
+
+.paper .mo-field {
+  background-color: var(--mo-l1-card);
 }
 
 .paper__salutation {
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
   font-size: 32rpx;
   font-weight: 600;
-  color: var(--mo-brand-slate);
+  color: var(--mo-text-primary);
 }
 
 .paper__title {
+  width: 100%;
   font-weight: 600;
   border-bottom: var(--mo-border-field);
 }
@@ -30,5 +44,7 @@
 .counter {
   display: block;
   margin-bottom: 24rpx;
+  font-size: 24rpx;
   text-align: right;
+  color: var(--mo-text-muted);
 }

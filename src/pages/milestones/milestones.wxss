@@ -65,37 +65,3 @@
   margin-top: 36rpx;
   width: 100%;
 }
-
-.letters__head {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 16rpx;
-}
-
-.letters__title {
-  flex: 1;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--mo-text-primary);
-}
-
-.letters__head .mo-chevron {
-  margin-left: 8rpx;
-}
-
-.letters__count {
-  margin-right: 0;
-  font-size: 26rpx;
-  color: var(--mo-text-secondary);
-}
-
-.letters__item {
-  padding: 18rpx 0;
-  border-top: var(--mo-border-field);
-}
-
-.letters__item-title {
-  font-size: 32rpx;
-  color: var(--mo-text-primary);
-}

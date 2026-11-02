@@ -1,9 +1,14 @@
-import type { LetterItem } from '../../../types/api'
-import { call } from '../../../core/api'
-import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
-import { PAGE_LETTER_COMPOSE, PAGE_LETTER_DETAIL, PAGE_PARTNER_HUB } from '../../../core/paths'
-import { getUser, on } from '../../../core/store'
-import { letterView, type LetterView } from '../../../core/views'
+import type { LetterItem } from '../../types/api'
+import { call } from '../../core/api'
+import { Feed, emptyFeed, type FeedData } from '../../core/feed'
+import { PAGE_LETTER_COMPOSE, PAGE_LETTER_DETAIL, PAGE_PARTNER_HUB } from '../../core/paths'
+import { getUser, on } from '../../core/store'
+import { letterView, type LetterView } from '../../core/views'
+
+function partnerName(): string {
+  const u = getUser()
+  return u && u.partner && u.partner.nickName ? u.partner.nickName : 'Ta'
+}
 
 Component<
   { feed: FeedData<LetterView>; bound: boolean },
@@ -18,14 +23,13 @@ Component<
   },
   methods: {
     onLoad() {
-      const u = getUser()
-      this.setData({ bound: !!(u && u.partner) })
+      this.syncBound()
       this.feed = new Feed<LetterItem, LetterView>({
         host: this,
         path: 'feed',
         cacheName: 'letters',
         fetch: (cursor) => call('letters.list', { cursor }),
-        view: (item, prev) => letterView(item, prev),
+        view: (item, prev) => letterView(item, prev, partnerName()),
       })
       this.feed.start()
       this.offs = [
@@ -33,8 +37,15 @@ Component<
         on('letter:remove', (id) => this.feed.remove(id)),
       ]
     },
+    onShow() {
+      this.syncBound()
+    },
     onUnload() {
       this.offs.forEach((off) => off())
+    },
+    syncBound() {
+      const u = getUser()
+      this.setData({ bound: !!(u && u.partner) })
     },
     onRefresh() {
       void this.feed.refresh(true)

@@ -225,11 +225,25 @@ test('信件：收件人由服务端决定；列表只带摘要与缩略图；�
   assert.equal(items[0].isMine, false)
   assert.ok(items[0].preview.length <= 120)
   assert.equal(items[0].thumbs.length, 1)
-  assert.equal((await ok('B', 'letters.get', { id: letter.id })).letter.fromName, '阿杏')
+  const got = await ok('B', 'letters.get', { id: letter.id })
+  assert.equal(got.letter.fromName, '阿杏')
+  assert.equal(got.letter.revised, false)
+
+  await failsWith('FORBIDDEN', 'B', 'letters.update', { id: letter.id, content: '改掉' })
+  const edited = await ok('A', 'letters.update', {
+    id: letter.id,
+    title: '改过的',
+    content: '新的正文',
+    type: 'wish',
+    images: [],
+  })
+  assert.equal(edited.letter.revised, true)
+  assert.equal(edited.letter.title, '改过的')
+  assert.equal((await ok('B', 'letters.get', { id: letter.id })).letter.content, '新的正文')
+  assert.equal((await ok('B', 'letters.list')).items[0].preview, '新的正文')
 
   const home = await ok('B', 'home.summary')
-  assert.equal(home.letters.total, 1)
-  assert.deepEqual(home.letters.recent, [{ id: letter.id, title: '给你' }])
+  assert.equal(home.user.nickName, '阿桃')
 
   await failsWith('FORBIDDEN', 'B', 'letters.remove', { id: letter.id })
   await ok('A', 'letters.remove', { id: letter.id })

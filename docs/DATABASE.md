@@ -37,7 +37,7 @@
 
 ### letters
 
-`senderId`、`receiverId`（服务端取当前伴侣，不信任客户端）、`title`、`content`、`type`、`images`、`createdAt`、`updatedAt`。
+`senderId`、`receiverId`（服务端取当前伴侣，不信任客户端）、`title`、`content`、`type`、`images`、`createdAt`、`updatedAt`。寄出后改过的信有 `edited: true`。
 
 ### expenses
 
@@ -76,7 +76,7 @@
 | 集合 | 索引 | 用途 |
 |------|------|------|
 | `users` | `bindCode` 升序（唯一） | 绑定码查找 |
-| `daily_posts` | `authorOpenId` 升序 + `createdAt` 降序 | 浮生列表、按日筛选 |
+| `daily_posts` | `authorOpenId` 升序 + `createdAt` 降序 | 日常数据仍保留，入口已下线 |
 | `daily_comments` | `dailyPostId` 升序 + `createdAt` 升序 | 详情评论、首评补算 |
 | `daily_comments` | `dailyPostId` 升序 + `parentId` 升序 | 判断评论是否有回复 |
 | `report_posts` | `authorOpenId` 升序 + `recordAt` 降序 | 共鸣三个筛选 |

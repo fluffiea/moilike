@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="信件" show-back />
+  <app-nav title="素笺" large="{{true}}" />
   <scroll-view
     class="mo-scroll"
     scroll-y
@@ -14,20 +14,20 @@
     <view class="top" />
     <view wx:for="{{feed.items}}" wx:key="id" class="row">
       <view wx:if="{{item.month}}" class="mo-day">
-        <text class="mo-day__label month">{{item.month}}</text>
-        <view class="mo-day__line" />
+        <text class="mo-day__label">{{item.month}}</text>
       </view>
       <view class="mo-card letter" data-id="{{item.id}}" bind:tap="onOpen" aria-role="button">
-        <view class="letter__head">
-          <view class="letter__dot {{item.isMine ? 'letter__dot--sent' : ''}}" />
-          <text class="letter__role">{{item.role}}</text>
-          <text class="letter__type">{{item.typeLabel}}</text>
-          <text class="letter__when">{{item.when}}</text>
-        </view>
-        <text class="letter__title">{{item.titleText}}</text>
-        <text class="letter__preview" overflow="ellipsis" max-lines="3">{{item.preview}}</text>
-        <view wx:if="{{item.thumbs.length}}" class="letter__thumbs">
-          <image wx:for="{{item.thumbs}}" wx:for-item="src" wx:key="*this" class="letter__thumb" src="{{src}}" mode="aspectFill" />
+        <view class="letter__row">
+          <text class="letter__who {{item.isMine ? 'letter__who--mine' : ''}}">{{item.who}}</text>
+          <view class="letter__main">
+            <text class="letter__to" overflow="ellipsis" max-lines="1">{{item.salutation}}</text>
+            <text class="letter__meta">{{item.meta}}</text>
+            <text wx:if="{{item.title}}" class="letter__title">{{item.title}}</text>
+            <text class="letter__preview" overflow="ellipsis" max-lines="3">{{item.preview}}</text>
+            <view wx:if="{{item.thumbs.length}}" class="letter__thumbs">
+              <image wx:for="{{item.thumbs}}" wx:for-item="src" wx:key="*this" class="letter__thumb" src="{{src}}" mode="aspectFill" />
+            </view>
+          </view>
         </view>
       </view>
     </view>

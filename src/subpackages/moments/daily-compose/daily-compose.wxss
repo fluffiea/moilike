@@ -1,5 +1,0 @@
-.counter {
-  display: block;
-  margin-bottom: 24rpx;
-  text-align: right;
-}

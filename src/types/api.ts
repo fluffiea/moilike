@@ -79,6 +79,9 @@ export type Letter = {
   type: string
   images: Media[]
   createdAtMs: number
+  updatedAtMs: number
+  /** 寄出后又改过 */
+  revised: boolean
   fromName: string
 }
 
@@ -121,7 +124,7 @@ type UserResult = { user: User }
 
 /** 路由 → [请求参数, 响应数据] */
 export interface Routes {
-  'home.summary': [{}, { user: User | null; letters: { total: number; recent: { id: string; title: string }[] } }]
+  'home.summary': [{}, { user: User | null }]
   'user.me': [{}, { user: User | null }]
   'user.saveProfile': [{ nickName: string; avatarFileId: string; signature?: string }, UserResult]
   'user.savePreferences': [{ preferences: { resonanceReportFilter: ReportFilter } }, UserResult]
@@ -153,6 +156,7 @@ export interface Routes {
   'letters.list': [{ cursor?: string }, Page<LetterItem>]
   'letters.get': [{ id: string }, { letter: Letter }]
   'letters.create': [{ title: string; content: string; type: string; images: string[] }, { letter: Letter }]
+  'letters.update': [{ id: string; title: string; content: string; type: string; images: string[] }, { letter: Letter }]
   'letters.remove': [{ id: string }, null]
 
   'expense.list': [{ month: string; cursor?: string; l1?: string }, Page<Expense>]

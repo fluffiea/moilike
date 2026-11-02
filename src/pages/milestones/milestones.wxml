@@ -4,7 +4,7 @@
     <view class="mo-body">
       <view wx:if="{{scene === 'needPartner'}}" class="mo-card guide">
         <text class="guide__title">先把 Ta 接到身边</text>
-        <text class="mo-hint">朝夕、信件只属于结伴的两个人。绑定之后，这里会为你们亮起一盏小小的计时灯。</text>
+        <text class="mo-hint">朝夕、素笺只属于结伴的两个人。绑定之后，这里会为你们亮起一盏小小的计时灯。</text>
         <view class="mo-btn guide__btn" bind:tap="onOpenPartnerHub" aria-role="button">
           <text>去结伴</text>
         </view>
@@ -33,20 +33,6 @@
               <text>去设置纪念日</text>
             </view>
           </block>
-        </view>
-
-        <view class="mo-card letters" bind:tap="onOpenLetters" aria-role="button" aria-label="打开信件">
-          <view class="letters__head">
-            <text class="letters__title">信件</text>
-            <text class="letters__count">{{letters.totalText}}</text>
-            <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
-          </view>
-          <view wx:if="{{letters.recent.length}}">
-            <view wx:for="{{letters.recent}}" wx:key="id" class="letters__item" data-id="{{item.id}}" catch:tap="onOpenLetter">
-              <text class="letters__item-title">{{item.title || '无题'}}</text>
-            </view>
-          </view>
-          <text wx:else class="mo-hint">还没有信，写下第一封寄给 Ta</text>
         </view>
       </block>
     </view>

@@ -2,7 +2,7 @@
  * 全局状态：当前用户、跨页事件、页面间交接数据、列表缓存。
  * 运行时一律读内存；Storage 只用于冷启动恢复。
  */
-import type { CommentSummary, DailyPost, LetterItem, ReportPost, User } from '../types/api'
+import type { LetterItem, ReportPost, User } from '../types/api'
 
 const USER_KEY = 'mo_user_v2'
 const LOGGED_OUT_KEY = 'mo_logged_out'
@@ -93,9 +93,6 @@ const partnerId = (u: User | null): string => (u && u.partner ? u.partner.openId
 
 export interface Events {
   user: User | null
-  'daily:upsert': DailyPost
-  'daily:remove': string
-  'daily:summary': { id: string; summary: CommentSummary }
   'report:upsert': ReportPost
   'report:remove': string
   'letter:upsert': LetterItem

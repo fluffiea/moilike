@@ -54,7 +54,20 @@ async function render(ctx, doc) {
     type: doc.type || 'text',
     images: media.images(images, urls),
     createdAtMs: toMs(doc.createdAt),
+    updatedAtMs: toMs(doc.updatedAt),
+    revised: doc.edited === true,
     fromName: people.view(doc.senderId, urls).name,
+  }
+}
+
+function readLetter(e) {
+  const content = text(e.content, MAX_CONTENT)
+  if (!content) fail('INVALID', '信的内容不能为空')
+  return {
+    title: text(e.title, MAX_TITLE),
+    content,
+    type: text(e.type, MAX_TYPE) || 'text',
+    images: cloudFileIds(e.images, MAX_IMAGES),
   }
 }
 
@@ -68,14 +81,9 @@ async function get(ctx, e) {
 
 async function create(ctx, e) {
   const { partnerId } = await ctx.requirePartner()
-  const content = text(e.content, MAX_CONTENT)
-  if (!content) fail('INVALID', '信的内容不能为空')
   const now = new Date()
   const data = {
-    title: text(e.title, MAX_TITLE),
-    content,
-    type: text(e.type, MAX_TYPE) || 'text',
-    images: cloudFileIds(e.images, MAX_IMAGES),
+    ...readLetter(e),
     senderId: ctx.openid,
     receiverId: partnerId,
     createdAt: now,
@@ -83,6 +91,16 @@ async function create(ctx, e) {
   }
   const res = await ctx.col.letters.add({ data })
   return { letter: await render(ctx, { ...data, _id: res._id }) }
+}
+
+async function update(ctx, e) {
+  await ctx.viewer()
+  const doc = await getDoc(ctx.col.letters, id(e.id))
+  if (!doc) fail('NOT_FOUND', '这封信不存在或已删除')
+  if (doc.senderId !== ctx.openid) fail('FORBIDDEN', '只能修改自己寄出的信')
+  const patch = { ...readLetter(e), edited: true, updatedAt: new Date() }
+  await ctx.col.letters.doc(doc._id).update({ data: patch })
+  return { letter: await render(ctx, { ...doc, ...patch }) }
 }
 
 async function remove(ctx, e) {
@@ -94,4 +112,4 @@ async function remove(ctx, e) {
   return null
 }
 
-module.exports = { list, get, create, remove }
+module.exports = { list, get, create, update, remove }

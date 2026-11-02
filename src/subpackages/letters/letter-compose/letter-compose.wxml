@@ -1,25 +1,25 @@
 <view class="mo-page">
-  <app-nav title="{{reply ? '写回信' : '写信'}}" show-back confirm-leave="{{leaveHint}}" />
+  <app-nav title="{{editId ? '编辑信件' : '写信'}}" show-back confirm-leave="{{leaveHint}}" />
 
   <scroll-view class="mo-scroll" scroll-y>
     <view class="mo-body mo-body--sheet">
-      <view class="mo-chips types">
-        <view
-          wx:for="{{types}}"
-          wx:key="name"
-          class="mo-chip {{type === item.name ? 'mo-chip--on' : ''}}"
-          data-name="{{item.name}}"
-          bind:tap="onType"
-          aria-role="button"
-        >
-          <text>{{item.label}}</text>
+      <state-view wx:if="{{loading}}" status="loading" rows="{{1}}" />
+      <view wx:else class="mo-card paper">
+        <view class="mo-chips types">
+          <view
+            wx:for="{{types}}"
+            wx:key="name"
+            class="mo-chip {{type === item.name ? 'mo-chip--on' : ''}}"
+            data-name="{{item.name}}"
+            bind:tap="onType"
+            aria-role="button"
+          >
+            <text>{{item.label}}</text>
+          </view>
         </view>
-      </view>
-      <view wx:if="{{type === '_custom'}}" class="mo-field custom">
-        <input class="mo-input" value="{{customType}}" maxlength="20" placeholder="自定义类型，如：早安信" placeholder-class="mo-placeholder" bindinput="onCustomType" />
-      </view>
-
-      <view class="mo-card paper">
+        <view wx:if="{{type === '_custom'}}" class="mo-field custom">
+          <input class="mo-input" value="{{customType}}" maxlength="20" placeholder="自定义类型，如：早安信" placeholder-class="mo-placeholder" bindinput="onCustomType" />
+        </view>
         <text class="paper__salutation">{{salutation}}</text>
         <input
           class="mo-input paper__title"
@@ -31,6 +31,7 @@
         />
         <textarea
           class="mo-textarea paper__content"
+          value="{{initialContent}}"
           placeholder="写你想说的话…"
           placeholder-class="mo-placeholder"
           maxlength="{{5000}}"
@@ -39,16 +40,16 @@
           cursor-spacing="{{120}}"
           bindinput="onContent"
         />
-        <text class="mo-hint counter">{{count}}/5000</text>
+        <text class="counter">{{count}}/5000</text>
         <image-picker items="{{images}}" max="{{9}}" bind:change="onImagesChange" />
       </view>
     </view>
   </scroll-view>
 
   <view class="mo-footer">
-    <view class="mo-btn {{count ? '' : 'mo-btn--disabled'}} {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+    <view class="mo-btn {{count || loading ? '' : 'mo-btn--disabled'}} {{submitting || loading ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
       <view wx:if="{{submitting}}" class="mo-spinner" />
-      <text>{{submitting ? '正在寄出' : '寄出'}}</text>
+      <text>{{submitting ? (editId ? '正在保存' : '正在寄出') : (editId ? '保存' : '寄出')}}</text>
     </view>
   </view>
 </view>

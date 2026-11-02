@@ -1,28 +1,57 @@
 .paper {
-  padding: 48rpx 40rpx 56rpx;
-  border-radius: var(--mo-radius-card);
-  background: var(--mo-l1-paper);
-  opacity: 0;
-  transform: translateY(24rpx);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  background-color: var(--mo-l1-paper);
 }
 
-.paper--open {
-  opacity: 1;
-  transform: translateY(0);
+.paper__head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.paper__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.paper__line {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.paper__who {
+  width: 48rpx;
+  margin-right: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--mo-brand-teal);
+  flex-shrink: 0;
+}
+
+.paper__who--mine {
+  color: var(--mo-brand-rose-ink);
+}
+
+.paper__to {
+  flex: 1;
+  min-width: 0;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
 }
 
 .paper__meta {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  min-height: 56rpx;
-}
-
-.paper__meta-text {
-  flex: 1;
+  display: block;
+  margin-top: 12rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
+}
+
+.paper__revised {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
 }
 
 .paper__more {
@@ -30,9 +59,10 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 88rpx;
-  height: 88rpx;
-  margin: -16rpx -24rpx -16rpx 0;
+  width: 64rpx;
+  height: 64rpx;
+  margin-top: -12rpx;
+  margin-right: -16rpx;
 }
 
 .paper__more-icon {
@@ -42,7 +72,7 @@
 
 .paper__title {
   display: block;
-  margin-top: 16rpx;
+  margin-top: 24rpx;
   font-size: 40rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
@@ -60,8 +90,8 @@
 
 .paper__sign {
   display: block;
-  margin-top: 40rpx;
+  margin-top: 32rpx;
   text-align: right;
   font-size: 28rpx;
-  color: var(--mo-brand-slate);
+  color: var(--mo-text-secondary);
 }
