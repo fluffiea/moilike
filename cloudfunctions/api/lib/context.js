@@ -8,6 +8,7 @@ const COLLECTIONS = {
   reports: 'report_posts',
   binds: 'bind_requests',
   letters: 'letters',
+  expenses: 'expenses',
 }
 
 /** 绑定关系以 partnerOpenId 为准；兼容早期只写了 partner.openId 的文档 */

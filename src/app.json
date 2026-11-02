@@ -84,12 +84,17 @@
       "root": "subpackages/letters",
       "name": "letters_pack",
       "pages": ["letter-list/letter-list", "letter-compose/letter-compose", "letter-detail/letter-detail"]
+    },
+    {
+      "root": "subpackages/ledger",
+      "name": "ledger",
+      "pages": ["home/home", "compose/compose", "detail/detail", "category/category"]
     }
   ],
   "preloadRule": {
     "pages/milestones/milestones": { "network": "all", "packages": ["letters_pack", "user"] },
     "pages/moments/moments": { "network": "all", "packages": ["moments_pack"] },
     "pages/resonance/resonance": { "network": "all", "packages": ["resonance_pack"] },
-    "pages/profile/profile": { "network": "all", "packages": ["user"] }
+    "pages/profile/profile": { "network": "all", "packages": ["user", "ledger"] }
   }
 }

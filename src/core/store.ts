@@ -100,6 +100,7 @@ export interface Events {
   'report:remove': string
   'letter:upsert': LetterItem
   'letter:remove': string
+  'expense:changed': { id: string; occurredAtMs: number }
 }
 
 type Listener<K extends keyof Events> = (payload: Events[K]) => void

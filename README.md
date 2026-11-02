@@ -1,6 +1,6 @@
 # Moilike
 
-情侣间私密互动小程序，基于微信云开发。四大模块：朝夕（纪念日 + 信件）、浮生（日常）、共鸣（报备）、独白（个人资料）。
+情侣间私密互动小程序，基于微信云开发。四大模块：朝夕（纪念日 + 信件）、浮生（日常）、共鸣（报备）、独白（个人资料，以及个人记账）。
 
 ## 技术栈
 
@@ -53,7 +53,7 @@ src/                         小程序源码（编译到 miniprogram/）
 ├── core/                    api 调用、全局状态、列表控制器、展示映射、格式化、媒体
 ├── components/              app-nav、state-view、daily-card、report-card、image-grid、image-picker、together-clock
 ├── pages/                   Tab 页：milestones（首页）、moments、resonance、profile，以及 login
-├── subpackages/             moments / resonance / letters / user 分包
+├── subpackages/             moments / resonance / letters / user / ledger 分包
 └── types/api.ts             与云函数一一对应的接口类型
 cloudfunctions/api/          唯一云函数：index.js 路由 + lib/ 公共逻辑 + routes/ 各业务域
 tests/                       接口测试与 wx-server-sdk 替身
