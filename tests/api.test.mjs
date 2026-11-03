@@ -180,25 +180,117 @@ test('游标分页：同一时刻多条也不重复不遗漏', async () => {
   assert.equal(new Set(seen).size, 23)
 })
 
-test('报备：对方已阅、评价、改评价；状态与权限校验', async () => {
+test('报备：打开详情再贴贴纸即回心；改贴覆盖；作者改稿保留贴纸', async () => {
   await bindCouple()
   const { post } = await ok('A', 'report.create', { body: '吃了火锅', tags: ['干饭', '干饭', '聚餐'], recordAtMs: Date.now() })
   assert.deepEqual(post.tags, ['干饭', '聚餐'])
-  assert.equal(post.state, 'pending_read')
+  assert.equal(post.state, 'awaiting_response')
+  assert.equal(post.partnerStickerId, '')
+  assert.equal(post.partnerOpenedAt, 0)
+  assert.equal(post.canRespond, false)
 
-  const todo = await ok('B', 'report.list', { filter: 'action_needed' })
-  assert.equal(todo.items[0].canMarkRead, true)
-  await failsWith('FORBIDDEN', 'A', 'report.markRead', { id: post.id })
-  await failsWith('STATE', 'B', 'report.evaluate', { id: post.id, text: '先评价' })
+  const todo = await ok('B', 'report.list', { filter: 'await_me' })
+  assert.equal(todo.awaitMeCount, 1)
+  assert.equal(todo.items[0].canRespond, true)
+  assert.equal((await ok('B', 'home.summary')).awaitMeCount, 1)
 
-  const read = await ok('B', 'report.markRead', { id: post.id })
-  assert.equal(read.post.state, 'read')
-  assert.equal(read.post.canEvaluate, true)
-  const evaluated = await ok('B', 'report.evaluate', { id: post.id, text: '下次带我' })
-  assert.equal(evaluated.post.state, 'evaluated')
-  assert.equal((await ok('B', 'report.evaluate', { id: post.id, text: '改一下' })).post.evalText, '改一下')
-  assert.equal((await ok('B', 'report.list', { filter: 'action_needed' })).items.length, 0)
-  assert.equal((await ok('A', 'report.list', { filter: 'mine' })).items[0].evalText, '改一下')
+  await failsWith('FORBIDDEN', 'A', 'report.open', { id: post.id })
+  await failsWith('FORBIDDEN', 'A', 'report.respond', { id: post.id, stickerId: 'hug' })
+  await failsWith('INVALID', 'B', 'report.respond', { id: post.id, stickerId: 'nope' })
+  await failsWith('UNKNOWN_ROUTE', 'B', 'report.markRead', { id: post.id })
+  await failsWith('UNKNOWN_ROUTE', 'B', 'report.evaluate', { id: post.id, text: '先评价' })
+
+  const opened = await ok('B', 'report.open', { id: post.id })
+  assert.equal(opened.post.state, 'awaiting_response')
+  assert.ok(opened.post.partnerOpenedAt > 0)
+  const again = await ok('B', 'report.open', { id: post.id })
+  assert.equal(again.post.partnerOpenedAt, opened.post.partnerOpenedAt)
+  assert.equal((await ok('B', 'report.list', { filter: 'await_me' })).items.length, 1)
+  const mineOpened = (await ok('A', 'report.list', { filter: 'mine' })).items[0]
+  assert.equal(mineOpened.state, 'awaiting_response')
+  assert.equal(mineOpened.partnerOpenedAt, opened.post.partnerOpenedAt)
+
+  const hugged = await ok('B', 'report.respond', { id: post.id, stickerId: 'hug' })
+  assert.equal(hugged.post.state, 'responded')
+  assert.equal(hugged.post.partnerStickerId, 'hug')
+  assert.ok(hugged.post.partnerRespondedAt >= hugged.post.partnerOpenedAt)
+  assert.equal(hugged.awaitMeCount, 0)
+  assert.equal((await ok('B', 'report.list', { filter: 'await_me' })).items.length, 0)
+
+  const loved = await ok('B', 'report.respond', { id: post.id, stickerId: 'love' })
+  assert.equal(loved.post.partnerStickerId, 'love')
+  assert.ok(loved.post.partnerRespondedAt >= hugged.post.partnerRespondedAt)
+
+  const edited = await ok('A', 'report.update', { id: post.id, body: '火锅改成面', tags: ['干饭'], recordAtMs: Date.now() })
+  assert.equal(edited.post.body, '火锅改成面')
+  assert.equal(edited.post.partnerStickerId, 'love')
+  assert.equal(edited.post.partnerRespondedAt, loved.post.partnerRespondedAt)
+  assert.equal(cloud.row('report_posts', post.id).partnerStickerId, 'love')
+  const seen = (await ok('A', 'report.list', { filter: 'mine' })).items[0]
+  assert.equal(seen.state, 'responded')
+  assert.equal(seen.partnerStickerId, 'love')
+})
+
+test('报备：旧的已阅和文字评价按打开/已回应读出，不再进待我回应', async () => {
+  await bindCouple()
+  const readAt = new Date(Date.now() - 3600_000)
+  const evalAt = new Date(Date.now() - 1800_000)
+  cloud.seed('report_posts', {
+    _id: 'legacy-eval',
+    authorOpenId: 'A',
+    body: '旧帖',
+    tags: [],
+    images: [],
+    recordAt: evalAt,
+    createdAt: evalAt,
+    partnerReadAt: readAt,
+    partnerEvaluatedAt: evalAt,
+    partnerEvalText: '下次带我',
+  })
+  cloud.seed('report_posts', {
+    _id: 'legacy-read',
+    authorOpenId: 'A',
+    body: '只点过已阅',
+    tags: [],
+    images: [],
+    recordAt: readAt,
+    createdAt: readAt,
+    partnerReadAt: readAt,
+    partnerEvaluatedAt: null,
+    partnerEvalText: '',
+  })
+  const awaiting = await ok('B', 'report.list', { filter: 'await_me' })
+  assert.deepEqual(awaiting.items.map((i) => i.id), ['legacy-read'])
+  assert.equal(awaiting.awaitMeCount, 1)
+  const mine = await ok('A', 'report.list', { filter: 'mine' })
+  const evaluated = mine.items.find((i) => i.id === 'legacy-eval')
+  const opened = mine.items.find((i) => i.id === 'legacy-read')
+  assert.equal(evaluated.state, 'responded')
+  assert.equal(evaluated.partnerStickerId, '')
+  assert.equal(evaluated.partnerRespondedAt, evalAt.getTime())
+  assert.equal(opened.state, 'awaiting_response')
+  assert.equal(opened.partnerOpenedAt, readAt.getTime())
+})
+
+test('偏好：新用户默认待我回应，已存 all/mine 保留，旧待处理并入待我回应', async () => {
+  const { user } = await register('A', '阿杏')
+  assert.equal(user.preferences.resonanceReportFilter, 'await_me')
+  await failsWith('INVALID', 'A', 'user.savePreferences', { preferences: { resonanceReportFilter: 'action_needed' } })
+  const saved = await ok('A', 'user.savePreferences', { preferences: { resonanceReportFilter: 'mine' } })
+  assert.equal(saved.user.preferences.resonanceReportFilter, 'mine')
+  cloud.row('users', 'A').preferences = { resonanceReportFilter: 'action_needed' }
+  assert.equal((await ok('A', 'user.me')).user.preferences.resonanceReportFilter, 'await_me')
+  cloud.row('users', 'A').preferences = { resonanceReportFilter: 'all' }
+  assert.equal((await ok('A', 'user.me')).user.preferences.resonanceReportFilter, 'all')
+})
+
+test('贴纸 id 前后端一致', () => {
+  const js = readFileSync(new URL('../cloudfunctions/api/routes/report.js', import.meta.url), 'utf8')
+  const ts = readFileSync(new URL('../src/core/stickers.ts', import.meta.url), 'utf8')
+  const fromJs = js.match(/STICKER_IDS = \[([^\]]+)\]/)[1].match(/'([^']+)'/g).map((s) => s.slice(1, -1))
+  const fromTs = [...ts.matchAll(/id: '([^']+)'/g)].map((m) => m[1])
+  assert.deepEqual(fromJs, fromTs)
+  assert.deepEqual(fromTs, ['care', 'seen', 'eat', 'miss', 'ok', 'hug', 'proud', 'love'])
 })
 
 test('报备标签：默认标签恒在首位且不可删', async () => {

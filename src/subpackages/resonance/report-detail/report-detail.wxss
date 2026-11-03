@@ -2,29 +2,56 @@
   margin-top: 24rpx;
 }
 
-.action__head {
+.stickers {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
 }
 
-.action__input {
-  min-height: 160rpx;
+.stickers--busy {
+  pointer-events: none;
 }
 
-.action__btn {
-  margin-top: 28rpx;
-}
-
-.action__link {
-  padding: 12rpx 0;
-  font-size: 26rpx;
-  color: var(--mo-brand-slate);
-}
-
-.edit-eval {
+.sticker {
+  width: 25%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24rpx;
+}
+
+.sticker__art {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 32rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--mo-radius-inner);
+  border: 2rpx solid transparent;
+  background-color: var(--mo-l0-bg);
+}
+
+.sticker--on .sticker__art {
+  border-color: var(--mo-brand-slate);
+}
+
+.sticker--busy {
+  opacity: 0.55;
+}
+
+.sticker__img {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.sticker__label {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+}
+
+.sticker--on .sticker__label {
+  font-weight: 600;
+  color: var(--mo-text-primary);
 }

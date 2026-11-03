@@ -1,11 +1,13 @@
 const { partnerIdOf } = require('./context')
 const media = require('./media')
 
-const REPORT_FILTERS = ['all', 'action_needed', 'mine']
+const REPORT_FILTERS = ['all', 'await_me', 'mine']
 
 function preferencesOf(doc) {
-  const raw = doc && doc.preferences ? doc.preferences.resonanceReportFilter : ''
-  return { resonanceReportFilter: REPORT_FILTERS.includes(raw) ? raw : 'mine' }
+  let raw = doc && doc.preferences ? doc.preferences.resonanceReportFilter : ''
+  // 旧「待处理」并入「待我回应」；all / mine 已存偏好保持原样
+  if (raw === 'action_needed') raw = 'await_me'
+  return { resonanceReportFilter: REPORT_FILTERS.includes(raw) ? raw : 'await_me' }
 }
 
 function toPublicUser(openid, me, partner, urls) {

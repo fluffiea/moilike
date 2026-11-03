@@ -1,24 +1,27 @@
 import type { ReportFilter, ReportPost } from '../../types/api'
 import { call } from '../../core/api'
+import { applyResonanceBadge } from '../../core/badge'
 import { Feed, emptyFeed, type FeedData } from '../../core/feed'
+import { normalizeReportFilter } from '../../core/format'
 import { PAGE_PARTNER_HUB, PAGE_REPORT_COMPOSE, PAGE_REPORT_DETAIL } from '../../core/paths'
 import { emit, getUser, handoff, on } from '../../core/store'
 import { confirm, editOrDelete, toast, toastDone } from '../../core/ui'
 import { reportView, type ReportView } from '../../core/views'
 
-const FILTERS: ReportFilter[] = ['all', 'action_needed', 'mine']
+const FILTERS: ReportFilter[] = ['all', 'await_me', 'mine']
 const STALE_MS = 60 * 1000
 
-/** 报备在某个筛选下是否应出现（发布 / 已阅 / 评价后据此加入或移出） */
+/** 报备在某个筛选下是否应出现（发布 / 回心后据此加入或移出） */
 function belongs(filter: ReportFilter, post: ReportPost): boolean {
   if (filter === 'mine') return post.isMine
-  if (filter === 'action_needed') return !post.isMine && post.state !== 'evaluated'
+  if (filter === 'await_me') return !post.isMine && post.state !== 'responded'
   return true
 }
 
 type Data = {
   tabIndex: number
   tabs: (FeedData<ReportView> & { key: string })[]
+  awaitMeCount: number
   unbound: boolean
   showTop: boolean
   scrollTop: number
@@ -34,8 +37,9 @@ type Custom = {
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   data: {
-    tabIndex: 2,
+    tabIndex: 1,
     tabs: FILTERS.map((key) => ({ ...emptyFeed<ReportView>(), key })),
+    awaitMeCount: 0,
     unbound: false,
     showTop: false,
     scrollTop: 0,
@@ -49,7 +53,14 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
             host: this,
             path: `tabs[${i}]`,
             cacheName: `report:${filter}`,
-            fetch: (cursor) => call('report.list', { filter, cursor }),
+            fetch: async (cursor) => {
+              const r = await call('report.list', { filter, cursor })
+              if (r.ok) {
+                this.setData({ awaitMeCount: r.data.awaitMeCount })
+                applyResonanceBadge(r.data.awaitMeCount)
+              }
+              return r
+            },
             view: (post, prev) => reportView(post, prev),
             sortKey: (post) => post.recordAtMs,
           }),
@@ -60,6 +71,10 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
           this.feeds.forEach((feed, i) => (belongs(FILTERS[i], post) ? feed.upsert(post) : feed.remove(post.id))),
         ),
         on('report:remove', (id) => this.feeds.forEach((feed) => feed.remove(id))),
+        on('report:await-count', (n) => {
+          this.setData({ awaitMeCount: n })
+          applyResonanceBadge(n)
+        }),
         on('user', () => this.syncUser()),
       ]
     },
@@ -80,7 +95,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.partnerId = pid
       this.setData({ unbound: !pid })
       if (partnerChanged) this.started = FILTERS.map(() => false)
-      const pref = u.preferences.resonanceReportFilter
+      const pref = normalizeReportFilter(u.preferences.resonanceReportFilter)
       if (pref !== this.appliedFilter) {
         this.appliedFilter = pref
         this.activate(FILTERS.indexOf(pref))

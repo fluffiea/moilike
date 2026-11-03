@@ -22,9 +22,10 @@ type Data = {
   images: PickedImage[]
   submitting: boolean
   leaveHint: string
+  confirmOpen: boolean
 }
 
-type Custom = { body: string; options: string[]; selected: string[] }
+type Custom = { body: string; options: string[]; selected: string[]; partnerResponded: boolean }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   behaviors: [composeBehavior],
@@ -41,6 +42,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     images: [],
     submitting: false,
     leaveHint: '',
+    confirmOpen: false,
   },
   methods: {
     async onLoad(query: Record<string, string>) {
@@ -48,6 +50,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.body = ''
       this.options = [DEFAULT_TAG]
       this.selected = [DEFAULT_TAG]
+      this.partnerResponded = false
       this.setData({ date: dateStr(now), time: timeStr(now), today: dateStr(now) })
       this.renderTags()
       void this.loadTags()
@@ -66,6 +69,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
 
     fill(post: ReportPost) {
       this.body = post.body
+      this.partnerResponded = post.state === 'responded'
       this.selected = post.tags.slice()
       this.options = Array.from(new Set(this.options.concat(post.tags)))
       this.setData({
@@ -138,13 +142,35 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.renderTags()
     },
 
-    async onSubmit() {
+    onCancelConfirm() {
+      this.setData({ confirmOpen: false })
+    },
+    onHold() {},
+
+    onSubmit() {
       const body = this.body.trim()
-      const { images, editId, date, time } = this.data
+      const { images, date, time } = this.data
       if (!body && images.length === 0 && this.selected.length === 0) return toast('写点内容、选个标签或配张图吧')
-      const recordAtMs = parseDateTime(date, time)
-      if (!Number.isFinite(recordAtMs)) return toast('请选择记录时间')
+      if (!Number.isFinite(parseDateTime(date, time))) return toast('请选择记录时间')
       if (this.data.submitting) return
+      if (this.partnerResponded) {
+        this.setData({ confirmOpen: true })
+        return
+      }
+      void this.save()
+    },
+
+    onConfirmSave() {
+      if (this.data.submitting) return
+      this.setData({ confirmOpen: false })
+      void this.save()
+    },
+
+    async save() {
+      const body = this.body.trim()
+      const { images, editId, date, time, submitting } = this.data
+      if (submitting) return
+      const recordAtMs = parseDateTime(date, time)
       this.setData({ submitting: true })
       let fileIds: string[]
       try {
