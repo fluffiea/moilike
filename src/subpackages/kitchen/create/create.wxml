@@ -1,0 +1,28 @@
+<view class="mo-page">
+  <app-nav title="我的厨房" show-back />
+  <scroll-view wx:if="{{ready}}" class="mo-scroll" scroll-y show-scrollbar="{{false}}">
+    <view class="mo-body">
+      <view class="mo-card create">
+        <text class="create__title">给两人开一间小厨房</text>
+        <text class="mo-hint create__lead">取个温柔的名字，对方就能来点心意</text>
+        <text class="create__label">厨房名 *</text>
+        <view class="mo-field">
+          <input
+            class="mo-input"
+            maxlength="20"
+            value="{{name}}"
+            placeholder="例如阿柚的小厨房"
+            placeholder-class="mo-placeholder"
+            bindinput="onName"
+          />
+        </view>
+        <text class="mo-hint create__note">创建后是空厨房：无预置分类、无示例菜</text>
+        <text class="mo-hint create__note">分类靠「新增分类」，菜靠「新建」</text>
+        <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onCreate" aria-role="button">
+          <view wx:if="{{submitting}}" class="mo-spinner" />
+          <text>创建厨房</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

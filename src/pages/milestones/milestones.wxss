@@ -10,6 +10,29 @@
   margin-top: 40rpx;
 }
 
+.entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.entry__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry__title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.entry__hint {
+  display: block;
+  margin-top: 8rpx;
+}
+
 .hero {
   display: flex;
   flex-direction: column;

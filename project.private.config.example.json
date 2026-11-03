@@ -12,6 +12,11 @@
           "name": "朝夕（首页）",
           "pathName": "pages/milestones/milestones",
           "query": ""
+        },
+        {
+          "name": "点单",
+          "pathName": "pages/order/order",
+          "query": ""
         }
       ]
     }

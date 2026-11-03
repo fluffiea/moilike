@@ -81,6 +81,33 @@
 | 医疗 | `health` | 就医购药 `treatment`、保健 `healthcare`、其他医疗 `health-other` |
 | 其他 | `other` | 转账红包 `transfer`、杂项 `misc`、未分类 `uncategorized` |
 
+### kitchens
+
+每人最多一间。`ownerOpenId`（创建者，也是接单方）、`name`、`createdAt`、`updatedAt`。创建时不写入任何分类或菜品，没有系统预置的「心意 / 陪伴 / 日常」。
+
+### kitchen_categories
+
+`kitchenId`、`ownerOpenId`、`name`（最多 8 字）、`createdAt`、`updatedAt`。同一厨房内名称不可重复。只有名下没有菜品时才能删除。列表按 `createdAt` 升序，不做拖拽排序。
+
+### kitchen_dishes
+
+`kitchenId`、`ownerOpenId`、`categoryId`、`name`（最多 16 字）、`desc`（最多 40 字，可空）、`coverFileId`（云存储 fileID，可空）、`onShelf`、`createdAt`、`updatedAt`。必须挂在该厨房的某个分类下；新建菜品时可以同时带一个新分类名。封面只接受 `cloud://`。
+
+### kitchen_orders
+
+下单方是伴侣，接单方是厨房主人。客户端不能指定厨房。
+
+| 字段 | 说明 |
+|------|------|
+| `kitchenId` / `ownerOpenId` / `ordererOpenId` | 厨房、接单方、下单方 |
+| `status` | `pending` 待接单 → `in_progress` 进行中 → `done` 已完成；下单方在 `pending` 可改为 `cancelled`。没有拒单 |
+| `note` | 整单备注，最多 80 字，可空。再来一单不读取这个字段 |
+| `items` | `{ dishId, name, quantity, tags }[]`。名称是下单时的快照。`quantity` 为 1–99。`tags` 只允许「今天就要」「周末」「想你了」，最多 3 个 |
+| `createdAt` / `updatedAt` | 写入时间 |
+| `acceptedAt` / `completedAt` / `cancelledAt` | 对应动作的时间，未发生为 null |
+
+点单页的「常点 / 我们点过 N 次」只统计 `status = done` 的订单：同一单里同一道菜只计 1 次，不管份数。没有完成记录时不返回文案。满 5 次显示「常点」，否则「我们点过 N 次」。待接单数只计 `ownerOpenId + pending`，展示在独白「我的厨房」入口，不打在点单 Tab 上。
+
 ### bind_requests
 
 `fromOpenId`、`toOpenId`、`fromNickName` / `fromAvatarUrl`、`toNickName` / `toAvatarUrl`（申请时快照）、`status`（`pending` / `accepted` / `rejected` / `voided`）、`createdAt`。
@@ -100,6 +127,12 @@
 | `bind_requests` | `fromOpenId` 升序 + `status` 升序 | 发出的申请 |
 | `expenses` | `authorOpenId` 升序 + `occurredAt` 降序 | 月流水、月度总结 |
 | `expenses` | `authorOpenId` 升序 + `l1` 升序 + `occurredAt` 降序 | 一级分类下钻 |
+| `kitchens` | `ownerOpenId` 升序（唯一） | 每人一间厨房 |
+| `kitchen_categories` | `kitchenId` 升序 + `createdAt` 升序 | 分类列表 |
+| `kitchen_dishes` | `kitchenId` 升序 + `createdAt` 升序 | 菜单列表 |
+| `kitchen_orders` | `ordererOpenId` 升序 + `createdAt` 降序 | 我的订单 |
+| `kitchen_orders` | `ownerOpenId` 升序 + `status` 升序 + `createdAt` 降序 | 经营列表、待接单数 |
+| `kitchen_orders` | `kitchenId` 升序 + `status` 升序 | 已完成次数 |
 
 ## 云函数配置
 

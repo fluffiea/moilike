@@ -34,6 +34,22 @@ export function actionSheet(items: string[]): Promise<number> {
   })
 }
 
+/** 单行输入。取消返回 null，确定返回原文（可能是空串） */
+export function promptText(opts: { title: string; placeholder?: string; value?: string }): Promise<string | null> {
+  return new Promise((resolve) => {
+    wx.showModal({
+      title: opts.title,
+      editable: true,
+      placeholderText: opts.placeholder || '',
+      content: opts.value || '',
+      confirmText: '确定',
+      confirmColor: '#4a6670',
+      success: (r) => resolve(r.confirm ? r.content : null),
+      fail: () => resolve(null),
+    })
+  })
+}
+
 /** 「编辑 / 删除」菜单，返回 'edit' | 'delete' | null */
 export async function editOrDelete(): Promise<'edit' | 'delete' | null> {
   const i = await actionSheet(['编辑', '删除'])

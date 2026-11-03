@@ -15,6 +15,7 @@ const ROUTES = {
   report: require('./routes/report'),
   letters: require('./routes/letters'),
   expense: require('./routes/expense'),
+  kitchen: require('./routes/kitchen'),
 }
 
 /** 测试可注入替身 cloud；线上只传 event */

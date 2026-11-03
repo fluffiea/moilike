@@ -1,0 +1,33 @@
+.create {
+  display: flex;
+  flex-direction: column;
+}
+
+.create__title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.create__lead {
+  display: block;
+  margin-top: 12rpx;
+}
+
+.create__label {
+  display: block;
+  margin-top: 36rpx;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.create__note {
+  display: block;
+  margin-top: 16rpx;
+}
+
+.mo-btn {
+  margin-top: 36rpx;
+}

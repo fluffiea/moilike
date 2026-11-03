@@ -1,0 +1,64 @@
+.order {
+  display: flex;
+  flex-direction: column;
+}
+
+.order__line {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.order__line + .order__line {
+  margin-top: 12rpx;
+}
+
+.order__note {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.order__status {
+  align-self: flex-end;
+  margin-top: 20rpx;
+  font-size: 24rpx;
+}
+
+.st--pending {
+  color: var(--mo-status-pending-text);
+}
+
+.st--progress {
+  color: var(--mo-status-read-text);
+}
+
+.st--done {
+  color: var(--mo-status-evaluated-text);
+}
+
+.st--muted {
+  color: var(--mo-text-muted);
+}
+
+.order__foot {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: var(--mo-border-field);
+}
+
+.order__time {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.order__act {
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
+}
