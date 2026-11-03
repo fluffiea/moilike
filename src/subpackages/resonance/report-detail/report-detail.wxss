@@ -1,12 +1,8 @@
-.action {
-  margin-top: 24rpx;
-}
-
 .stickers {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-top: 8rpx;
+  margin-top: 4rpx;
 }
 
 .stickers--busy {
@@ -18,7 +14,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 24rpx;
+  margin-top: 20rpx;
 }
 
 .sticker__art {

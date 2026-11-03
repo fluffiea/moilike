@@ -1,7 +1,9 @@
 .counter {
   display: block;
   margin-bottom: 24rpx;
+  font-size: 24rpx;
   text-align: right;
+  color: var(--mo-text-muted);
 }
 
 .when {
@@ -43,11 +45,13 @@
 .tag-input__add {
   padding: 0 8rpx 0 24rpx;
   font-size: 26rpx;
+  font-weight: 600;
   line-height: 88rpx;
-  color: var(--mo-brand-slate);
+  color: var(--mo-text-primary);
 }
 
 .tag-input__add--off {
+  font-weight: 400;
   color: var(--mo-text-muted);
 }
 
@@ -82,10 +86,10 @@
 
 .dialog__text {
   display: block;
-  margin-top: 20rpx;
+  margin-top: 16rpx;
   text-align: center;
-  font-size: 28rpx;
-  line-height: 1.6;
+  font-size: 26rpx;
+  line-height: 1.5;
   color: var(--mo-text-secondary);
 }
 

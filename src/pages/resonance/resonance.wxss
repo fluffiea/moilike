@@ -1,6 +1,6 @@
 .tabs {
   flex-shrink: 0;
-  padding: 20rpx var(--mo-pad-h) 8rpx;
+  padding: 32rpx var(--mo-pad-h) 0;
 }
 
 .tabs__rail {
@@ -50,6 +50,12 @@
 
 .tabs__count {
   margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.tabs__item--on .tabs__count {
+  color: var(--mo-text-inverse);
 }
 
 .panes {
@@ -62,7 +68,7 @@
 }
 
 .pane__top {
-  height: 16rpx;
+  height: 24rpx;
 }
 
 .pane__end {
@@ -78,13 +84,14 @@
   flex-direction: row;
   align-items: center;
   margin-bottom: 36rpx;
-  padding: 28rpx 32rpx;
 }
 
 .banner__text {
   flex: 1;
+  min-width: 0;
   margin-right: 24rpx;
-  font-size: 28rpx;
-  line-height: 1.5;
-  color: var(--mo-text-secondary);
+}
+
+.banner .mo-btn {
+  flex-shrink: 0;
 }

@@ -1,13 +1,15 @@
-<view class="card {{detail ? 'card--detail' : 'card--list'}} {{post.isMine ? 'card--mine' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
-  <view wx:if="{{!detail || post.isMine}}" class="card__meta">
-    <text wx:if="{{!detail}}" class="card__state card__state--{{post.stateKey}}">{{post.stateLabel}}</text>
-    <text wx:if="{{!detail}}" class="card__clock">{{post.time}}</text>
+<view class="card {{detail ? 'card--detail' : 'card--list'}}" bind:tap="onOpen" bind:longpress="onMore">
+  <view class="card__head">
+    <text class="card__name">{{post.headline}}</text>
     <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
       <image class="more__icon" src="/images/icons/more.png" mode="aspectFit" />
     </view>
   </view>
 
-  <text class="card__name">{{post.headline}}</text>
+  <view wx:if="{{!detail}}" class="card__meta">
+    <text class="card__state card__state--{{post.stateKey}}">{{post.stateLabel}}</text>
+    <text class="card__clock">{{post.time}}</text>
+  </view>
 
   <block wx:if="{{detail}}">
     <text class="card__state card__state--{{post.stateKey}} card__state--block">{{post.stateLabel}}</text>

@@ -1,26 +1,19 @@
 .card {
-  position: relative;
   margin-bottom: 36rpx;
   padding: 32rpx;
   border-radius: var(--mo-radius-card);
   background-color: var(--mo-l1-card);
 }
 
-.card--detail {
-  margin-bottom: 0;
-}
-
-.card__meta {
-  position: absolute;
-  top: 28rpx;
-  right: 24rpx;
+.card__head {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .card__name {
-  display: block;
+  flex: 1;
+  min-width: 0;
   font-size: 32rpx;
   font-weight: 600;
   line-height: 1.45;
@@ -28,30 +21,43 @@
   word-break: break-word;
 }
 
-.card--list .card__name {
-  margin-right: 200rpx;
-}
-
-.card--list.card--mine .card__name {
-  margin-right: 260rpx;
-}
-
 .card--detail .card__name {
   font-size: 40rpx;
+  line-height: 1.4;
 }
 
-.card--detail.card--mine .card__name {
-  margin-right: 72rpx;
+.more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-top: -12rpx;
+  margin-right: -16rpx;
+  margin-left: 8rpx;
+  flex-shrink: 0;
+}
+
+.more__icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.card__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 12rpx;
 }
 
 .card__state {
   font-size: 24rpx;
-  font-weight: 500;
 }
 
 .card__state--block {
   display: block;
-  margin-top: 12rpx;
+  margin-top: 16rpx;
 }
 
 .card__state--awaiting {
@@ -67,31 +73,16 @@
 }
 
 .card__clock {
-  margin-left: 12rpx;
+  margin-left: 16rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
-}
-
-.more {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  margin: -8rpx -8rpx -8rpx 0;
-}
-
-.more__icon {
-  width: 36rpx;
-  height: 36rpx;
 }
 
 .card__time {
   display: block;
   margin-top: 8rpx;
-  font-size: 26rpx;
-  color: var(--mo-text-secondary);
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
 }
 
 .tags {
@@ -126,15 +117,17 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: var(--mo-border-field);
+  margin-top: 24rpx;
+  padding: 12rpx 20rpx;
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l0-bg);
 }
 
 .reply__img {
   width: 72rpx;
   height: 72rpx;
   margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
 .reply__label {
@@ -148,13 +141,13 @@
   margin-left: 16rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
+  flex-shrink: 0;
 }
 
 .opened {
   display: block;
   margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: var(--mo-border-field);
   font-size: 26rpx;
+  line-height: 1.5;
   color: var(--mo-text-secondary);
 }

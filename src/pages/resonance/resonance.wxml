@@ -35,7 +35,7 @@
       >
         <view class="pane__top" />
         <view wx:if="{{unbound && index !== 2}}" class="row mo-card banner">
-          <text class="banner__text">结伴后，你们的报备会出现在彼此的共鸣里。</text>
+          <text class="mo-hint banner__text">结伴后，你们的报备会出现在彼此的共鸣里。</text>
           <view class="mo-btn mo-btn--small" bind:tap="onBind" aria-role="button">
             <text>去结伴</text>
           </view>
