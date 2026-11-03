@@ -2,23 +2,12 @@ import type { Expense, ExpenseMonthSummary, LedgerScope, LedgerView } from '../.
 import { call } from '../../../core/api'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { addMonths, barWidth, beijingMonthKey, formatYuan, ledgerDay, monthTitle, shareText } from '../../../core/ledger'
+import { LEDGER_HIDDEN, LEDGER_VIEWS, ledgerChrome, ledgerHeroLabel } from '../../../core/ledger-visibility'
 import { PAGE_LEDGER_CATEGORY, PAGE_LEDGER_COMPOSE, PAGE_LEDGER_DETAIL } from '../../../core/paths'
 import { getUser, handoff, on } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
 const STALE_MS = 60 * 1000
-
-const LENSES: { value: LedgerView; label: string }[] = [
-  { value: 'mine', label: '我的' },
-  { value: 'partner', label: '对方' },
-  { value: 'us', label: '我们' },
-]
-
-const HERO: Record<LedgerView, string> = {
-  mine: '支出',
-  partner: '对方本月合计',
-  us: '我们本月合计',
-}
 
 type Row = { id: string; title: string; meta: string; note: string; amount: string; when: string; who: string }
 type CatRow = { l1: string; name: string; amount: string; pct: string; bar: string }
@@ -30,6 +19,26 @@ type SummaryView = {
   count: number
   empty: boolean
   categories: CatRow[]
+}
+
+type Pane = {
+  heroLabel: string
+  summaryStatus: 'loading' | 'ready' | 'error'
+  summaryError: string
+  summary: SummaryView | null
+  feed: FeedData<Row>
+  scope: LedgerScope | ''
+  hidden: boolean
+  showMonth: boolean
+  showList: boolean
+  showWho: boolean
+  canDrill: boolean
+  summaryNote: string
+  excludeNote: boolean
+  emptyTitle: string
+  emptyHint: string
+  hiddenTitle: string
+  hiddenHint: string
 }
 
 function toRow(item: Expense): Row {
@@ -63,122 +72,110 @@ function toSummary(data: ExpenseMonthSummary): SummaryView {
   }
 }
 
-function canOpenCategory(lens: LedgerView, scope: LedgerScope): boolean {
-  if (lens === 'mine') return true
-  if (lens === 'partner') return scope === 'detail'
-  return scope !== 'summary'
+function emptyPane(view: LedgerView): Pane {
+  return {
+    heroLabel: ledgerHeroLabel(view),
+    summaryStatus: 'loading',
+    summaryError: '',
+    summary: null,
+    feed: emptyFeed(),
+    scope: '',
+    hidden: false,
+    showMonth: true,
+    showList: view !== 'partner',
+    showWho: false,
+    canDrill: view === 'mine',
+    summaryNote: '',
+    excludeNote: false,
+    emptyTitle: view === 'partner' ? '对方本月还没有记账' : '这个月还没有支出',
+    emptyHint: view === 'mine' ? '记一笔就好' : '',
+    hiddenTitle: LEDGER_HIDDEN.title,
+    hiddenHint: LEDGER_HIDDEN.hint,
+  }
 }
 
-function emptyCopy(lens: LedgerView, scope: LedgerScope | ''): { title: string; hint: string } {
-  if (lens === 'partner') return { title: '对方本月还没有记账', hint: '' }
-  if (lens === 'us' && scope === 'summary') return { title: '这个月还没有我的支出', hint: '' }
-  if (lens === 'us') return { title: '这个月还没有支出', hint: '' }
-  return { title: '这个月还没有支出', hint: '记一笔就好' }
+function freshPanes(): Pane[] {
+  return LEDGER_VIEWS.map((item) => emptyPane(item.value))
 }
 
 type Data = {
   bound: boolean
-  lenses: typeof LENSES
-  lens: LedgerView
-  heroLabel: string
-  showMonth: boolean
-  showList: boolean
-  showWho: boolean
-  canDrill: boolean
-  summaryNote: string
-  excludeNote: boolean
-  emptyTitle: string
-  emptyHint: string
-  scope: LedgerScope | ''
+  lenses: typeof LEDGER_VIEWS
+  lensIndex: number
+  panes: Pane[]
   monthText: string
   canPrev: boolean
   canNext: boolean
   refreshing: boolean
-  summaryStatus: 'loading' | 'ready' | 'error'
-  summaryError: string
-  summary: SummaryView | null
-  feed: FeedData<Row>
   scrollTop: number
 }
 
 type Custom = {
-  feed: Feed<Expense, Row>
+  feeds: Array<Feed<Expense, Row> | null>
   offs: Array<() => void>
   month: string
-  lens: LedgerView
   pending: boolean
   pendingMonth: string
-  loadedAt: number
-  summarySeq: number
+  summaryAt: number[]
+  seq: number[]
+  inflight: boolean[]
 }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   data: {
     bound: false,
-    lenses: LENSES,
-    lens: 'mine',
-    heroLabel: HERO.mine,
-    showMonth: true,
-    showList: true,
-    showWho: false,
-    canDrill: true,
-    summaryNote: '',
-    excludeNote: false,
-    emptyTitle: '这个月还没有支出',
-    emptyHint: '记一笔就好',
-    scope: '',
+    lenses: LEDGER_VIEWS,
+    lensIndex: 0,
+    panes: freshPanes(),
     monthText: '',
     canPrev: true,
     canNext: false,
     refreshing: false,
-    summaryStatus: 'loading',
-    summaryError: '',
-    summary: null,
-    feed: emptyFeed<Row>(),
     scrollTop: 0,
   },
   methods: {
     onLoad() {
-      this.lens = 'mine'
       this.month = beijingMonthKey()
       this.pending = false
       this.pendingMonth = ''
-      this.loadedAt = Date.now()
-      this.summarySeq = 0
+      this.summaryAt = [0, 0, 0]
+      this.seq = [0, 0, 0]
+      this.inflight = [false, false, false]
+      this.feeds = [null, null, null]
       this.offs = [
         on('expense:changed', (payload) => {
           this.pending = true
           this.pendingMonth = beijingMonthKey(payload.occurredAtMs)
         }),
       ]
-      this.setData({ bound: this.isBound() })
-      this.openMonth()
+      this.setData({
+        bound: this.isBound(),
+        monthText: monthTitle(this.month),
+        canPrev: this.month > '2000-01',
+        canNext: this.month < beijingMonthKey(),
+      })
+      this.activate(0)
     },
     onUnload() {
       this.offs.forEach((off) => off())
-      if (this.feed) this.feed.dispose()
+      this.feeds.forEach((feed) => feed && feed.dispose())
     },
     onShow() {
-      const dropped = this.syncBound()
-      if (!this.feed) return
-      if (dropped) {
-        this.openMonth()
-        return
-      }
+      const index = this.syncBound()
       const nowKey = beijingMonthKey()
-      const followMine = this.lens !== 'partner'
-      if (this.pending && followMine && this.pendingMonth && this.pendingMonth !== this.month && this.pendingMonth <= nowKey) {
-        this.month = this.pendingMonth
+      if (this.pending && index !== 1 && this.pendingMonth && this.pendingMonth !== this.month && this.pendingMonth <= nowKey) {
+        const target = this.pendingMonth
         this.pending = false
         this.pendingMonth = ''
-        this.openMonth()
+        this.setMonth(target)
         return
       }
-      const failed = this.data.summaryStatus === 'error' || this.data.feed.status === 'error'
-      const followScope = this.lens !== 'mine'
-      if (!this.pending && !failed && !followScope && Date.now() - this.loadedAt < STALE_MS) return
-      this.pending = false
-      void this.reload()
+      if (this.pending) {
+        this.pending = false
+        this.dropPane(0)
+        this.dropPane(2)
+      }
+      this.activate(index)
     },
 
     isBound(): boolean {
@@ -186,119 +183,166 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       return Boolean(u && u.partner)
     },
 
-    /** 解绑后回到「我的」。返回 true 表示视图被收了回来，需要重开月份 */
-    syncBound(): boolean {
+    /** 解绑后只留「我的」。返回当前应显示的分段下标 */
+    syncBound(): number {
       const bound = this.isBound()
-      const lens: LedgerView = bound ? this.lens : 'mine'
-      const changed = bound !== this.data.bound || lens !== this.lens
-      this.lens = lens
-      if (changed) this.setData({ bound, lens })
-      return changed && !bound
+      const index = bound ? this.data.lensIndex : 0
+      if (bound !== this.data.bound || index !== this.data.lensIndex) {
+        this.setData({ bound, lensIndex: index })
+      }
+      return index
     },
 
-    openMonth() {
-      const month = this.month
-      const lens = this.lens
-      const copy = emptyCopy(lens, '')
-      this.loadedAt = Date.now()
-      if (this.feed) this.feed.dispose()
+    /** 我改过的账会影响「我的」和「我们」，下次进入再拉 */
+    dropPane(i: number) {
+      this.summaryAt[i] = 0
+      const feed = this.feeds[i]
+      if (feed) feed.dispose()
+      this.feeds[i] = null
+    },
+
+    setMonth(month: string) {
+      this.month = month
+      this.feeds.forEach((feed) => feed && feed.dispose())
+      this.feeds = [null, null, null]
+      this.summaryAt = [0, 0, 0]
+      this.seq = this.seq.map((n) => n + 1)
+      this.inflight = [false, false, false]
       this.setData({
-        lens,
-        heroLabel: HERO[lens],
-        showMonth: true,
-        showList: lens !== 'partner',
-        showWho: false,
-        canDrill: lens === 'mine',
-        summaryNote: '',
-        excludeNote: false,
-        emptyTitle: copy.title,
-        emptyHint: copy.hint,
-        scope: '',
+        panes: freshPanes(),
         monthText: monthTitle(month),
         canPrev: month > '2000-01',
         canNext: month < beijingMonthKey(),
-        summaryStatus: 'loading',
-        summary: null,
-        summaryError: '',
-        feed: emptyFeed<Row>(),
         scrollTop: this.data.scrollTop === 0 ? 1 : 0,
       })
-      this.feed = new Feed<Expense, Row>({
+      void this.loadPane(this.data.lensIndex, false)
+    },
+
+    activate(i: number) {
+      if (this.data.lensIndex !== i) {
+        this.setData({ lensIndex: i, scrollTop: this.data.scrollTop === 0 ? 1 : 0 })
+      }
+      if (this.inflight[i]) return
+      const pane = this.data.panes[i]
+      const feedOk = !pane.showList || pane.feed.status === 'ready' || pane.feed.status === 'empty'
+      const fresh = pane.summaryStatus === 'ready' && !!pane.summary && feedOk && Date.now() - (this.summaryAt[i] || 0) < STALE_MS
+      if (fresh) return
+      void this.loadPane(i, pane.summaryStatus === 'ready' && !!pane.summary)
+    },
+
+    ensureFeed(i: number, month: string): Feed<Expense, Row> {
+      const existing = this.feeds[i]
+      if (existing) return existing
+      const view = LEDGER_VIEWS[i].value
+      const feed = new Feed<Expense, Row>({
         host: this,
-        path: 'feed',
-        fetch: (cursor) => call('expense.list', { month, cursor, view: lens }),
+        path: `panes[${i}].feed`,
+        fetch: (cursor) => call('expense.list', { month, cursor, view }),
         view: (item) => toRow(item),
       })
-      this.feed.start()
-      void this.loadSummary()
+      this.feeds[i] = feed
+      return feed
     },
 
-    async loadSummary() {
+    kickFeed(i: number, month: string): Promise<void> {
+      return this.ensureFeed(i, month).refresh(false)
+    },
+
+    /**
+     * keep：已有合计时静默刷新，失败只 toast。
+     * 「对方」先拿合计，确认有流水才拉列表，避免不可见 / 仅汇总多打一次。
+     */
+    async loadPane(i: number, keep: boolean) {
+      if (this.inflight[i]) return
       const month = this.month
-      const lens = this.lens
-      const seq = ++this.summarySeq
-      const r = await call('expense.monthSummary', { month, view: lens })
-      if (seq !== this.summarySeq || month !== this.month || lens !== this.lens) return
-      if (!r.ok) {
-        if (this.data.summary) toast(r.message)
-        else this.setData({ summaryStatus: 'error', summaryError: r.message })
-        return
+      const view = LEDGER_VIEWS[i].value
+      this.seq[i] += 1
+      const seq = this.seq[i]
+      this.inflight[i] = true
+      if (!keep) {
+        const feed = this.feeds[i]
+        if (feed) feed.dispose()
+        this.feeds[i] = null
+        this.setData({
+          [`panes[${i}].summaryStatus`]: 'loading',
+          [`panes[${i}].summary`]: null,
+          [`panes[${i}].summaryError`]: '',
+          [`panes[${i}].hidden`]: false,
+          [`panes[${i}].showMonth`]: true,
+          [`panes[${i}].feed`]: emptyFeed(),
+        })
       }
-      const scope = r.data.scope
-      const copy = emptyCopy(lens, scope)
-      this.setData({
-        summaryStatus: 'ready',
-        summary: toSummary(r.data),
-        summaryError: '',
-        scope,
-        showMonth: !(lens === 'partner' && scope === 'none'),
-        showList: lens !== 'partner' || scope === 'detail',
-        showWho: lens === 'us' && scope === 'detail',
-        canDrill: canOpenCategory(lens, scope),
-        summaryNote: lens === 'partner' && scope === 'summary' ? '对方仅开放汇总，不可查看明细' : '',
-        excludeNote: lens === 'us' && !r.data.includesPartner,
-        emptyTitle: copy.title,
-        emptyHint: copy.hint,
-      })
-    },
-
-    async reload() {
-      this.loadedAt = Date.now()
-      await Promise.all([this.loadSummary(), this.feed.refresh(false)])
+      try {
+        const listNow = view !== 'partner'
+        const listTask = listNow ? this.kickFeed(i, month) : null
+        const r = await call('expense.monthSummary', { month, view })
+        if (seq !== this.seq[i] || month !== this.month) return
+        if (!r.ok) {
+          if (keep && this.data.panes[i].summary) toast(r.message)
+          else this.setData({ [`panes[${i}].summaryStatus`]: 'error', [`panes[${i}].summaryError`]: r.message })
+          return
+        }
+        this.summaryAt[i] = Date.now()
+        const chrome = ledgerChrome(view, r.data.scope, r.data.includesPartner)
+        this.setData({
+          [`panes[${i}].summaryStatus`]: 'ready',
+          [`panes[${i}].summary`]: toSummary(r.data),
+          [`panes[${i}].summaryError`]: '',
+          [`panes[${i}].scope`]: r.data.scope,
+          [`panes[${i}].hidden`]: chrome.hidden,
+          [`panes[${i}].showMonth`]: chrome.showMonth,
+          [`panes[${i}].showList`]: chrome.showList,
+          [`panes[${i}].showWho`]: chrome.showWho,
+          [`panes[${i}].canDrill`]: chrome.canDrill,
+          [`panes[${i}].summaryNote`]: chrome.summaryNote,
+          [`panes[${i}].excludeNote`]: chrome.excludeNote,
+          [`panes[${i}].emptyTitle`]: chrome.emptyTitle,
+          [`panes[${i}].emptyHint`]: chrome.emptyHint,
+        })
+        if (chrome.showList) {
+          await (listTask || this.kickFeed(i, month))
+        } else if (this.feeds[i]) {
+          const feed = this.feeds[i]
+          if (feed) feed.dispose()
+          this.feeds[i] = null
+          this.setData({ [`panes[${i}].feed`]: { ...emptyFeed(), status: 'empty' } })
+        }
+      } finally {
+        if (seq === this.seq[i]) this.inflight[i] = false
+      }
     },
 
     onLens(e: WechatMiniprogram.TouchEvent) {
-      const lens = String(e.currentTarget.dataset.lens) as LedgerView
-      if (lens !== 'mine' && lens !== 'partner' && lens !== 'us') return
-      if (!this.data.bound || lens === this.lens) return
-      this.lens = lens
-      this.openMonth()
+      const index = Number(e.currentTarget.dataset.index)
+      if (!this.data.bound || index === this.data.lensIndex) return
+      if (index !== 0 && index !== 1 && index !== 2) return
+      this.activate(index)
     },
 
     onPrev() {
       if (!this.data.canPrev) return
-      this.month = addMonths(this.month, -1)
-      this.openMonth()
+      this.setMonth(addMonths(this.month, -1))
     },
     onNext() {
       if (!this.data.canNext) return
-      this.month = addMonths(this.month, 1)
-      this.openMonth()
+      this.setMonth(addMonths(this.month, 1))
     },
 
     async onRefresh() {
+      const i = this.data.lensIndex
+      this.summaryAt[i] = 0
       this.setData({ refreshing: true })
-      await this.reload()
+      await this.loadPane(i, !!this.data.panes[i].summary)
       this.setData({ refreshing: false })
     },
     onLoadMore() {
-      void this.feed.loadMore()
+      const feed = this.feeds[this.data.lensIndex]
+      if (feed) void feed.loadMore()
     },
     onRetry() {
-      if (this.data.summaryStatus === 'error' || this.data.feed.status === 'error') {
-        if (!this.data.summary) this.setData({ summaryStatus: 'loading', feed: emptyFeed<Row>() })
-        void this.reload()
-      }
+      const i = this.data.lensIndex
+      this.summaryAt[i] = 0
+      void this.loadPane(i, !!this.data.panes[i].summary)
     },
 
     onCompose() {
@@ -306,15 +350,18 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
     onOpen(e: WechatMiniprogram.TouchEvent) {
       const id = String(e.currentTarget.dataset.id)
-      const raw = this.feed.raw.find((item) => item.id === id)
+      const feed = this.feeds[this.data.lensIndex]
+      const raw = feed && feed.raw.find((item) => item.id === id)
       if (raw) handoff(`expense:${id}`, raw)
       wx.navigateTo({ url: `${PAGE_LEDGER_DETAIL}?id=${id}` })
     },
     onCategory(e: WechatMiniprogram.TouchEvent) {
-      if (!this.data.canDrill) return
+      const pane = this.data.panes[this.data.lensIndex]
+      if (!pane.canDrill) return
       const l1 = String(e.currentTarget.dataset.l1)
-      const view = this.lens === 'mine' ? '' : `&view=${this.lens}`
-      wx.navigateTo({ url: `${PAGE_LEDGER_CATEGORY}?month=${this.month}&l1=${l1}${view}` })
+      const view = LEDGER_VIEWS[this.data.lensIndex].value
+      const extra = view === 'mine' ? '' : `&view=${view}`
+      wx.navigateTo({ url: `${PAGE_LEDGER_CATEGORY}?month=${this.month}&l1=${l1}${extra}` })
     },
   },
 })

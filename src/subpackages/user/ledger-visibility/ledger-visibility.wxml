@@ -14,14 +14,14 @@
         >
           <view class="opt__main">
             <text class="opt__title">{{item.title}}</text>
-            <text class="opt__hint">{{item.hint}}</text>
+            <text class="mo-hint opt__hint">{{item.hint}}</text>
           </view>
           <view class="radio {{scope === item.value ? 'radio--on' : ''}}">
             <view wx:if="{{scope === item.value}}" class="radio__dot" />
           </view>
         </view>
       </view>
-      <text class="foot">{{foot}}</text>
+      <text class="mo-hint foot">{{foot}}</text>
     </view>
   </scroll-view>
 </view>

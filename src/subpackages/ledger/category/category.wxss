@@ -113,19 +113,9 @@
   margin-left: 12rpx;
 }
 
-.who {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
+.bill__who {
   margin-right: 16rpx;
-  border-radius: 50%;
-  background-color: var(--mo-l0-bg);
-  flex-shrink: 0;
-}
-
-.who__text {
   font-size: 24rpx;
   color: var(--mo-text-secondary);
+  flex-shrink: 0;
 }

@@ -24,7 +24,7 @@
       <view class="mo-card link" bind:tap="onVisibility" aria-role="button">
         <view class="link__main">
           <text class="link__title">记账可见性</text>
-          <text class="link__hint">对方可见范围</text>
+          <text class="mo-hint link__hint">对方可见范围</text>
         </view>
         <text class="link__extra">{{scopeLabel}}</text>
         <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />

@@ -1,25 +1,14 @@
 import type { LedgerScope, User } from '../../../types/api'
 import { call } from '../../../core/api'
+import { isLedgerScope, LEDGER_SCOPE_OPTIONS, ledgerScopeOfUser, ledgerVisibilityFoot } from '../../../core/ledger-visibility'
 import { getUser, setUser } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
-const OPTIONS: { value: LedgerScope; title: string; hint: string }[] = [
-  { value: 'none', title: '不可见', hint: '对方看不到金额与明细' },
-  { value: 'summary', title: '仅汇总', hint: '对方可见月合计与一级分类占比，不可查看明细' },
-  { value: 'detail', title: '全部明细', hint: '对方可见完整流水与详情' },
-]
-
-function scopeOf(u: User | null): LedgerScope {
-  const raw = u && u.ledgerVisibility && u.ledgerVisibility.scope
-  if (raw === 'none' || raw === 'summary' || raw === 'detail') return raw
-  return 'detail'
-}
-
-Component<{ options: typeof OPTIONS; scope: LedgerScope; foot: string }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
+Component<{ options: typeof LEDGER_SCOPE_OPTIONS; scope: LedgerScope; foot: string }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
   data: {
-    options: OPTIONS,
+    options: LEDGER_SCOPE_OPTIONS,
     scope: 'detail',
-    foot: '结伴后对对方生效',
+    foot: ledgerVisibilityFoot(false),
   },
   methods: {
     onLoad() {
@@ -30,8 +19,8 @@ Component<{ options: typeof OPTIONS; scope: LedgerScope; foot: string }, {}, Wec
 
     apply(u: User | null) {
       this.setData({
-        scope: scopeOf(u),
-        foot: u && u.partner ? '改完立即对对方生效' : '结伴后对对方生效',
+        scope: ledgerScopeOfUser(u),
+        foot: ledgerVisibilityFoot(Boolean(u && u.partner)),
       })
     },
 
@@ -43,8 +32,8 @@ Component<{ options: typeof OPTIONS; scope: LedgerScope; foot: string }, {}, Wec
     },
 
     async onPick(e: WechatMiniprogram.TouchEvent) {
-      const scope = String(e.currentTarget.dataset.scope) as LedgerScope
-      if (scope !== 'none' && scope !== 'summary' && scope !== 'detail') return
+      const scope = String(e.currentTarget.dataset.scope)
+      if (!isLedgerScope(scope)) return
       const prev = this.data.scope
       if (scope === prev || this.saving) return
       this.saving = true

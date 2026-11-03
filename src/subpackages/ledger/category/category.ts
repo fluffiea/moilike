@@ -3,6 +3,7 @@ import { call } from '../../../core/api'
 import { categoryById } from '../../../core/expense-categories'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { barWidth, formatYuan, ledgerDay, monthTitle, shareText } from '../../../core/ledger'
+import { ledgerCategoryEmpty, ledgerChrome, ledgerLinesBlocked, readLedgerView } from '../../../core/ledger-visibility'
 import { PAGE_LEDGER, PAGE_LEDGER_DETAIL, back } from '../../../core/paths'
 import { handoff, on } from '../../../core/store'
 import { toast } from '../../../core/ui'
@@ -22,11 +23,6 @@ function toRow(item: Expense): Row {
     when: ledgerDay(item.occurredAtMs),
     who: item.mine ? '我' : '对方',
   }
-}
-
-function readView(raw: string): LedgerView {
-  if (raw === 'partner' || raw === 'us') return raw
-  return 'mine'
 }
 
 function toBreakdown(data: NonNullable<ExpenseMonthSummary['breakdown']>): Breakdown {
@@ -84,7 +80,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     onLoad(query: Record<string, string>) {
       this.month = query.month || ''
       this.l1 = query.l1 || ''
-      this.view = readView(query.view || '')
+      this.view = readLedgerView(query.view || '')
       const cat = categoryById(this.l1)
       if (!cat || !/^\d{4}-\d{2}$/.test(this.month)) {
         toast('这个分类不存在')
@@ -94,11 +90,12 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.pending = false
       this.loadedAt = Date.now()
       this.summarySeq = 0
+      const empty = ledgerCategoryEmpty(this.view)
       this.setData({
         title: cat.name,
         monthText: monthTitle(this.month),
-        emptyTitle: this.view === 'partner' ? '对方还没有这类支出' : '还没有这类支出',
-        emptyHint: this.view === 'mine' ? '记一笔就好' : '',
+        emptyTitle: empty.title,
+        emptyHint: empty.hint,
       })
       this.offs = [on('expense:changed', () => { this.pending = true })]
       this.open()
@@ -110,7 +107,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     onShow() {
       if (!this.feed) return
       const failed = this.data.status === 'error' || this.data.feed.status === 'error'
-      if (!this.pending && !failed && this.view === 'mine' && Date.now() - this.loadedAt < STALE_MS) return
+      if (!this.pending && !failed && Date.now() - this.loadedAt < STALE_MS) return
       this.pending = false
       void this.reload()
     },
@@ -136,13 +133,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const r = await call('expense.monthSummary', { month: this.month, l1: this.l1, view: this.view })
       if (seq !== this.summarySeq) return
       if (!r.ok || !r.data.breakdown) {
-        const message = !r.ok
-          ? r.message
-          : r.data.scope === 'none'
-            ? '对方暂未开放账单'
-            : r.data.scope === 'summary'
-              ? '对方仅开放汇总，不可查看明细'
-              : '没有这个分类'
+        const message = !r.ok ? r.message : ledgerLinesBlocked(r.data.scope) || '没有这个分类'
         if (this.data.breakdown) toast(message)
         else this.setData({ status: 'error', errorText: message })
         return
@@ -151,7 +142,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
         status: 'ready',
         breakdown: toBreakdown(r.data.breakdown),
         errorText: '',
-        showWho: this.view === 'us' && r.data.scope === 'detail',
+        showWho: ledgerChrome(this.view, r.data.scope, r.data.includesPartner).showWho,
       })
     },
 

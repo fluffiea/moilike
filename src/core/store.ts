@@ -2,6 +2,7 @@
  * 全局状态：当前用户、跨页事件、页面间交接数据、列表缓存。
  * 运行时一律读内存；Storage 只用于冷启动恢复。
  */
+import { ledgerScopeOf } from './ledger-visibility'
 import type { LetterItem, ReportPost, User } from '../types/api'
 import { applyResonanceBadge } from './badge'
 
@@ -63,9 +64,9 @@ function migrateLegacy(): void {
 }
 
 function normalizeUser(u: User): User {
-  const raw = u.ledgerVisibility && u.ledgerVisibility.scope
-  if (raw === 'none' || raw === 'summary' || raw === 'detail') return u
-  return { ...u, ledgerVisibility: { scope: 'detail' } }
+  const scope = ledgerScopeOf(u.ledgerVisibility && u.ledgerVisibility.scope)
+  if (u.ledgerVisibility && u.ledgerVisibility.scope === scope) return u
+  return { ...u, ledgerVisibility: { scope } }
 }
 
 export function initStore(): void {

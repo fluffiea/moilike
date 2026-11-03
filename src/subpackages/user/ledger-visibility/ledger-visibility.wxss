@@ -25,9 +25,6 @@
 .opt__hint {
   display: block;
   margin-top: 8rpx;
-  font-size: 26rpx;
-  line-height: 1.5;
-  color: var(--mo-text-secondary);
 }
 
 .radio {
@@ -56,8 +53,5 @@
 
 .foot {
   display: block;
-  font-size: 26rpx;
-  line-height: 1.5;
   text-align: center;
-  color: var(--mo-text-muted);
 }
