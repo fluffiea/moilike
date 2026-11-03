@@ -11,6 +11,7 @@ type View = {
   category: string
   when: string
   note: string
+  recorder: string
 }
 
 function toView(expense: Expense): View {
@@ -20,14 +21,15 @@ function toView(expense: Expense): View {
     category: `${expense.l1Name} · ${expense.l2Name}`,
     when: ledgerDateTime(expense.occurredAtMs),
     note: expense.note,
+    recorder: expense.mine === false ? '对方' : '',
   }
 }
 
-type Data = { status: 'loading' | 'ready' | 'error'; errorText: string; expense: View | null; busy: boolean }
+type Data = { status: 'loading' | 'ready' | 'error'; errorText: string; expense: View | null; readonly: boolean; busy: boolean }
 type Custom = { id: string; raw: Expense | null; pending: boolean; off: () => void }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
-  data: { status: 'loading', errorText: '', expense: null, busy: false },
+  data: { status: 'loading', errorText: '', expense: null, readonly: false, busy: false },
   methods: {
     onLoad(query: Record<string, string>) {
       this.id = query.id || ''
@@ -37,7 +39,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const cached = takeHandoff<Expense>(`expense:${this.id}`)
       if (cached) {
         this.raw = cached
-        this.setData({ status: 'ready', expense: toView(cached) })
+        this.setData({ status: 'ready', expense: toView(cached), readonly: cached.mine === false })
         return
       }
       void this.load()
@@ -46,7 +48,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.off()
     },
     onShow() {
-      if (!this.pending || !this.id) return
+      if (!this.id || (!this.pending && !this.data.readonly)) return
       this.pending = false
       void this.load()
     },
@@ -55,12 +57,12 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       if (!this.data.expense) this.setData({ status: 'loading' })
       const r = await call('expense.get', { id: this.id })
       if (!r.ok) {
-        if (this.data.expense) return toast(r.message)
-        this.setData({ status: 'error', errorText: r.message })
+        if (this.data.expense && !this.data.readonly) return toast(r.message)
+        this.setData({ status: 'error', errorText: r.message, expense: null })
         return
       }
       this.raw = r.data.expense
-      this.setData({ status: 'ready', expense: toView(r.data.expense) })
+      this.setData({ status: 'ready', expense: toView(r.data.expense), readonly: r.data.expense.mine === false })
     },
 
     onRetry() {

@@ -2,6 +2,7 @@ const { fail, id, toMs, getDoc } = require('../lib/util')
 const { pageByTime } = require('../lib/paging')
 const { categoryById, resolveCategory, CATEGORIES } = require('../lib/categories')
 const { monthKeyFromMs, monthStartMs, nextMonthStartMs, addMonths, currentMonthKey } = require('../lib/calendar')
+const { ledgerVisibilityOf } = require('../lib/profile')
 
 const PAGE_SIZE = 20
 const MAX_NOTE = 50
@@ -51,7 +52,7 @@ function readInput(e) {
   }
 }
 
-function toView(doc) {
+function toView(doc, openid) {
   const pair = resolveCategory(doc.l1, doc.l2)
   return {
     id: doc._id,
@@ -64,6 +65,7 @@ function toView(doc) {
     occurredAtMs: toMs(doc.occurredAt),
     createdAtMs: toMs(doc.createdAt),
     updatedAtMs: toMs(doc.updatedAt),
+    mine: doc.authorOpenId === openid,
   }
 }
 
@@ -75,10 +77,53 @@ async function own(ctx, rawId) {
   return doc
 }
 
-function authorWhere(openid, l1) {
-  const where = { authorOpenId: openid }
+function authorsWhere(_, openids, l1) {
+  const where = openids.length === 1 ? { authorOpenId: openids[0] } : { authorOpenId: _.in(openids) }
   if (l1) where.l1 = l1
   return where
+}
+
+function readView(v) {
+  if (v == null || v === '' || v === 'mine') return 'mine'
+  if (v === 'partner' || v === 'us') return v
+  fail('INVALID', '无效的视图')
+}
+
+/**
+ * 读谁的账由云端决定，不信客户端传来的金额或明细。
+ * openids：可以计入合计的人；listOpenids：可以返回流水的人。
+ * 对方设为不可见时两者都空（「我们」则只剩自己）；仅汇总时合计含对方、流水不含对方。
+ */
+async function resolveLens(ctx, rawView) {
+  const view = readView(rawView)
+  if (view === 'mine') {
+    await ctx.viewer()
+    return { view, openids: [ctx.openid], listOpenids: [ctx.openid], scope: 'detail', includesPartner: false }
+  }
+  const { partnerId } = await ctx.requirePartner()
+  const partner = await ctx.partner()
+  const scope = partner ? ledgerVisibilityOf(partner).scope : 'none'
+  if (view === 'partner') {
+    return {
+      view,
+      openids: scope === 'none' ? [] : [partnerId],
+      listOpenids: scope === 'detail' ? [partnerId] : [],
+      scope,
+      includesPartner: scope !== 'none',
+    }
+  }
+  const includesPartner = scope !== 'none'
+  return {
+    view,
+    openids: includesPartner ? [ctx.openid, partnerId] : [ctx.openid],
+    listOpenids: scope === 'detail' ? [ctx.openid, partnerId] : [ctx.openid],
+    scope,
+    includesPartner,
+  }
+}
+
+function accessOf(lens) {
+  return { view: lens.view, scope: lens.scope, includesPartner: lens.includesPartner }
 }
 
 /** 闭区间 [from, to] 内的全部支出，按发生时间倒序捞完 */
@@ -177,7 +222,7 @@ function monthBounds(month) {
 }
 
 async function list(ctx, e) {
-  await ctx.viewer()
+  const lens = await resolveLens(ctx, e.view)
   const month = readMonth(e.month)
   const { start, end } = monthBounds(month)
   let l1 = ''
@@ -185,21 +230,30 @@ async function list(ctx, e) {
     l1 = id(e.l1)
     if (!categoryById(l1)) fail('INVALID', '请选择分类')
   }
+  const access = accessOf(lens)
+  if (lens.listOpenids.length === 0) return { items: [], nextCursor: '', ...access }
   const { docs, nextCursor } = await pageByTime({
     col: ctx.col.expenses,
     _: ctx._,
-    where: authorWhere(ctx.openid, l1),
+    where: authorsWhere(ctx._, lens.listOpenids, l1),
     field: 'occurredAt',
     cursor: e.cursor,
     size: PAGE_SIZE,
     from: start,
     to: end - 1,
   })
-  return { items: docs.map(toView), nextCursor }
+  return { items: docs.map((doc) => toView(doc, ctx.openid)), nextCursor, ...access }
 }
 
 async function get(ctx, e) {
-  return { expense: toView(await own(ctx, e.id)) }
+  const { partnerId } = await ctx.viewer()
+  const doc = await getDoc(ctx.col.expenses, id(e.id))
+  if (!doc) fail('NOT_FOUND', '这笔支出不存在或已删除')
+  if (doc.authorOpenId === ctx.openid) return { expense: toView(doc, ctx.openid) }
+  if (!partnerId || doc.authorOpenId !== partnerId) fail('NOT_FOUND', '这笔支出不存在或已删除')
+  const partner = await ctx.partner()
+  if (!partner || ledgerVisibilityOf(partner).scope !== 'detail') fail('NOT_FOUND', '这笔支出不存在或已删除')
+  return { expense: toView(doc, ctx.openid) }
 }
 
 async function create(ctx, e) {
@@ -208,7 +262,7 @@ async function create(ctx, e) {
   const now = new Date()
   const data = { authorOpenId: ctx.openid, ...input, createdAt: now, updatedAt: now }
   const res = await ctx.col.expenses.add({ data })
-  return { expense: toView({ ...data, _id: res._id }) }
+  return { expense: toView({ ...data, _id: res._id }, ctx.openid) }
 }
 
 async function update(ctx, e) {
@@ -216,7 +270,7 @@ async function update(ctx, e) {
   const input = readInput(e)
   const updatedAt = new Date()
   await ctx.col.expenses.doc(doc._id).update({ data: { ...input, updatedAt: ctx.db.serverDate() } })
-  return { expense: toView({ ...doc, ...input, updatedAt }) }
+  return { expense: toView({ ...doc, ...input, updatedAt }, ctx.openid) }
 }
 
 async function remove(ctx, e) {
@@ -226,7 +280,7 @@ async function remove(ctx, e) {
 }
 
 async function monthSummary(ctx, e) {
-  await ctx.viewer()
+  const lens = await resolveLens(ctx, e.view)
   const month = readMonth(e.month)
   const { start, end } = monthBounds(month)
   const brief = e.scope === 'total'
@@ -236,34 +290,45 @@ async function monthSummary(ctx, e) {
     if (!categoryById(l1)) fail('INVALID', '请选择分类')
   }
 
-  const monthDocs = await collect(ctx, authorWhere(ctx.openid, ''), start, end - 1)
-  const totalFen = sumFen(monthDocs)
   const nowKey = currentMonthKey()
+  const access = accessOf(lens)
   const base = {
     month,
-    totalFen,
-    count: monthDocs.length,
+    totalFen: 0,
+    count: 0,
     open: month === nowKey,
     mom: '—',
     avgFen: null,
     top: [],
     categories: [],
     breakdown: null,
+    ...access,
   }
-  if (brief) return base
+  if (lens.openids.length === 0) return base
+
+  const where = authorsWhere(ctx._, lens.openids, '')
+  const monthDocs = await collect(ctx, where, start, end - 1)
+  const totalFen = sumFen(monthDocs)
+  const visibleDocs = lens.listOpenids.length === lens.openids.length
+    ? monthDocs
+    : monthDocs.filter((doc) => lens.listOpenids.includes(doc.authorOpenId))
+  const filled = { ...base, totalFen, count: visibleDocs.length }
+  if (brief) return filled
 
   const prevStart = monthStartMs(addMonths(month, -1))
-  const prevDocs = prevStart == null ? [] : await collect(ctx, authorWhere(ctx.openid, ''), prevStart, start - 1)
+  const prevDocs = prevStart == null ? [] : await collect(ctx, where, prevStart, start - 1)
   const currentStart = monthStartMs(nowKey)
-  const history = await collect(ctx, authorWhere(ctx.openid, ''), undefined, currentStart - 1)
+  const history = await collect(ctx, where, undefined, currentStart - 1)
   const ranked = rankL1(monthDocs)
+  let breakdown = null
+  if (l1 && lens.listOpenids.length > 0) breakdown = breakdownOf(l1, visibleDocs)
   return {
-    ...base,
+    ...filled,
     mom: momText(totalFen, sumFen(prevDocs)),
     avgFen: averageFen(history),
     top: ranked.slice(0, 3),
     categories: ranked,
-    breakdown: l1 ? breakdownOf(l1, monthDocs) : null,
+    breakdown,
   }
 }
 

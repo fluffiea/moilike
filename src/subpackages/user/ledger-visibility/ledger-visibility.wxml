@@ -1,0 +1,27 @@
+<view class="mo-page">
+  <app-nav title="记账可见性" show-back />
+  <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
+    <view class="mo-body">
+      <view class="mo-card">
+        <text class="mo-section-title">对方可见范围</text>
+        <view
+          wx:for="{{options}}"
+          wx:key="value"
+          class="opt {{index ? 'opt--line' : ''}}"
+          data-scope="{{item.value}}"
+          bind:tap="onPick"
+          aria-role="radio"
+        >
+          <view class="opt__main">
+            <text class="opt__title">{{item.title}}</text>
+            <text class="mo-hint opt__hint">{{item.hint}}</text>
+          </view>
+          <view class="radio {{scope === item.value ? 'radio--on' : ''}}">
+            <view wx:if="{{scope === item.value}}" class="radio__dot" />
+          </view>
+        </view>
+      </view>
+      <text class="mo-hint foot">{{foot}}</text>
+    </view>
+  </scroll-view>
+</view>

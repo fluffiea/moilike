@@ -1,6 +1,8 @@
 import type { ReportFilter } from '../../../types/api'
 import { call } from '../../../core/api'
 import { normalizeReportFilter } from '../../../core/format'
+import { ledgerScopeLabel, ledgerScopeOfUser } from '../../../core/ledger-visibility'
+import { PAGE_LEDGER_VISIBILITY } from '../../../core/paths'
 import { getUser, setUser } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
@@ -10,16 +12,23 @@ const OPTIONS: { value: ReportFilter; label: string }[] = [
   { value: 'mine', label: '我发的' },
 ]
 
-Component<{ options: typeof OPTIONS; index: number }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
-  data: { options: OPTIONS, index: 1 },
+Component<{ options: typeof OPTIONS; index: number; scopeLabel: string }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
+  data: { options: OPTIONS, index: 1, scopeLabel: ledgerScopeLabel('detail') },
   methods: {
     onLoad() {
       this.saving = false
+      this.sync()
+    },
+
+    onShow() {
+      this.sync()
+    },
+
+    sync() {
       const u = getUser()
-      if (u) {
-        const index = OPTIONS.findIndex((o) => o.value === normalizeReportFilter(u.preferences.resonanceReportFilter))
-        this.setData({ index: index < 0 ? 1 : index })
-      }
+      if (!u) return
+      const index = OPTIONS.findIndex((o) => o.value === normalizeReportFilter(u.preferences.resonanceReportFilter))
+      this.setData({ index: index < 0 ? 1 : index, scopeLabel: ledgerScopeLabel(ledgerScopeOfUser(u)) })
     },
 
     /** 先切换再保存，失败回退 */
@@ -36,6 +45,10 @@ Component<{ options: typeof OPTIONS; index: number }, {}, WechatMiniprogram.Comp
         return toast(r.message)
       }
       setUser(r.data.user)
+    },
+
+    onVisibility() {
+      wx.navigateTo({ url: PAGE_LEDGER_VISIBILITY })
     },
   },
 })

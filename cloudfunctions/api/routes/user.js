@@ -1,7 +1,7 @@
 const { fail, text, id, toMs, getDoc, isCollectionMissing, isNotFound } = require('../lib/util')
 const { partnerIdOf } = require('../lib/context')
 const media = require('../lib/media')
-const { REPORT_FILTERS, publicUser, freshUser } = require('../lib/profile')
+const { REPORT_FILTERS, LEDGER_SCOPES, publicUser, freshUser } = require('../lib/profile')
 
 const BIND_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
 
@@ -36,6 +36,15 @@ async function savePreferences(ctx, e) {
   if (!REPORT_FILTERS.includes(raw)) fail('INVALID', '无效的偏好设置')
   await ctx.col.users.doc(ctx.openid).update({
     data: { preferences: { resonanceReportFilter: raw }, updatedAt: ctx.db.serverDate() },
+  })
+  return { user: await freshUser(ctx) }
+}
+
+async function saveLedgerVisibility(ctx, e) {
+  await ctx.viewer()
+  if (!LEDGER_SCOPES.includes(e.scope)) fail('INVALID', '无效的可见范围')
+  await ctx.col.users.doc(ctx.openid).update({
+    data: { ledgerVisibility: { scope: e.scope }, updatedAt: ctx.db.serverDate() },
   })
   return { user: await freshUser(ctx) }
 }
@@ -197,6 +206,7 @@ module.exports = {
   me,
   saveProfile,
   savePreferences,
+  saveLedgerVisibility,
   setTogetherSince,
   partnerPanel,
   requestBind,

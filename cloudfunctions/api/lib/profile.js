@@ -2,12 +2,19 @@ const { partnerIdOf } = require('./context')
 const media = require('./media')
 
 const REPORT_FILTERS = ['all', 'await_me', 'mine']
+const LEDGER_SCOPES = ['none', 'summary', 'detail']
 
 function preferencesOf(doc) {
   let raw = doc && doc.preferences ? doc.preferences.resonanceReportFilter : ''
   // 旧「待处理」并入「待我回应」；all / mine 已存偏好保持原样
   if (raw === 'action_needed') raw = 'await_me'
   return { resonanceReportFilter: REPORT_FILTERS.includes(raw) ? raw : 'await_me' }
+}
+
+/** 我对对方开放自己账单的范围。缺省是全部明细。 */
+function ledgerVisibilityOf(doc) {
+  const raw = doc && doc.ledgerVisibility ? doc.ledgerVisibility.scope : ''
+  return { scope: LEDGER_SCOPES.includes(raw) ? raw : 'detail' }
 }
 
 function toPublicUser(openid, me, partner, urls) {
@@ -20,6 +27,7 @@ function toPublicUser(openid, me, partner, urls) {
     avatarUrl: media.avatar(me.avatarUrl, urls),
     togetherSinceMs: partner ? since : null,
     preferences: preferencesOf(me),
+    ledgerVisibility: ledgerVisibilityOf(me),
     partner: partner
       ? {
           openId: partnerIdOf(me),
@@ -48,4 +56,4 @@ async function freshUser(ctx) {
   return (await publicUser(ctx)).user
 }
 
-module.exports = { REPORT_FILTERS, publicUser, freshUser }
+module.exports = { REPORT_FILTERS, LEDGER_SCOPES, ledgerVisibilityOf, publicUser, freshUser }

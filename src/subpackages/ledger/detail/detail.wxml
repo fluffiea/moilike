@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="支出" show-back />
+  <app-nav title="{{readonly ? '详情' : '支出'}}" show-back />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body">
       <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{1}}" />
@@ -18,17 +18,21 @@
               <text class="kv__k">备注</text>
               <text class="kv__v">{{expense.note}}</text>
             </view>
+            <view wx:if="{{expense.recorder}}" class="kv">
+              <text class="kv__k">记录人</text>
+              <text class="kv__v">{{expense.recorder}}</text>
+            </view>
           </view>
         </view>
 
-        <view class="mo-card rowcard">
+        <view wx:if="{{!readonly}}" class="mo-card rowcard">
           <view class="row" bind:tap="onEdit" aria-role="button">
             <text class="row__title">编辑</text>
             <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
         </view>
 
-        <view class="mo-card danger {{busy ? 'danger--busy' : ''}}" bind:tap="onDelete" aria-role="button">
+        <view wx:if="{{!readonly}}" class="mo-card danger {{busy ? 'danger--busy' : ''}}" bind:tap="onDelete" aria-role="button">
           <text class="danger__text">{{busy ? '正在删除' : '删除'}}</text>
         </view>
       </block>

@@ -112,3 +112,10 @@
 .bill__chevron {
   margin-left: 12rpx;
 }
+
+.bill__who {
+  margin-right: 16rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+  flex-shrink: 0;
+}

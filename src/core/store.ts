@@ -2,6 +2,7 @@
  * 全局状态：当前用户、跨页事件、页面间交接数据、列表缓存。
  * 运行时一律读内存；Storage 只用于冷启动恢复。
  */
+import { ledgerScopeOf } from './ledger-visibility'
 import type { LetterItem, ReportPost, User } from '../types/api'
 import { applyResonanceBadge } from './badge'
 
@@ -54,6 +55,7 @@ function migrateLegacy(): void {
       avatarUrl: '',
       togetherSinceMs: null,
       preferences: { resonanceReportFilter: 'await_me' },
+      ledgerVisibility: { scope: 'detail' },
       partner: null,
     } as User)
   }
@@ -61,15 +63,23 @@ function migrateLegacy(): void {
   for (const k of LEGACY_KEYS) wx.removeStorage({ key: k, fail: () => {} })
 }
 
+function normalizeUser(u: User): User {
+  const scope = ledgerScopeOf(u.ledgerVisibility && u.ledgerVisibility.scope)
+  if (u.ledgerVisibility && u.ledgerVisibility.scope === scope) return u
+  return { ...u, ledgerVisibility: { scope } }
+}
+
 export function initStore(): void {
   migrateLegacy()
-  user = readStorage<User>(USER_KEY)
+  const stored = readStorage<User>(USER_KEY)
+  user = stored ? normalizeUser(stored) : null
 }
 
 export const getUser = (): User | null => user
 export const isRegistered = (u: User | null): u is User => !!u && !!u.nickName
 
 export function setUser(next: User): void {
+  next = normalizeUser(next)
   const scopeChanged = !user || user.openId !== next.openId || partnerId(user) !== partnerId(next)
   user = next
   writeStorage(USER_KEY, next)

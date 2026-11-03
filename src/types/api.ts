@@ -4,6 +4,9 @@ export type Media = { id: string; thumb: string; url: string }
 export type Person = { name: string; avatarUrl: string }
 export type ReportFilter = 'all' | 'await_me' | 'mine'
 export type ReportState = 'awaiting_response' | 'responded'
+/** 我的账单对对方开放到哪一步 */
+export type LedgerScope = 'none' | 'summary' | 'detail'
+export type LedgerView = 'mine' | 'partner' | 'us'
 
 export type Partner = {
   openId: string
@@ -20,6 +23,8 @@ export type User = {
   avatarUrl: string
   togetherSinceMs: number | null
   preferences: { resonanceReportFilter: ReportFilter }
+  /** 对方能看到我的账单到什么程度；双方各自一份 */
+  ledgerVisibility: { scope: LedgerScope }
   partner: Partner | null
 }
 
@@ -105,6 +110,8 @@ export type Expense = {
   occurredAtMs: number
   createdAtMs: number
   updatedAtMs: number
+  /** 是不是当前用户自己记的 */
+  mine: boolean
 }
 
 export type ExpenseL1Stat = { l1: string; name: string; amountFen: number }
@@ -123,7 +130,17 @@ export type ExpenseMonthSummary = {
   top: ExpenseL1Stat[]
   categories: ExpenseL1Stat[]
   breakdown: { l1: string; name: string; totalFen: number; items: ExpenseL2Stat[] } | null
+} & ExpenseAccess
+
+export type ExpenseAccess = {
+  view: LedgerView
+  /** 对方对我开放的范围；看自己的账时为 detail */
+  scope: LedgerScope
+  /** 合计是否计入了对方的金额 */
+  includesPartner: boolean
 }
+
+export type ExpenseList = Page<Expense> & ExpenseAccess
 
 export type Page<T> = { items: T[]; nextCursor: string }
 
@@ -135,6 +152,7 @@ export interface Routes {
   'user.me': [{}, { user: User | null }]
   'user.saveProfile': [{ nickName: string; avatarFileId: string; signature?: string }, UserResult]
   'user.savePreferences': [{ preferences: { resonanceReportFilter: ReportFilter } }, UserResult]
+  'user.saveLedgerVisibility': [{ scope: LedgerScope }, UserResult]
   'user.setTogetherSince': [{ togetherSinceMs: number }, UserResult]
   'user.partnerPanel': [{}, { user: User; bindCode: string; inbound: BindRequest[]; outbound: BindRequest | null }]
   'user.requestBind': [{ bindCode: string }, null]
@@ -166,13 +184,13 @@ export interface Routes {
   'letters.update': [{ id: string; title: string; content: string; type: string; images: string[] }, { letter: Letter }]
   'letters.remove': [{ id: string }, null]
 
-  'expense.list': [{ month: string; cursor?: string; l1?: string }, Page<Expense>]
+  'expense.list': [{ month: string; cursor?: string; l1?: string; view?: LedgerView }, ExpenseList]
   'expense.get': [{ id: string }, { expense: Expense }]
   'expense.create': [{ amountFen: number; l1: string; l2: string; note?: string; occurredAtMs: number }, { expense: Expense }]
   'expense.update': [{ id: string; amountFen: number; l1: string; l2: string; note?: string; occurredAtMs: number }, { expense: Expense }]
   'expense.remove': [{ id: string }, null]
-  /** scope=total 只返回本月合计，给独白入口用，不算环比和月均 */
-  'expense.monthSummary': [{ month: string; l1?: string; scope?: 'total' | 'full' }, ExpenseMonthSummary]
+  /** scope=total 只返回本月合计，给独白入口用，不算环比和月均。view 决定看谁的账，缺省 mine */
+  'expense.monthSummary': [{ month: string; l1?: string; scope?: 'total' | 'full'; view?: LedgerView }, ExpenseMonthSummary]
 
   'kitchen.mine': [{}, { kitchen: Kitchen | null; pendingCount: number }]
   'kitchen.create': [{ name: string }, { kitchen: Kitchen }]
