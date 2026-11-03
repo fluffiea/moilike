@@ -1,5 +1,5 @@
 .list {
-  padding: 8rpx 32rpx;
+  padding: 8rpx var(--mo-pad-h);
 }
 
 .row {
@@ -19,37 +19,6 @@
   margin-right: 16rpx;
   font-size: 32rpx;
   font-weight: 600;
-  color: var(--mo-text-primary);
-}
-
-.step {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 64rpx;
-  padding: 0 8rpx;
-  border-radius: var(--mo-radius-btn);
-  background-color: var(--mo-l0-bg);
-  flex-shrink: 0;
-}
-
-.step__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
-}
-
-.step__mark {
-  font-size: 32rpx;
-  color: var(--mo-text-primary);
-}
-
-.step__num {
-  min-width: 40rpx;
-  font-size: 32rpx;
-  text-align: center;
   color: var(--mo-text-primary);
 }
 

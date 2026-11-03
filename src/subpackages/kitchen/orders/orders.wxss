@@ -27,22 +27,6 @@
   font-size: 24rpx;
 }
 
-.st--pending {
-  color: var(--mo-status-pending-text);
-}
-
-.st--progress {
-  color: var(--mo-status-read-text);
-}
-
-.st--done {
-  color: var(--mo-status-evaluated-text);
-}
-
-.st--muted {
-  color: var(--mo-text-muted);
-}
-
 .order__foot {
   display: flex;
   flex-direction: row;

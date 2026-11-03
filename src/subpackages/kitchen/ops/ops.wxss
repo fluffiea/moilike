@@ -22,7 +22,8 @@
 .seg {
   display: flex;
   flex-direction: row;
-  margin-bottom: 28rpx;
+  height: 80rpx;
+  margin-bottom: 36rpx;
   padding: 6rpx;
   border-radius: var(--mo-radius-btn);
   background-color: var(--mo-l1-card);
@@ -33,7 +34,6 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  height: 64rpx;
   border-radius: var(--mo-radius-btn);
   font-size: 26rpx;
   color: var(--mo-text-secondary);
@@ -98,22 +98,6 @@
 .job__status {
   margin-top: 8rpx;
   font-size: 24rpx;
-}
-
-.st--pending {
-  color: var(--mo-status-pending-text);
-}
-
-.st--progress {
-  color: var(--mo-status-read-text);
-}
-
-.st--done {
-  color: var(--mo-status-evaluated-text);
-}
-
-.st--muted {
-  color: var(--mo-text-muted);
 }
 
 .job__names {

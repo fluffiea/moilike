@@ -46,25 +46,20 @@
   color: var(--mo-text-danger);
 }
 
-.label {
+.fields .label {
   display: block;
-  margin-bottom: 16rpx;
+  margin: 28rpx 0 16rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 
-.label + .mo-field,
-.field-hint + .label {
+.fields .label:first-child {
   margin-top: 0;
-}
-
-.mo-field + .label,
-.field-hint {
-  margin-top: 28rpx;
 }
 
 .field-hint {
   display: block;
+  margin-top: 12rpx;
 }
 
 .pick {
@@ -119,25 +114,6 @@
   margin-top: 20rpx;
   font-size: 26rpx;
   color: var(--mo-text-danger);
-}
-
-.mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.sheet {
-  padding: 28rpx var(--mo-pad-h) calc(24rpx + var(--mo-safe-bottom));
-  border-radius: var(--mo-radius-card) var(--mo-radius-card) 0 0;
-  background-color: var(--mo-l1-card);
 }
 
 .sheet__title {

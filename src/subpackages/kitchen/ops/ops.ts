@@ -2,8 +2,8 @@ import type { OpsOrder, OpsStatus } from '../../../types/api'
 import { call, callOrToast } from '../../../core/api'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { dateTime } from '../../../core/format'
+import { orderStatusClass, renameKitchen } from '../../../core/kitchen'
 import { PAGE_KITCHEN_CREATE, PAGE_KITCHEN_MENU } from '../../../core/paths'
-import { promptText, toast } from '../../../core/ui'
 
 type Tab = { key: OpsStatus; name: string; on: boolean }
 type View = {
@@ -25,13 +25,6 @@ const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
   done: { title: '还没有完成的心意', hint: '完成后留在这里' },
 }
 
-function statusClass(status: string): string {
-  if (status === 'pending') return 'st--pending'
-  if (status === 'in_progress') return 'st--progress'
-  if (status === 'done') return 'st--done'
-  return 'st--muted'
-}
-
 const TABS: Tab[] = [
   { key: 'pending', name: '待接单', on: true },
   { key: 'in_progress', name: '进行中', on: false },
@@ -39,13 +32,15 @@ const TABS: Tab[] = [
 ]
 
 Component<
-  { kitchenName: string; tabs: Tab[]; emptyTitle: string; emptyHint: string; feed: FeedData<View> },
+  { gate: 'loading' | 'error' | 'ready'; errorText: string; kitchenName: string; tabs: Tab[]; emptyTitle: string; emptyHint: string; feed: FeedData<View> },
   {},
   WechatMiniprogram.Component.MethodOption,
   { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus },
   true
 >({
   data: {
+    gate: 'loading',
+    errorText: '',
     kitchenName: '',
     tabs: TABS,
     emptyTitle: EMPTY.pending.title,
@@ -53,21 +48,23 @@ Component<
     feed: emptyFeed<View>(),
   },
   methods: {
-    async onLoad() {
+    onLoad() {
       this.feedCtl = null
       this.tab = 'pending'
+      void this.openKitchen()
+    },
+    async openKitchen() {
       const mine = await call('kitchen.mine', {})
-      if (!mine.ok) {
-        toast(mine.message)
-        if (mine.code === 'NO_KITCHEN') wx.redirectTo({ url: PAGE_KITCHEN_CREATE })
-        return
-      }
-      if (!mine.data.kitchen) {
+      if (!mine.ok || !mine.data.kitchen) {
+        if (!mine.ok && mine.code !== 'NO_KITCHEN') {
+          this.setData({ gate: 'error', errorText: mine.message })
+          return
+        }
         wx.redirectTo({ url: PAGE_KITCHEN_CREATE })
         return
       }
-      this.setData({ kitchenName: mine.data.kitchen.name })
-      this.openTab('pending')
+      this.setData({ gate: 'ready', errorText: '', kitchenName: mine.data.kitchen.name })
+      if (!this.feedCtl) this.openTab('pending')
     },
     onShow() {
       if (this.feedCtl) this.feedCtl.refreshIfStale(8000)
@@ -95,7 +92,7 @@ Component<
           note: item.note,
           time: dateTime(item.createdAtMs),
           statusLabel: item.statusLabel,
-          statusClass: statusClass(item.status),
+          statusClass: orderStatusClass(item.status),
           ordererName: item.ordererName,
           ordererAvatar: item.ordererAvatar,
           initial: item.ordererName.slice(0, 1),
@@ -130,15 +127,8 @@ Component<
       wx.navigateTo({ url: PAGE_KITCHEN_MENU })
     },
     async onRename() {
-      const raw = await promptText({ title: '厨房改名', placeholder: '例如阿柚的小厨房', value: this.data.kitchenName })
-      if (raw == null) return
-      const name = raw.trim()
-      if (!name) {
-        toast('先给厨房起个名字')
-        return
-      }
-      const r = await callOrToast('kitchen.rename', { name })
-      if (r) this.setData({ kitchenName: r.kitchen.name })
+      const name = await renameKitchen(this.data.kitchenName)
+      if (name) this.setData({ kitchenName: name })
     },
   },
 })

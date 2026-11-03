@@ -13,15 +13,15 @@
     <view class="mo-body">
       <state-view wx:if="{{scene === 'loading'}}" status="loading" rows="{{2}}" />
       <state-view wx:elif="{{scene === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRefresh" />
-      <view wx:elif="{{scene === 'unpaired'}}" class="mo-card blank">
-        <text class="blank__title">先结伴才能点单</text>
-        <text class="mo-hint blank__hint">点单看的是对方的小厨房</text>
-        <text class="mo-hint blank__hint">结伴后，就能来点 Ta 的心意</text>
+      <view wx:elif="{{scene === 'unpaired'}}" class="mo-card mo-guide">
+        <text class="mo-guide__title">先结伴才能点单</text>
+        <text class="mo-hint mo-guide__hint">点单看的是对方的小厨房</text>
+        <text class="mo-hint mo-guide__hint">结伴后，就能来点 Ta 的心意</text>
       </view>
-      <view wx:else class="mo-card blank">
-        <text class="blank__title">Ta 还没有开厨房</text>
-        <text class="mo-hint blank__hint">点单需要对方先建好小厨房</text>
-        <text class="mo-hint blank__hint">催催对方去「独白 → 我的厨房」创建吧</text>
+      <view wx:else class="mo-card mo-guide">
+        <text class="mo-guide__title">Ta 还没有开厨房</text>
+        <text class="mo-hint mo-guide__hint">点单需要对方先建好小厨房</text>
+        <text class="mo-hint mo-guide__hint">催催对方去「独白 → 我的厨房」创建吧</text>
       </view>
     </view>
   </scroll-view>
@@ -45,10 +45,10 @@
       bindrefresherrefresh="onRefresh"
     >
       <view class="pad">
-        <view class="mo-card blank">
-          <text class="blank__title">厨房还是空的</text>
-          <text class="mo-hint blank__hint">对方还没添加分类和菜品</text>
-          <text class="mo-hint blank__hint">等 Ta 在独白里把菜单建好再来点</text>
+        <view class="mo-card mo-guide">
+          <text class="mo-guide__title">厨房还是空的</text>
+          <text class="mo-hint mo-guide__hint">对方还没添加分类和菜品</text>
+          <text class="mo-hint mo-guide__hint">等 Ta 在独白里把菜单建好再来点</text>
         </view>
       </view>
     </scroll-view>
@@ -74,9 +74,7 @@
         refresher-triggered="{{refreshing}}"
         bindrefresherrefresh="onRefresh"
       >
-        <view wx:if="{{catEmpty}}" class="cat-empty">
-          <text class="cat-empty__title">这个分类还没有心意</text>
-        </view>
+        <state-view wx:if="{{catEmpty}}" status="empty" title="这个分类还没有心意" />
         <view wx:for="{{dishes}}" wx:key="id" class="mo-card dish">
           <view class="thumb">
             <image wx:if="{{item.cover}}" class="thumb__img" src="{{item.cover}}" mode="aspectFill" />
@@ -106,9 +104,9 @@
     </view>
   </view>
 
-  <view wx:if="{{specOpen}}" class="mask" bind:tap="onCloseSpec">
-    <view class="sheet" catch:tap="noop">
-      <view class="handle" />
+  <view wx:if="{{specOpen}}" class="mo-mask" bind:tap="onCloseSpec">
+    <view class="mo-sheet" catch:tap="noop">
+      <view class="mo-sheet__handle" />
       <view class="spec">
         <view class="thumb thumb--lg">
           <image wx:if="{{spec.cover}}" class="thumb__img" src="{{spec.cover}}" mode="aspectFill" />
@@ -121,10 +119,10 @@
       </view>
       <view class="line">
         <text class="line__label">份量</text>
-        <view class="step">
-          <view class="step__btn" data-dir="-1" bind:tap="onSpecStep" aria-role="button"><text class="step__mark">－</text></view>
-          <text class="step__num">{{spec.quantity}}</text>
-          <view class="step__btn" data-dir="1" bind:tap="onSpecStep" aria-role="button"><text class="step__mark">＋</text></view>
+        <view class="mo-step">
+          <view class="mo-step__btn" data-dir="-1" bind:tap="onSpecStep" aria-role="button"><text class="mo-step__mark">－</text></view>
+          <text class="mo-step__num">{{spec.quantity}}</text>
+          <view class="mo-step__btn" data-dir="1" bind:tap="onSpecStep" aria-role="button"><text class="mo-step__mark">＋</text></view>
         </view>
       </view>
       <text class="line__label line__label--block">快捷标签</text>
@@ -144,9 +142,9 @@
     </view>
   </view>
 
-  <view wx:if="{{cartOpen}}" class="mask" bind:tap="onCloseCart">
-    <view class="sheet" catch:tap="noop">
-      <view class="handle" />
+  <view wx:if="{{cartOpen}}" class="mo-mask" bind:tap="onCloseCart">
+    <view class="mo-sheet" catch:tap="noop">
+      <view class="mo-sheet__handle" />
       <view class="line">
         <text class="sheet__title">购物车</text>
         <text class="head__link" bind:tap="onClearCart" aria-role="button">清空</text>
@@ -161,10 +159,10 @@
             <text class="dish__name">{{item.name}}</text>
             <text wx:if="{{item.tagText}}" class="dish__desc">{{item.tagText}}</text>
           </view>
-          <view class="step">
-            <view class="step__btn" data-key="{{item.key}}" data-dir="-1" bind:tap="onCartStep" aria-role="button"><text class="step__mark">－</text></view>
-            <text class="step__num">{{item.quantity}}</text>
-            <view class="step__btn" data-key="{{item.key}}" data-dir="1" bind:tap="onCartStep" aria-role="button"><text class="step__mark">＋</text></view>
+          <view class="mo-step">
+            <view class="mo-step__btn" data-key="{{item.key}}" data-dir="-1" bind:tap="onCartStep" aria-role="button"><text class="mo-step__mark">－</text></view>
+            <text class="mo-step__num">{{item.quantity}}</text>
+            <view class="mo-step__btn" data-key="{{item.key}}" data-dir="1" bind:tap="onCartStep" aria-role="button"><text class="mo-step__mark">＋</text></view>
           </view>
         </view>
       </scroll-view>

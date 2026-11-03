@@ -2,11 +2,12 @@
   <app-nav title="管理分类" show-back />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body mo-body--sheet">
-      <state-view wx:if="{{loading}}" status="loading" rows="{{2}}" />
-      <view wx:elif="{{rows.length === 0}}" class="mo-card blank">
-        <text class="blank__title">还没有分类</text>
-        <text class="mo-hint blank__hint">厨房是空的，先新增一个分类</text>
-        <text class="mo-hint blank__hint">分类全部由你自定义，无系统预置</text>
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="reload" />
+      <view wx:elif="{{rows.length === 0}}" class="mo-card mo-guide">
+        <text class="mo-guide__title">还没有分类</text>
+        <text class="mo-hint mo-guide__hint">厨房是空的，先新增一个分类</text>
+        <text class="mo-hint mo-guide__hint">分类全部由你自定义，无系统预置</text>
       </view>
       <block wx:else>
         <view wx:for="{{rows}}" wx:key="id" class="mo-card row">
@@ -17,11 +18,11 @@
           <text class="row__act" data-id="{{item.id}}" bind:tap="onRename" aria-role="button">改名</text>
           <text class="row__act row__act--danger" data-id="{{item.id}}" bind:tap="onRemove" aria-role="button">删除</text>
         </view>
+        <text class="mo-hint hint">仅可删除无菜品的分类。</text>
       </block>
-      <text class="mo-hint foot-hint">仅可删除无菜品的分类。本期不做拖拽排序。</text>
     </view>
   </scroll-view>
-  <view class="mo-footer">
+  <view wx:if="{{status === 'ready'}}" class="mo-footer">
     <view class="mo-btn" bind:tap="onAdd" aria-role="button"><text>新增分类</text></view>
   </view>
 </view>

@@ -181,7 +181,8 @@ export interface Routes {
   'kitchen.createCategory': [{ name: string }, { category: KitchenCategory }]
   'kitchen.renameCategory': [{ id: string; name: string }, { category: KitchenCategory }]
   'kitchen.removeCategory': [{ id: string }, null]
-  'kitchen.dishes': [{}, { dishes: KitchenDish[] }]
+  /** 厨方菜单一屏：厨房名、分类（含空分类和道数）、全部菜品 */
+  'kitchen.dishes': [{}, { kitchen: Kitchen; categories: KitchenCategory[]; dishes: KitchenDish[] }]
   'kitchen.dish': [{ id: string }, { dish: KitchenDish }]
   'kitchen.createDish': [DishWrite, { dish: KitchenDish }]
   'kitchen.updateDish': [DishWrite & { id: string }, { dish: KitchenDish }]

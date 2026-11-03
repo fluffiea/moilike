@@ -19,39 +19,10 @@
   color: var(--mo-brand-slate);
 }
 
-.blank {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 80rpx 36rpx;
-}
-
-.blank__title {
-  font-size: 40rpx;
-  font-weight: 600;
-  text-align: center;
-  color: var(--mo-text-primary);
-}
-
-.blank__hint {
-  display: block;
-  margin-top: 16rpx;
-  text-align: center;
-}
-
-.group__name {
-  display: block;
-  margin-bottom: 16rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--mo-text-primary);
-}
-
 .row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 20rpx;
 }
 
 .thumb {

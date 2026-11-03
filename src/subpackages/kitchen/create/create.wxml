@@ -1,8 +1,10 @@
 <view class="mo-page">
   <app-nav title="我的厨房" show-back />
-  <scroll-view wx:if="{{ready}}" class="mo-scroll" scroll-y show-scrollbar="{{false}}">
+  <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body">
-      <view class="mo-card create">
+      <state-view wx:if="{{phase === 'loading'}}" status="loading" rows="{{1}}" />
+      <state-view wx:elif="{{phase === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="prepare" />
+      <view wx:else class="mo-card create">
         <text class="create__title">给两人开一间小厨房</text>
         <text class="mo-hint create__lead">取个温柔的名字，对方就能来点心意</text>
         <text class="create__label">厨房名 *</text>

@@ -1,7 +1,8 @@
 import { call, callOrToast } from '../../../core/api'
+import { askLimitedName, CATEGORY_NAME_MAX } from '../../../core/kitchen'
 import { uploadFile } from '../../../core/media'
 import { back } from '../../../core/paths'
-import { actionSheet, confirm, promptText, toast } from '../../../core/ui'
+import { actionSheet, confirm, toast } from '../../../core/ui'
 
 const LEAVE = '内容还没有保存，离开后会丢失。'
 
@@ -121,17 +122,14 @@ Component<
       this.markDirty()
     },
     async onCreateCat() {
-      const raw = await promptText({ title: '新增分类', placeholder: '例如心意' })
-      if (raw == null) return
-      const name = raw.trim()
-      if (!name) {
-        toast('先写分类名')
-        return
-      }
-      if (name.length > 8) {
-        toast('分类名最多 8 个字')
-        return
-      }
+      const name = await askLimitedName({
+        title: '新增分类',
+        placeholder: '例如心意',
+        max: CATEGORY_NAME_MAX,
+        empty: '先写分类名',
+        tooLong: '分类名最多 8 个字',
+      })
+      if (!name) return
       this.pendingName = name
       this.setData({ categoryId: '', categoryLabel: name, catOpen: false })
       this.markDirty()

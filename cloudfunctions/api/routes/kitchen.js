@@ -124,10 +124,14 @@ async function rename(ctx, e) {
   return { kitchen: kitchenView({ ...kitchen, name, updatedAt }) }
 }
 
+function withCounts(cats, rows) {
+  return cats.map((c) => categoryView(c, rows.filter((d) => d.categoryId === c._id).length))
+}
+
 async function categories(ctx) {
   const kitchen = await ownKitchen(ctx)
-  const [cats, dishes] = await Promise.all([categoriesOf(ctx, kitchen._id), dishesOf(ctx, kitchen._id)])
-  return { categories: cats.map((c) => categoryView(c, dishes.filter((d) => d.categoryId === c._id).length)) }
+  const [cats, rows] = await Promise.all([categoriesOf(ctx, kitchen._id), dishesOf(ctx, kitchen._id)])
+  return { categories: withCounts(cats, rows) }
 }
 
 async function assertUniqueCategory(ctx, kitchenId, name, exceptId) {
@@ -206,12 +210,17 @@ async function paintDish(ctx, doc, categoryName) {
   return dishView(doc, categoryName, urls)
 }
 
+/** 菜单页一次拿齐，避免厨房、分类、菜品各打一轮 */
 async function dishes(ctx) {
   const kitchen = await ownKitchen(ctx)
   const [cats, rows] = await Promise.all([categoriesOf(ctx, kitchen._id), dishesOf(ctx, kitchen._id)])
   const names = new Map(cats.map((c) => [c._id, c.name || '']))
   const urls = await media.sign(ctx.cloud, rows.map((d) => d.coverFileId))
-  return { dishes: rows.map((d) => dishView(d, names.get(d.categoryId) || '', urls)) }
+  return {
+    kitchen: kitchenView(kitchen),
+    categories: withCounts(cats, rows),
+    dishes: rows.map((d) => dishView(d, names.get(d.categoryId) || '', urls)),
+  }
 }
 
 async function dish(ctx, e) {

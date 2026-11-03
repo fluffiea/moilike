@@ -3,7 +3,7 @@ import { call, callOrToast } from '../../../core/api'
 import { replaceCart, requestOpenCart } from '../../../core/cart'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { dateTime } from '../../../core/format'
-import { lineText } from '../../../core/kitchen'
+import { lineText, orderStatusClass } from '../../../core/kitchen'
 import { TAB_ORDER } from '../../../core/paths'
 import { confirm, toast } from '../../../core/ui'
 
@@ -16,13 +16,6 @@ type View = {
   statusClass: string
   canCancel: boolean
   canReorder: boolean
-}
-
-function statusClass(status: string): string {
-  if (status === 'pending') return 'st--pending'
-  if (status === 'in_progress') return 'st--progress'
-  if (status === 'done') return 'st--done'
-  return 'st--muted'
 }
 
 Component<
@@ -45,7 +38,7 @@ Component<
           noteText: item.note ? `备注：${item.note}` : '',
           time: dateTime(item.createdAtMs),
           statusLabel: item.statusLabel,
-          statusClass: statusClass(item.status),
+          statusClass: orderStatusClass(item.status),
           canCancel: item.canCancel,
           canReorder: item.canReorder,
         }),

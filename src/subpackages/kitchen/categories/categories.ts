@@ -1,12 +1,31 @@
 import type { KitchenCategory } from '../../../types/api'
 import { call, callOrToast } from '../../../core/api'
+import { askLimitedName, CATEGORY_NAME_MAX } from '../../../core/kitchen'
 import { PAGE_KITCHEN_CREATE } from '../../../core/paths'
-import { confirm, promptText, toast } from '../../../core/ui'
+import { confirm, toast } from '../../../core/ui'
 
 type Row = KitchenCategory & { meta: string }
+type Status = 'loading' | 'error' | 'ready'
 
-Component<{ loading: boolean; rows: Row[] }, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
-  data: { loading: true, rows: [] },
+function askCategoryName(title: string, value = ''): Promise<string | null> {
+  return askLimitedName({
+    title,
+    placeholder: '例如心意',
+    value,
+    max: CATEGORY_NAME_MAX,
+    empty: '先写分类名',
+    tooLong: '分类名最多 8 个字',
+  })
+}
+
+Component<
+  { status: Status; errorText: string; rows: Row[] },
+  {},
+  WechatMiniprogram.Component.MethodOption,
+  {},
+  true
+>({
+  data: { status: 'loading', errorText: '', rows: [] },
   methods: {
     onShow() {
       void this.reload()
@@ -14,13 +33,17 @@ Component<{ loading: boolean; rows: Row[] }, {}, WechatMiniprogram.Component.Met
     async reload() {
       const r = await call('kitchen.categories', {})
       if (!r.ok) {
-        toast(r.message)
-        this.setData({ loading: false })
-        if (r.code === 'NO_KITCHEN') wx.redirectTo({ url: PAGE_KITCHEN_CREATE })
+        if (r.code === 'NO_KITCHEN') {
+          wx.redirectTo({ url: PAGE_KITCHEN_CREATE })
+          return
+        }
+        if (this.data.status === 'ready') toast(r.message)
+        else this.setData({ status: 'error', errorText: r.message })
         return
       }
       this.setData({
-        loading: false,
+        status: 'ready',
+        errorText: '',
         rows: r.data.categories.map((c) => ({
           ...c,
           meta: c.dishCount > 0 ? `含 ${c.dishCount} 道菜` : '空分类，可删除',
@@ -28,17 +51,8 @@ Component<{ loading: boolean; rows: Row[] }, {}, WechatMiniprogram.Component.Met
       })
     },
     async onAdd() {
-      const raw = await promptText({ title: '新增分类', placeholder: '例如心意' })
-      if (raw == null) return
-      const name = raw.trim()
-      if (!name) {
-        toast('先写分类名')
-        return
-      }
-      if (name.length > 8) {
-        toast('分类名最多 8 个字')
-        return
-      }
+      const name = await askCategoryName('新增分类')
+      if (!name) return
       const r = await callOrToast('kitchen.createCategory', { name })
       if (r) void this.reload()
     },
@@ -46,17 +60,8 @@ Component<{ loading: boolean; rows: Row[] }, {}, WechatMiniprogram.Component.Met
       const id = String(e.currentTarget.dataset.id || '')
       const row = this.data.rows.find((c) => c.id === id)
       if (!row) return
-      const raw = await promptText({ title: '分类改名', value: row.name })
-      if (raw == null) return
-      const name = raw.trim()
-      if (!name) {
-        toast('先写分类名')
-        return
-      }
-      if (name.length > 8) {
-        toast('分类名最多 8 个字')
-        return
-      }
+      const name = await askCategoryName('分类改名', row.name)
+      if (!name) return
       const r = await callOrToast('kitchen.renameCategory', { id, name })
       if (r) void this.reload()
     },

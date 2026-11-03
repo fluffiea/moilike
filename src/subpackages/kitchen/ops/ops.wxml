@@ -11,6 +11,9 @@
     lower-threshold="{{400}}"
   >
     <view class="mo-body">
+      <state-view wx:if="{{gate === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{gate === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="openKitchen" />
+      <block wx:else>
       <view class="bar">
         <text class="bar__name">{{kitchenName}}</text>
         <text class="bar__act" bind:tap="onMenu" aria-role="button">菜单管理</text>
@@ -56,6 +59,7 @@
         <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
         <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
         <state-view wx:elif="{{feed.more === 'end' && feed.items.length}}" status="end" />
+      </block>
       </block>
     </view>
   </scroll-view>

@@ -2,21 +2,22 @@
   <app-nav title="菜单" show-back />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body">
-      <state-view wx:if="{{loading}}" status="loading" rows="{{2}}" />
+      <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="reload" />
       <block wx:else>
         <view class="bar">
           <text class="bar__name">{{kitchenName}}</text>
           <text class="bar__act" bind:tap="onRename" aria-role="button">改名</text>
           <text class="bar__act" bind:tap="onCategories" aria-role="button">管理分类</text>
         </view>
-        <view wx:if="{{empty}}" class="mo-card blank">
-          <text class="blank__title">还没有菜品</text>
-          <text class="mo-hint blank__hint">先「管理分类」新增分类，再点＋新建</text>
-          <text class="mo-hint blank__hint">新建时也可顺带新建分类</text>
+        <view wx:if="{{empty}}" class="mo-card mo-guide">
+          <text class="mo-guide__title">还没有菜品</text>
+          <text class="mo-hint mo-guide__hint">先「管理分类」新增分类，再点＋新建</text>
+          <text class="mo-hint mo-guide__hint">新建时也可顺带新建分类</text>
         </view>
         <block wx:else>
           <view wx:for="{{groups}}" wx:key="id" class="group">
-            <text class="group__name">{{item.name}}</text>
+            <text class="mo-section-title">{{item.name}}</text>
             <view
               wx:for="{{item.dishes}}"
               wx:for-item="dish"
@@ -43,7 +44,7 @@
       </block>
     </view>
   </scroll-view>
-  <view wx:if="{{!loading}}" class="mo-fab" bind:tap="onCreate" aria-role="button" aria-label="新建菜品">
+  <view wx:if="{{status === 'ready'}}" class="mo-fab" bind:tap="onCreate" aria-role="button" aria-label="新建菜品">
     <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
   </view>
 </view>
