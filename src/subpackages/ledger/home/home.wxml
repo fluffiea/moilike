@@ -40,7 +40,7 @@
       </view>
 
       <block wx:for="{{panes}}" wx:for-item="pane" wx:for-index="pi" wx:key="heroLabel">
-        <view wx:if="{{pi === lensIndex}}">
+        <block wx:if="{{pi === lensIndex}}">
           <state-view wx:if="{{pane.summaryStatus === 'loading' && pane.feed.status === 'loading'}}" status="loading" />
           <state-view wx:elif="{{pane.summaryStatus === 'error' && !pane.summary}}" status="error" hint="{{pane.summaryError}}" action="重试" bind:action="onRetry" />
           <state-view wx:elif="{{!pane.summary && pane.feed.status === 'error'}}" status="error" hint="{{pane.feed.errorText}}" action="重试" bind:action="onRetry" />
@@ -64,7 +64,7 @@
               <text wx:if="{{pane.summaryNote && pane.summary.empty}}" class="mo-hint note">{{pane.summaryNote}}</text>
             </view>
 
-            <view wx:if="{{!pane.summary.empty}}" class="mo-card">
+            <view wx:if="{{!pane.summary.empty}}" class="mo-card rows">
               <text class="mo-section-title">分类</text>
               <view
                 wx:for="{{pane.summary.categories}}"
@@ -88,7 +88,7 @@
             </view>
 
             <block wx:if="{{pane.showList}}">
-              <view wx:if="{{pane.feed.status === 'ready'}}" class="mo-card">
+              <view wx:if="{{pane.feed.status === 'ready'}}" class="mo-card rows">
                 <view class="head">
                   <text class="head__title">明细</text>
                   <text wx:if="{{pane.summary.count}}" class="head__extra">{{pane.summary.count}} 笔</text>
@@ -109,16 +109,16 @@
                   <text class="bill__amt">{{item.amount}}</text>
                   <image class="mo-chevron bill__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
                 </view>
-                <state-view wx:if="{{pane.feed.more === 'loading'}}" status="more-loading" />
-                <state-view wx:elif="{{pane.feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
-                <state-view wx:elif="{{pane.feed.more === 'end'}}" status="end" />
               </view>
+              <state-view wx:if="{{pane.feed.status === 'ready' && pane.feed.more === 'loading'}}" status="more-loading" />
+              <state-view wx:elif="{{pane.feed.status === 'ready' && pane.feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+              <state-view wx:elif="{{pane.feed.status === 'ready' && pane.feed.more === 'end'}}" status="end" />
               <state-view wx:elif="{{pane.feed.status === 'loading'}}" status="loading" rows="{{2}}" />
               <state-view wx:elif="{{pane.feed.status === 'error'}}" status="error" hint="{{pane.feed.errorText}}" action="重试" bind:action="onRetry" />
               <state-view wx:elif="{{pane.feed.status === 'empty'}}" status="empty" title="{{pane.emptyTitle}}" hint="{{pane.emptyHint}}" />
             </block>
           </block>
-        </view>
+        </block>
       </block>
     </view>
   </scroll-view>

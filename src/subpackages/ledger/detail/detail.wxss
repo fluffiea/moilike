@@ -22,8 +22,12 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  padding: 24rpx 0;
+  padding-top: 24rpx;
   border-top: var(--mo-border-field);
+}
+
+.kv + .kv {
+  margin-top: 24rpx;
 }
 
 .kv__k {

@@ -77,7 +77,7 @@
 
 .when__item {
   flex: 1;
-  margin-right: 20rpx;
+  margin-right: 16rpx;
 }
 
 .when__item--last {

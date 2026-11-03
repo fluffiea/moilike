@@ -14,11 +14,16 @@
   color: var(--mo-text-primary);
 }
 
+.mo-card.rows .mo-section-title {
+  margin-bottom: 0;
+}
+
 .cat {
-  padding: 24rpx 0;
+  padding-top: 24rpx;
 }
 
 .cat--line {
+  margin-top: 24rpx;
   border-top: var(--mo-border-field);
 }
 
@@ -53,7 +58,7 @@
 .track {
   width: 100%;
   height: 16rpx;
-  margin-top: 16rpx;
+  margin-top: 12rpx;
   border-radius: var(--mo-radius-btn);
   background-color: var(--mo-l0-bg);
   overflow: hidden;
@@ -69,10 +74,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 24rpx 0;
+  padding-top: 24rpx;
 }
 
 .bill--line {
+  margin-top: 24rpx;
   border-top: var(--mo-border-field);
 }
 
@@ -89,14 +95,14 @@
 
 .bill__meta {
   display: block;
-  margin-top: 6rpx;
+  margin-top: 12rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 
 .bill__note {
   display: block;
-  margin-top: 6rpx;
+  margin-top: 12rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
 }
@@ -110,5 +116,5 @@
 }
 
 .bill__chevron {
-  margin-left: 12rpx;
+  margin-left: 16rpx;
 }

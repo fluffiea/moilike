@@ -20,7 +20,7 @@
           <text class="hero__amount">{{breakdown.totalText}}</text>
         </view>
 
-        <view wx:if="{{!breakdown.empty}}" class="mo-card">
+        <view wx:if="{{!breakdown.empty}}" class="mo-card rows">
           <text class="mo-section-title">具体分类</text>
           <view wx:for="{{breakdown.items}}" wx:key="name" class="cat {{index ? 'cat--line' : ''}}">
             <view class="cat__top">
@@ -32,7 +32,7 @@
           </view>
         </view>
 
-        <view wx:if="{{feed.status === 'ready'}}" class="mo-card">
+        <view wx:if="{{feed.status === 'ready'}}" class="mo-card rows">
           <text class="mo-section-title">明细</text>
           <view
             wx:for="{{feed.items}}"
@@ -50,10 +50,10 @@
             <text class="bill__amt">{{item.amount}}</text>
             <image class="mo-chevron bill__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
-          <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
-          <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
-          <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
         </view>
+        <state-view wx:if="{{feed.status === 'ready' && feed.more === 'loading'}}" status="more-loading" />
+        <state-view wx:elif="{{feed.status === 'ready' && feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+        <state-view wx:elif="{{feed.status === 'ready' && feed.more === 'end'}}" status="end" />
         <state-view wx:elif="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
         <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
         <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="{{emptyTitle}}" hint="{{emptyHint}}" />
