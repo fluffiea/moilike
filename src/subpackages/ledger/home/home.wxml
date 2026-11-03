@@ -12,7 +12,20 @@
     scroll-top="{{scrollTop}}"
   >
     <view class="mo-body">
-      <view class="month">
+      <view wx:if="{{bound}}" class="lens">
+        <view
+          wx:for="{{lenses}}"
+          wx:key="value"
+          class="lens__item {{lens === item.value ? 'lens__item--on' : ''}}"
+          data-lens="{{item.value}}"
+          bind:tap="onLens"
+          aria-role="tab"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{showMonth}}" class="month">
         <text class="month__label">{{monthText}}</text>
         <view class="month__nav">
           <view class="month__btn" bind:tap="onPrev" aria-role="button" aria-label="上个月">
@@ -27,12 +40,14 @@
       <state-view wx:if="{{summaryStatus === 'loading' && feed.status === 'loading'}}" status="loading" />
       <state-view wx:elif="{{summaryStatus === 'error' && !summary}}" status="error" hint="{{summaryError}}" action="重试" bind:action="onRetry" />
       <state-view wx:elif="{{!summary && feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+      <state-view wx:elif="{{lens === 'partner' && scope === 'none'}}" status="empty" title="对方暂未开放账单" hint="对方将可见范围设为不可见" />
 
       <block wx:elif="{{summary}}">
         <view class="mo-card">
-          <text class="hero__label">支出</text>
+          <text class="hero__label">{{heroLabel}}</text>
           <text class="hero__amount">{{summary.totalText}}</text>
           <text wx:if="{{summary.open}}" class="hero__note">本月未结束</text>
+          <text wx:if="{{excludeNote}}" class="hero__note">暂不含对方</text>
           <view class="meta">
             <view class="stat">
               <text class="stat__k">较上月</text>
@@ -64,38 +79,45 @@
               </view>
               <view class="track"><view class="track__fill" style="width: {{item.bar}};" /></view>
             </view>
-            <image class="mo-chevron cat__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+            <image wx:if="{{canDrill}}" class="mo-chevron cat__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
         </view>
 
-        <view wx:if="{{feed.status === 'ready'}}" class="mo-card">
-          <view class="head">
-            <text class="head__title">明细</text>
-            <text wx:if="{{summary.count}}" class="head__extra">{{summary.count}} 笔</text>
-          </view>
-          <view
-            wx:for="{{feed.items}}"
-            wx:key="id"
-            class="bill {{index ? 'bill--line' : ''}}"
-            data-id="{{item.id}}"
-            bind:tap="onOpen"
-            aria-role="button"
-          >
-            <view class="bill__main">
-              <text class="bill__title">{{item.title}}</text>
-              <text class="bill__meta">{{item.meta}} · {{item.when}}</text>
-              <text wx:if="{{item.note}}" class="bill__note" overflow="ellipsis" max-lines="1">{{item.note}}</text>
+        <text wx:if="{{summaryNote}}" class="limit">{{summaryNote}}</text>
+
+        <block wx:if="{{showList}}">
+          <view wx:if="{{feed.status === 'ready'}}" class="mo-card">
+            <view class="head">
+              <text class="head__title">明细</text>
+              <text wx:if="{{summary.count}}" class="head__extra">{{summary.count}} 笔</text>
             </view>
-            <text class="bill__amt">{{item.amount}}</text>
-            <image class="mo-chevron bill__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+            <view
+              wx:for="{{feed.items}}"
+              wx:key="id"
+              class="bill {{index ? 'bill--line' : ''}}"
+              data-id="{{item.id}}"
+              bind:tap="onOpen"
+              aria-role="button"
+            >
+              <view wx:if="{{showWho}}" class="who">
+                <text class="who__text">{{item.who}}</text>
+              </view>
+              <view class="bill__main">
+                <text class="bill__title">{{item.title}}</text>
+                <text class="bill__meta">{{item.meta}} · {{item.when}}</text>
+                <text wx:if="{{item.note}}" class="bill__note" overflow="ellipsis" max-lines="1">{{item.note}}</text>
+              </view>
+              <text class="bill__amt">{{item.amount}}</text>
+              <image class="mo-chevron bill__chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+            </view>
+            <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
+            <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+            <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
           </view>
-          <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
-          <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
-          <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
-        </view>
-        <state-view wx:elif="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
-        <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
-        <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="这个月还没有支出" hint="记一笔就好" />
+          <state-view wx:elif="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
+          <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+          <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="{{emptyTitle}}" hint="{{emptyHint}}" />
+        </block>
       </block>
     </view>
   </scroll-view>

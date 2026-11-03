@@ -225,3 +225,55 @@
 .bill__chevron {
   margin-left: 12rpx;
 }
+
+.lens {
+  display: flex;
+  flex-direction: row;
+  height: 72rpx;
+  margin-bottom: 24rpx;
+  padding: 6rpx;
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l1-card);
+}
+
+.lens__item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mo-radius-btn);
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.lens__item--on {
+  background-color: var(--mo-fill-brand);
+  font-weight: 600;
+  color: var(--mo-text-inverse);
+}
+
+.limit {
+  display: block;
+  margin: -12rpx 0 36rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--mo-text-secondary);
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  background-color: var(--mo-l0-bg);
+  flex-shrink: 0;
+}
+
+.who__text {
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+}

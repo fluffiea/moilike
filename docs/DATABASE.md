@@ -15,6 +15,7 @@
 | `togetherSinceMs` | 纪念日（分钟对齐）；双方同值，重新结伴时置空 |
 | `bindCode` | 8 位绑定码，首次打开结伴页时生成 |
 | `preferences.resonanceReportFilter` | 共鸣默认筛选：`all` / `await_me` / `mine`。缺省 `await_me`。库里的旧值 `action_needed` 读出时当作 `await_me`，已保存的 `all` / `mine` 不改写 |
+| `ledgerVisibility.scope` | 我的账单对对方开放到哪一步：`none` 不可见 / `summary` 仅月合计与一级分类 / `detail` 全部明细。缺省 `detail`。只控制对方能读到我的支出，双方各自一份 |
 | `reportTags` | 报备自定义标签（默认标签「干饭」不存储） |
 | `partner` | 早期版本的伴侣快照，已不再读取 |
 
@@ -55,7 +56,21 @@
 
 ### expenses
 
-每人一本支出账，不依赖结伴。查询一律带 `authorOpenId = 当前 openId`，伴侣也读不到。
+每人一本支出账，不依赖结伴，也不另建共同账本。写、改、删仍只允许 `authorOpenId = 当前 openId`。
+
+读的时候由云函数按**对方**的 `ledgerVisibility.scope` 决定，不信任客户端：
+
+| 请求的 `view` | 对方的 scope | 返回 |
+|---------------|--------------|------|
+| 缺省 / `mine` | — | 只返回自己的流水和合计 |
+| `partner` | `none` | 空，不返回金额 |
+| `partner` | `summary` | 月合计、环比、月均、一级分类；没有流水、没有二级、没有单笔 |
+| `partner` | `detail` | 对方的流水和单笔，字段与本人看到的一致 |
+| `us` | `none` | 合计等于自己的；`includesPartner` 为 false |
+| `us` | `summary` | 合计含对方金额；流水只有自己的 |
+| `us` | `detail` | 双方流水按时间混在一起，每条带 `mine` |
+
+未结伴时 `partner` / `us` 直接拒绝。改 scope 立即生效，不按结伴时间切历史。
 
 | 字段 | 说明 |
 |------|------|

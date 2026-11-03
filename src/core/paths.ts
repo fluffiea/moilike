@@ -6,6 +6,7 @@ export const PAGE_LOGIN = '/pages/login/login'
 
 export const PAGE_EDIT_PROFILE = '/subpackages/user/edit-profile/edit-profile'
 export const PAGE_PREFERENCES = '/subpackages/user/preferences/preferences'
+export const PAGE_LEDGER_VISIBILITY = '/subpackages/user/ledger-visibility/ledger-visibility'
 export const PAGE_PARTNER_HUB = '/subpackages/user/partner-hub/partner-hub'
 
 export const PAGE_REPORT_COMPOSE = '/subpackages/resonance/report-compose/report-compose'

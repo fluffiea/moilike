@@ -47,3 +47,35 @@
   display: block;
   margin-top: 20rpx;
 }
+
+.link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.link__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.link__title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.link__hint {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
+.link__extra {
+  margin-right: 12rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-muted);
+  flex-shrink: 0;
+}

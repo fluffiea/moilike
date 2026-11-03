@@ -54,6 +54,7 @@ function migrateLegacy(): void {
       avatarUrl: '',
       togetherSinceMs: null,
       preferences: { resonanceReportFilter: 'await_me' },
+      ledgerVisibility: { scope: 'detail' },
       partner: null,
     } as User)
   }
@@ -61,15 +62,23 @@ function migrateLegacy(): void {
   for (const k of LEGACY_KEYS) wx.removeStorage({ key: k, fail: () => {} })
 }
 
+function normalizeUser(u: User): User {
+  const raw = u.ledgerVisibility && u.ledgerVisibility.scope
+  if (raw === 'none' || raw === 'summary' || raw === 'detail') return u
+  return { ...u, ledgerVisibility: { scope: 'detail' } }
+}
+
 export function initStore(): void {
   migrateLegacy()
-  user = readStorage<User>(USER_KEY)
+  const stored = readStorage<User>(USER_KEY)
+  user = stored ? normalizeUser(stored) : null
 }
 
 export const getUser = (): User | null => user
 export const isRegistered = (u: User | null): u is User => !!u && !!u.nickName
 
 export function setUser(next: User): void {
+  next = normalizeUser(next)
   const scopeChanged = !user || user.openId !== next.openId || partnerId(user) !== partnerId(next)
   user = next
   writeStorage(USER_KEY, next)

@@ -60,6 +60,12 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.setData({ editId: id, loading: true })
       const cached = takeHandoff<Expense>(`expense-edit:${id}`)
       if (cached) {
+        if (cached.mine === false) {
+          this.setData({ loading: false })
+          toast('只能修改自己的支出')
+          back(PAGE_LEDGER)
+          return
+        }
         this.fill(cached)
         this.setData({ loading: false })
         return
@@ -68,6 +74,11 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.setData({ loading: false })
       if (!r.ok) {
         toast(r.message)
+        back(PAGE_LEDGER)
+        return
+      }
+      if (r.data.expense.mine === false) {
+        toast('只能修改自己的支出')
         back(PAGE_LEDGER)
         return
       }

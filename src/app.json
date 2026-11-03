@@ -69,7 +69,7 @@
     {
       "root": "subpackages/user",
       "name": "user",
-      "pages": ["edit-profile/edit-profile", "preferences/preferences", "partner-hub/partner-hub"]
+      "pages": ["edit-profile/edit-profile", "preferences/preferences", "ledger-visibility/ledger-visibility", "partner-hub/partner-hub"]
     },
     {
       "root": "subpackages/resonance",
