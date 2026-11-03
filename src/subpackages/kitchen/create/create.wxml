@@ -5,9 +5,9 @@
       <state-view wx:if="{{phase === 'loading'}}" status="loading" rows="{{1}}" />
       <state-view wx:elif="{{phase === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="prepare" />
       <view wx:else class="mo-card create">
-        <text class="create__title">给两人开一间小厨房</text>
-        <text class="mo-hint create__lead">取个温柔的名字，对方就能来点心意</text>
-        <text class="create__label">厨房名 *</text>
+        <text class="create__title">给厨房起个名字</text>
+        <text class="mo-hint create__lead">对方在点单里会看到这个名字。</text>
+        <text class="create__label">厨房名</text>
         <view class="mo-field">
           <input
             class="mo-input"
@@ -18,8 +18,7 @@
             bindinput="onName"
           />
         </view>
-        <text class="mo-hint create__note">创建后是空厨房：无预置分类、无示例菜</text>
-        <text class="mo-hint create__note">分类靠「新增分类」，菜靠「新建」</text>
+        <text class="mo-hint create__note">创建之后先是空的，分类和菜可以再慢慢加。</text>
         <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onCreate" aria-role="button">
           <view wx:if="{{submitting}}" class="mo-spinner" />
           <text>创建厨房</text>

@@ -12,8 +12,8 @@
         </view>
         <view wx:if="{{empty}}" class="mo-card mo-guide">
           <text class="mo-guide__title">还没有菜品</text>
-          <text class="mo-hint mo-guide__hint">先「管理分类」新增分类，再点＋新建</text>
-          <text class="mo-hint mo-guide__hint">新建时也可顺带新建分类</text>
+          <text class="mo-hint mo-guide__hint">从右下角加一道菜。</text>
+          <text class="mo-hint mo-guide__hint">没有分类的话，新建时可以一起起一个。</text>
         </view>
         <block wx:else>
           <view wx:for="{{groups}}" wx:key="id" class="group">

@@ -1,4 +1,4 @@
-import type { MenuDish, PartnerMenu } from '../../types/api'
+import type { KitchenCategory, KitchenDish, MenuDish, PartnerMenu } from '../../types/api'
 import { call } from '../../core/api'
 import { addLine, cartState, clearCart, consumeOpenCart, setLineQty, useKitchen } from '../../core/cart'
 import { QUICK_TAGS } from '../../core/kitchen'
@@ -12,6 +12,27 @@ type DishRow = { id: string; name: string; desc: string; cover: string; sales: s
 type SpecTag = { name: string; on: boolean }
 type CartRow = { key: string; name: string; cover: string; quantity: number; tagText: string }
 type Spec = { id: string; name: string; desc: string; cover: string; quantity: number; tags: SpecTag[] }
+
+/** 用自己的上架菜拼成和对方菜单一样的结构，好在点单页里看效果 */
+function menuOfMine(kitchen: { id: string; name: string }, categories: KitchenCategory[], dishes: KitchenDish[]): PartnerMenu {
+  const onShelf = dishes.filter((d) => d.onShelf)
+  const brief = { id: kitchen.id, name: kitchen.name }
+  if (!onShelf.length) return { scene: 'empty', kitchen: brief, categories: [], dishes: [] }
+  return {
+    scene: 'menu',
+    kitchen: brief,
+    categories: categories.map((c) => ({ id: c.id, name: c.name })),
+    dishes: onShelf.map((d) => ({
+      id: d.id,
+      categoryId: d.categoryId,
+      name: d.name,
+      desc: d.desc,
+      cover: d.cover,
+      doneCount: 0,
+      salesLabel: '',
+    })),
+  }
+}
 
 function rowsOf(dishes: MenuDish[]): DishRow[] {
   return dishes.map((d) => ({
@@ -38,10 +59,11 @@ Component<
     specOpen: boolean
     spec: Spec
     cartLines: CartRow[]
+    mine: boolean
   },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { kitchenId: string; allDishes: DishRow[]; activeId: string },
+  { kitchenId: string; allDishes: DishRow[]; activeId: string; mine: boolean },
   true
 >({
   data: {
@@ -57,29 +79,53 @@ Component<
     specOpen: false,
     spec: { id: '', name: '', desc: '', cover: '', quantity: 1, tags: [] },
     cartLines: [],
+    mine: false,
   },
   methods: {
     onLoad() {
       this.kitchenId = ''
       this.allDishes = []
       this.activeId = ''
+      this.mine = false
       if (!isRegistered(getUser())) wx.reLaunch({ url: PAGE_LOGIN })
     },
     onShow() {
       if (!isRegistered(getUser())) return
-      void this.reload(consumeOpenCart())
+      const openCart = consumeOpenCart()
+      if (openCart) this.mine = false
+      if (this.data.mine !== this.mine) this.setData({ mine: this.mine })
+      void this.reload(openCart)
     },
     async onRefresh() {
       this.setData({ refreshing: true })
       await this.reload(false)
     },
     async reload(openCart: boolean) {
+      if (this.mine) {
+        const r = await call('kitchen.dishes', {})
+        if (!r.ok) {
+          if (r.code === 'NO_KITCHEN') {
+            this.apply({ scene: 'no_kitchen', kitchen: null, categories: [], dishes: [] }, false)
+            return
+          }
+          this.setData({ scene: 'error', errorText: r.message, refreshing: false })
+          return
+        }
+        this.apply(menuOfMine(r.data.kitchen, r.data.categories, r.data.dishes), openCart)
+        return
+      }
       const r = await call('kitchen.partner', {})
       if (!r.ok) {
         this.setData({ scene: 'error', errorText: r.message, refreshing: false })
         return
       }
       this.apply(r.data, openCart)
+    },
+    onToggleMine() {
+      this.mine = !this.mine
+      this.activeId = ''
+      this.setData({ mine: this.mine, specOpen: false, cartOpen: false })
+      void this.reload(false)
     },
     apply(menu: PartnerMenu, openCart: boolean) {
       if (menu.scene === 'unpaired' || menu.scene === 'no_kitchen') clearCart()
@@ -206,7 +252,7 @@ Component<
     onCheckout() {
       if (!cartState().lines.length) return
       this.setData({ cartOpen: false, specOpen: false })
-      wx.navigateTo({ url: PAGE_KITCHEN_CHECKOUT })
+      wx.navigateTo({ url: this.mine ? `${PAGE_KITCHEN_CHECKOUT}?preview=1` : PAGE_KITCHEN_CHECKOUT })
     },
     onOrders() {
       wx.navigateTo({ url: PAGE_KITCHEN_ORDERS })

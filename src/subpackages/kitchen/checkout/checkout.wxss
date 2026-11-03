@@ -37,6 +37,11 @@
   min-height: 160rpx;
 }
 
+.submit__note {
+  display: block;
+  margin-bottom: 16rpx;
+}
+
 .submit {
   display: flex;
   flex-direction: row;

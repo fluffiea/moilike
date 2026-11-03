@@ -24,7 +24,7 @@
           <text class="pick__text {{categoryLabel ? '' : 'pick__text--empty'}}">{{categoryLabel || '请选择或新增分类'}}</text>
           <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
         </view>
-        <text wx:if="{{!categories.length && !categoryLabel}}" class="mo-hint field-hint">无分类时可在此「新增分类」再挂菜</text>
+        <text wx:if="{{!categories.length && !categoryLabel}}" class="mo-hint field-hint">还没有分类，点这里可以新加一个。</text>
         <text class="label">说明 选填</text>
         <view class="mo-field">
           <input class="mo-input" maxlength="40" value="{{desc}}" placeholder="简短说明（选填）" placeholder-class="mo-placeholder" bindinput="onDesc" />

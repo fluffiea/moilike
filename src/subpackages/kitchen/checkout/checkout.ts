@@ -16,15 +16,16 @@ function alertLeave(on: boolean) {
 }
 
 Component<
-  { rows: Row[]; portions: number; note: string; leaveHint: string; submitting: boolean },
+  { rows: Row[]; portions: number; note: string; leaveHint: string; submitting: boolean; preview: boolean },
   {},
   WechatMiniprogram.Component.MethodOption,
   {},
   true
 >({
-  data: { rows: [], portions: 0, note: '', leaveHint: '', submitting: false },
+  data: { rows: [], portions: 0, note: '', leaveHint: '', submitting: false, preview: false },
   methods: {
-    onLoad() {
+    onLoad(q: Record<string, string | undefined>) {
+      this.setData({ preview: q.preview === '1' })
       this.paint()
       if (!cartState().lines.length) wx.navigateBack()
     },
@@ -63,6 +64,10 @@ Component<
       this.setData({ note, leaveHint })
     },
     async onSubmit() {
+      if (this.data.preview) {
+        toast('这是自己的厨房，不能下单')
+        return
+      }
       if (this.data.submitting) return
       const lines = cartState().lines
       if (!lines.length) {

@@ -11,12 +11,20 @@
     bindrefresherrefresh="onRefresh"
   >
     <view class="mo-body">
+      <view wx:if="{{scene !== 'loading'}}" class="peek" bind:tap="onToggleMine" aria-role="button">
+        <text>{{mine ? '回到 Ta 的厨房' : '看看自己的厨房'}}</text>
+      </view>
       <state-view wx:if="{{scene === 'loading'}}" status="loading" rows="{{2}}" />
       <state-view wx:elif="{{scene === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRefresh" />
       <view wx:elif="{{scene === 'unpaired'}}" class="mo-card mo-guide">
         <text class="mo-guide__title">先结伴才能点单</text>
         <text class="mo-hint mo-guide__hint">点单看的是对方的小厨房</text>
         <text class="mo-hint mo-guide__hint">结伴后，就能来点 Ta 的心意</text>
+      </view>
+      <view wx:elif="{{mine}}" class="mo-card mo-guide">
+        <text class="mo-guide__title">还没有自己的厨房</text>
+        <text class="mo-hint mo-guide__hint">去「独白 → 我的厨房」创建</text>
+        <text class="mo-hint mo-guide__hint">创建后就能在这里看下单页的效果</text>
       </view>
       <view wx:else class="mo-card mo-guide">
         <text class="mo-guide__title">Ta 还没有开厨房</text>
@@ -28,7 +36,12 @@
 
   <view wx:else class="stage">
     <view class="head">
-      <text class="head__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
+      <view class="head__main">
+        <text class="head__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
+        <view class="peek peek--under" bind:tap="onToggleMine" aria-role="button">
+          <text>{{mine ? '回到 Ta 的厨房' : '看看自己的厨房'}}</text>
+        </view>
+      </view>
       <view class="head__link" bind:tap="onOrders" aria-role="button">
         <text>我的订单</text>
       </view>
@@ -46,8 +59,14 @@
       <view class="pad">
         <view class="mo-card mo-guide">
           <text class="mo-guide__title">厨房还是空的</text>
-          <text class="mo-hint mo-guide__hint">对方还没添加分类和菜品</text>
-          <text class="mo-hint mo-guide__hint">等 Ta 在独白里把菜单建好再来点</text>
+          <block wx:if="{{mine}}">
+            <text class="mo-hint mo-guide__hint">还没有上架的菜</text>
+            <text class="mo-hint mo-guide__hint">去独白里的「我的厨房」添加后再来看</text>
+          </block>
+          <block wx:else>
+            <text class="mo-hint mo-guide__hint">对方还没添加分类和菜品</text>
+            <text class="mo-hint mo-guide__hint">等 Ta 在独白里把菜单建好再来点</text>
+          </block>
         </view>
       </view>
     </scroll-view>
