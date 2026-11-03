@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-top: 4rpx;
 }
 
 .stickers--busy {
@@ -10,13 +9,18 @@
 }
 
 .sticker {
-  width: 25%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20rpx;
+  width: calc((100% - 72rpx) / 4);
+  margin: 24rpx 24rpx 0 0;
 }
 
+.sticker:nth-child(4n) {
+  margin-right: 0;
+}
+
+/* 不铺灰底、不用石青圈：灰底吃掉浅色贴纸，石青又和「好的」同色 */
 .sticker__art {
   display: flex;
   align-items: center;
@@ -25,11 +29,10 @@
   height: 120rpx;
   border-radius: var(--mo-radius-inner);
   border: 2rpx solid transparent;
-  background-color: var(--mo-l0-bg);
 }
 
 .sticker--on .sticker__art {
-  border-color: var(--mo-brand-slate);
+  border-color: var(--mo-text-secondary);
 }
 
 .sticker--busy {
@@ -37,12 +40,12 @@
 }
 
 .sticker__img {
-  width: 96rpx;
-  height: 96rpx;
+  width: 104rpx;
+  height: 104rpx;
 }
 
 .sticker__label {
-  margin-top: 8rpx;
+  margin-top: 12rpx;
   font-size: 24rpx;
   color: var(--mo-text-secondary);
 }

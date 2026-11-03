@@ -17,7 +17,7 @@
             cursor-spacing="{{120}}"
             bindinput="onInput"
           />
-          <text class="mo-hint counter">{{count}}/2000</text>
+          <text class="counter">{{count}}/2000</text>
           <image-picker items="{{images}}" max="{{9}}" bind:change="onImagesChange" />
         </view>
 

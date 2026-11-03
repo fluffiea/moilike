@@ -42,6 +42,10 @@
   border-radius: var(--mo-radius-inner);
 }
 
+.grid--many {
+  margin-bottom: -12rpx;
+}
+
 .grid--many .grid__cell:nth-child(3n) {
   margin-right: 0;
 }

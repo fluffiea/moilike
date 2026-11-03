@@ -68,7 +68,7 @@
 }
 
 .pane__top {
-  height: 24rpx;
+  height: 32rpx;
 }
 
 .pane__end {

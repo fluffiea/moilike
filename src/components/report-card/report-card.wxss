@@ -6,9 +6,14 @@
 }
 
 .card__head {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+}
+
+.card__head--mine .card__name {
+  margin-right: 48rpx;
 }
 
 .card__name {
@@ -27,16 +32,15 @@
 }
 
 .more {
+  position: absolute;
+  top: -12rpx;
+  right: -16rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 64rpx;
   height: 64rpx;
-  margin-top: -12rpx;
-  margin-right: -16rpx;
-  margin-left: 8rpx;
-  flex-shrink: 0;
 }
 
 .more__icon {
@@ -52,12 +56,8 @@
 }
 
 .card__state {
+  margin-right: 16rpx;
   font-size: 24rpx;
-}
-
-.card__state--block {
-  display: block;
-  margin-top: 16rpx;
 }
 
 .card__state--awaiting {
@@ -73,27 +73,20 @@
 }
 
 .card__clock {
-  margin-left: 16rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
 }
 
-.card__time {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
-}
-
+/* 间距放在标签上沿，最后一行不再把卡片底部撑出 12rpx */
 .tags {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin-top: 20rpx;
+  margin-top: 8rpx;
 }
 
 .tag {
-  margin: 0 12rpx 12rpx 0;
+  margin: 16rpx 12rpx 0 0;
   padding: 6rpx 20rpx;
   border-radius: var(--mo-radius-chip);
   background-color: var(--mo-l0-bg);
@@ -118,16 +111,27 @@
   flex-direction: row;
   align-items: center;
   margin-top: 24rpx;
-  padding: 12rpx 20rpx;
+  padding: 16rpx;
   border-radius: var(--mo-radius-inner);
   background-color: var(--mo-l0-bg);
 }
 
-.reply__img {
-  width: 72rpx;
-  height: 72rpx;
+/* 贴纸是浅色插画，必须垫在白底上，灰底会把云朵和信封吃掉 */
+.reply__plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+  height: 80rpx;
   margin-right: 16rpx;
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l1-card);
   flex-shrink: 0;
+}
+
+.reply__img {
+  width: 64rpx;
+  height: 64rpx;
 }
 
 .reply__label {
@@ -146,7 +150,7 @@
 
 .opened {
   display: block;
-  margin-top: 20rpx;
+  margin-top: 24rpx;
   font-size: 26rpx;
   line-height: 1.5;
   color: var(--mo-text-secondary);

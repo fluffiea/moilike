@@ -10,7 +10,7 @@
 
         <view wx:if="{{post.canRespond}}" class="mo-card action">
           <text class="mo-section-title">回一颗心</text>
-          <text class="mo-hint">点一下＝已阅＋轻回应</text>
+          <text class="mo-hint">点一个贴纸，对方就知道你看过了。</text>
           <view class="stickers {{busy ? 'stickers--busy' : ''}}">
             <view
               wx:for="{{stickers}}"
