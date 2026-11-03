@@ -85,14 +85,14 @@ function authorsWhere(_, openids, l1) {
 
 function readView(v) {
   if (v == null || v === '' || v === 'mine') return 'mine'
-  if (v === 'partner' || v === 'us') return v
+  if (v === 'partner') return 'partner'
   fail('INVALID', '无效的视图')
 }
 
 /**
  * 读谁的账由云端决定，不信客户端传来的金额或明细。
  * openids：可以计入合计的人；listOpenids：可以返回流水的人。
- * 对方设为不可见时两者都空（「我们」则只剩自己）；仅汇总时合计含对方、流水不含对方。
+ * 对方设为不可见时两者都空；仅汇总时合计含对方、流水不含对方。
  */
 async function resolveLens(ctx, rawView) {
   const view = readView(rawView)
@@ -103,22 +103,12 @@ async function resolveLens(ctx, rawView) {
   const { partnerId } = await ctx.requirePartner()
   const partner = await ctx.partner()
   const scope = partner ? ledgerVisibilityOf(partner).scope : 'none'
-  if (view === 'partner') {
-    return {
-      view,
-      openids: scope === 'none' ? [] : [partnerId],
-      listOpenids: scope === 'detail' ? [partnerId] : [],
-      scope,
-      includesPartner: scope !== 'none',
-    }
-  }
-  const includesPartner = scope !== 'none'
   return {
     view,
-    openids: includesPartner ? [ctx.openid, partnerId] : [ctx.openid],
-    listOpenids: scope === 'detail' ? [ctx.openid, partnerId] : [ctx.openid],
+    openids: scope === 'none' ? [] : [partnerId],
+    listOpenids: scope === 'detail' ? [partnerId] : [],
     scope,
-    includesPartner,
+    includesPartner: scope !== 'none',
   }
 }
 

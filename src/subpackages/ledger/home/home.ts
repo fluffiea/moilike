@@ -2,14 +2,14 @@ import type { Expense, ExpenseMonthSummary, LedgerScope, LedgerView } from '../.
 import { call } from '../../../core/api'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { addMonths, barWidth, beijingMonthKey, formatYuan, ledgerDay, monthTitle, shareText } from '../../../core/ledger'
-import { LEDGER_HIDDEN, LEDGER_VIEWS, ledgerChrome, ledgerHeroLabel } from '../../../core/ledger-visibility'
+import { LEDGER_VIEWS, ledgerChrome, ledgerHeroLabel, partnerLedgerOpen } from '../../../core/ledger-visibility'
 import { PAGE_LEDGER_CATEGORY, PAGE_LEDGER_COMPOSE, PAGE_LEDGER_DETAIL } from '../../../core/paths'
-import { getUser, handoff, on } from '../../../core/store'
+import { getUser, handoff, on, setUser } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
 const STALE_MS = 60 * 1000
 
-type Row = { id: string; title: string; meta: string; note: string; amount: string; when: string; who: string }
+type Row = { id: string; title: string; meta: string; note: string; amount: string; when: string }
 type CatRow = { l1: string; name: string; amount: string; pct: string; bar: string }
 type SummaryView = {
   totalText: string
@@ -27,18 +27,11 @@ type Pane = {
   summaryError: string
   summary: SummaryView | null
   feed: FeedData<Row>
-  scope: LedgerScope | ''
-  hidden: boolean
-  showMonth: boolean
   showList: boolean
-  showWho: boolean
   canDrill: boolean
   summaryNote: string
-  excludeNote: boolean
   emptyTitle: string
   emptyHint: string
-  hiddenTitle: string
-  hiddenHint: string
 }
 
 function toRow(item: Expense): Row {
@@ -49,7 +42,6 @@ function toRow(item: Expense): Row {
     note: item.note,
     amount: formatYuan(item.amountFen),
     when: ledgerDay(item.occurredAtMs),
-    who: item.mine ? '我' : '对方',
   }
 }
 
@@ -73,24 +65,18 @@ function toSummary(data: ExpenseMonthSummary): SummaryView {
 }
 
 function emptyPane(view: LedgerView): Pane {
+  const chrome = ledgerChrome(view, 'detail')
   return {
     heroLabel: ledgerHeroLabel(view),
     summaryStatus: 'loading',
     summaryError: '',
     summary: null,
     feed: emptyFeed(),
-    scope: '',
-    hidden: false,
-    showMonth: true,
-    showList: view !== 'partner',
-    showWho: false,
-    canDrill: view === 'mine',
+    showList: chrome.showList,
+    canDrill: chrome.canDrill,
     summaryNote: '',
-    excludeNote: false,
-    emptyTitle: view === 'partner' ? '对方本月还没有记账' : '这个月还没有支出',
-    emptyHint: view === 'mine' ? '记一笔就好' : '',
-    hiddenTitle: LEDGER_HIDDEN.title,
-    hiddenHint: LEDGER_HIDDEN.hint,
+    emptyTitle: chrome.emptyTitle,
+    emptyHint: chrome.emptyHint,
   }
 }
 
@@ -100,6 +86,7 @@ function freshPanes(): Pane[] {
 
 type Data = {
   bound: boolean
+  showLens: boolean
   lenses: typeof LEDGER_VIEWS
   lensIndex: number
   panes: Pane[]
@@ -119,11 +106,13 @@ type Custom = {
   summaryAt: number[]
   seq: number[]
   inflight: boolean[]
+  accessSeq: number
 }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   data: {
     bound: false,
+    showLens: false,
     lenses: LEDGER_VIEWS,
     lensIndex: 0,
     panes: freshPanes(),
@@ -138,18 +127,21 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.month = beijingMonthKey()
       this.pending = false
       this.pendingMonth = ''
-      this.summaryAt = [0, 0, 0]
-      this.seq = [0, 0, 0]
-      this.inflight = [false, false, false]
-      this.feeds = [null, null, null]
+      this.summaryAt = [0, 0]
+      this.seq = [0, 0]
+      this.inflight = [false, false]
+      this.accessSeq = 0
+      this.feeds = [null, null]
       this.offs = [
         on('expense:changed', (payload) => {
           this.pending = true
           this.pendingMonth = beijingMonthKey(payload.occurredAtMs)
         }),
       ]
+      const bound = this.isBound()
       this.setData({
-        bound: this.isBound(),
+        bound,
+        showLens: bound && partnerLedgerOpen(getUser()),
         monthText: monthTitle(this.month),
         canPrev: this.month > '2000-01',
         canNext: this.month < beijingMonthKey(),
@@ -163,7 +155,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     onShow() {
       const index = this.syncBound()
       const nowKey = beijingMonthKey()
-      if (this.pending && index !== 1 && this.pendingMonth && this.pendingMonth !== this.month && this.pendingMonth <= nowKey) {
+      if (this.pending && index === 0 && this.pendingMonth && this.pendingMonth !== this.month && this.pendingMonth <= nowKey) {
         const target = this.pendingMonth
         this.pending = false
         this.pendingMonth = ''
@@ -173,9 +165,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       if (this.pending) {
         this.pending = false
         this.dropPane(0)
-        this.dropPane(2)
       }
       this.activate(index)
+      if (this.isBound()) void this.refreshAccess()
     },
 
     isBound(): boolean {
@@ -183,17 +175,18 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       return Boolean(u && u.partner)
     },
 
-    /** 解绑后只留「我的」。返回当前应显示的分段下标 */
+    /** 解绑后收成自己的账本。返回当前应显示的分段下标 */
     syncBound(): number {
       const bound = this.isBound()
       const index = bound ? this.data.lensIndex : 0
-      if (bound !== this.data.bound || index !== this.data.lensIndex) {
-        this.setData({ bound, lensIndex: index })
+      const showLens = bound ? this.data.showLens : false
+      if (bound !== this.data.bound || index !== this.data.lensIndex || showLens !== this.data.showLens) {
+        this.setData({ bound, lensIndex: index, showLens })
       }
       return index
     },
 
-    /** 我改过的账会影响「我的」和「我们」，下次进入再拉 */
+    /** 我改过的账只影响「我的」，下次进入再拉 */
     dropPane(i: number) {
       this.summaryAt[i] = 0
       const feed = this.feeds[i]
@@ -201,13 +194,42 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       this.feeds[i] = null
     },
 
+    rememberScope(scope: LedgerScope) {
+      const u = getUser()
+      if (!u || !u.partner || u.partner.ledgerScope === scope) return
+      setUser({ ...u, partner: { ...u.partner, ledgerScope: scope } })
+    },
+
+    /** 对方未开放时收起切换，正在看对方的账就回到自己的 */
+    applyAccess(scope: LedgerScope) {
+      this.rememberScope(scope)
+      const open = scope === 'summary' || scope === 'detail'
+      if (!open) {
+        const leave = this.data.lensIndex !== 0
+        if (this.data.showLens || leave) this.setData({ showLens: false, lensIndex: 0 })
+        if (leave) this.activate(0)
+        return
+      }
+      if (!this.data.showLens) this.setData({ showLens: true })
+    },
+
+    /** 只问对方是否开放。不可见时云端不查支出，页面保持单人账本 */
+    async refreshAccess() {
+      if (!this.isBound()) return
+      const seq = ++this.accessSeq
+      const r = await call('expense.monthSummary', { month: this.month, view: 'partner', scope: 'total' })
+      if (seq !== this.accessSeq || !this.isBound()) return
+      if (!r.ok) return
+      this.applyAccess(r.data.scope)
+    },
+
     setMonth(month: string) {
       this.month = month
       this.feeds.forEach((feed) => feed && feed.dispose())
-      this.feeds = [null, null, null]
-      this.summaryAt = [0, 0, 0]
+      this.feeds = [null, null]
+      this.summaryAt = [0, 0]
       this.seq = this.seq.map((n) => n + 1)
-      this.inflight = [false, false, false]
+      this.inflight = [false, false]
       this.setData({
         panes: freshPanes(),
         monthText: monthTitle(month),
@@ -250,7 +272,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
 
     /**
      * keep：已有合计时静默刷新，失败只 toast。
-     * 「对方」先拿合计，确认有流水才拉列表，避免不可见 / 仅汇总多打一次。
+     * 「对方」先拿合计，确认有流水才拉列表，避免仅汇总多打一次。
      */
     async loadPane(i: number, keep: boolean) {
       if (this.inflight[i]) return
@@ -267,8 +289,6 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
           [`panes[${i}].summaryStatus`]: 'loading',
           [`panes[${i}].summary`]: null,
           [`panes[${i}].summaryError`]: '',
-          [`panes[${i}].hidden`]: false,
-          [`panes[${i}].showMonth`]: true,
           [`panes[${i}].feed`]: emptyFeed(),
         })
       }
@@ -283,19 +303,16 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
           return
         }
         this.summaryAt[i] = Date.now()
-        const chrome = ledgerChrome(view, r.data.scope, r.data.includesPartner)
+        if (view === 'partner') this.applyAccess(r.data.scope)
+        if (view === 'partner' && r.data.scope === 'none') return
+        const chrome = ledgerChrome(view, r.data.scope)
         this.setData({
           [`panes[${i}].summaryStatus`]: 'ready',
           [`panes[${i}].summary`]: toSummary(r.data),
           [`panes[${i}].summaryError`]: '',
-          [`panes[${i}].scope`]: r.data.scope,
-          [`panes[${i}].hidden`]: chrome.hidden,
-          [`panes[${i}].showMonth`]: chrome.showMonth,
           [`panes[${i}].showList`]: chrome.showList,
-          [`panes[${i}].showWho`]: chrome.showWho,
           [`panes[${i}].canDrill`]: chrome.canDrill,
           [`panes[${i}].summaryNote`]: chrome.summaryNote,
-          [`panes[${i}].excludeNote`]: chrome.excludeNote,
           [`panes[${i}].emptyTitle`]: chrome.emptyTitle,
           [`panes[${i}].emptyHint`]: chrome.emptyHint,
         })
@@ -314,8 +331,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
 
     onLens(e: WechatMiniprogram.TouchEvent) {
       const index = Number(e.currentTarget.dataset.index)
-      if (!this.data.bound || index === this.data.lensIndex) return
-      if (index !== 0 && index !== 1 && index !== 2) return
+      if (!this.data.showLens || index === this.data.lensIndex) return
+      if (index !== 0 && index !== 1) return
       this.activate(index)
     },
 
@@ -332,7 +349,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const i = this.data.lensIndex
       this.summaryAt[i] = 0
       this.setData({ refreshing: true })
-      await this.loadPane(i, !!this.data.panes[i].summary)
+      const jobs = [this.loadPane(i, !!this.data.panes[i].summary)]
+      if (i === 0 && this.isBound()) jobs.push(this.refreshAccess())
+      await Promise.all(jobs)
       this.setData({ refreshing: false })
     },
     onLoadMore() {

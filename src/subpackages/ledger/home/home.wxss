@@ -235,6 +235,12 @@
   padding: 6rpx;
   border-radius: var(--mo-radius-btn);
   background-color: var(--mo-l1-card);
+  animation: ledger-in 0.28s ease both;
+}
+
+@keyframes ledger-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .lens__thumb {
@@ -242,18 +248,18 @@
   left: 6rpx;
   top: 6rpx;
   bottom: 6rpx;
-  width: calc((100% - 12rpx) / 3);
+  width: calc((100% - 12rpx) / 2);
   border-radius: var(--mo-radius-btn);
   background: var(--mo-fill-brand);
-  transition: transform 0.26s ease;
+  transition: transform 0.28s ease;
+}
+
+.lens__thumb--0 {
+  transform: translateX(0);
 }
 
 .lens__thumb--1 {
   transform: translateX(100%);
-}
-
-.lens__thumb--2 {
-  transform: translateX(200%);
 }
 
 .lens__item {
@@ -274,11 +280,4 @@
 .note {
   display: block;
   margin-top: 16rpx;
-}
-
-.bill__who {
-  margin-right: 16rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-secondary);
-  flex-shrink: 0;
 }

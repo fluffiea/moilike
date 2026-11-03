@@ -42,7 +42,6 @@
             bind:tap="onOpen"
             aria-role="button"
           >
-            <text wx:if="{{showWho}}" class="bill__who">{{item.who}}</text>
             <view class="bill__main">
               <text class="bill__title">{{item.title}}</text>
               <text class="bill__meta">{{item.when}}</text>

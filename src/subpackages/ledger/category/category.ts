@@ -3,14 +3,14 @@ import { call } from '../../../core/api'
 import { categoryById } from '../../../core/expense-categories'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { barWidth, formatYuan, ledgerDay, monthTitle, shareText } from '../../../core/ledger'
-import { ledgerCategoryEmpty, ledgerChrome, ledgerLinesBlocked, readLedgerView } from '../../../core/ledger-visibility'
+import { ledgerCategoryEmpty, ledgerLinesBlocked, readLedgerView } from '../../../core/ledger-visibility'
 import { PAGE_LEDGER, PAGE_LEDGER_DETAIL, back } from '../../../core/paths'
 import { handoff, on } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
 const STALE_MS = 60 * 1000
 
-type Row = { id: string; title: string; note: string; amount: string; when: string; who: string }
+type Row = { id: string; title: string; note: string; amount: string; when: string }
 type Bar = { name: string; amount: string; pct: string; bar: string }
 type Breakdown = { totalText: string; empty: boolean; items: Bar[] }
 
@@ -21,7 +21,6 @@ function toRow(item: Expense): Row {
     note: item.note,
     amount: formatYuan(item.amountFen),
     when: ledgerDay(item.occurredAtMs),
-    who: item.mine ? '我' : '对方',
   }
 }
 
@@ -45,7 +44,6 @@ type Data = {
   status: 'loading' | 'ready' | 'error'
   errorText: string
   refreshing: boolean
-  showWho: boolean
   emptyTitle: string
   emptyHint: string
   breakdown: Breakdown | null
@@ -70,7 +68,6 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     status: 'loading',
     errorText: '',
     refreshing: false,
-    showWho: false,
     emptyTitle: '还没有这类支出',
     emptyHint: '记一笔就好',
     breakdown: null,
@@ -142,7 +139,6 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
         status: 'ready',
         breakdown: toBreakdown(r.data.breakdown),
         errorText: '',
-        showWho: ledgerChrome(this.view, r.data.scope, r.data.includesPartner).showWho,
       })
     },
 

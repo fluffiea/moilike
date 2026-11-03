@@ -6,13 +6,15 @@ export type ReportFilter = 'all' | 'await_me' | 'mine'
 export type ReportState = 'awaiting_response' | 'responded'
 /** 我的账单对对方开放到哪一步 */
 export type LedgerScope = 'none' | 'summary' | 'detail'
-export type LedgerView = 'mine' | 'partner' | 'us'
+export type LedgerView = 'mine' | 'partner'
 
 export type Partner = {
   openId: string
   nickName: string
   signature: string
   avatarUrl: string
+  /** 对方把账单开放到哪一步。旧缓存可能没有；没有时记账页先按未开放 */
+  ledgerScope?: LedgerScope
 }
 
 export type User = {

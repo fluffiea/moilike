@@ -12,7 +12,7 @@
     scroll-top="{{scrollTop}}"
   >
     <view class="mo-body">
-      <view wx:if="{{bound}}" class="lens">
+      <view wx:if="{{showLens}}" class="lens">
         <view class="lens__thumb lens__thumb--{{lensIndex}}" />
         <view
           wx:for="{{lenses}}"
@@ -27,31 +27,29 @@
         </view>
       </view>
 
-      <block wx:for="{{panes}}" wx:for-item="pane" wx:for-index="pi" wx:key="heroLabel">
-        <block wx:if="{{pi === lensIndex}}">
-          <view wx:if="{{pane.showMonth}}" class="month">
-            <text class="month__label">{{monthText}}</text>
-            <view class="month__nav">
-              <view class="month__btn" bind:tap="onPrev" aria-role="button" aria-label="上个月">
-                <image class="month__icon month__icon--prev {{canPrev ? '' : 'month__icon--off'}}" src="/images/icons/chevron.png" mode="aspectFit" />
-              </view>
-              <view class="month__btn" bind:tap="onNext" aria-role="button" aria-label="下个月">
-                <image class="month__icon {{canNext ? '' : 'month__icon--off'}}" src="/images/icons/chevron.png" mode="aspectFit" />
-              </view>
-            </view>
+      <view class="month">
+        <text class="month__label">{{monthText}}</text>
+        <view class="month__nav">
+          <view class="month__btn" bind:tap="onPrev" aria-role="button" aria-label="上个月">
+            <image class="month__icon month__icon--prev {{canPrev ? '' : 'month__icon--off'}}" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
+          <view class="month__btn" bind:tap="onNext" aria-role="button" aria-label="下个月">
+            <image class="month__icon {{canNext ? '' : 'month__icon--off'}}" src="/images/icons/chevron.png" mode="aspectFit" />
+          </view>
+        </view>
+      </view>
 
+      <block wx:for="{{panes}}" wx:for-item="pane" wx:for-index="pi" wx:key="heroLabel">
+        <view wx:if="{{pi === lensIndex}}">
           <state-view wx:if="{{pane.summaryStatus === 'loading' && pane.feed.status === 'loading'}}" status="loading" />
           <state-view wx:elif="{{pane.summaryStatus === 'error' && !pane.summary}}" status="error" hint="{{pane.summaryError}}" action="重试" bind:action="onRetry" />
           <state-view wx:elif="{{!pane.summary && pane.feed.status === 'error'}}" status="error" hint="{{pane.feed.errorText}}" action="重试" bind:action="onRetry" />
-          <state-view wx:elif="{{pane.hidden}}" status="empty" title="{{pane.hiddenTitle}}" hint="{{pane.hiddenHint}}" />
 
           <block wx:elif="{{pane.summary}}">
             <view class="mo-card">
               <text class="hero__label">{{pane.heroLabel}}</text>
               <text class="hero__amount">{{pane.summary.totalText}}</text>
               <text wx:if="{{pane.summary.open}}" class="hero__note">本月未结束</text>
-              <text wx:if="{{pane.excludeNote}}" class="hero__note">暂不含对方</text>
               <view class="meta">
                 <view class="stat">
                   <text class="stat__k">较上月</text>
@@ -103,7 +101,6 @@
                   bind:tap="onOpen"
                   aria-role="button"
                 >
-                  <text wx:if="{{pane.showWho}}" class="bill__who">{{item.who}}</text>
                   <view class="bill__main">
                     <text class="bill__title">{{item.title}}</text>
                     <text class="bill__meta">{{item.meta}} · {{item.when}}</text>
@@ -121,7 +118,7 @@
               <state-view wx:elif="{{pane.feed.status === 'empty'}}" status="empty" title="{{pane.emptyTitle}}" hint="{{pane.emptyHint}}" />
             </block>
           </block>
-        </block>
+        </view>
       </block>
     </view>
   </scroll-view>

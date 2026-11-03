@@ -34,6 +34,7 @@ function toPublicUser(openid, me, partner, urls) {
           nickName: partner.nickName || '对方',
           signature: partner.signature || '',
           avatarUrl: media.avatar(partner.avatarUrl, urls),
+          ledgerScope: ledgerVisibilityOf(partner).scope,
         }
       : null,
   }
