@@ -5,12 +5,13 @@ const media = require('../lib/media')
 const PAGE_SIZE = 10
 const MAX_BODY = 2000
 const MAX_IMAGES = 9
-const MAX_EVAL = 500
 const MAX_TAG_LEN = 16
 const MAX_TAGS_PER_POST = 10
 const MAX_CUSTOM_TAGS = 20
 const DEFAULT_TAG = '干饭'
-const FILTERS = ['all', 'action_needed', 'mine']
+const FILTERS = ['all', 'await_me', 'mine']
+/** 与 src/core/stickers.ts 的 id 保持一致 */
+const STICKER_IDS = ['care', 'seen', 'eat', 'miss', 'ok', 'hug', 'proud', 'love']
 
 function uniqueTags(arr, max) {
   const out = []
@@ -28,15 +29,33 @@ function tagOptions(userDoc) {
   return [DEFAULT_TAG, ...custom]
 }
 
+function stickerIdOf(doc) {
+  return STICKER_IDS.includes(doc.partnerStickerId) ? doc.partnerStickerId : ''
+}
+
+/** 贴纸或旧文字评价都算已回应；只打开详情不单独成状态 */
 function stateOf(doc) {
-  if (!toMs(doc.partnerReadAt)) return 'pending_read'
-  if (!toMs(doc.partnerEvaluatedAt)) return 'read'
-  return 'evaluated'
+  if (stickerIdOf(doc) || toMs(doc.partnerEvaluatedAt)) return 'responded'
+  return 'awaiting_response'
+}
+
+function awaitingCond(_, partnerId) {
+  return {
+    authorOpenId: partnerId,
+    partnerStickerId: _.eq(null),
+    partnerEvaluatedAt: _.eq(null),
+  }
+}
+
+/** 对方发给我、且还没贴纸（旧评价也算出清）的条数 */
+async function countAwaiting(ctx, partnerId) {
+  if (!partnerId) return 0
+  const res = await ctx.col.reports.where(awaitingCond(ctx._, partnerId)).count()
+  return res.total || 0
 }
 
 function postView(ctx, doc, partnerId, people, urls) {
   const isMine = doc.authorOpenId === ctx.openid
-  const state = stateOf(doc)
   const fromPartner = !isMine && !!partnerId && doc.authorOpenId === partnerId
   return {
     id: doc._id,
@@ -47,11 +66,11 @@ function postView(ctx, doc, partnerId, people, urls) {
     images: media.images(cloudFileIds(doc.images, MAX_IMAGES), urls),
     recordAtMs: toMs(doc.recordAt),
     createdAtMs: toMs(doc.createdAt),
-    state,
-    evalText: doc.partnerEvalText || '',
-    canMarkRead: fromPartner && state === 'pending_read',
-    canEvaluate: fromPartner && state === 'read',
-    canEditEval: fromPartner && state === 'evaluated',
+    state: stateOf(doc),
+    partnerOpenedAt: toMs(doc.partnerOpenedAt) || toMs(doc.partnerReadAt) || 0,
+    partnerStickerId: stickerIdOf(doc),
+    partnerRespondedAt: toMs(doc.partnerRespondedAt) || toMs(doc.partnerEvaluatedAt) || 0,
+    canRespond: fromPartner,
   }
 }
 
@@ -77,11 +96,12 @@ async function ownPost(ctx, postId) {
   return r
 }
 
-/** 对方的报备，且处于期望状态 */
-async function partnerPost(ctx, postId, states) {
+/** 对方发的报备，打开和回心都走这里 */
+async function partnerPost(ctx, postId) {
   const r = await visiblePost(ctx, postId)
-  if (r.doc.authorOpenId === ctx.openid || r.doc.authorOpenId !== r.partnerId) fail('FORBIDDEN', '只有对方可以处理这条报备')
-  if (!states.includes(stateOf(r.doc))) fail('STATE', '报备状态已变化，请刷新')
+  if (r.doc.authorOpenId === ctx.openid || r.doc.authorOpenId !== r.partnerId) {
+    fail('FORBIDDEN', '只有对方可以回应这条报备')
+  }
   return r
 }
 
@@ -91,9 +111,19 @@ async function list(ctx, e) {
   const filter = FILTERS.includes(e.filter) ? e.filter : 'all'
   let where = { authorOpenId: _.in(ids) }
   if (filter === 'mine') where = { authorOpenId: ctx.openid }
-  if (filter === 'action_needed') {
-    if (!partnerId) return { items: [], nextCursor: '' }
-    where = { authorOpenId: partnerId, partnerEvaluatedAt: _.eq(null) }
+  if (filter === 'await_me') {
+    const awaitMeCount = await countAwaiting(ctx, partnerId)
+    if (!partnerId) return { items: [], nextCursor: '', awaitMeCount: 0 }
+    where = awaitingCond(_, partnerId)
+    const { docs, nextCursor } = await pageByTime({
+      col: ctx.col.reports,
+      _,
+      where,
+      field: 'recordAt',
+      cursor: e.cursor,
+      size: PAGE_SIZE,
+    })
+    return { items: await render(ctx, docs, partnerId), nextCursor, awaitMeCount }
   }
   const { docs, nextCursor } = await pageByTime({
     col: ctx.col.reports,
@@ -103,7 +133,7 @@ async function list(ctx, e) {
     cursor: e.cursor,
     size: PAGE_SIZE,
   })
-  return { items: await render(ctx, docs, partnerId), nextCursor }
+  return { items: await render(ctx, docs, partnerId), nextCursor, awaitMeCount: await countAwaiting(ctx, partnerId) }
 }
 
 async function get(ctx, e) {
@@ -132,6 +162,9 @@ async function create(ctx, e) {
     authorOpenId: ctx.openid,
     recordAt: now,
     ...input,
+    partnerOpenedAt: null,
+    partnerStickerId: null,
+    partnerRespondedAt: null,
     partnerReadAt: null,
     partnerEvalText: '',
     partnerEvaluatedAt: null,
@@ -146,6 +179,7 @@ async function create(ctx, e) {
 async function update(ctx, e) {
   const { doc, partnerId } = await ownPost(ctx, id(e.id))
   const input = readPostInput(e)
+  // 只改正文、图、标签和时间，对方的打开与贴纸原样保留
   await ctx.col.reports.doc(doc._id).update({ data: { ...input, updatedAt: ctx.db.serverDate() } })
   const [post] = await render(ctx, [{ ...doc, ...input }], partnerId)
   return { post }
@@ -157,23 +191,36 @@ async function remove(ctx, e) {
   return null
 }
 
-async function markRead(ctx, e) {
-  const { doc, partnerId } = await partnerPost(ctx, id(e.id), ['pending_read'])
+/** 进详情时静默记下打开时间；已打开则不改时间，也不动贴纸 */
+async function open(ctx, e) {
+  const { doc, partnerId } = await partnerPost(ctx, id(e.id))
+  if (toMs(doc.partnerOpenedAt) || toMs(doc.partnerReadAt)) {
+    const [post] = await render(ctx, [doc], partnerId)
+    return { post }
+  }
   const now = new Date()
-  await ctx.col.reports.doc(doc._id).update({ data: { partnerReadAt: now, updatedAt: now } })
-  const [post] = await render(ctx, [{ ...doc, partnerReadAt: now }], partnerId)
-  return { post }
-}
-
-async function evaluate(ctx, e) {
-  const evalText = text(e.text, MAX_EVAL)
-  if (!evalText) fail('INVALID', '评价不能为空')
-  const { doc, partnerId } = await partnerPost(ctx, id(e.id), ['read', 'evaluated'])
-  const now = new Date()
-  const patch = { partnerEvalText: evalText, partnerEvaluatedAt: now, updatedAt: now }
+  const patch = { partnerOpenedAt: now, partnerReadAt: now, updatedAt: now }
   await ctx.col.reports.doc(doc._id).update({ data: patch })
   const [post] = await render(ctx, [{ ...doc, ...patch }], partnerId)
   return { post }
+}
+
+/** 贴一张贴纸 = 已阅 + 轻回应；再贴覆盖上一张，只留最新 */
+async function respond(ctx, e) {
+  const stickerId = id(e.stickerId)
+  if (!STICKER_IDS.includes(stickerId)) fail('INVALID', '没有这张贴纸')
+  const { doc, partnerId } = await partnerPost(ctx, id(e.id))
+  const now = new Date()
+  const patch = {
+    partnerStickerId: stickerId,
+    partnerRespondedAt: now,
+    updatedAt: now,
+  }
+  if (!toMs(doc.partnerOpenedAt)) patch.partnerOpenedAt = toMs(doc.partnerReadAt) ? doc.partnerReadAt : now
+  if (!toMs(doc.partnerReadAt)) patch.partnerReadAt = now
+  await ctx.col.reports.doc(doc._id).update({ data: patch })
+  const [post] = await render(ctx, [{ ...doc, ...patch }], partnerId)
+  return { post, awaitMeCount: await countAwaiting(ctx, partnerId) }
 }
 
 async function tags(ctx) {
@@ -206,4 +253,17 @@ async function removeTag(ctx, e) {
   return saveCustomTags(ctx, custom.filter((t) => t !== tag))
 }
 
-module.exports = { list, get, create, update, remove, markRead, evaluate, tags, addTag, removeTag }
+module.exports = {
+  list,
+  get,
+  create,
+  update,
+  remove,
+  open,
+  respond,
+  tags,
+  addTag,
+  removeTag,
+  countAwaiting,
+  STICKER_IDS,
+}

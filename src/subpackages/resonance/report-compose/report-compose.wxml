@@ -77,4 +77,17 @@
       <text>{{submitting ? '正在提交' : (editId ? '保存修改' : '发布报备')}}</text>
     </view>
   </view>
+
+  <view wx:if="{{confirmOpen}}" class="mask" catch:tap="onCancelConfirm">
+    <view class="dialog" catch:tap="onHold">
+      <text class="dialog__title">对方曾回心</text>
+      <text class="dialog__text">改后对方的贴纸与回心时间仍会保留，不会清空。</text>
+      <view class="mo-btn dialog__ok" bind:tap="onConfirmSave" aria-role="button">
+        <text>仍要保存</text>
+      </view>
+      <view class="mo-btn mo-btn--ghost dialog__cancel" bind:tap="onCancelConfirm" aria-role="button">
+        <text>取消</text>
+      </view>
+    </view>
+  </view>
 </view>
