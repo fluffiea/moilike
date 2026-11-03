@@ -1,20 +1,19 @@
 import type { MenuDish, PartnerMenu } from '../../types/api'
 import { call } from '../../core/api'
 import { addLine, cartState, clearCart, consumeOpenCart, setLineQty, useKitchen } from '../../core/cart'
-import { charsOf, QUICK_TAGS } from '../../core/kitchen'
+import { QUICK_TAGS } from '../../core/kitchen'
 import { PAGE_KITCHEN_CHECKOUT, PAGE_KITCHEN_ORDERS, PAGE_LOGIN } from '../../core/paths'
 import { getUser, isRegistered } from '../../core/store'
 import { confirm, toast } from '../../core/ui'
 
 type Scene = 'loading' | 'error' | PartnerMenu['scene']
-type Cat = { id: string; name: string; chars: string[]; on: boolean }
-type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; categoryId: string; cat: string }
+type Cat = { id: string; name: string; on: boolean }
+type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; categoryId: string }
 type SpecTag = { name: string; on: boolean }
 type CartRow = { key: string; name: string; cover: string; quantity: number; tagText: string }
 type Spec = { id: string; name: string; desc: string; cover: string; quantity: number; tags: SpecTag[] }
 
-function rowsOf(dishes: MenuDish[], categories: { id: string; name: string }[]): DishRow[] {
-  const names = new Map(categories.map((c) => [c.id, c.name]))
+function rowsOf(dishes: MenuDish[]): DishRow[] {
   return dishes.map((d) => ({
     id: d.id,
     name: d.name,
@@ -22,7 +21,6 @@ function rowsOf(dishes: MenuDish[], categories: { id: string; name: string }[]):
     cover: d.cover ? d.cover.thumb : '',
     sales: d.salesLabel,
     categoryId: d.categoryId,
-    cat: names.get(d.categoryId) || '',
   }))
 }
 
@@ -87,7 +85,7 @@ Component<
       if (menu.scene === 'unpaired' || menu.scene === 'no_kitchen') clearCart()
       this.kitchenId = menu.kitchen ? menu.kitchen.id : ''
       if (this.kitchenId) useKitchen(this.kitchenId)
-      this.allDishes = rowsOf(menu.dishes, menu.categories)
+      this.allDishes = rowsOf(menu.dishes)
       const active = this.pickActive(menu)
       this.activeId = active
       const dishes = this.rowsFor(active)
@@ -96,7 +94,7 @@ Component<
         errorText: '',
         refreshing: false,
         kitchenName: menu.kitchen ? menu.kitchen.name : '',
-        categories: menu.categories.map((c) => ({ id: c.id, name: c.name, chars: charsOf(c.name), on: c.id === active })),
+        categories: menu.categories.map((c) => ({ id: c.id, name: c.name, on: c.id === active })),
         dishes,
         catEmpty: menu.scene === 'menu' && dishes.length === 0,
         specOpen: openCart ? false : this.data.specOpen,

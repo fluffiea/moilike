@@ -375,8 +375,9 @@ function myOrderView(doc) {
 
 function opsView(doc, people, urls) {
   const who = people.view(doc.ordererOpenId, urls)
+  const lines = linesOf(doc)
   const names = []
-  for (const line of linesOf(doc)) {
+  for (const line of lines) {
     if (line.name && !names.includes(line.name)) names.push(line.name)
   }
   return {
@@ -386,6 +387,7 @@ function opsView(doc, people, urls) {
     ordererName: who.name,
     ordererAvatar: who.avatarUrl,
     names: names.join('、'),
+    lines,
     note: doc.note || '',
     createdAtMs: toMs(doc.createdAt),
     canAccept: doc.status === 'pending',

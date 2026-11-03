@@ -3,19 +3,44 @@ import { cartState, clearCart, setLineQty } from '../../../core/cart'
 import { PAGE_KITCHEN_ORDERS } from '../../../core/paths'
 import { toast } from '../../../core/ui'
 
-type Row = { key: string; name: string; quantity: number }
+const LEAVE = '备注还没提交，离开后会丢掉这句。'
 
-Component<{ rows: Row[]; note: string; submitting: boolean }, {}, WechatMiniprogram.Component.MethodOption, {}, true>({
-  data: { rows: [], note: '', submitting: false },
+type Row = { key: string; name: string; quantity: number; tagText: string }
+
+function alertLeave(on: boolean) {
+  if (on) {
+    if (typeof wx.enableAlertBeforeUnload === 'function') wx.enableAlertBeforeUnload({ message: LEAVE })
+    return
+  }
+  if (typeof wx.disableAlertBeforeUnload === 'function') wx.disableAlertBeforeUnload()
+}
+
+Component<
+  { rows: Row[]; portions: number; note: string; leaveHint: string; submitting: boolean },
+  {},
+  WechatMiniprogram.Component.MethodOption,
+  {},
+  true
+>({
+  data: { rows: [], portions: 0, note: '', leaveHint: '', submitting: false },
   methods: {
     onLoad() {
       this.paint()
       if (!cartState().lines.length) wx.navigateBack()
     },
+    onUnload() {
+      alertLeave(false)
+    },
     paint() {
       const lines = cartState().lines
       this.setData({
-        rows: lines.map((l) => ({ key: l.key, name: l.name, quantity: l.quantity })),
+        portions: lines.reduce((n, l) => n + l.quantity, 0),
+        rows: lines.map((l) => ({
+          key: l.key,
+          name: l.name,
+          quantity: l.quantity,
+          tagText: l.tags.join('、'),
+        })),
       })
     },
     onStep(e: WechatMiniprogram.TouchEvent) {
@@ -24,11 +49,18 @@ Component<{ rows: Row[]; note: string; submitting: boolean }, {}, WechatMiniprog
       const row = this.data.rows.find((r) => r.key === key)
       if (!row) return
       setLineQty(key, row.quantity + dir)
+      if (!cartState().lines.length) {
+        alertLeave(false)
+        wx.navigateBack()
+        return
+      }
       this.paint()
-      if (!cartState().lines.length) wx.navigateBack()
     },
     onNote(e: WechatMiniprogram.Input) {
-      this.setData({ note: e.detail.value })
+      const note = e.detail.value
+      const leaveHint = note.trim() ? LEAVE : ''
+      if (leaveHint !== this.data.leaveHint) alertLeave(!!leaveHint)
+      this.setData({ note, leaveHint })
     },
     async onSubmit() {
       if (this.data.submitting) return
@@ -44,6 +76,8 @@ Component<{ rows: Row[]; note: string; submitting: boolean }, {}, WechatMiniprog
       })
       this.setData({ submitting: false })
       if (!r) return
+      alertLeave(false)
+      this.setData({ leaveHint: '' })
       clearCart()
       wx.redirectTo({ url: PAGE_KITCHEN_ORDERS })
     },

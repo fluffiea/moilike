@@ -2,13 +2,13 @@ import type { OpsOrder, OpsStatus } from '../../../types/api'
 import { call, callOrToast } from '../../../core/api'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { dateTime } from '../../../core/format'
-import { orderStatusClass, renameKitchen } from '../../../core/kitchen'
+import { lineText, orderStatusClass, renameKitchen } from '../../../core/kitchen'
 import { PAGE_KITCHEN_CREATE, PAGE_KITCHEN_MENU } from '../../../core/paths'
 
 type Tab = { key: OpsStatus; name: string; on: boolean }
 type View = {
   id: string
-  names: string
+  lines: string[]
   note: string
   time: string
   statusLabel: string
@@ -17,6 +17,11 @@ type View = {
   ordererAvatar: string
   initial: string
   action: string
+}
+
+function linesOf(item: OpsOrder): string[] {
+  if (item.lines && item.lines.length) return item.lines.map((l) => lineText(l.name, l.quantity, l.tags))
+  return item.names ? [item.names] : []
 }
 
 const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
@@ -88,8 +93,8 @@ Component<
         fetch: (cursor) => call('kitchen.ops', { status: tab, cursor }),
         view: (item) => ({
           id: item.id,
-          names: item.names,
-          note: item.note,
+          lines: linesOf(item),
+          note: item.note ? `备注：${item.note}` : '',
           time: dateTime(item.createdAtMs),
           statusLabel: item.statusLabel,
           statusClass: orderStatusClass(item.status),

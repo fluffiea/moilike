@@ -1,10 +1,13 @@
 <view class="mo-page">
-  <app-nav title="确认心意" show-back />
+  <app-nav title="确认心意" show-back confirm-leave="{{leaveHint}}" />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body mo-body--sheet">
       <view class="mo-card list">
         <view wx:for="{{rows}}" wx:key="key" class="row {{index ? 'row--line' : ''}}">
-          <text class="row__name">{{item.name}}</text>
+          <view class="row__main">
+            <text class="row__name">{{item.name}}</text>
+            <text wx:if="{{item.tagText}}" class="row__tags">{{item.tagText}}</text>
+          </view>
           <view class="mo-step">
             <view class="mo-step__btn" data-key="{{item.key}}" data-dir="-1" bind:tap="onStep" aria-role="button"><text class="mo-step__mark">－</text></view>
             <text class="mo-step__num">{{item.quantity}}</text>
@@ -29,8 +32,9 @@
       </view>
     </view>
   </scroll-view>
-  <view class="mo-footer">
-    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+  <view class="mo-footer submit">
+    <text class="submit__count">共 {{portions}} 份</text>
+    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}} submit__btn" bind:tap="onSubmit" aria-role="button">
       <view wx:if="{{submitting}}" class="mo-spinner" />
       <text>提交订单</text>
     </view>

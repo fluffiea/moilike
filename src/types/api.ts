@@ -287,6 +287,7 @@ export type OpsOrder = {
   ordererName: string
   ordererAvatar: string
   names: string
+  lines: OrderLine[]
   note: string
   createdAtMs: number
   canAccept: boolean

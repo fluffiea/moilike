@@ -11,10 +11,6 @@ export function lineText(name: string, quantity: number, tags: string[]): string
   return tags.length ? `${base} · ${tags.join('、')}` : base
 }
 
-export function charsOf(name: string): string[] {
-  return Array.from(name)
-}
-
 /** 订单状态只对应字色，不另做色块 */
 export function orderStatusClass(status: string): string {
   if (status === 'pending') return 'mo-st-pending'
