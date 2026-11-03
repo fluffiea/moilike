@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="素笺" large="{{true}}" />
+  <app-nav title="素笺" show-back />
   <scroll-view
     class="mo-scroll"
     scroll-y

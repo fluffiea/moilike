@@ -1,0 +1,38 @@
+<view class="mo-page">
+  <app-nav title="确认心意" show-back />
+  <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
+    <view class="mo-body mo-body--sheet">
+      <view class="mo-card list">
+        <view wx:for="{{rows}}" wx:key="key" class="row {{index ? 'row--line' : ''}}">
+          <text class="row__name">{{item.name}}</text>
+          <view class="mo-step">
+            <view class="mo-step__btn" data-key="{{item.key}}" data-dir="-1" bind:tap="onStep" aria-role="button"><text class="mo-step__mark">－</text></view>
+            <text class="mo-step__num">{{item.quantity}}</text>
+            <view class="mo-step__btn" data-key="{{item.key}}" data-dir="1" bind:tap="onStep" aria-role="button"><text class="mo-step__mark">＋</text></view>
+          </view>
+        </view>
+      </view>
+      <view class="mo-card">
+        <text class="mo-section-title">备注</text>
+        <view class="mo-field">
+          <textarea
+            class="mo-textarea note"
+            value="{{note}}"
+            maxlength="80"
+            placeholder="写给 Ta 的一句，也可以不写"
+            placeholder-class="mo-placeholder"
+            auto-height
+            show-confirm-bar="{{false}}"
+            bindinput="onNote"
+          />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="mo-footer">
+    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>提交订单</text>
+    </view>
+  </view>
+</view>

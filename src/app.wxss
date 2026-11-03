@@ -254,6 +254,105 @@ page {
   flex-wrap: wrap;
 }
 
+/* 开箱引导：和朝夕「先把 Ta 接到身边」同一档，标题 40，卡片自己的边距对齐大标题 */
+.mo-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 96rpx var(--mo-pad-h);
+}
+
+.mo-guide__title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 600;
+  text-align: center;
+  color: var(--mo-text-primary);
+}
+
+.mo-guide__hint {
+  display: block;
+  margin-top: 16rpx;
+  text-align: center;
+}
+
+/* 订单状态只写字，不另做色底 */
+.mo-st-pending {
+  color: var(--mo-status-pending-text);
+}
+
+.mo-st-progress {
+  color: var(--mo-status-read-text);
+}
+
+.mo-st-done {
+  color: var(--mo-status-evaluated-text);
+}
+
+.mo-st-muted {
+  color: var(--mo-text-muted);
+}
+
+/* 规格、购物车、选分类。蒙层沿用页面里已有的中性压暗，不新起一套品牌色 */
+.mo-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.mo-sheet {
+  padding: 28rpx var(--mo-pad-h) calc(28rpx + var(--mo-safe-bottom));
+  border-radius: var(--mo-radius-card) var(--mo-radius-card) 0 0;
+  background-color: var(--mo-l1-card);
+}
+
+.mo-sheet__handle {
+  width: 64rpx;
+  height: 8rpx;
+  margin: 0 auto 24rpx;
+  border-radius: var(--mo-radius-chip);
+  background-color: var(--mo-skeleton);
+}
+
+.mo-step {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 64rpx;
+  padding: 0 8rpx;
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l0-bg);
+  flex-shrink: 0;
+}
+
+.mo-step__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.mo-step__mark {
+  font-size: 32rpx;
+  line-height: 1;
+  color: var(--mo-text-primary);
+}
+
+.mo-step__num {
+  min-width: 48rpx;
+  font-size: 32rpx;
+  text-align: center;
+  color: var(--mo-text-primary);
+}
+
 /* 回到顶部 */
 .mo-back-top {
   position: fixed;

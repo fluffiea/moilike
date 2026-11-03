@@ -1,0 +1,27 @@
+.list {
+  padding: 8rpx var(--mo-pad-h);
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 104rpx;
+}
+
+.row--line {
+  border-top: var(--mo-border-field);
+}
+
+.row__name {
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.note {
+  min-height: 160rpx;
+}

@@ -173,6 +173,104 @@ export interface Routes {
   'expense.remove': [{ id: string }, null]
   /** scope=total 只返回本月合计，给独白入口用，不算环比和月均 */
   'expense.monthSummary': [{ month: string; l1?: string; scope?: 'total' | 'full' }, ExpenseMonthSummary]
+
+  'kitchen.mine': [{}, { kitchen: Kitchen | null; pendingCount: number }]
+  'kitchen.create': [{ name: string }, { kitchen: Kitchen }]
+  'kitchen.rename': [{ name: string }, { kitchen: Kitchen }]
+  'kitchen.categories': [{}, { categories: KitchenCategory[] }]
+  'kitchen.createCategory': [{ name: string }, { category: KitchenCategory }]
+  'kitchen.renameCategory': [{ id: string; name: string }, { category: KitchenCategory }]
+  'kitchen.removeCategory': [{ id: string }, null]
+  /** 厨方菜单一屏：厨房名、分类（含空分类和道数）、全部菜品 */
+  'kitchen.dishes': [{}, { kitchen: Kitchen; categories: KitchenCategory[]; dishes: KitchenDish[] }]
+  'kitchen.dish': [{ id: string }, { dish: KitchenDish }]
+  'kitchen.createDish': [DishWrite, { dish: KitchenDish }]
+  'kitchen.updateDish': [DishWrite & { id: string }, { dish: KitchenDish }]
+  'kitchen.removeDish': [{ id: string }, null]
+  'kitchen.partner': [{}, PartnerMenu]
+  'kitchen.orderCreate': [{ items: OrderDraft[]; note?: string }, { order: MyOrder }]
+  'kitchen.myOrders': [{ cursor?: string }, Page<MyOrder>]
+  'kitchen.cancel': [{ id: string }, { order: MyOrder }]
+  'kitchen.ops': [{ status: OpsStatus; cursor?: string }, Page<OpsOrder>]
+  'kitchen.accept': [{ id: string }, { order: OpsOrder }]
+  'kitchen.complete': [{ id: string }, { order: OpsOrder }]
+}
+
+export type Kitchen = { id: string; name: string; createdAtMs: number }
+
+export type KitchenCategory = { id: string; name: string; dishCount: number; createdAtMs: number }
+
+export type DishCover = { id: string; thumb: string; url: string }
+
+export type KitchenDish = {
+  id: string
+  categoryId: string
+  categoryName: string
+  name: string
+  desc: string
+  cover: DishCover | null
+  onShelf: boolean
+  createdAtMs: number
+}
+
+export type DishWrite = {
+  name: string
+  categoryId?: string
+  newCategoryName?: string
+  desc?: string
+  coverFileId?: string
+  onShelf?: boolean
+}
+
+export type MenuScene = 'unpaired' | 'no_kitchen' | 'empty' | 'menu'
+
+export type MenuDish = {
+  id: string
+  categoryId: string
+  name: string
+  desc: string
+  cover: DishCover | null
+  /** 出现在已完成订单里的次数；同一单多份只计 1，未完成和已取消不计 */
+  doneCount: number
+  /** 无记录为空串；满 5 次为「常点」，否则「我们点过 N 次」 */
+  salesLabel: string
+}
+
+export type PartnerMenu = {
+  scene: MenuScene
+  kitchen: { id: string; name: string } | null
+  categories: { id: string; name: string }[]
+  dishes: MenuDish[]
+}
+
+export type OrderStatus = 'pending' | 'in_progress' | 'done' | 'cancelled'
+export type OpsStatus = 'pending' | 'in_progress' | 'done'
+
+export type OrderLine = { dishId: string; name: string; quantity: number; tags: string[] }
+export type OrderDraft = { dishId: string; quantity: number; tags?: string[] }
+
+export type MyOrder = {
+  id: string
+  status: OrderStatus
+  statusLabel: string
+  note: string
+  lines: OrderLine[]
+  createdAtMs: number
+  canCancel: boolean
+  canReorder: boolean
+}
+
+export type OpsOrder = {
+  id: string
+  status: OrderStatus
+  statusLabel: string
+  ordererName: string
+  ordererAvatar: string
+  names: string
+  note: string
+  createdAtMs: number
+  canAccept: boolean
+  canComplete: boolean
 }
 
 export type Route = keyof Routes

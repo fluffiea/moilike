@@ -1,0 +1,66 @@
+<view class="mo-page">
+  <app-nav title="{{editId ? '编辑菜品' : '新建菜品'}}" show-back confirm-leave="{{leaveHint}}" />
+  <scroll-view wx:if="{{ready}}" class="mo-scroll" scroll-y show-scrollbar="{{false}}">
+    <view class="mo-body mo-body--sheet">
+      <view class="mo-card cover-card">
+        <view class="cover" bind:tap="onPickCover" aria-role="button">
+          <image wx:if="{{coverSrc}}" class="cover__img" src="{{coverSrc}}" mode="aspectFill" />
+          <text wx:else class="cover__ph">暂无封面</text>
+        </view>
+        <view wx:if="{{hasCover}}" class="cover__acts">
+          <text class="cover__act" bind:tap="onPickCover" aria-role="button">更换</text>
+          <text class="cover__act cover__act--danger" bind:tap="onClearCover" aria-role="button">删除封面</text>
+        </view>
+        <text wx:else class="mo-hint cover__hint">点击上传封面 · 相册或拍照</text>
+      </view>
+
+      <view class="mo-card fields">
+        <text class="label">名称 *</text>
+        <view class="mo-field">
+          <input class="mo-input" maxlength="16" value="{{name}}" placeholder="例如抱抱" placeholder-class="mo-placeholder" bindinput="onName" />
+        </view>
+        <text class="label">分类 *</text>
+        <view class="mo-field pick" bind:tap="onOpenCat" aria-role="button">
+          <text class="pick__text {{categoryLabel ? '' : 'pick__text--empty'}}">{{categoryLabel || '请选择或新增分类'}}</text>
+          <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+        </view>
+        <text wx:if="{{!categories.length && !categoryLabel}}" class="mo-hint field-hint">无分类时可在此「新增分类」再挂菜</text>
+        <text class="label">说明 选填</text>
+        <view class="mo-field">
+          <input class="mo-input" maxlength="40" value="{{desc}}" placeholder="简短说明（选填）" placeholder-class="mo-placeholder" bindinput="onDesc" />
+        </view>
+      </view>
+
+      <view class="mo-card shelf">
+        <text class="shelf__label">上下架</text>
+        <view class="shelf__side">
+          <text class="shelf__state">{{shelfLabel}}</text>
+          <switch checked="{{onShelf}}" color="#4a6670" bindchange="onToggleShelf" />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{ready}}" class="mo-footer foot">
+    <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSave" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>保存</text>
+    </view>
+    <text wx:if="{{editId}}" class="danger" bind:tap="onRemove" aria-role="button">删除菜品</text>
+  </view>
+
+  <view wx:if="{{catOpen}}" class="mo-mask" bind:tap="onCloseCat">
+    <view class="mo-sheet" catch:tap="noop">
+      <text class="sheet__title">选择分类</text>
+      <scroll-view class="sheet__list" scroll-y show-scrollbar="{{false}}">
+        <view wx:for="{{categories}}" wx:key="id" class="sheet__row" data-id="{{item.id}}" bind:tap="onPickCat" aria-role="button">
+          <text class="sheet__name">{{item.name}}</text>
+        </view>
+        <view wx:if="{{categories.length === 0}}" class="sheet__empty">
+          <text class="mo-hint">还没有分类</text>
+        </view>
+      </scroll-view>
+      <view class="mo-btn sheet__btn" bind:tap="onCreateCat" aria-role="button"><text>新增分类</text></view>
+    </view>
+  </view>
+</view>

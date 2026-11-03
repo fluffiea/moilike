@@ -1,0 +1,38 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.row__title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.row__meta {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.row__act {
+  margin-left: 24rpx;
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
+}
+
+.row__act--danger {
+  color: var(--mo-text-danger);
+}
+
+.hint {
+  display: block;
+}

@@ -1,0 +1,34 @@
+<view class="mo-page">
+  <app-nav title="我的订单" show-back />
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{feed.refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+    lower-threshold="{{400}}"
+  >
+    <view class="mo-body">
+      <state-view wx:if="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRefresh" />
+      <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="还没有订单" hint="在点单里挑一份心意，会记在这里" />
+      <block wx:else>
+        <view wx:for="{{feed.items}}" wx:key="id" class="mo-card order">
+          <text wx:for="{{item.lines}}" wx:for-item="line" wx:key="index" class="order__line">{{line}}</text>
+          <text wx:if="{{item.noteText}}" class="order__note">{{item.noteText}}</text>
+          <text class="order__status {{item.statusClass}}">{{item.statusLabel}}</text>
+          <view class="order__foot">
+            <text class="order__time">{{item.time}}</text>
+            <text wx:if="{{item.canCancel}}" class="order__act" data-id="{{item.id}}" bind:tap="onCancel" aria-role="button">取消订单</text>
+            <text wx:elif="{{item.canReorder}}" class="order__act" data-id="{{item.id}}" bind:tap="onReorder" aria-role="button">再来一单</text>
+          </view>
+        </view>
+        <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
+        <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+        <state-view wx:elif="{{feed.more === 'end' && feed.items.length}}" status="end" />
+      </block>
+    </view>
+  </scroll-view>
+</view>

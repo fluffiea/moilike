@@ -43,7 +43,7 @@
 
       <view wx:if="{{me && !me.bound}}" class="mo-card bond" bind:tap="onPartner" aria-role="button" aria-label="去结伴">
         <text class="bond__title">添加结伴对象</text>
-        <text class="mo-hint bond__hint">与 Ta 绑定，解锁朝夕、素笺与共鸣</text>
+        <text class="mo-hint bond__hint">与 Ta 绑定，解锁朝夕、点单与共鸣</text>
         <view class="mo-btn bond__btn">
           <text>去结伴</text>
         </view>
@@ -60,6 +60,13 @@
           <view class="row__main">
             <text class="row__title">偏好设置</text>
           </view>
+          <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+        </view>
+        <view class="row row--line" bind:tap="onKitchen" aria-role="button">
+          <view class="row__main">
+            <text class="row__title">我的厨房</text>
+          </view>
+          <text wx:if="{{pendingLabel}}" class="row__badge">{{pendingLabel}}</text>
           <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
         </view>
         <view class="row row--line" bind:tap="onLedger" aria-role="button">

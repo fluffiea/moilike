@@ -183,6 +183,13 @@
   flex-shrink: 0;
 }
 
+.row__badge {
+  margin-right: 16rpx;
+  font-size: 24rpx;
+  color: var(--mo-status-pending-text);
+  flex-shrink: 0;
+}
+
 .logout {
   display: flex;
   align-items: center;

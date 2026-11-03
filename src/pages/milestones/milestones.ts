@@ -2,7 +2,7 @@ import type { User } from '../../types/api'
 import { call } from '../../core/api'
 import { applyResonanceBadge } from '../../core/badge'
 import { fullDate } from '../../core/format'
-import { PAGE_LOGIN, PAGE_PARTNER_HUB } from '../../core/paths'
+import { PAGE_LETTER_LIST, PAGE_LOGIN, PAGE_PARTNER_HUB } from '../../core/paths'
 import { getUser, isRegistered, logout, on, setUser } from '../../core/store'
 
 const REFRESH_INTERVAL_MS = 30 * 1000
@@ -82,6 +82,9 @@ Component<
     },
     onOpenPartnerHub() {
       wx.navigateTo({ url: PAGE_PARTNER_HUB })
+    },
+    onLetters() {
+      wx.navigateTo({ url: PAGE_LETTER_LIST })
     },
   },
 })

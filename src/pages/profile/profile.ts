@@ -1,7 +1,7 @@
 import type { User } from '../../types/api'
 import { call } from '../../core/api'
 import { beijingMonthKey, formatYuan } from '../../core/ledger'
-import { PAGE_EDIT_PROFILE, PAGE_LEDGER, PAGE_LOGIN, PAGE_PARTNER_HUB, PAGE_PREFERENCES } from '../../core/paths'
+import { PAGE_EDIT_PROFILE, PAGE_KITCHEN_CREATE, PAGE_KITCHEN_OPS, PAGE_LEDGER, PAGE_LOGIN, PAGE_PARTNER_HUB, PAGE_PREFERENCES } from '../../core/paths'
 import { getUser, isRegistered, logout, on, setUser } from '../../core/store'
 import { confirm } from '../../core/ui'
 
@@ -32,8 +32,14 @@ function toView(u: User): View {
   }
 }
 
-Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, WechatMiniprogram.Component.MethodOption, { off: () => void }, true>({
-  data: { me: null, refreshing: false, spentLabel: '' },
+Component<
+  { me: View | null; refreshing: boolean; spentLabel: string; pendingLabel: string; hasKitchen: boolean },
+  {},
+  WechatMiniprogram.Component.MethodOption,
+  { off: () => void; kitchenKnown: boolean },
+  true
+>({
+  data: { me: null, refreshing: false, spentLabel: '', pendingLabel: '', hasKitchen: false },
   methods: {
     onLoad() {
       const u = getUser()
@@ -46,6 +52,7 @@ Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, Wech
 
     onShow() {
       void this.loadSpent()
+      void this.loadKitchen()
     },
 
     async loadSpent() {
@@ -59,6 +66,19 @@ Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, Wech
       this.setData({ refreshing: false })
       if (r.ok && isRegistered(r.data.user)) setUser(r.data.user)
       void this.loadSpent()
+      void this.loadKitchen()
+    },
+
+    async loadKitchen() {
+      if (!isRegistered(getUser())) return
+      const r = await call('kitchen.mine', {})
+      if (!r.ok) return
+      const n = r.data.pendingCount
+      this.kitchenKnown = true
+      this.setData({
+        hasKitchen: Boolean(r.data.kitchen),
+        pendingLabel: n > 99 ? '99+' : n > 0 ? String(n) : '',
+      })
     },
 
     onAvatarError(e: WechatMiniprogram.TouchEvent) {
@@ -77,6 +97,10 @@ Component<{ me: View | null; refreshing: boolean; spentLabel: string }, {}, Wech
     },
     onLedger() {
       wx.navigateTo({ url: PAGE_LEDGER })
+    },
+    async onKitchen() {
+      if (!this.kitchenKnown) await this.loadKitchen()
+      wx.navigateTo({ url: this.data.hasKitchen ? PAGE_KITCHEN_OPS : PAGE_KITCHEN_CREATE })
     },
 
     async onLogout() {

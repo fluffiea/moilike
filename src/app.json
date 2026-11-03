@@ -2,9 +2,10 @@
   "cloud": true,
   "pages": [
     "pages/milestones/milestones",
-    "pages/letters/letters",
+    "pages/order/order",
     "pages/resonance/resonance",
     "pages/profile/profile",
+    "pages/letters/letters",
     "pages/login/login"
   ],
   "window": {
@@ -45,10 +46,10 @@
         "selectedIconPath": "images/tabbar/milestones-active.png"
       },
       {
-        "pagePath": "pages/letters/letters",
-        "text": "素笺",
-        "iconPath": "images/tabbar/letters.png",
-        "selectedIconPath": "images/tabbar/letters-active.png"
+        "pagePath": "pages/order/order",
+        "text": "点单",
+        "iconPath": "images/tabbar/order.png",
+        "selectedIconPath": "images/tabbar/order-active.png"
       },
       {
         "pagePath": "pages/resonance/resonance",
@@ -84,12 +85,26 @@
       "root": "subpackages/ledger",
       "name": "ledger",
       "pages": ["home/home", "compose/compose", "detail/detail", "category/category"]
+    },
+    {
+      "root": "subpackages/kitchen",
+      "name": "kitchen",
+      "pages": [
+        "create/create",
+        "ops/ops",
+        "menu/menu",
+        "dish/dish",
+        "categories/categories",
+        "checkout/checkout",
+        "orders/orders"
+      ]
     }
   ],
   "preloadRule": {
-    "pages/milestones/milestones": { "network": "all", "packages": ["user"] },
+    "pages/milestones/milestones": { "network": "all", "packages": ["user", "letters_pack"] },
     "pages/letters/letters": { "network": "all", "packages": ["letters_pack"] },
+    "pages/order/order": { "network": "all", "packages": ["kitchen"] },
     "pages/resonance/resonance": { "network": "all", "packages": ["resonance_pack"] },
-    "pages/profile/profile": { "network": "all", "packages": ["user", "ledger"] }
+    "pages/profile/profile": { "network": "all", "packages": ["user", "ledger", "kitchen"] }
   }
 }

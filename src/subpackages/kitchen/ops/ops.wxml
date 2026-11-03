@@ -1,0 +1,66 @@
+<view class="mo-page">
+  <app-nav title="我的厨房" show-back />
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{feed.refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+    lower-threshold="{{400}}"
+  >
+    <view class="mo-body">
+      <state-view wx:if="{{gate === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{gate === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="openKitchen" />
+      <block wx:else>
+      <view class="bar">
+        <text class="bar__name">{{kitchenName}}</text>
+        <text class="bar__act" bind:tap="onMenu" aria-role="button">菜单管理</text>
+        <text class="bar__act" bind:tap="onRename" aria-role="button">改名</text>
+      </view>
+      <view class="seg">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="key"
+          class="seg__item {{item.on ? 'seg__item--on' : ''}}"
+          data-key="{{item.key}}"
+          bind:tap="onPickTab"
+          aria-role="button"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+
+      <state-view wx:if="{{feed.status === 'loading'}}" status="loading" rows="{{2}}" />
+      <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRefresh" />
+      <state-view wx:elif="{{feed.status === 'empty'}}" status="empty" title="{{emptyTitle}}" hint="{{emptyHint}}" />
+      <block wx:else>
+        <view wx:for="{{feed.items}}" wx:key="id" class="mo-card job">
+          <view class="job__top">
+            <view class="avatar">
+              <image wx:if="{{item.ordererAvatar}}" class="avatar__img" src="{{item.ordererAvatar}}" mode="aspectFill" />
+              <text wx:else class="avatar__initial">{{item.initial}}</text>
+            </view>
+            <text class="job__who">{{item.ordererName}}</text>
+            <view class="job__side">
+              <text class="job__time">{{item.time}}</text>
+              <text class="job__status {{item.statusClass}}">{{item.statusLabel}}</text>
+            </view>
+          </view>
+          <text class="job__names">{{item.names}}</text>
+          <text wx:if="{{item.note}}" class="job__note">{{item.note}}</text>
+          <view wx:if="{{item.action}}" class="job__act">
+            <view class="mo-btn mo-btn--small" data-id="{{item.id}}" bind:tap="onAction" aria-role="button">
+              <text>{{item.action}}</text>
+            </view>
+          </view>
+        </view>
+        <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
+        <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+        <state-view wx:elif="{{feed.more === 'end' && feed.items.length}}" status="end" />
+      </block>
+      </block>
+    </view>
+  </scroll-view>
+</view>

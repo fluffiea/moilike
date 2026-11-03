@@ -35,6 +35,14 @@
           </block>
         </view>
       </block>
+
+      <view class="mo-card entry" bind:tap="onLetters" aria-role="button">
+        <view class="entry__main">
+          <text class="entry__title">素笺</text>
+          <text class="mo-hint entry__hint">写给对方的信，都收在这里</text>
+        </view>
+        <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+      </view>
     </view>
   </scroll-view>
 </view>
