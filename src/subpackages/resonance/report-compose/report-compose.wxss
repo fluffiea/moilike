@@ -50,3 +50,49 @@
 .tag-input__add--off {
   color: var(--mo-text-muted);
 }
+
+.mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64rpx;
+  background: rgba(28, 28, 30, 0.4);
+}
+
+.dialog {
+  width: 100%;
+  padding: 48rpx 40rpx 36rpx;
+  border-radius: var(--mo-radius-card);
+  background-color: var(--mo-l1-card);
+}
+
+.dialog__title {
+  display: block;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.dialog__text {
+  display: block;
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--mo-text-secondary);
+}
+
+.dialog__ok {
+  margin-top: 36rpx;
+}
+
+.dialog__cancel {
+  margin-top: 16rpx;
+}

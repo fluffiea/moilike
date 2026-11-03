@@ -7,10 +7,10 @@
   position: relative;
   display: flex;
   flex-direction: row;
-  height: 72rpx;
+  height: 80rpx;
   padding: 6rpx;
-  border-radius: 24rpx;
-  background-color: rgba(118, 118, 128, 0.12);
+  border-radius: var(--mo-radius-btn);
+  background-color: var(--mo-l1-card);
 }
 
 /* 指示块按下标平移，切换时有过渡 */
@@ -20,9 +20,8 @@
   top: 6rpx;
   bottom: 6rpx;
   width: calc((100% - 12rpx) / 3);
-  border-radius: 18rpx;
-  background-color: var(--mo-l1-card);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: var(--mo-radius-btn);
+  background: var(--mo-fill-brand);
   transition: transform 0.26s ease;
 }
 
@@ -46,7 +45,11 @@
 
 .tabs__item--on {
   font-weight: 600;
-  color: var(--mo-text-primary);
+  color: var(--mo-text-inverse);
+}
+
+.tabs__count {
+  margin-left: 8rpx;
 }
 
 .panes {

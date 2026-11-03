@@ -1,21 +1,25 @@
 import type { ReportFilter } from '../../../types/api'
 import { call } from '../../../core/api'
+import { normalizeReportFilter } from '../../../core/format'
 import { getUser, setUser } from '../../../core/store'
 import { toast } from '../../../core/ui'
 
 const OPTIONS: { value: ReportFilter; label: string }[] = [
   { value: 'all', label: '全部' },
-  { value: 'action_needed', label: '待处理' },
-  { value: 'mine', label: '我的报备' },
+  { value: 'await_me', label: '待我回应' },
+  { value: 'mine', label: '我发的' },
 ]
 
 Component<{ options: typeof OPTIONS; index: number }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
-  data: { options: OPTIONS, index: 2 },
+  data: { options: OPTIONS, index: 1 },
   methods: {
     onLoad() {
       this.saving = false
       const u = getUser()
-      if (u) this.setData({ index: OPTIONS.findIndex((o) => o.value === u.preferences.resonanceReportFilter) })
+      if (u) {
+        const index = OPTIONS.findIndex((o) => o.value === normalizeReportFilter(u.preferences.resonanceReportFilter))
+        this.setData({ index: index < 0 ? 1 : index })
+      }
     },
 
     /** 先切换再保存，失败回退 */

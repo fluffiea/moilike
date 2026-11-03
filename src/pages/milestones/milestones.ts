@@ -1,5 +1,6 @@
 import type { User } from '../../types/api'
 import { call } from '../../core/api'
+import { applyResonanceBadge } from '../../core/badge'
 import { fullDate } from '../../core/format'
 import { PAGE_LOGIN, PAGE_PARTNER_HUB } from '../../core/paths'
 import { getUser, isRegistered, logout, on, setUser } from '../../core/store'
@@ -58,6 +59,7 @@ Component<
         wx.reLaunch({ url: PAGE_LOGIN })
         return
       }
+      applyResonanceBadge(r.data.awaitMeCount)
       setUser(r.data.user)
     },
 

@@ -1,7 +1,9 @@
 import type { ReportPost } from '../../../types/api'
 import { call } from '../../../core/api'
+import { applyResonanceBadge } from '../../../core/badge'
 import { PAGE_REPORT_COMPOSE, TAB_RESONANCE, back } from '../../../core/paths'
 import { emit, handoff, on, takeHandoff } from '../../../core/store'
+import { STICKERS } from '../../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../../core/ui'
 import { reportView, type ReportView } from '../../../core/views'
 
@@ -9,9 +11,8 @@ type Data = {
   post: ReportView | null
   status: 'loading' | 'ready' | 'error'
   errorText: string
-  evalOpen: boolean
-  evalDraft: string
-  busy: '' | 'read' | 'eval'
+  stickers: { id: string; label: string; src: string }[]
+  busy: string
 }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; raw: ReportPost | null; offs: (() => void)[] }, true>({
@@ -19,8 +20,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
     post: null,
     status: 'loading',
     errorText: '',
-    evalOpen: false,
-    evalDraft: '',
+    stickers: STICKERS.map((s) => ({ id: s.id, label: s.label, src: s.src })),
     busy: '',
   },
   methods: {
@@ -43,51 +43,40 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
         return this.setData({ status: 'error', errorText: r.message })
       }
       this.render(r.data.post)
+      void this.markOpened(r.data.post)
+    },
+
+    /** 对方进详情即记下打开时间，不打断浏览，也不单独清待办 */
+    async markOpened(post: ReportPost) {
+      if (post.isMine || post.partnerOpenedAt) return
+      const r = await call('report.open', { id: post.id })
+      if (!r.ok || !this.raw || this.raw.partnerStickerId) return
+      this.apply(r.data.post)
     },
 
     render(post: ReportPost) {
       this.raw = post
-      this.setData({ post: reportView(post, undefined, true), status: 'ready', evalOpen: post.canEvaluate })
+      this.setData({ post: reportView(post, undefined, true), status: 'ready' })
     },
 
-    /** 状态变化同步到共鸣列表（待处理 Tab 会据此移除） */
+    /** 状态变化同步到共鸣列表（待我回应会据此移出） */
     apply(post: ReportPost) {
       this.render(post)
       emit('report:upsert', post)
     },
 
-    async onMarkRead() {
-      if (this.data.busy) return
-      this.setData({ busy: 'read' })
-      const r = await call('report.markRead', { id: this.postId })
+    async onSticker(e: WechatMiniprogram.TouchEvent) {
+      const stickerId = String(e.currentTarget.dataset.id || '')
+      if (!stickerId || this.data.busy) return
+      if (this.raw && this.raw.partnerStickerId === stickerId) return
+      this.setData({ busy: stickerId })
+      const r = await call('report.respond', { id: this.postId, stickerId })
       this.setData({ busy: '' })
       if (!r.ok) return toast(r.message)
+      applyResonanceBadge(r.data.awaitMeCount)
+      emit('report:await-count', r.data.awaitMeCount)
       this.apply(r.data.post)
-      toastDone('已阅')
-    },
-
-    onEditEval() {
-      const post = this.raw
-      if (post) this.setData({ evalOpen: true, evalDraft: post.evalText })
-    },
-    onCancelEval() {
-      this.setData({ evalOpen: false, evalDraft: '' })
-    },
-    onEvalInput(e: WechatMiniprogram.Input) {
-      this.setData({ evalDraft: e.detail.value })
-    },
-
-    async onSubmitEval() {
-      const text = this.data.evalDraft.trim()
-      if (!text) return toast('写一句评价吧')
-      if (this.data.busy) return
-      this.setData({ busy: 'eval' })
-      const r = await call('report.evaluate', { id: this.postId, text })
-      this.setData({ busy: '' })
-      if (!r.ok) return toast(r.message)
-      this.setData({ evalDraft: '' })
-      this.apply(r.data.post)
-      toastDone('评价已送达')
+      toastDone('已回心')
     },
 
     async onMore() {

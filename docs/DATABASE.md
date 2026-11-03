@@ -14,7 +14,7 @@
 | `partnerOpenId` | 结伴对象 openid；双方在同一事务里互相写入 |
 | `togetherSinceMs` | 纪念日（分钟对齐）；双方同值，重新结伴时置空 |
 | `bindCode` | 8 位绑定码，首次打开结伴页时生成 |
-| `preferences.resonanceReportFilter` | 共鸣默认筛选：`all` / `action_needed` / `mine` |
+| `preferences.resonanceReportFilter` | 共鸣默认筛选：`all` / `await_me` / `mine`。缺省 `await_me`。库里的旧值 `action_needed` 读出时当作 `await_me`，已保存的 `all` / `mine` 不改写 |
 | `reportTags` | 报备自定义标签（默认标签「干饭」不存储） |
 | `partner` | 早期版本的伴侣快照，已不再读取 |
 
@@ -33,7 +33,21 @@
 
 ### report_posts
 
-`authorOpenId`、`body`、`tags`、`images`、`recordAt`（记录时刻，分钟对齐）、`createdAt`、`updatedAt`、`partnerReadAt`、`partnerEvaluatedAt`、`partnerEvalText`。
+`authorOpenId`、`body`、`tags`、`images`、`recordAt`（记录时刻，分钟对齐）、`createdAt`、`updatedAt`。
+
+对方的轻互动：
+
+| 字段 | 说明 |
+|------|------|
+| `partnerOpenedAt` | 对方打开详情的时间；空表示还没打开。旧数据没有该字段时，接口用 `partnerReadAt` 顶上 |
+| `partnerStickerId` | 对方最新一张贴纸：`care` 收到啦、`seen` 看见了、`eat` 记得吃饭、`miss` 想你、`ok` 好的、`hug` 抱抱、`proud` 辛苦了、`love` 爱你。空表示还没回心 |
+| `partnerRespondedAt` | 最近一次贴贴纸的时间。再贴会覆盖贴纸和这个时间 |
+| `partnerReadAt` | 旧「标记已阅」。新数据在打开或回心时顺手写上，用来和旧字段对齐；界面不再单独展示已阅 |
+| `partnerEvaluatedAt` / `partnerEvalText` | 旧文字评价。本期不再写入、也不再下发评价正文。已经有 `partnerEvaluatedAt` 的帖子视为已回应，不进「待我回应」 |
+
+状态只有两个：没有贴纸、也没有旧评价 → `awaiting_response`；否则 `responded`。只打开详情不单独成一种状态。
+
+列表筛选 `all` / `await_me` / `mine`。`await_me` 是对方发出、且 `partnerStickerId` 与 `partnerEvaluatedAt` 都为空的帖子。`report.list` 同时返回 `awaitMeCount`（待我回应的条数，跟当前这一页无关）。`report.open` 在进详情时写下打开时间，已打开则不改。`report.respond({ id, stickerId })` 覆盖贴纸。作者 `report.update` 只改正文、图片、标签和记录时间，不清贴纸。`report.markRead` 与 `report.evaluate` 已移除。
 
 ### letters
 

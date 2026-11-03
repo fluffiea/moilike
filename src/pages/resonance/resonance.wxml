@@ -8,10 +8,11 @@
         <text>全部</text>
       </view>
       <view class="tabs__item {{tabIndex === 1 ? 'tabs__item--on' : ''}}" data-index="{{1}}" bind:tap="onTabTap" aria-role="tab">
-        <text>待处理</text>
+        <text>待我回应</text>
+        <text wx:if="{{awaitMeCount > 0}}" class="tabs__count">{{awaitMeCount}}</text>
       </view>
       <view class="tabs__item {{tabIndex === 2 ? 'tabs__item--on' : ''}}" data-index="{{2}}" bind:tap="onTabTap" aria-role="tab">
-        <text>我的报备</text>
+        <text>我发的</text>
       </view>
     </view>
   </view>
@@ -42,9 +43,7 @@
 
         <view wx:for="{{tab.items}}" wx:key="id" class="row">
           <view wx:if="{{item.day}}" class="mo-day">
-            <view class="mo-day__line" />
             <text class="mo-day__label">{{item.day}}</text>
-            <view class="mo-day__line" />
           </view>
           <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" />
         </view>
@@ -55,7 +54,7 @@
           <state-view
             wx:elif="{{tab.status === 'empty'}}"
             status="empty"
-            title="{{index === 1 ? '没有待处理的报备' : '还没有报备'}}"
+            title="{{index === 1 ? '没有待我回应的报备' : '还没有报备'}}"
             hint="{{index === 1 ? '对方的新报备会出现在这里' : '记一件想告诉对方的小事吧'}}"
             action="{{index === 1 ? '' : '写报备'}}"
             bind:action="onCompose"

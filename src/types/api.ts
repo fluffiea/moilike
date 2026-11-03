@@ -2,8 +2,8 @@
 
 export type Media = { id: string; thumb: string; url: string }
 export type Person = { name: string; avatarUrl: string }
-export type ReportFilter = 'all' | 'action_needed' | 'mine'
-export type ReportState = 'pending_read' | 'read' | 'evaluated'
+export type ReportFilter = 'all' | 'await_me' | 'mine'
+export type ReportState = 'awaiting_response' | 'responded'
 
 export type Partner = {
   openId: string
@@ -54,12 +54,19 @@ export type ReportPost = {
   images: Media[]
   recordAtMs: number
   createdAtMs: number
+  /** awaiting_response：还没贴纸；responded：已贴或旧数据已有文字评价 */
   state: ReportState
-  evalText: string
-  canMarkRead: boolean
-  canEvaluate: boolean
-  canEditEval: boolean
+  /** 对方打开详情的时间；0 表示还没打开 */
+  partnerOpenedAt: number
+  /** 对方最新贴纸；空串表示还没贴 */
+  partnerStickerId: string
+  /** 最近一次回心时间；0 表示还没回 */
+  partnerRespondedAt: number
+  /** 对方可以贴或改贴 */
+  canRespond: boolean
 }
+
+export type ReportList = Page<ReportPost> & { awaitMeCount: number }
 
 export type LetterItem = {
   id: string
@@ -124,7 +131,7 @@ type UserResult = { user: User }
 
 /** 路由 → [请求参数, 响应数据] */
 export interface Routes {
-  'home.summary': [{}, { user: User | null }]
+  'home.summary': [{}, { user: User | null; awaitMeCount: number }]
   'user.me': [{}, { user: User | null }]
   'user.saveProfile': [{ nickName: string; avatarFileId: string; signature?: string }, UserResult]
   'user.savePreferences': [{ preferences: { resonanceReportFilter: ReportFilter } }, UserResult]
@@ -142,13 +149,13 @@ export interface Routes {
   'daily.updateComment': [{ postId: string; commentId: string; text: string }, { comment: DailyComment; summary: CommentSummary }]
   'daily.removeComment': [{ postId: string; commentId: string }, { summary: CommentSummary }]
 
-  'report.list': [{ filter: ReportFilter; cursor?: string }, Page<ReportPost>]
+  'report.list': [{ filter: ReportFilter; cursor?: string }, ReportList]
   'report.get': [{ id: string }, { post: ReportPost }]
   'report.create': [{ body: string; images: string[]; tags: string[]; recordAtMs: number }, { post: ReportPost }]
   'report.update': [{ id: string; body: string; images: string[]; tags: string[]; recordAtMs: number }, { post: ReportPost }]
   'report.remove': [{ id: string }, null]
-  'report.markRead': [{ id: string }, { post: ReportPost }]
-  'report.evaluate': [{ id: string; text: string }, { post: ReportPost }]
+  'report.open': [{ id: string }, { post: ReportPost }]
+  'report.respond': [{ id: string; stickerId: string }, { post: ReportPost; awaitMeCount: number }]
   'report.tags': [{}, { tags: string[] }]
   'report.addTag': [{ tag: string }, { tags: string[] }]
   'report.removeTag': [{ tag: string }, { tags: string[] }]

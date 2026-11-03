@@ -1,3 +1,5 @@
+import type { ReportFilter, ReportState } from '../types/api'
+
 const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 const DAY_MS = 86400000
 
@@ -103,12 +105,43 @@ export function letterTypeLabel(type: string): string {
   return type.length > 8 ? type.slice(0, 8) + '…' : type
 }
 
-const REPORT_STATE_LABELS = { pending_read: '未阅', read: '已阅', evaluated: '已评价' }
-export const reportStateLabel = (s: keyof typeof REPORT_STATE_LABELS): string => REPORT_STATE_LABELS[s]
+/** 列表卡片右侧时刻：今天只显示钟点，昨天带「昨天」 */
+export function listClock(ms: number, now = Date.now()): string {
+  if (!ms) return ''
+  const time = clock(ms)
+  const diff = Math.round((dayStart(now) - dayStart(ms)) / DAY_MS)
+  if (diff === 0) return time
+  if (diff === 1) return `昨天 ${time}`
+  const d = new Date(ms)
+  const md = `${d.getMonth() + 1}月${d.getDate()}日`
+  if (d.getFullYear() === new Date(now).getFullYear()) return `${md} ${time}`
+  return `${d.getFullYear()}年${md}`
+}
 
-/** 同一标签永远同色，对应 report-card 的 6 个色阶 */
-export function tagColor(tag: string): number {
-  let h = 0
-  for (let i = 0; i < tag.length; i++) h = (h + tag.charCodeAt(i) * (i + 17)) % 2147483647
-  return h % 6
+/** 回心时间：刚刚 / N分钟前 / N小时前，再早则落到日期 */
+export function relativeTime(ms: number, now = Date.now()): string {
+  if (!ms) return ''
+  const min = Math.floor(Math.max(0, now - ms) / 60000)
+  if (min < 1) return '刚刚'
+  if (min < 60) return `${min}分钟前`
+  const hr = Math.floor(min / 60)
+  if (hr < 24 && dayStart(ms) === dayStart(now)) return `${hr}小时前`
+  return listClock(ms, now)
+}
+
+/** 旧缓存里的 action_needed 读成 await_me；没存过的也进待我回应 */
+export function normalizeReportFilter(raw: string | undefined | null): ReportFilter {
+  if (raw === 'all' || raw === 'mine') return raw
+  return 'await_me'
+}
+
+/** 作者侧能区分「还没打开 / 已打开 / 已回心」；对方看自己的待办始终是待我回应 */
+export function reportStatus(post: { isMine: boolean; state: ReportState; partnerOpenedAt: number }): {
+  key: 'awaiting' | 'opened' | 'responded'
+  label: string
+} {
+  if (post.state === 'responded') return { key: 'responded', label: '已回心' }
+  if (post.isMine && post.partnerOpenedAt > 0) return { key: 'opened', label: '已打开' }
+  if (post.isMine) return { key: 'awaiting', label: '待回应' }
+  return { key: 'awaiting', label: '待我回应' }
 }

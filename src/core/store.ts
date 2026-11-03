@@ -3,6 +3,7 @@
  * 运行时一律读内存；Storage 只用于冷启动恢复。
  */
 import type { LetterItem, ReportPost, User } from '../types/api'
+import { applyResonanceBadge } from './badge'
 
 const USER_KEY = 'mo_user_v2'
 const LOGGED_OUT_KEY = 'mo_logged_out'
@@ -52,7 +53,7 @@ function migrateLegacy(): void {
       avatarFileId: old.avatarUrl || '',
       avatarUrl: '',
       togetherSinceMs: null,
-      preferences: { resonanceReportFilter: 'mine' },
+      preferences: { resonanceReportFilter: 'await_me' },
       partner: null,
     } as User)
   }
@@ -81,6 +82,7 @@ export function logout(): void {
   wx.removeStorageSync(USER_KEY)
   writeStorage(LOGGED_OUT_KEY, true)
   clearCache()
+  applyResonanceBadge(0)
   emit('user', null)
 }
 
@@ -95,6 +97,7 @@ export interface Events {
   user: User | null
   'report:upsert': ReportPost
   'report:remove': string
+  'report:await-count': number
   'letter:upsert': LetterItem
   'letter:remove': string
   'expense:changed': { id: string; occurredAtMs: number }
