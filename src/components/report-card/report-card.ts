@@ -3,6 +3,9 @@
  * 列表只露三信号；detail 为真时展示全文、图和标签。
  * 事件：open（轻触列表行）、more（自己的报备点「⋯」或长按）、quick（待我回应的「回心」或长按）。
  */
+/** 长按之后这一小段里跟着来的 tap 不再进详情 */
+const SUPPRESS_OPEN_MS = 400
+
 Component<
   WechatMiniprogram.IAnyObject,
   WechatMiniprogram.IAnyObject,
@@ -33,7 +36,7 @@ Component<
       this.triggerEvent('quick', { id: this.data.post.id })
     },
     onLongPress() {
-      this._suppressOpenUntil = Date.now() + 400
+      this._suppressOpenUntil = Date.now() + SUPPRESS_OPEN_MS
       if (this.data.detail || !this.data.post.quickReply) {
         this.onMore()
         return

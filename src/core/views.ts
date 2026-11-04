@@ -5,14 +5,22 @@ import { stickerById } from './stickers'
 
 export type ReportViewMode = ReportFilter | 'detail'
 
+/** 未回心整段靠前。必须高于任何 recordAtMs，相加后仍落在安全整数里。 */
+const MINE_UNREAD_AHEAD = 1e15
+
 /**
  * 列表排序权重，越大越靠前。
  * 全部、待我回应只按记录时间，不把待回应顶上去。
  * 我发的把未回心整段放在已回心前面，段内仍按记录时间倒序。
  */
 export function reportRank(post: { state: ReportState; recordAtMs: number }, mode: ReportViewMode): number {
-  if (mode === 'mine' && post.state !== 'responded') return 1e15 + post.recordAtMs
+  if (mode === 'mine' && post.state !== 'responded') return MINE_UNREAD_AHEAD + post.recordAtMs
   return post.recordAtMs
+}
+
+/** 「我发的」已加载条目的展示序。不改接口分页，只重排手里的这一截。 */
+export function orderMineUnreadFirst<T extends { state: ReportState; recordAtMs: number }>(items: T[]): T[] {
+  return items.slice().sort((a, b) => reportRank(b, 'mine') - reportRank(a, 'mine'))
 }
 
 /** 与上一条不在同一天时返回日期标签，否则为空串 */

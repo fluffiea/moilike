@@ -3,7 +3,7 @@ import { call } from '../../../core/api'
 import { applyResonanceBadge } from '../../../core/badge'
 import { PAGE_REPORT_COMPOSE, TAB_RESONANCE, back } from '../../../core/paths'
 import { emit, handoff, on, takeHandoff } from '../../../core/store'
-import { STICKERS } from '../../../core/stickers'
+import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../../core/ui'
 import { reportView, type ReportView } from '../../../core/views'
 
@@ -12,6 +12,8 @@ type Data = {
   status: 'loading' | 'ready' | 'error'
   errorText: string
   stickers: { id: string; label: string; src: string }[]
+  respondTitle: string
+  respondHint: string
   busy: string
 }
 
@@ -20,7 +22,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
     post: null,
     status: 'loading',
     errorText: '',
-    stickers: STICKERS.map((s) => ({ id: s.id, label: s.label, src: s.src })),
+    stickers: stickerChoices(),
+    respondTitle: RESPOND_TITLE,
+    respondHint: RESPOND_HINT,
     busy: '',
   },
   methods: {

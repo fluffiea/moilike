@@ -13,6 +13,17 @@ export const STICKERS = [
 
 export type StickerId = (typeof STICKERS)[number]['id']
 
+export type StickerChoice = { id: string; label: string; src: string }
+
+/** 详情和列表快捷贴共用的一句说明 */
+export const RESPOND_TITLE = '回一颗心'
+export const RESPOND_HINT = '点一个贴纸，对方就知道你看过了。'
+
+/** setData 需要普通数组，不能直接塞 readonly 元组 */
+export function stickerChoices(): StickerChoice[] {
+  return STICKERS.map((s) => ({ id: s.id, label: s.label, src: s.src }))
+}
+
 export function stickerById(id: string): (typeof STICKERS)[number] | null {
   return STICKERS.find((s) => s.id === id) || null
 }

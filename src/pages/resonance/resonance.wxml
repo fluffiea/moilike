@@ -81,8 +81,8 @@
   <view wx:if="{{quickId}}" class="mo-mask" bind:tap="onCloseQuick">
     <view class="mo-sheet" catch:tap="noop">
       <view class="mo-sheet__handle" />
-      <text class="mo-section-title">回一颗心</text>
-      <text class="mo-hint">点一个贴纸，对方就知道你看过了。</text>
+      <text class="mo-section-title">{{respondTitle}}</text>
+      <text class="mo-hint">{{respondHint}}</text>
       <text wx:if="{{quickHeadline}}" class="sheet__which" overflow="ellipsis" max-lines="1">{{quickHeadline}}</text>
       <sticker-grid stickers="{{stickers}}" busy="{{quickBusy}}" bind:pick="onQuickSticker" />
     </view>

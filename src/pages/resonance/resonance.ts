@@ -1,20 +1,21 @@
 import type { ReportFilter, ReportPost } from '../../types/api'
 import { call } from '../../core/api'
 import { applyResonanceBadge } from '../../core/badge'
-import { Feed, emptyFeed, type FeedData } from '../../core/feed'
+import { Feed, emptyFeed, shouldContinueDrainedFeed, type FeedData } from '../../core/feed'
 import { normalizeReportFilter } from '../../core/format'
 import { PAGE_PARTNER_HUB, PAGE_REPORT_COMPOSE, PAGE_REPORT_DETAIL } from '../../core/paths'
 import { emit, getUser, handoff, on } from '../../core/store'
-import { STICKERS } from '../../core/stickers'
+import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../core/ui'
-import { reportRank, reportView, type ReportView } from '../../core/views'
+import { orderMineUnreadFirst, reportView, type ReportView } from '../../core/views'
 
 const FILTERS: ReportFilter[] = ['all', 'await_me', 'mine']
 const STALE_MS = 60 * 1000
 
 /**
- * 「我发的」未回优先只在客户端做：sortKey 用 reportRank，不给 report.list 加参数。
- * 分页游标仍是服务端记录时间。已经加载的条目会整表重排；更早页里的未回心，翻到那一页之后才进上段。
+ * 「我发的」未回优先只在客户端做：Feed 的 order，不给 report.list 加参数，也不靠 sortKey。
+ * 全部和待我回应的 sortKey 只在改记录时间后把那一条插回原位，翻页仍按接口顺序追加。
+ * 分页游标仍是服务端记录时间。我发的已加载的条目会整表重排；更早页里的未回心，翻到那一页之后才进上段。
  */
 
 /** 报备在某个筛选下是否应出现（发布 / 回心后据此加入或移出） */
@@ -39,6 +40,8 @@ type Data = {
   scrollTop: number
   empties: { title: string; hint: string }[]
   stickers: { id: string; label: string; src: string }[]
+  respondTitle: string
+  respondHint: string
   quickId: string
   quickHeadline: string
   quickBusy: string
@@ -61,7 +64,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     showTop: false,
     scrollTop: 0,
     empties: EMPTIES,
-    stickers: STICKERS.map((s) => ({ id: s.id, label: s.label, src: s.src })),
+    stickers: stickerChoices(),
+    respondTitle: RESPOND_TITLE,
+    respondHint: RESPOND_HINT,
     quickId: '',
     quickHeadline: '',
     quickBusy: '',
@@ -84,8 +89,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
               return r
             },
             view: (post, prev) => reportView(post, prev, filter),
-            sortKey: (post) => reportRank(post, filter),
-            // 只有这一栏会在本页被回心清空后接着翻页
+            ...(filter === 'mine'
+              ? { order: orderMineUnreadFirst }
+              : { sortKey: (post: ReportPost) => post.recordAtMs }),
             pageErrorIfEmpty: filter === 'await_me',
           }),
       )
@@ -220,7 +226,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     fillAwaitIfDrained() {
       const i = FILTERS.indexOf('await_me')
       const feed = this.feeds[i]
-      if (feed.raw.length === 0 && feed.hasMore) {
+      if (shouldContinueDrainedFeed(feed.raw.length, feed.hasMore)) {
         this.setData({ [`tabs[${i}].status`]: 'loading' })
         void feed.loadMore()
       }
