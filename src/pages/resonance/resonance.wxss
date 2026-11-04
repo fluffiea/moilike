@@ -95,3 +95,22 @@
 .banner .mo-btn {
   flex-shrink: 0;
 }
+
+.replied {
+  padding: 8rpx 0 4rpx;
+}
+
+.replied__label {
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.sheet__which {
+  display: block;
+  margin-top: 12rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}

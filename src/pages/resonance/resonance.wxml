@@ -42,10 +42,13 @@
         </view>
 
         <view wx:for="{{tab.items}}" wx:key="id" class="row">
+          <view wx:if="{{item.repliedDivider}}" class="replied">
+            <text class="replied__label">已回心</text>
+          </view>
           <view wx:if="{{item.day}}" class="mo-day">
             <text class="mo-day__label">{{item.day}}</text>
           </view>
-          <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" />
+          <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" bind:quick="onQuick" />
         </view>
 
         <view class="row">
@@ -54,9 +57,9 @@
           <state-view
             wx:elif="{{tab.status === 'empty'}}"
             status="empty"
-            title="{{index === 1 ? '没有待我回应的报备' : '还没有报备'}}"
-            hint="{{index === 1 ? '对方的新报备会出现在这里' : '记一件想告诉对方的小事吧'}}"
-            action="{{index === 1 ? '' : '写报备'}}"
+            title="{{empties[index].title}}"
+            hint="{{empties[index].hint}}"
+            action="{{index === 1 || (index === 0 && unbound) ? '' : '写报备'}}"
             bind:action="onCompose"
           />
           <state-view wx:elif="{{tab.more === 'loading'}}" status="more-loading" />
@@ -73,5 +76,15 @@
   </view>
   <view class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写报备">
     <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
+  </view>
+
+  <view wx:if="{{quickId}}" class="mo-mask" bind:tap="onCloseQuick">
+    <view class="mo-sheet" catch:tap="noop">
+      <view class="mo-sheet__handle" />
+      <text class="mo-section-title">{{respondTitle}}</text>
+      <text class="mo-hint">{{respondHint}}</text>
+      <text wx:if="{{quickHeadline}}" class="sheet__which" overflow="ellipsis" max-lines="1">{{quickHeadline}}</text>
+      <sticker-grid stickers="{{stickers}}" busy="{{quickBusy}}" bind:pick="onQuickSticker" />
+    </view>
   </view>
 </view>

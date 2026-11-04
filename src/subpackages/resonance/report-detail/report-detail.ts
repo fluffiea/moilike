@@ -3,7 +3,7 @@ import { call } from '../../../core/api'
 import { applyResonanceBadge } from '../../../core/badge'
 import { PAGE_REPORT_COMPOSE, TAB_RESONANCE, back } from '../../../core/paths'
 import { emit, handoff, on, takeHandoff } from '../../../core/store'
-import { STICKERS } from '../../../core/stickers'
+import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../../core/ui'
 import { reportView, type ReportView } from '../../../core/views'
 
@@ -12,6 +12,8 @@ type Data = {
   status: 'loading' | 'ready' | 'error'
   errorText: string
   stickers: { id: string; label: string; src: string }[]
+  respondTitle: string
+  respondHint: string
   busy: string
 }
 
@@ -20,7 +22,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
     post: null,
     status: 'loading',
     errorText: '',
-    stickers: STICKERS.map((s) => ({ id: s.id, label: s.label, src: s.src })),
+    stickers: stickerChoices(),
+    respondTitle: RESPOND_TITLE,
+    respondHint: RESPOND_HINT,
     busy: '',
   },
   methods: {
@@ -56,7 +60,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
 
     render(post: ReportPost) {
       this.raw = post
-      this.setData({ post: reportView(post, undefined, true), status: 'ready' })
+      this.setData({ post: reportView(post, undefined, 'detail'), status: 'ready' })
     },
 
     /** 状态变化同步到共鸣列表（待我回应会据此移出） */
@@ -65,8 +69,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
       emit('report:upsert', post)
     },
 
-    async onSticker(e: WechatMiniprogram.TouchEvent) {
-      const stickerId = String(e.currentTarget.dataset.id || '')
+    async onSticker(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+      const stickerId = e.detail.id || ''
       if (!stickerId || this.data.busy) return
       if (this.raw && this.raw.partnerStickerId === stickerId) return
       this.setData({ busy: stickerId })

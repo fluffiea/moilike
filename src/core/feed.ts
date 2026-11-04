@@ -2,7 +2,8 @@
  * 列表页通用控制器：首屏缓存 → 后台刷新、下拉刷新、触底分页、单条增删改。
  *
  * 渲染数据只放在 `${path}.items` 等少量字段里；原始数据留在控制器实例上。
- * 翻页只用 `${path}.items[n]` 路径追加，不重发整表。
+ * 翻页默认只用 `${path}.items[n]` 追加，不重发整表。
+ * 只有显式提供 `order` 时，翻页才重排已加载条目并重发整表。
  */
 import type { Page, Result } from '../types/api'
 import { readCache, writeCache } from './store'
@@ -22,6 +23,14 @@ export function emptyFeed<V>(): FeedData<V> {
   return { items: [], status: 'loading', more: 'idle', refreshing: false, errorText: '' }
 }
 
+/**
+ * 列表被清空且还有下一页时，应继续翻页，而不是当成空态。
+ * 共鸣「待我回应」在回心移出最后一条后用它，与排序无关。
+ */
+export function shouldContinueDrainedFeed(itemCount: number, hasMore: boolean): boolean {
+  return itemCount === 0 && hasMore
+}
+
 type Host = { setData(data: Record<string, unknown>): void }
 
 export type FeedOptions<T extends { id: string }, V> = {
@@ -33,8 +42,23 @@ export type FeedOptions<T extends { id: string }, V> = {
   fetch: (cursor: string) => Promise<Result<Page<T>>>
   /** prev 为列表中的上一条，用于决定是否显示日期分隔 */
   view: (item: T, prev: T | undefined) => V
-  /** 排序字段可被编辑时提供（倒序），新增/编辑后按它重新排位 */
+  /**
+   * 单条新增或改时间后按它倒序插回原位。
+   * 不参与翻页：下一页仍按接口顺序追加。
+   */
   sortKey?: (item: T) => number
+  /**
+   * 展示顺序与接口分页序不同时提供。
+   * 首屏、刷新、翻页、单条更新都按它重排已加载条目，翻页因此重发整表。
+   * 共鸣「我发的」未回优先用这个，不要用 sortKey 代替。
+   */
+  order?: (items: T[]) => T[]
+  /**
+   * 翻页失败且当前一条都没有时，把整页标成 error。
+   * 只给共鸣「待我回应」：那一栏会在本页被回心清空后主动接着拉。
+   * 信件、记账、厨房不要开，空列表上的翻页失败仍只标 more:error。
+   */
+  pageErrorIfEmpty?: boolean
 }
 
 export class Feed<T extends { id: string }, V> {
@@ -65,6 +89,12 @@ export class Feed<T extends { id: string }, V> {
     return list.slice(from).map((item, i) => this.opts.view(item, list[from + i - 1]))
   }
 
+  /** 有 order 时复制后再排，避免改到缓存或接口返回的原数组 */
+  private ordered(list: T[]): T[] {
+    const { order } = this.opts
+    return order ? order(list.slice()) : list
+  }
+
   private renderAll(): void {
     this.set({ items: this.views(this.raw), status: this.raw.length ? 'ready' : 'empty' })
   }
@@ -73,7 +103,7 @@ export class Feed<T extends { id: string }, V> {
   start(): void {
     const cached = this.opts.cacheName ? readCache<Page<T>>(this.opts.cacheName) : null
     if (cached && cached.items.length) {
-      this.raw = cached.items
+      this.raw = this.ordered(cached.items)
       this.cursor = cached.nextCursor
       this.renderAll()
       this.set({ more: this.cursor ? 'idle' : 'end' })
@@ -104,7 +134,7 @@ export class Feed<T extends { id: string }, V> {
       }
       return
     }
-    this.raw = r.data.items
+    this.raw = this.ordered(r.data.items)
     this.cursor = r.data.nextCursor
     this.loadedAt = Date.now()
     this.set({
@@ -123,23 +153,48 @@ export class Feed<T extends { id: string }, V> {
     const r = await this.opts.fetch(this.cursor)
     this.busy = false
     if (!r.ok) {
-      this.set({ more: 'error' })
+      if (!this.raw.length && this.opts.pageErrorIfEmpty) {
+        this.set({ more: 'idle', status: 'error', errorText: r.message })
+      } else {
+        this.set({ more: 'error' })
+      }
+      return
+    }
+    const more: MoreStatus = r.data.nextCursor ? 'idle' : 'end'
+    this.cursor = r.data.nextCursor
+    if (this.opts.order) {
+      this.raw = this.ordered(this.raw.concat(r.data.items))
+      this.set({
+        items: this.views(this.raw),
+        status: this.raw.length ? 'ready' : 'empty',
+        more,
+      })
       return
     }
     const start = this.raw.length
     this.raw = this.raw.concat(r.data.items)
-    this.cursor = r.data.nextCursor
-    const patch: Record<string, unknown> = { [`${this.opts.path}.more`]: this.cursor ? 'idle' : 'end' }
+    const patch: Record<string, unknown> = {
+      [`${this.opts.path}.more`]: more,
+      // 与 order、sortKey 无关。待我回应会先把空列表标成 loading，成功后这里回到 ready 或 empty。
+      [`${this.opts.path}.status`]: this.raw.length ? 'ready' : 'empty',
+    }
     this.views(this.raw, start).forEach((v, i) => {
       patch[`${this.opts.path}.items[${start + i}]`] = v
     })
     this.write(patch)
   }
 
-  /** 新增置顶（或按 sortKey 排位），已存在则原位替换 */
+  /** 新增置顶（或按 sortKey / order 排位），已存在则原位替换 */
   upsert(item: T): void {
-    const { sortKey } = this.opts
     const i = this.raw.findIndex((x) => x.id === item.id)
+    if (this.opts.order) {
+      if (i >= 0) this.raw[i] = item
+      else this.raw.unshift(item)
+      this.raw = this.ordered(this.raw)
+      this.renderAll()
+      return
+    }
+    const { sortKey } = this.opts
     if (i >= 0 && !sortKey) {
       this.raw[i] = item
       this.write({ [`${this.opts.path}.items[${i}]`]: this.opts.view(item, this.raw[i - 1]) })
@@ -164,5 +219,10 @@ export class Feed<T extends { id: string }, V> {
 
   find(id: string): T | undefined {
     return this.raw.find((x) => x.id === id)
+  }
+
+  /** 还有下一页。列表被回心清空时，页面用它决定要不要接着拉 */
+  get hasMore(): boolean {
+    return !!this.cursor
   }
 }

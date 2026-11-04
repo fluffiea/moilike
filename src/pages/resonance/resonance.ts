@@ -1,15 +1,22 @@
 import type { ReportFilter, ReportPost } from '../../types/api'
 import { call } from '../../core/api'
 import { applyResonanceBadge } from '../../core/badge'
-import { Feed, emptyFeed, type FeedData } from '../../core/feed'
+import { Feed, emptyFeed, shouldContinueDrainedFeed, type FeedData } from '../../core/feed'
 import { normalizeReportFilter } from '../../core/format'
 import { PAGE_PARTNER_HUB, PAGE_REPORT_COMPOSE, PAGE_REPORT_DETAIL } from '../../core/paths'
 import { emit, getUser, handoff, on } from '../../core/store'
+import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../core/ui'
-import { reportView, type ReportView } from '../../core/views'
+import { orderMineUnreadFirst, reportView, type ReportView } from '../../core/views'
 
 const FILTERS: ReportFilter[] = ['all', 'await_me', 'mine']
 const STALE_MS = 60 * 1000
+
+/**
+ * 「我发的」未回优先只在客户端做：Feed 的 order，不给 report.list 加参数，也不靠 sortKey。
+ * 全部和待我回应的 sortKey 只在改记录时间后把那一条插回原位，翻页仍按接口顺序追加。
+ * 分页游标仍是服务端记录时间。我发的已加载的条目会整表重排；更早页里的未回心，翻到那一页之后才进上段。
+ */
 
 /** 报备在某个筛选下是否应出现（发布 / 回心后据此加入或移出） */
 function belongs(filter: ReportFilter, post: ReportPost): boolean {
@@ -18,6 +25,12 @@ function belongs(filter: ReportFilter, post: ReportPost): boolean {
   return true
 }
 
+const EMPTIES = [
+  { title: '还没有报备', hint: '结伴后，你们的报备会出现在彼此的共鸣里' },
+  { title: '都回完了', hint: '对方的新报备会出现在这里；也可以去「全部」看看' },
+  { title: '还没有报备', hint: '记一件想告诉对方的小事吧' },
+]
+
 type Data = {
   tabIndex: number
   tabs: (FeedData<ReportView> & { key: string })[]
@@ -25,6 +38,13 @@ type Data = {
   unbound: boolean
   showTop: boolean
   scrollTop: number
+  empties: { title: string; hint: string }[]
+  stickers: { id: string; label: string; src: string }[]
+  respondTitle: string
+  respondHint: string
+  quickId: string
+  quickHeadline: string
+  quickBusy: string
 }
 
 type Custom = {
@@ -43,6 +63,13 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     unbound: false,
     showTop: false,
     scrollTop: 0,
+    empties: EMPTIES,
+    stickers: stickerChoices(),
+    respondTitle: RESPOND_TITLE,
+    respondHint: RESPOND_HINT,
+    quickId: '',
+    quickHeadline: '',
+    quickBusy: '',
   },
   methods: {
     onLoad() {
@@ -61,16 +88,25 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
               }
               return r
             },
-            view: (post, prev) => reportView(post, prev),
-            sortKey: (post) => post.recordAtMs,
+            view: (post, prev) => reportView(post, prev, filter),
+            ...(filter === 'mine'
+              ? { order: orderMineUnreadFirst }
+              : { sortKey: (post: ReportPost) => post.recordAtMs }),
+            pageErrorIfEmpty: filter === 'await_me',
           }),
       )
       this.syncUser()
       this.offs = [
-        on('report:upsert', (post) =>
-          this.feeds.forEach((feed, i) => (belongs(FILTERS[i], post) ? feed.upsert(post) : feed.remove(post.id))),
-        ),
-        on('report:remove', (id) => this.feeds.forEach((feed) => feed.remove(id))),
+        on('report:upsert', (post) => {
+          this.feeds.forEach((feed, i) => (belongs(FILTERS[i], post) ? feed.upsert(post) : feed.remove(post.id)))
+          this.fillAwaitIfDrained()
+          if (post.id === this.data.quickId && post.state === 'responded') this.closeQuick()
+        }),
+        on('report:remove', (id) => {
+          this.feeds.forEach((feed) => feed.remove(id))
+          this.fillAwaitIfDrained()
+          if (id === this.data.quickId) this.closeQuick()
+        }),
         on('report:await-count', (n) => {
           this.setData({ awaitMeCount: n })
           applyResonanceBadge(n)
@@ -105,7 +141,10 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
 
     activate(i: number) {
-      if (i !== this.data.tabIndex) this.setData({ tabIndex: i, showTop: false })
+      if (i !== this.data.tabIndex) {
+        this.setData({ tabIndex: i, showTop: false })
+        if (!this.data.quickBusy) this.closeQuick()
+      }
       if (!this.started[i]) {
         this.started[i] = true
         this.feeds[i].start()
@@ -166,6 +205,55 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
         emit('report:remove', post.id)
         toastDone('已删除')
       }
+    },
+
+    onQuick(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+      const post = this.findPost(e.detail.id)
+      if (!post || post.isMine || post.state === 'responded') return
+      this.setData({
+        quickId: post.id,
+        quickHeadline: reportView(post, undefined, 'await_me').headline,
+        quickBusy: '',
+      })
+    },
+
+    closeQuick() {
+      if (!this.data.quickId && !this.data.quickBusy) return
+      this.setData({ quickId: '', quickHeadline: '', quickBusy: '' })
+    },
+
+    /** 这一页都回完了、后面还有时继续拉，避免误显示「都回完了」 */
+    fillAwaitIfDrained() {
+      const i = FILTERS.indexOf('await_me')
+      const feed = this.feeds[i]
+      if (shouldContinueDrainedFeed(feed.raw.length, feed.hasMore)) {
+        this.setData({ [`tabs[${i}].status`]: 'loading' })
+        void feed.loadMore()
+      }
+    },
+
+    onCloseQuick() {
+      if (this.data.quickBusy) return
+      this.closeQuick()
+    },
+
+    noop() {},
+
+    async onQuickSticker(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+      const stickerId = e.detail.id || ''
+      const postId = this.data.quickId
+      if (!stickerId || !postId || this.data.quickBusy) return
+      this.setData({ quickBusy: stickerId })
+      const r = await call('report.respond', { id: postId, stickerId })
+      if (!r.ok) {
+        if (this.data.quickId === postId) this.setData({ quickBusy: '' })
+        return toast(r.message)
+      }
+      applyResonanceBadge(r.data.awaitMeCount)
+      emit('report:await-count', r.data.awaitMeCount)
+      emit('report:upsert', r.data.post)
+      if (this.data.quickId === postId) this.closeQuick()
+      toastDone('已回心')
     },
 
     onCompose() {

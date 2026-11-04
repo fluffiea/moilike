@@ -7,7 +7,7 @@
     "dev": "node scripts/build.mjs --watch",
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test tests/api.test.mjs tests/kitchen.test.mjs",
+    "test": "node --test tests/api.test.mjs tests/kitchen.test.mjs tests/report-view.test.mjs tests/feed.test.mjs",
     "check:sources": "node scripts/check-sources.mjs",
     "check": "npm run typecheck && npm run test && npm run check:sources && npm run build"
   },
