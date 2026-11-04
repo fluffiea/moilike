@@ -197,7 +197,6 @@
   color: var(--mo-status-pending-text);
 }
 
-.line__done,
 .line__when,
 .line__clock {
   font-size: 24rpx;

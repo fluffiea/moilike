@@ -36,10 +36,9 @@
     <view class="line__title">
       <text class="line__title-text" overflow="ellipsis" max-lines="1">{{post.headline}}</text>
     </view>
-    <view class="line__signal">
+    <view wx:if="{{post.sticker || post.state !== 'responded' || (post.showRespondedWhen && post.respondedWhen)}}" class="line__signal">
       <image wx:if="{{post.sticker}}" class="line__chip" src="{{post.sticker.src}}" mode="aspectFit" />
-      <text wx:elif="{{post.state === 'responded'}}" class="line__done">已回心</text>
-      <text wx:else class="line__pending">待回应</text>
+      <text wx:elif="{{post.state !== 'responded'}}" class="line__pending">待回应</text>
       <text wx:if="{{post.showRespondedWhen && post.respondedWhen}}" class="line__when">{{post.respondedWhen}}</text>
     </view>
     <text class="line__clock">{{post.time}}</text>

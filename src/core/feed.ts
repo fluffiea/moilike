@@ -38,6 +38,12 @@ export type FeedOptions<T extends { id: string }, V> = {
    * 不再只把下一页接在末尾。共鸣「我发的」靠它把未回心放到已回心前面。
    */
   sortKey?: (item: T) => number
+  /**
+   * 翻页失败且当前一条都没有时，把整页标成 error。
+   * 只给共鸣「待我回应」开：那一栏会在本页被回心清空后主动接着拉。
+   * 信件、记账、厨房不要开，空列表上的翻页失败仍只标 more:error，避免整页被误判。
+   */
+  pageErrorIfEmpty?: boolean
 }
 
 export class Feed<T extends { id: string }, V> {
@@ -133,13 +139,19 @@ export class Feed<T extends { id: string }, V> {
     const r = await this.opts.fetch(this.cursor)
     this.busy = false
     if (!r.ok) {
-      if (this.raw.length) this.set({ more: 'error' })
-      else this.set({ more: 'idle', status: 'error', errorText: r.message })
+      // 有条目时只让底部「加载更多」失败，信件等列表靠这一行重试。
+      // 共鸣待我回应会在列表已被清空后翻页，那种失败要整页 error，否则会停在 loading。
+      if (!this.raw.length && this.opts.pageErrorIfEmpty) {
+        this.set({ more: 'idle', status: 'error', errorText: r.message })
+      } else {
+        this.set({ more: 'error' })
+      }
       return
     }
     const appended = this.raw.concat(r.data.items)
     this.cursor = r.data.nextCursor
-    // 排序键和接口顺序不一致时（我发的未回优先），整表重排，日期分隔才不会断在错误的邻居上
+    // 排序键和接口顺序不一致时（我发的未回优先），整表重排，日期分隔才不会断在错误的邻居上。
+    // 同时写回 status：待我回应会先把空列表标成 loading 再翻页，成功后要回到 ready 或 empty。
     if (this.opts.sortKey) {
       this.raw = this.arrange(appended)
       this.set({

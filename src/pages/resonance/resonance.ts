@@ -85,6 +85,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
             },
             view: (post, prev) => reportView(post, prev, filter),
             sortKey: (post) => reportRank(post, filter),
+            // 只有这一栏会在本页被回心清空后接着翻页
+            pageErrorIfEmpty: filter === 'await_me',
           }),
       )
       this.syncUser()

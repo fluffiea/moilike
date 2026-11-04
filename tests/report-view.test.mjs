@@ -208,6 +208,7 @@ test('列表模板不渲染正文、配图、标签和已打开长句', () => {
   assert.equal(list.includes('openedHint'), false)
   assert.equal(list.includes('card--closed'), true)
   assert.equal(list.includes('待回应'), true)
+  assert.equal(list.includes('已回心'), false)
   assert.equal(list.includes('post.quickReply'), true)
   assert.equal(list.includes('post.listOpened'), true)
   const detail = wxml.slice(0, wxml.indexOf('wx:else'))
