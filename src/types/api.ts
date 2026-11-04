@@ -3,6 +3,8 @@
 export type Media = { id: string; thumb: string; url: string }
 export type Person = { name: string; avatarUrl: string }
 export type ReportFilter = 'all' | 'await_me' | 'mine'
+/** 报备列表筛选；echoed 是只读的已共鸣档案，不作为默认筛选保存 */
+export type ReportListFilter = ReportFilter | 'echoed'
 export type ReportState = 'awaiting_response' | 'responded'
 /** 我的账单对对方开放到哪一步 */
 export type LedgerScope = 'none' | 'summary' | 'detail'
@@ -169,7 +171,7 @@ export interface Routes {
   'daily.updateComment': [{ postId: string; commentId: string; text: string }, { comment: DailyComment; summary: CommentSummary }]
   'daily.removeComment': [{ postId: string; commentId: string }, { summary: CommentSummary }]
 
-  'report.list': [{ filter: ReportFilter; cursor?: string }, ReportList]
+  'report.list': [{ filter: ReportListFilter; cursor?: string }, ReportList]
   'report.get': [{ id: string }, { post: ReportPost }]
   'report.create': [{ body: string; images: string[]; tags: string[]; recordAtMs: number }, { post: ReportPost }]
   'report.update': [{ id: string; body: string; images: string[]; tags: string[]; recordAtMs: number }, { post: ReportPost }]

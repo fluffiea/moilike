@@ -18,6 +18,7 @@ class Pred {
 const command = {
   in: (v) => new Pred('in', v),
   eq: (v) => new Pred('eq', v),
+  neq: (v) => new Pred('neq', v),
   gte: (v) => new Pred('gte', v),
   lte: (v) => new Pred('lte', v),
   inc: (n) => new Pred('inc', n),
@@ -34,6 +35,9 @@ function testValue(value, pred) {
       return pred.value.includes(value)
     case 'eq':
       return pred.value === null ? value == null : value === pred.value
+    case 'neq':
+      // 与云开发一致：neq(null) 只命中存在且非 null 的字段
+      return pred.value === null ? value != null : value !== pred.value
     case 'gte':
       return value != null && num(value) >= num(pred.value)
     case 'lte':

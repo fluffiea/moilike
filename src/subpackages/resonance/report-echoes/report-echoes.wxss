@@ -1,0 +1,12 @@
+/* 档案页没有悬浮按钮，列表到底留白比共鸣列表短 */
+.list-top {
+  height: 8rpx;
+}
+
+.list-end {
+  height: calc(120rpx + var(--mo-safe-bottom));
+}
+
+.row {
+  margin: 0 var(--mo-pad-h);
+}

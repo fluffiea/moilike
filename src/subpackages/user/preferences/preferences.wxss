@@ -13,7 +13,7 @@
   left: 6rpx;
   top: 6rpx;
   bottom: 6rpx;
-  width: calc((100% - 12rpx) / 3);
+  width: calc((100% - 12rpx) / 2);
   border-radius: 18rpx;
   background-color: var(--mo-l1-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -22,10 +22,6 @@
 
 .segment__thumb--1 {
   transform: translateX(100%);
-}
-
-.segment__thumb--2 {
-  transform: translateX(200%);
 }
 
 .segment__item {

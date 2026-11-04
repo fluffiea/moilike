@@ -54,7 +54,7 @@ function migrateLegacy(): void {
       avatarFileId: old.avatarUrl || '',
       avatarUrl: '',
       togetherSinceMs: null,
-      preferences: { resonanceReportFilter: 'await_me' },
+      preferences: { resonanceReportFilter: 'all' },
       ledgerVisibility: { scope: 'detail' },
       partner: null,
     } as User)

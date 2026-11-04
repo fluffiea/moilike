@@ -98,7 +98,7 @@
           bind:tap="onPickCat"
           aria-role="button"
         >
-          <text class="rail__name" overflow="ellipsis" max-lines="2">{{item.name}}</text>
+          <text class="rail__name" overflow="ellipsis" max-lines="1">{{item.name}}</text>
         </view>
         <view class="rail-end" />
       </scroll-view>
@@ -124,7 +124,7 @@
           <view wx:for="{{searchHits}}" wx:key="id" class="dish {{index ? 'dish--line' : ''}}">
             <view class="thumb">
               <image wx:if="{{item.cover}}" class="thumb__img" src="{{item.cover}}" mode="aspectFill" />
-              <view wx:else class="thumb__ph"><text class="thumb__txt">暂无封面</text></view>
+              <view wx:else class="thumb__ph" />
             </view>
             <view class="dish__main">
               <text class="dish__name">{{item.name}}</text>
@@ -152,13 +152,13 @@
         bindscroll="onListScroll"
       >
         <view wx:for="{{sections}}" wx:key="id" id="sec-{{index}}" class="sec" data-id="{{item.id}}">
-          <text class="mo-section-title">{{item.name}}</text>
+          <text class="sec__name">{{item.name}}</text>
           <text wx:if="{{item.empty}}" class="mo-hint">这个分类还没有心意</text>
           <view wx:else class="mo-card sec__card">
             <view wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="id" class="dish {{index ? 'dish--line' : ''}}">
               <view class="thumb">
                 <image wx:if="{{dish.cover}}" class="thumb__img" src="{{dish.cover}}" mode="aspectFill" />
-                <view wx:else class="thumb__ph"><text class="thumb__txt">暂无封面</text></view>
+                <view wx:else class="thumb__ph" />
               </view>
               <view class="dish__main">
                 <text class="dish__name">{{dish.name}}</text>
@@ -198,7 +198,7 @@
         <view wx:for="{{cartLines}}" wx:key="key" class="cart-row {{index ? 'cart-row--line' : ''}}">
           <view class="thumb thumb--sm">
             <image wx:if="{{item.cover}}" class="thumb__img" src="{{item.cover}}" mode="aspectFill" />
-            <view wx:else class="thumb__ph"><text class="thumb__txt">暂无</text></view>
+            <view wx:else class="thumb__ph" />
           </view>
           <view class="dish__main">
             <text class="dish__name">{{item.name}}</text>

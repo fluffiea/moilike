@@ -1,4 +1,4 @@
-import type { ReportFilter, ReportState } from '../types/api'
+import type { ReportFilter } from '../types/api'
 
 const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 const DAY_MS = 86400000
@@ -118,6 +118,12 @@ export function listClock(ms: number, now = Date.now()): string {
   return `${d.getFullYear()}年${md}`
 }
 
+/** 已共鸣的月份分组下，卡片只写「4日 21:04」 */
+export function dayClock(ms: number): string {
+  if (!ms) return ''
+  return `${new Date(ms).getDate()}日 ${clock(ms)}`
+}
+
 /** 回心时间：刚刚 / N分钟前 / N小时前，再早则落到日期 */
 export function relativeTime(ms: number, now = Date.now()): string {
   if (!ms) return ''
@@ -129,19 +135,9 @@ export function relativeTime(ms: number, now = Date.now()): string {
   return listClock(ms, now)
 }
 
-/** 旧缓存里的 action_needed 读成 await_me；没存过的也进待我回应 */
+/** 旧缓存里的 action_needed 读成 await_me；已下线的「我发的」和没存过的新用户都看全部 */
 export function normalizeReportFilter(raw: string | undefined | null): ReportFilter {
-  if (raw === 'all' || raw === 'mine') return raw
-  return 'await_me'
-}
-
-/** 作者侧能区分「还没打开 / 已打开 / 已回心」；对方看自己的待办始终是待我回应 */
-export function reportStatus(post: { isMine: boolean; state: ReportState; partnerOpenedAt: number }): {
-  key: 'awaiting' | 'opened' | 'responded'
-  label: string
-} {
-  if (post.state === 'responded') return { key: 'responded', label: '已回心' }
-  if (post.isMine && post.partnerOpenedAt > 0) return { key: 'opened', label: '已打开' }
-  if (post.isMine) return { key: 'awaiting', label: '待回应' }
-  return { key: 'awaiting', label: '待我回应' }
+  if (raw === 'await_me' || raw === 'action_needed') return 'await_me'
+  if (raw === 'mine') return 'all'
+  return 'all'
 }

@@ -1,109 +1,75 @@
-import type { ReportFilter, ReportPost } from '../../types/api'
+import type { ReportPost } from '../../types/api'
 import { call } from '../../core/api'
 import { applyResonanceBadge } from '../../core/badge'
 import { Feed, emptyFeed, shouldContinueDrainedFeed, type FeedData } from '../../core/feed'
 import { normalizeReportFilter } from '../../core/format'
-import { PAGE_PARTNER_HUB, PAGE_REPORT_COMPOSE, PAGE_REPORT_DETAIL } from '../../core/paths'
+import { PAGE_PARTNER_HUB, PAGE_REPORT_COMPOSE, PAGE_REPORT_DETAIL, PAGE_REPORT_ECHOES } from '../../core/paths'
 import { emit, getUser, handoff, on } from '../../core/store'
 import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../core/ui'
-import { orderMineUnreadFirst, reportView, type ReportView } from '../../core/views'
+import { reportView, type ReportView } from '../../core/views'
 
-const FILTERS: ReportFilter[] = ['all', 'await_me', 'mine']
+/** 共鸣只保留两条：两个人同一条时间线，「等我回声」是筛出来的待回栏 */
+type Filter = 'all' | 'await_me'
 const STALE_MS = 60 * 1000
 
-/**
- * 「我发的」未回优先只在客户端做：Feed 的 order，不给 report.list 加参数，也不靠 sortKey。
- * 全部和待我回应的 sortKey 只在改记录时间后把那一条插回原位，翻页仍按接口顺序追加。
- * 分页游标仍是服务端记录时间。我发的已加载的条目会整表重排；更早页里的未回心，翻到那一页之后才进上段。
- */
-
-/** 报备在某个筛选下是否应出现（发布 / 回心后据此加入或移出） */
-function belongs(filter: ReportFilter, post: ReportPost): boolean {
-  if (filter === 'mine') return post.isMine
-  if (filter === 'await_me') return !post.isMine && post.state !== 'responded'
-  return true
+const EMPTIES: Record<Filter, { title: string; hint: string; action: string }> = {
+  all: { title: '还没有报备', hint: '记一件想告诉 Ta 的小事吧', action: '写报备' },
+  await_me: { title: '没有等你的回声', hint: '对方的新报备会先出现在这里', action: '' },
 }
 
-const EMPTIES = [
-  { title: '还没有报备', hint: '结伴后，你们的报备会出现在彼此的共鸣里' },
-  { title: '都回完了', hint: '对方的新报备会出现在这里；也可以去「全部」看看' },
-  { title: '还没有报备', hint: '记一件想告诉对方的小事吧' },
-]
+/**
+ * 一条时间线装下双方的报备：卡片底部固定一个回声槽，未回心时是「等你的回声」和回心入口，
+ * 已回心时是贴纸、谁回的心和相对时间。筛选只控制拿哪一页数据，不另拆「我发的」。
+ * 翻页仍按接口的记录时间顺序追加；单条变化按记录时间插回原位（sortKey）。
+ */
 
 type Data = {
-  tabIndex: number
-  tabs: (FeedData<ReportView> & { key: string })[]
+  filter: Filter
+  feed: FeedData<ReportView>
   awaitMeCount: number
-  unbound: boolean
+  bound: boolean
   showTop: boolean
   scrollTop: number
-  empties: { title: string; hint: string }[]
+  empty: { title: string; hint: string; action: string }
   stickers: { id: string; label: string; src: string }[]
   respondTitle: string
   respondHint: string
   quickId: string
-  quickHeadline: string
+  quickPreview: string
   quickBusy: string
 }
 
 type Custom = {
-  feeds: Feed<ReportPost, ReportView>[]
-  started: boolean[]
-  appliedFilter: ReportFilter
+  feed: Feed<ReportPost, ReportView> | null
   offs: (() => void)[]
   partnerId: string
 }
 
 Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
   data: {
-    tabIndex: 1,
-    tabs: FILTERS.map((key) => ({ ...emptyFeed<ReportView>(), key })),
+    filter: 'all',
+    feed: emptyFeed<ReportView>(),
     awaitMeCount: 0,
-    unbound: false,
+    bound: false,
     showTop: false,
     scrollTop: 0,
-    empties: EMPTIES,
+    empty: EMPTIES.all,
     stickers: stickerChoices(),
     respondTitle: RESPOND_TITLE,
     respondHint: RESPOND_HINT,
     quickId: '',
-    quickHeadline: '',
+    quickPreview: '',
     quickBusy: '',
   },
   methods: {
     onLoad() {
-      this.started = FILTERS.map(() => false)
-      this.feeds = FILTERS.map(
-        (filter, i) =>
-          new Feed<ReportPost, ReportView>({
-            host: this,
-            path: `tabs[${i}]`,
-            cacheName: `report:${filter}`,
-            fetch: async (cursor) => {
-              const r = await call('report.list', { filter, cursor })
-              if (r.ok) {
-                this.setData({ awaitMeCount: r.data.awaitMeCount })
-                applyResonanceBadge(r.data.awaitMeCount)
-              }
-              return r
-            },
-            view: (post, prev) => reportView(post, prev, filter),
-            ...(filter === 'mine'
-              ? { order: orderMineUnreadFirst }
-              : { sortKey: (post: ReportPost) => post.recordAtMs }),
-            pageErrorIfEmpty: filter === 'await_me',
-          }),
-      )
+      this.offs = []
       this.syncUser()
       this.offs = [
-        on('report:upsert', (post) => {
-          this.feeds.forEach((feed, i) => (belongs(FILTERS[i], post) ? feed.upsert(post) : feed.remove(post.id)))
-          this.fillAwaitIfDrained()
-          if (post.id === this.data.quickId && post.state === 'responded') this.closeQuick()
-        }),
+        on('report:upsert', (post) => this.applyPost(post)),
         on('report:remove', (id) => {
-          this.feeds.forEach((feed) => feed.remove(id))
+          if (this.feed) this.feed.remove(id)
           this.fillAwaitIfDrained()
           if (id === this.data.quickId) this.closeQuick()
         }),
@@ -116,58 +82,91 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
     onUnload() {
       this.offs.forEach((off) => off())
+      this.offs = []
+      this.disposeFeed()
     },
     onShow() {
-      const i = this.data.tabIndex
-      if (this.started[i]) this.feeds[i].refreshIfStale(STALE_MS)
+      if (this.feed && this.data.bound) this.feed.refreshIfStale(STALE_MS)
     },
 
-    /** 默认筛选跟随偏好设置；结伴关系变化时重载当前栏，其余栏切换到时再加载 */
+    /** 结伴关系或偏好变化时重建列表；偏好里的旧「我发的」按全部显示 */
     syncUser() {
       const u = getUser()
       if (!u) return
       const pid = u.partner ? u.partner.openId : ''
       const partnerChanged = this.partnerId !== undefined && this.partnerId !== pid
       this.partnerId = pid
-      this.setData({ unbound: !pid })
-      if (partnerChanged) this.started = FILTERS.map(() => false)
-      const pref = normalizeReportFilter(u.preferences.resonanceReportFilter)
-      if (pref !== this.appliedFilter) {
-        this.appliedFilter = pref
-        this.activate(FILTERS.indexOf(pref))
-      } else if (partnerChanged) {
-        this.activate(this.data.tabIndex)
+      this.setData({ bound: !!pid })
+      if (!pid) {
+        this.disposeFeed()
+        this.setData({ awaitMeCount: 0 })
+        applyResonanceBadge(0)
+        return
+      }
+      const pref = normalizeReportFilter(u.preferences.resonanceReportFilter) as Filter
+      if (!this.feed || partnerChanged || pref !== this.data.filter) this.startFeed(pref)
+    },
+
+    startFeed(filter: Filter) {
+      this.disposeFeed()
+      // 切换筛选后回到顶部：scroll-top 只在值变化时生效，0/1 交替触发
+      const scrollTop = this.data.scrollTop === 0 ? 1 : 0
+      this.setData({ filter, scrollTop, feed: emptyFeed<ReportView>(), empty: EMPTIES[filter], showTop: false })
+      const feed: Feed<ReportPost, ReportView> = new Feed({
+        host: this,
+        path: 'feed',
+        cacheName: `report:${filter}`,
+        fetch: async (cursor) => {
+          const r = await call('report.list', { filter, cursor })
+          if (r.ok) {
+            this.setData({ awaitMeCount: r.data.awaitMeCount })
+            applyResonanceBadge(r.data.awaitMeCount)
+          }
+          return r
+        },
+        view: (post, prev) => reportView(post, prev, filter),
+        sortKey: (post: ReportPost) => post.recordAtMs,
+        pageErrorIfEmpty: filter === 'await_me',
+      })
+      this.feed = feed
+      feed.start()
+    },
+
+    disposeFeed() {
+      if (this.feed) {
+        this.feed.dispose()
+        this.feed = null
       }
     },
 
-    activate(i: number) {
-      if (i !== this.data.tabIndex) {
-        this.setData({ tabIndex: i, showTop: false })
-        if (!this.data.quickBusy) this.closeQuick()
-      }
-      if (!this.started[i]) {
-        this.started[i] = true
-        this.feeds[i].start()
+    /** 新发、编辑、回心都从这里进列表；「等我回声」栏里回心后移出 */
+    applyPost(post: ReportPost) {
+      if (!this.feed || !this.data.bound) return
+      if (this.data.filter === 'await_me' && (post.isMine || post.state === 'responded')) {
+        this.feed.remove(post.id)
+        this.fillAwaitIfDrained()
       } else {
-        this.feeds[i].refreshIfStale(STALE_MS)
+        this.feed.upsert(post)
       }
+      if (post.id === this.data.quickId && post.state === 'responded') this.closeQuick()
     },
 
-    onTabTap(e: WechatMiniprogram.TouchEvent) {
-      this.activate(Number(e.currentTarget.dataset.index))
-    },
-    onSwiperChange(e: WechatMiniprogram.SwiperChange) {
-      if (e.detail.source === 'touch') this.activate(e.detail.current)
+    onFilterTap(e: WechatMiniprogram.TouchEvent) {
+      const key = e.currentTarget.dataset.key as Filter
+      if (key === this.data.filter) return
+      if (this.data.quickBusy) return
+      this.closeQuick()
+      this.startFeed(key)
     },
 
     onRefresh() {
-      void this.feeds[this.data.tabIndex].refresh(true)
+      if (this.feed) void this.feed.refresh(true)
     },
     onLoadMore() {
-      void this.feeds[this.data.tabIndex].loadMore()
+      if (this.feed) void this.feed.loadMore()
     },
     onRetry() {
-      void this.feeds[this.data.tabIndex].refresh()
+      if (this.feed) void this.feed.refresh()
     },
     onScroll(e: WechatMiniprogram.ScrollViewScroll) {
       const show = e.detail.scrollTop > 800
@@ -178,11 +177,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
     },
 
     findPost(id: string): ReportPost | undefined {
-      for (const feed of this.feeds) {
-        const p = feed.find(id)
-        if (p) return p
-      }
-      return undefined
+      return this.feed ? this.feed.find(id) : undefined
     },
 
     onOpen(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
@@ -212,23 +207,22 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       if (!post || post.isMine || post.state === 'responded') return
       this.setData({
         quickId: post.id,
-        quickHeadline: reportView(post, undefined, 'await_me').headline,
+        quickPreview: post.body.replace(/\s+/g, ' ').trim(),
         quickBusy: '',
       })
     },
 
     closeQuick() {
       if (!this.data.quickId && !this.data.quickBusy) return
-      this.setData({ quickId: '', quickHeadline: '', quickBusy: '' })
+      this.setData({ quickId: '', quickPreview: '', quickBusy: '' })
     },
 
-    /** 这一页都回完了、后面还有时继续拉，避免误显示「都回完了」 */
+    /** 这一页都回完了、后面还有时继续拉，避免误显示「没有等你的回声」 */
     fillAwaitIfDrained() {
-      const i = FILTERS.indexOf('await_me')
-      const feed = this.feeds[i]
-      if (shouldContinueDrainedFeed(feed.raw.length, feed.hasMore)) {
-        this.setData({ [`tabs[${i}].status`]: 'loading' })
-        void feed.loadMore()
+      if (this.data.filter !== 'await_me' || !this.feed) return
+      if (shouldContinueDrainedFeed(this.feed.raw.length, this.feed.hasMore)) {
+        this.setData({ 'feed.status': 'loading' })
+        void this.feed.loadMore()
       }
     },
 
@@ -258,6 +252,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
 
     onCompose() {
       wx.navigateTo({ url: PAGE_REPORT_COMPOSE })
+    },
+    onEchoes() {
+      wx.navigateTo({ url: PAGE_REPORT_ECHOES })
     },
     onBind() {
       wx.navigateTo({ url: PAGE_PARTNER_HUB })

@@ -14,7 +14,7 @@
 | `partnerOpenId` | 结伴对象 openid；双方在同一事务里互相写入 |
 | `togetherSinceMs` | 纪念日（分钟对齐）；双方同值，重新结伴时置空 |
 | `bindCode` | 8 位绑定码，首次打开结伴页时生成 |
-| `preferences.resonanceReportFilter` | 共鸣默认筛选：`all` / `await_me` / `mine`。缺省 `await_me`。库里的旧值 `action_needed` 读出时当作 `await_me`，已保存的 `all` / `mine` 不改写 |
+| `preferences.resonanceReportFilter` | 共鸣默认筛选：`all` 全部 / `await_me` 等我回声，缺省 `all`。旧值 `action_needed` 读出时当作 `await_me`；`mine` 仍为旧客户端兼容保留，当前界面读出时当作 `all`，不再有「我发的」筛选 |
 | `ledgerVisibility.scope` | 我的账单对对方开放到哪一步：`none` 不可见 / `summary` 仅月合计与一级分类 / `detail` 全部明细。缺省 `detail`。只控制对方能读到我的支出，双方各自一份 |
 | `reportTags` | 报备自定义标签（默认标签「干饭」不存储） |
 | `partner` | 早期版本的伴侣快照，已不再读取 |
@@ -44,11 +44,11 @@
 | `partnerStickerId` | 对方最新一张贴纸：`care` 收到啦、`seen` 看见了、`eat` 记得吃饭、`miss` 想你、`ok` 好的、`hug` 抱抱、`proud` 辛苦了、`love` 爱你。空表示还没回心 |
 | `partnerRespondedAt` | 最近一次贴贴纸的时间。再贴会覆盖贴纸和这个时间 |
 | `partnerReadAt` | 旧「标记已阅」。新数据在打开或回心时顺手写上，用来和旧字段对齐；界面不再单独展示已阅 |
-| `partnerEvaluatedAt` / `partnerEvalText` | 旧文字评价。本期不再写入、也不再下发评价正文。已经有 `partnerEvaluatedAt` 的帖子视为已回应，不进「待我回应」 |
+| `partnerEvaluatedAt` / `partnerEvalText` | 旧文字评价。本期不再写入、也不再下发评价正文。已经有 `partnerEvaluatedAt` 的帖子视为已回应，不进「等我回声」 |
 
 状态只有两个：没有贴纸、也没有旧评价 → `awaiting_response`；否则 `responded`。只打开详情不单独成一种状态。
 
-列表筛选 `all` / `await_me` / `mine`。`await_me` 是对方发出、且 `partnerStickerId` 与 `partnerEvaluatedAt` 都为空的帖子。`report.list` 同时返回 `awaitMeCount`（待我回应的条数，跟当前这一页无关）。`report.open` 在进详情时写下打开时间，已打开则不改。`report.respond({ id, stickerId })` 覆盖贴纸。作者 `report.update` 只改正文、图片、标签和记录时间，不清贴纸。`report.markRead` 与 `report.evaluate` 已移除。
+列表筛选 `all` / `await_me` / `echoed`；`mine` 仅为旧客户端兼容保留，界面已不再使用。`await_me` 就是界面上的「等我回声」：对方发出、且 `partnerStickerId` 与 `partnerEvaluatedAt` 都为空的帖子。`echoed` 是「已共鸣」档案：任一方向已回心的帖子（有效贴纸或旧文字评价任一存在；每条报备只有一方回心），该筛选省掉计数查询，`awaitMeCount` 固定为 0。`report.list` 同时返回 `awaitMeCount`（等我回声的条数，跟当前这一页无关）。`report.open` 在进详情时写下打开时间，已打开则不改。`report.respond({ id, stickerId })` 覆盖贴纸。作者 `report.update` 只改正文、图片、标签和记录时间，不清贴纸。`report.markRead` 与 `report.evaluate` 已移除。
 
 ### letters
 
@@ -132,7 +132,7 @@
 | `daily_posts` | `authorOpenId` 升序 + `createdAt` 降序 | 日常数据仍保留，入口已下线 |
 | `daily_comments` | `dailyPostId` 升序 + `createdAt` 升序 | 详情评论、首评补算 |
 | `daily_comments` | `dailyPostId` 升序 + `parentId` 升序 | 判断评论是否有回复 |
-| `report_posts` | `authorOpenId` 升序 + `recordAt` 降序 | 共鸣三个筛选 |
+| `report_posts` | `authorOpenId` 升序 + `recordAt` 降序 | 共鸣列表（全部 / 等我回声 / 已共鸣） |
 | `letters` | `senderId` 升序 + `createdAt` 降序 | 信件列表 |
 | `letters` | `receiverId` 升序 + `createdAt` 降序 | 信件列表 |
 | `bind_requests` | `toOpenId` 升序 + `status` 升序 | 收到的申请 |
@@ -145,6 +145,8 @@
 | `kitchen_orders` | `ordererOpenId` 升序 + `createdAt` 降序 | 我的订单 |
 | `kitchen_orders` | `ownerOpenId` 升序 + `status` 升序 + `createdAt` 降序 | 经营列表、待接单数 |
 | `kitchen_orders` | `kitchenId` 升序 + `status` 升序 | 已完成次数 |
+
+已共鸣（`echoed`）复用 `report_posts` 的 `authorOpenId + recordAt` 索引，再按贴纸 / 旧评价字段过滤。两个人的数据量很小，不单独为贴纸字段建索引；将来列表变慢再补。
 
 ## 云函数配置
 

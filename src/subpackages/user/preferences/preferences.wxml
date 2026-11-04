@@ -18,7 +18,7 @@
             <text>{{item.label}}</text>
           </view>
         </view>
-        <text class="mo-hint tip">进入共鸣时先显示这一栏，随时可以左右滑动切换。</text>
+        <text class="mo-hint tip">进入共鸣时先显示这一栏，随时可以在页面上方切换。</text>
       </view>
 
       <view class="mo-card link" bind:tap="onVisibility" aria-role="button">

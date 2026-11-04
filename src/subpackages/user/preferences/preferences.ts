@@ -8,12 +8,11 @@ import { toast } from '../../../core/ui'
 
 const OPTIONS: { value: ReportFilter; label: string }[] = [
   { value: 'all', label: '全部' },
-  { value: 'await_me', label: '待我回应' },
-  { value: 'mine', label: '我发的' },
+  { value: 'await_me', label: '等我回声' },
 ]
 
 Component<{ options: typeof OPTIONS; index: number; scopeLabel: string }, {}, WechatMiniprogram.Component.MethodOption, { saving: boolean }, true>({
-  data: { options: OPTIONS, index: 1, scopeLabel: ledgerScopeLabel('detail') },
+  data: { options: OPTIONS, index: 0, scopeLabel: ledgerScopeLabel('detail') },
   methods: {
     onLoad() {
       this.saving = false
@@ -28,7 +27,7 @@ Component<{ options: typeof OPTIONS; index: number; scopeLabel: string }, {}, We
       const u = getUser()
       if (!u) return
       const index = OPTIONS.findIndex((o) => o.value === normalizeReportFilter(u.preferences.resonanceReportFilter))
-      this.setData({ index: index < 0 ? 1 : index, scopeLabel: ledgerScopeLabel(ledgerScopeOfUser(u)) })
+      this.setData({ index: index < 0 ? 0 : index, scopeLabel: ledgerScopeLabel(ledgerScopeOfUser(u)) })
     },
 
     /** 先切换再保存，失败回退 */

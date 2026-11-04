@@ -1,90 +1,89 @@
 <view class="mo-page">
   <app-nav title="共鸣" large="{{true}}" />
 
-  <view class="tabs">
-    <view class="tabs__rail">
-      <view class="tabs__thumb tabs__thumb--{{tabIndex}}" />
-      <view class="tabs__item {{tabIndex === 0 ? 'tabs__item--on' : ''}}" data-index="{{0}}" bind:tap="onTabTap" aria-role="tab">
+  <block wx:if="{{bound}}">
+    <view class="filters">
+      <view class="filter {{filter === 'all' ? 'filter--on' : ''}}" data-key="all" bind:tap="onFilterTap" aria-role="tab">
         <text>全部</text>
       </view>
-      <view class="tabs__item {{tabIndex === 1 ? 'tabs__item--on' : ''}}" data-index="{{1}}" bind:tap="onTabTap" aria-role="tab">
-        <text>待我回应</text>
-        <text wx:if="{{awaitMeCount > 0}}" class="tabs__count">{{awaitMeCount}}</text>
+      <view class="filter {{filter === 'await_me' ? 'filter--on' : ''}}" data-key="await_me" bind:tap="onFilterTap" aria-role="tab">
+        <text>等我回声</text>
+        <text wx:if="{{awaitMeCount > 0}}" class="filter__count">{{awaitMeCount}}</text>
       </view>
-      <view class="tabs__item {{tabIndex === 2 ? 'tabs__item--on' : ''}}" data-index="{{2}}" bind:tap="onTabTap" aria-role="tab">
-        <text>我发的</text>
+      <view class="filters__fill" />
+      <view class="echoes-link" bind:tap="onEchoes" aria-role="button">
+        <text class="echoes-link__text">已共鸣</text>
+        <image class="echoes-link__icon" src="/images/icons/chevron.png" mode="aspectFit" />
       </view>
     </view>
-  </view>
 
-  <swiper class="panes" current="{{tabIndex}}" duration="{{260}}" bindchange="onSwiperChange">
-    <swiper-item wx:for="{{tabs}}" wx:for-item="tab" wx:for-index="index" wx:key="key">
-      <scroll-view
-        class="pane"
-        scroll-y
-        type="list"
-        show-scrollbar="{{false}}"
-        refresher-enabled
-        refresher-triggered="{{tab.refreshing}}"
-        bindrefresherrefresh="onRefresh"
-        bindscrolltolower="onLoadMore"
-        bindscroll="onScroll"
-        lower-threshold="{{400}}"
-        scroll-top="{{scrollTop}}"
-        scroll-with-animation
-      >
-        <view class="pane__top" />
-        <view wx:if="{{unbound && index !== 2}}" class="row mo-card banner">
-          <text class="mo-hint banner__text">结伴后，你们的报备会出现在彼此的共鸣里。</text>
-          <view class="mo-btn mo-btn--small" bind:tap="onBind" aria-role="button">
-            <text>去结伴</text>
-          </view>
+    <scroll-view
+      class="mo-scroll"
+      scroll-y
+      type="list"
+      show-scrollbar="{{false}}"
+      refresher-enabled
+      refresher-triggered="{{feed.refreshing}}"
+      bindrefresherrefresh="onRefresh"
+      bindscrolltolower="onLoadMore"
+      bindscroll="onScroll"
+      lower-threshold="{{400}}"
+      scroll-top="{{scrollTop}}"
+      scroll-with-animation
+    >
+      <view class="list-top" />
+      <view wx:for="{{feed.items}}" wx:key="id" class="row">
+        <view wx:if="{{item.day}}" class="mo-day">
+          <text class="mo-day__label">{{item.day}}</text>
         </view>
+        <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" bind:quick="onQuick" />
+      </view>
 
-        <view wx:for="{{tab.items}}" wx:key="id" class="row">
-          <view wx:if="{{item.repliedDivider}}" class="replied">
-            <text class="replied__label">已回心</text>
-          </view>
-          <view wx:if="{{item.day}}" class="mo-day">
-            <text class="mo-day__label">{{item.day}}</text>
-          </view>
-          <report-card post="{{item}}" bind:open="onOpen" bind:more="onMore" bind:quick="onQuick" />
-        </view>
+      <view class="row">
+        <state-view wx:if="{{feed.status === 'loading'}}" status="loading" />
+        <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+        <state-view
+          wx:elif="{{feed.status === 'empty'}}"
+          status="empty"
+          title="{{empty.title}}"
+          hint="{{empty.hint}}"
+          action="{{empty.action}}"
+          bind:action="onCompose"
+        />
+        <state-view wx:elif="{{feed.more === 'loading'}}" status="more-loading" />
+        <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+        <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
+      </view>
+      <view class="list-end" />
+    </scroll-view>
 
-        <view class="row">
-          <state-view wx:if="{{tab.status === 'loading'}}" status="loading" />
-          <state-view wx:elif="{{tab.status === 'error'}}" status="error" hint="{{tab.errorText}}" action="重试" bind:action="onRetry" />
-          <state-view
-            wx:elif="{{tab.status === 'empty'}}"
-            status="empty"
-            title="{{empties[index].title}}"
-            hint="{{empties[index].hint}}"
-            action="{{index === 1 || (index === 0 && unbound) ? '' : '写报备'}}"
-            bind:action="onCompose"
-          />
-          <state-view wx:elif="{{tab.more === 'loading'}}" status="more-loading" />
-          <state-view wx:elif="{{tab.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
-          <state-view wx:elif="{{tab.more === 'end'}}" status="end" />
-        </view>
-        <view class="pane__end" />
-      </scroll-view>
-    </swiper-item>
-  </swiper>
-
-  <view wx:if="{{showTop}}" class="mo-back-top" bind:tap="onBackTop" aria-role="button" aria-label="回到顶部">
-    <image class="mo-back-top__icon" src="/images/icons/chevron.png" mode="aspectFit" />
-  </view>
-  <view class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写报备">
-    <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
-  </view>
-
-  <view wx:if="{{quickId}}" class="mo-mask" bind:tap="onCloseQuick">
-    <view class="mo-sheet" catch:tap="noop">
-      <view class="mo-sheet__handle" />
-      <text class="mo-section-title">{{respondTitle}}</text>
-      <text class="mo-hint">{{respondHint}}</text>
-      <text wx:if="{{quickHeadline}}" class="sheet__which" overflow="ellipsis" max-lines="1">{{quickHeadline}}</text>
-      <sticker-grid stickers="{{stickers}}" busy="{{quickBusy}}" bind:pick="onQuickSticker" />
+    <view wx:if="{{showTop}}" class="mo-back-top" bind:tap="onBackTop" aria-role="button" aria-label="回到顶部">
+      <image class="mo-back-top__icon" src="/images/icons/chevron.png" mode="aspectFit" />
     </view>
-  </view>
+    <view class="mo-fab" bind:tap="onCompose" aria-role="button" aria-label="写报备">
+      <image class="mo-fab__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
+    </view>
+
+    <view wx:if="{{quickId}}" class="mo-mask" bind:tap="onCloseQuick">
+      <view class="mo-sheet" catch:tap="noop">
+        <view class="mo-sheet__handle" />
+        <text class="mo-section-title">{{respondTitle}}</text>
+        <text wx:if="{{quickPreview}}" class="sheet__which" overflow="ellipsis" max-lines="1">{{quickPreview}}</text>
+        <text class="mo-hint sheet__hint">{{respondHint}}</text>
+        <sticker-grid stickers="{{stickers}}" busy="{{quickBusy}}" bind:pick="onQuickSticker" />
+      </view>
+    </view>
+  </block>
+
+  <scroll-view wx:else class="mo-scroll" scroll-y>
+    <view class="mo-body">
+      <view class="mo-card mo-guide">
+        <text class="mo-guide__title">先结伴，才能听见彼此</text>
+        <text class="mo-hint mo-guide__hint">共鸣里的报备和回声，只属于结伴的两个人</text>
+        <view class="mo-btn guide__btn" bind:tap="onBind" aria-role="button">
+          <text>去结伴</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
 </view>

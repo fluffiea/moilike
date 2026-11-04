@@ -8,8 +8,9 @@
       <block wx:else>
         <report-card post="{{post}}" detail bind:more="onMore" />
 
-        <view wx:if="{{post.canRespond}}" class="mo-card action">
+        <view wx:if="{{post.canRespond}}" class="mo-card">
           <text class="mo-section-title">{{respondTitle}}</text>
+          <text wx:if="{{currentLine}}" class="reply-current">{{currentLine}}</text>
           <text class="mo-hint">{{respondHint}}</text>
           <sticker-grid stickers="{{stickers}}" current-id="{{post.partnerStickerId}}" busy="{{busy}}" bind:pick="onSticker" />
         </view>

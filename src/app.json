@@ -74,7 +74,7 @@
     {
       "root": "subpackages/resonance",
       "name": "resonance_pack",
-      "pages": ["report-compose/report-compose", "report-detail/report-detail"]
+      "pages": ["report-compose/report-compose", "report-detail/report-detail", "report-echoes/report-echoes"]
     },
     {
       "root": "subpackages/letters",

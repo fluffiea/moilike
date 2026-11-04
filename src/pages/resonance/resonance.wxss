@@ -1,77 +1,67 @@
-.tabs {
-  flex-shrink: 0;
-  padding: 32rpx var(--mo-pad-h) 0;
-}
-
-.tabs__rail {
-  position: relative;
+.filters {
   display: flex;
   flex-direction: row;
-  height: 80rpx;
-  padding: 6rpx;
-  border-radius: var(--mo-radius-btn);
-  background-color: var(--mo-l1-card);
-}
-
-/* 指示块按下标平移，切换时有过渡 */
-.tabs__thumb {
-  position: absolute;
-  left: 6rpx;
-  top: 6rpx;
-  bottom: 6rpx;
-  width: calc((100% - 12rpx) / 3);
-  border-radius: var(--mo-radius-btn);
-  background: var(--mo-fill-brand);
-  transition: transform 0.26s ease;
-}
-
-.tabs__thumb--1 {
-  transform: translateX(100%);
-}
-
-.tabs__thumb--2 {
-  transform: translateX(200%);
-}
-
-.tabs__item {
-  position: relative;
-  flex: 1;
-  display: flex;
   align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
+  height: 80rpx;
+  padding: 0 var(--mo-pad-h);
+}
+
+.filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 80rpx;
+  margin-right: 48rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 
-.tabs__item--on {
+.filter--on {
   font-weight: 600;
-  color: var(--mo-text-inverse);
+  color: var(--mo-text-primary);
 }
 
-.tabs__count {
+.filter__count {
   margin-left: 8rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
 }
 
-.tabs__item--on .tabs__count {
-  color: var(--mo-text-inverse);
+.filter--on .filter__count {
+  color: var(--mo-text-secondary);
 }
 
-.panes {
+.filters__fill {
   flex: 1;
-  height: 0;
+  min-width: 16rpx;
 }
 
-.pane {
-  height: 100%;
+/* 筛选行右侧：翻到只读的已共鸣档案 */
+.echoes-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 80rpx;
+  flex-shrink: 0;
 }
 
-.pane__top {
-  height: 32rpx;
+.echoes-link__text {
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
 }
 
-.pane__end {
+.echoes-link__icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-left: 4rpx;
+}
+
+.list-top {
+  height: 8rpx;
+}
+
+.list-end {
   height: calc(200rpx + var(--mo-safe-bottom));
 }
 
@@ -79,30 +69,8 @@
   margin: 0 var(--mo-pad-h);
 }
 
-.banner {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 36rpx;
-}
-
-.banner__text {
-  flex: 1;
-  min-width: 0;
-  margin-right: 24rpx;
-}
-
-.banner .mo-btn {
-  flex-shrink: 0;
-}
-
-.replied {
-  padding: 8rpx 0 4rpx;
-}
-
-.replied__label {
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
+.guide__btn {
+  margin-top: 40rpx;
 }
 
 .sheet__which {
@@ -113,4 +81,9 @@
   text-overflow: ellipsis;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
+}
+
+.sheet__hint {
+  display: block;
+  margin-top: 8rpx;
 }

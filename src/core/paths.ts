@@ -11,6 +11,7 @@ export const PAGE_PARTNER_HUB = '/subpackages/user/partner-hub/partner-hub'
 
 export const PAGE_REPORT_COMPOSE = '/subpackages/resonance/report-compose/report-compose'
 export const PAGE_REPORT_DETAIL = '/subpackages/resonance/report-detail/report-detail'
+export const PAGE_REPORT_ECHOES = '/subpackages/resonance/report-echoes/report-echoes'
 
 export const PAGE_LETTER_LIST = '/pages/letters/letters'
 export const PAGE_LETTER_COMPOSE = '/subpackages/letters/letter-compose/letter-compose'

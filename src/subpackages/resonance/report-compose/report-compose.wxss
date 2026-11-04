@@ -7,9 +7,18 @@
   color: var(--mo-text-muted);
 }
 
+/* 记录时间：卡片里一行放下，左边说明右边两个短输入 */
 .when {
   display: flex;
   flex-direction: row;
+  align-items: center;
+}
+
+.when__label {
+  margin-right: 24rpx;
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+  flex-shrink: 0;
 }
 
 .when__item {
@@ -18,18 +27,48 @@
 }
 
 .when__item--last {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 168rpx;
   margin-right: 0;
 }
 
 .when__field {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  height: 88rpx;
+  height: 72rpx;
+  padding: 0 20rpx;
+}
+
+.when__item--last .when__field {
+  justify-content: center;
 }
 
 .when__text {
-  font-size: 32rpx;
+  font-size: 26rpx;
+  line-height: 72rpx;
   color: var(--mo-text-primary);
+}
+
+/* 标签标题行：标题在左，「可选」在右 */
+.tag-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.tag-head__title {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.tag-head__optional {
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+  flex-shrink: 0;
 }
 
 .tag-input {

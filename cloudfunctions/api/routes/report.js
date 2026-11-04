@@ -9,7 +9,7 @@ const MAX_TAG_LEN = 16
 const MAX_TAGS_PER_POST = 10
 const MAX_CUSTOM_TAGS = 20
 const DEFAULT_TAG = '干饭'
-const FILTERS = ['all', 'await_me', 'mine']
+const FILTERS = ['all', 'await_me', 'mine', 'echoed']
 /** 与 src/core/stickers.ts 的 id 保持一致 */
 const STICKER_IDS = ['care', 'seen', 'eat', 'miss', 'ok', 'hug', 'proud', 'love']
 
@@ -105,12 +105,30 @@ async function partnerPost(ctx, postId) {
   return r
 }
 
+/** 已共鸣：已回心的报备（有效贴纸或旧文字评价任一存在），只读档案用 */
+function echoedOr(_) {
+  return [{ partnerStickerId: _.in(STICKER_IDS) }, { partnerEvaluatedAt: _.neq(null) }]
+}
+
 async function list(ctx, e) {
   const { _ } = ctx
   const { ids, partnerId } = await ctx.viewer()
   const filter = FILTERS.includes(e.filter) ? e.filter : 'all'
   let where = { authorOpenId: _.in(ids) }
   if (filter === 'mine') where = { authorOpenId: ctx.openid }
+  if (filter === 'echoed') {
+    const { docs, nextCursor } = await pageByTime({
+      col: ctx.col.reports,
+      _,
+      where,
+      or: echoedOr(_),
+      field: 'recordAt',
+      cursor: e.cursor,
+      size: PAGE_SIZE,
+    })
+    // 档案页不需要待回计数，省掉一次 count 查询
+    return { items: await render(ctx, docs, partnerId), nextCursor, awaitMeCount: 0 }
+  }
   if (filter === 'await_me') {
     const awaitMeCount = await countAwaiting(ctx, partnerId)
     if (!partnerId) return { items: [], nextCursor: '', awaitMeCount: 0 }
@@ -150,7 +168,11 @@ function readPostInput(e) {
   }
   if (!input.body && input.images.length === 0 && input.tags.length === 0) fail('INVALID', '写点内容、选个标签或配张图吧')
   const ms = Number(e.recordAtMs)
-  if (Number.isFinite(ms) && ms > 0) input.recordAt = new Date(Math.floor(ms / 60000) * 60000)
+  if (Number.isFinite(ms) && ms > 0) {
+    const recordAtMs = Math.floor(ms / 60000) * 60000
+    if (recordAtMs > Date.now() + 60000) fail('INVALID', '不能记录未来的时间')
+    input.recordAt = new Date(recordAtMs)
+  }
   return input
 }
 

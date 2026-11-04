@@ -5,259 +5,158 @@
   background-color: var(--mo-l1-card);
 }
 
-.card--row {
-  margin-bottom: 16rpx;
-  padding: 20rpx 32rpx;
-}
-
-.card__head {
-  position: relative;
+.head {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
 }
 
-.card__head--mine .card__name {
-  margin-right: 48rpx;
-}
-
-.card__name {
-  flex: 1;
-  min-width: 0;
-  font-size: 32rpx;
+.head__who {
+  font-size: 26rpx;
   font-weight: 600;
-  line-height: 1.45;
-  color: var(--mo-text-primary);
-  word-break: break-word;
+  color: var(--mo-brand-teal);
+  flex-shrink: 0;
 }
 
-.card--detail .card__name {
-  font-size: 40rpx;
-  line-height: 1.4;
+.head__who--mine {
+  color: var(--mo-brand-rose-ink);
 }
 
-.more {
-  position: absolute;
-  top: -12rpx;
-  right: -16rpx;
+.head__fill {
+  flex: 1;
+  min-width: 16rpx;
+}
+
+.head__clock {
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+  flex-shrink: 0;
+}
+
+.head__more {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
+  width: 56rpx;
+  height: 56rpx;
+  margin: -12rpx -12rpx -12rpx 4rpx;
+  flex-shrink: 0;
 }
 
-.more__icon {
+.head__more-icon {
   width: 36rpx;
   height: 36rpx;
 }
 
-.card__meta {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 12rpx;
-}
-
-.card__state {
-  margin-right: 16rpx;
-  font-size: 24rpx;
-}
-
-.card__state--awaiting {
-  color: var(--mo-status-pending-text);
-}
-
-.card__state--opened {
-  color: var(--mo-status-read-text);
-}
-
-.card__state--responded {
-  color: var(--mo-status-evaluated-text);
-}
-
-.card__clock {
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
-}
-
-/* 间距放在标签上沿，最后一行不再把卡片底部撑出 12rpx */
-.tags {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 8rpx;
-}
-
-.tag {
-  margin: 16rpx 12rpx 0 0;
-  padding: 6rpx 20rpx;
-  border-radius: var(--mo-radius-chip);
-  background-color: var(--mo-l0-bg);
-}
-
-.tag__text {
-  font-size: 24rpx;
-  color: var(--mo-text-secondary);
-}
-
-.card__body {
+.body {
   display: block;
   margin-top: 16rpx;
   font-size: 32rpx;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--mo-text-primary);
   word-break: break-word;
 }
 
-.reply {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 24rpx;
-  padding: 16rpx;
+.body--full {
+  margin-top: 20rpx;
+  line-height: 1.7;
+}
+
+.tags {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: var(--mo-text-muted);
+}
+
+.cover {
+  display: block;
+  width: 100%;
+  height: 320rpx;
+  margin-top: 20rpx;
   border-radius: var(--mo-radius-inner);
   background-color: var(--mo-l0-bg);
 }
 
-/* 贴纸是浅色插画，垫在白底上，灰底会把浅色吃掉 */
-.reply__plate {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80rpx;
-  height: 80rpx;
-  margin-right: 16rpx;
-  border-radius: var(--mo-radius-inner);
-  background-color: var(--mo-l1-card);
-  flex-shrink: 0;
+.shots {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
 }
 
-.reply__img {
+/* 回声槽：未回心是等待和入口，已回心是贴纸和回心的人 */
+.echo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l0-bg);
+}
+
+.echo__art {
   width: 64rpx;
   height: 64rpx;
+  flex-shrink: 0;
 }
 
-.reply__label {
-  flex: 1;
-  min-width: 0;
+.echo__label {
+  margin-left: 16rpx;
   font-size: 28rpx;
   color: var(--mo-text-primary);
-}
-
-.reply__when {
-  margin-left: 16rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
   flex-shrink: 0;
 }
 
-.opened {
-  display: block;
-  margin-top: 24rpx;
+.echo__wait {
   font-size: 26rpx;
-  line-height: 1.5;
   color: var(--mo-text-secondary);
-}
-
-.line {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.line__title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.line__title-text {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--mo-text-primary);
-}
-
-.line__signal {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
   flex-shrink: 0;
-  margin-left: 16rpx;
 }
 
-.line__chip {
-  width: 48rpx;
-  height: 48rpx;
+.echo__fill {
+  flex: 1;
+  min-width: 16rpx;
 }
 
-.line__pending {
-  font-size: 24rpx;
-  color: var(--mo-status-pending-text);
-}
-
-.line__when,
-.line__clock {
+.echo__meta {
   font-size: 24rpx;
   color: var(--mo-text-muted);
-}
-
-.line__when {
-  margin-left: 8rpx;
-}
-
-.line__clock {
-  margin-left: 16rpx;
   flex-shrink: 0;
 }
 
-.line__reply {
+.echo__action {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  height: 48rpx;
-  margin-left: 16rpx;
-  padding: 0 20rpx;
-  border-radius: var(--mo-radius-chip);
-  background-color: var(--mo-l0-bg);
+  margin-left: 24rpx;
+  padding: 12rpx 0;
   flex-shrink: 0;
 }
 
-.line__reply-text {
+.echo__action-text {
   font-size: 26rpx;
   color: var(--mo-brand-slate);
 }
 
-.line__more {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 48rpx;
-  height: 48rpx;
-  margin-left: 8rpx;
-  flex-shrink: 0;
+/* 已共鸣档案：只读回看，贴纸是主视觉 */
+.card--book .cover {
+  height: 280rpx;
 }
 
-.line__more-icon {
-  width: 36rpx;
-  height: 36rpx;
+.card--book .echo {
+  padding: 20rpx 24rpx;
 }
 
-.line__opened {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
+.card--book .echo__art {
+  width: 96rpx;
+  height: 96rpx;
 }
 
-/* 全部栏已闭环：字色降下来，贴纸仍认得出来 */
-.card--closed .line__title-text {
-  color: var(--mo-text-secondary);
-}
-
-.card--closed .line__chip {
-  opacity: 0.8;
+.card--book .echo__label {
+  margin-left: 20rpx;
+  font-size: 32rpx;
+  font-weight: 600;
 }

@@ -1,0 +1,8 @@
+/* 已回心时标题下的一行：现在是「抱抱」· 2小时前 */
+.reply-current {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: var(--mo-text-primary);
+}

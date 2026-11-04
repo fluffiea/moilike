@@ -3,7 +3,7 @@ import { call } from '../../../core/api'
 import { applyResonanceBadge } from '../../../core/badge'
 import { PAGE_REPORT_COMPOSE, TAB_RESONANCE, back } from '../../../core/paths'
 import { emit, handoff, on, takeHandoff } from '../../../core/store'
-import { RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../../core/stickers'
+import { RESPOND_AGAIN_TITLE, RESPOND_HINT, RESPOND_TITLE, stickerChoices } from '../../../core/stickers'
 import { confirm, editOrDelete, toast, toastDone } from '../../../core/ui'
 import { reportView, type ReportView } from '../../../core/views'
 
@@ -14,6 +14,8 @@ type Data = {
   stickers: { id: string; label: string; src: string }[]
   respondTitle: string
   respondHint: string
+  /** 已回心时的一行「现在是「抱抱」· 2小时前」；没回心或时间缺失时为空串，模板不渲染 */
+  currentLine: string
   busy: string
 }
 
@@ -25,6 +27,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
     stickers: stickerChoices(),
     respondTitle: RESPOND_TITLE,
     respondHint: RESPOND_HINT,
+    currentLine: '',
     busy: '',
   },
   methods: {
@@ -58,12 +61,23 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
       this.apply(r.data.post)
     },
 
+    /**
+     * 详情信息卡给全文、全部图片和日期时刻；对方发的报备再用一张贴纸卡回心。
+     * 已经贴过贴纸时标题是「换一颗心」，标题下补一行当前贴纸和相对时间；两个值都拿到才显示。
+     */
     render(post: ReportPost) {
       this.raw = post
-      this.setData({ post: reportView(post, undefined, 'detail'), status: 'ready' })
+      const view = reportView(post, undefined, 'detail')
+      const { sticker, label, when } = view.echo
+      this.setData({
+        post: view,
+        status: 'ready',
+        respondTitle: post.partnerStickerId ? RESPOND_AGAIN_TITLE : RESPOND_TITLE,
+        currentLine: sticker && label && when ? `现在是「${label}」· ${when}` : '',
+      })
     },
 
-    /** 状态变化同步到共鸣列表（待我回应会据此移出） */
+    /** 状态变化同步到共鸣列表（等我回声会据此移出） */
     apply(post: ReportPost) {
       this.render(post)
       emit('report:upsert', post)

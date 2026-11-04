@@ -6,7 +6,7 @@
         <view wx:for="{{rows}}" wx:key="key" class="row {{index ? 'row--line' : ''}}">
           <view class="thumb">
             <image wx:if="{{item.cover}}" class="thumb__img" src="{{item.cover}}" mode="aspectFill" />
-            <view wx:else class="thumb__ph"><text class="thumb__txt">暂无</text></view>
+            <view wx:else class="thumb__ph" />
           </view>
           <view class="row__main">
             <text class="row__name">{{item.name}} ×{{item.quantity}}</text>

@@ -1,53 +1,49 @@
-<view wx:if="{{detail}}" class="card card--detail" bind:longpress="onMore">
-  <view class="card__head {{post.isMine ? 'card__head--mine' : ''}}">
-    <text class="card__name">{{post.headline}}</text>
-    <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <image class="more__icon" src="/images/icons/more.png" mode="aspectFit" />
+<view wx:if="{{detail}}" class="card card--detail" bind:longpress="onLongPress">
+  <view class="head">
+    <text class="head__who {{post.isMine ? 'head__who--mine' : ''}}">{{post.who}}</text>
+    <view class="head__fill" />
+    <text class="head__clock">{{post.clock}}</text>
+    <view wx:if="{{post.isMine}}" class="head__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+      <image class="head__more-icon" src="/images/icons/more.png" mode="aspectFit" />
     </view>
   </view>
 
-  <view class="card__meta">
-    <text wx:if="{{!post.sticker && !post.openedHint}}" class="card__state card__state--{{post.stateKey}}">{{post.stateLabel}}</text>
-    <text class="card__clock">{{post.time}}</text>
+  <text class="body body--full">{{post.preview}}</text>
+  <text wx:if="{{post.tagLine}}" class="tags">{{post.tagLine}}</text>
+  <image-grid wx:if="{{post.images.length}}" images="{{post.images}}" />
+
+  <view wx:if="{{post.isMine}}" class="echo">
+    <image wx:if="{{post.echo.sticker}}" class="echo__art" src="{{post.echo.sticker.src}}" mode="aspectFit" />
+    <text wx:if="{{post.echo.label}}" class="echo__label">{{post.echo.label}}</text>
+    <text wx:if="{{post.echo.wait}}" class="echo__wait">{{post.echo.wait}}</text>
+    <view class="echo__fill" />
+    <text wx:if="{{post.echo.meta}}" class="echo__meta">{{post.echo.meta}}</text>
   </view>
-
-  <text wx:if="{{post.rest}}" class="card__body">{{post.rest}}</text>
-
-  <image-grid images="{{post.images}}" />
-
-  <view wx:if="{{post.tags.length}}" class="tags">
-    <view wx:for="{{post.tags}}" wx:key="*this" class="tag">
-      <text class="tag__text">{{item}}</text>
-    </view>
-  </view>
-
-  <view wx:if="{{post.sticker && !(detail && post.canRespond)}}" class="reply">
-    <view class="reply__plate">
-      <image class="reply__img" src="{{post.sticker.src}}" mode="aspectFit" />
-    </view>
-    <text class="reply__label">{{post.sticker.label}}</text>
-    <text class="reply__when">{{post.respondedWhen}}</text>
-  </view>
-  <text wx:elif="{{post.openedHint}}" class="opened">{{post.openedHint}}</text>
 </view>
 
-<view wx:else class="card card--row {{post.dimmed ? 'card--closed' : ''}}" bind:tap="onOpen" bind:longpress="onLongPress" aria-role="button">
-  <view class="line">
-    <view class="line__title">
-      <text class="line__title-text" overflow="ellipsis" max-lines="1">{{post.headline}}</text>
-    </view>
-    <view wx:if="{{post.sticker || post.state !== 'responded' || (post.showRespondedWhen && post.respondedWhen)}}" class="line__signal">
-      <image wx:if="{{post.sticker}}" class="line__chip" src="{{post.sticker.src}}" mode="aspectFit" />
-      <text wx:elif="{{post.state !== 'responded'}}" class="line__pending">待回应</text>
-      <text wx:if="{{post.showRespondedWhen && post.respondedWhen}}" class="line__when">{{post.respondedWhen}}</text>
-    </view>
-    <text class="line__clock">{{post.time}}</text>
-    <view wx:if="{{post.quickReply}}" class="line__reply" catch:tap="onQuick" aria-role="button" aria-label="回心">
-      <text class="line__reply-text">回心</text>
-    </view>
-    <view wx:if="{{post.isMine}}" class="line__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <image class="line__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+<view wx:else class="card {{book ? 'card--book' : ''}}" bind:tap="onOpen" bind:longpress="onLongPress" aria-role="button">
+  <view class="head">
+    <text class="head__who {{post.isMine ? 'head__who--mine' : ''}}">{{post.who}}</text>
+    <view class="head__fill" />
+    <text class="head__clock">{{post.clock}}</text>
+    <view wx:if="{{post.isMine && !book}}" class="head__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+      <image class="head__more-icon" src="/images/icons/more.png" mode="aspectFit" />
     </view>
   </view>
-  <text wx:if="{{post.listOpened}}" class="line__opened">{{post.listOpened}}</text>
+
+  <text class="body" overflow="ellipsis" max-lines="4">{{post.preview}}</text>
+  <text wx:if="{{post.tagLine}}" class="tags">{{post.tagLine}}</text>
+  <image wx:if="{{post.cover}}" class="cover" src="{{post.cover}}" mode="aspectFill" />
+  <text wx:if="{{post.moreShots}}" class="shots">{{post.moreShots}}</text>
+
+  <view class="echo">
+    <image wx:if="{{post.echo.sticker}}" class="echo__art" src="{{post.echo.sticker.src}}" mode="aspectFit" />
+    <text wx:if="{{post.echo.label}}" class="echo__label">{{post.echo.label}}</text>
+    <text wx:if="{{post.echo.wait}}" class="echo__wait">{{post.echo.wait}}</text>
+    <view class="echo__fill" />
+    <text wx:if="{{post.echo.meta}}" class="echo__meta">{{post.echo.meta}}</text>
+    <view wx:if="{{post.echo.action}}" class="echo__action" catch:tap="onQuick" aria-role="button" aria-label="回心">
+      <text class="echo__action-text">回心</text>
+    </view>
+  </view>
 </view>

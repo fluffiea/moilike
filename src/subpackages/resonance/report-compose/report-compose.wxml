@@ -9,7 +9,7 @@
           <textarea
             class="mo-textarea"
             value="{{initialBody}}"
-            placeholder="想告诉 Ta 的一件小事…"
+            placeholder="记一件想告诉 Ta 的小事…"
             placeholder-class="mo-placeholder"
             maxlength="{{2000}}"
             auto-height
@@ -21,24 +21,25 @@
           <image-picker items="{{images}}" max="{{9}}" bind:change="onImagesChange" />
         </view>
 
-        <view class="mo-card">
-          <text class="mo-section-title">记录时间</text>
-          <view class="when">
-            <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
-              <view class="mo-field when__field">
-                <text class="when__text">{{date}}</text>
-              </view>
-            </picker>
-            <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
-              <view class="mo-field when__field">
-                <text class="when__text">{{time}}</text>
-              </view>
-            </picker>
-          </view>
+        <view class="mo-card when">
+          <text class="when__label">记录时间</text>
+          <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
+            <view class="mo-field when__field">
+              <text class="when__text">{{date}}</text>
+            </view>
+          </picker>
+          <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
+            <view class="mo-field when__field">
+              <text class="when__text">{{time}}</text>
+            </view>
+          </picker>
         </view>
 
         <view class="mo-card">
-          <text class="mo-section-title">标签</text>
+          <view class="tag-head">
+            <text class="mo-section-title tag-head__title">标签</text>
+            <text class="tag-head__optional">可选</text>
+          </view>
           <view class="mo-chips">
             <view
               wx:for="{{tags}}"

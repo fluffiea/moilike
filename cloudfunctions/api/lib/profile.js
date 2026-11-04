@@ -6,9 +6,9 @@ const LEDGER_SCOPES = ['none', 'summary', 'detail']
 
 function preferencesOf(doc) {
   let raw = doc && doc.preferences ? doc.preferences.resonanceReportFilter : ''
-  // 旧「待处理」并入「待我回应」；all / mine 已存偏好保持原样
+  // 旧「待处理」并入「等我回声」；已存偏好保持原样；没存过的新用户先看两个人的全部
   if (raw === 'action_needed') raw = 'await_me'
-  return { resonanceReportFilter: REPORT_FILTERS.includes(raw) ? raw : 'await_me' }
+  return { resonanceReportFilter: REPORT_FILTERS.includes(raw) ? raw : 'all' }
 }
 
 /** 我对对方开放自己账单的范围。缺省是全部明细。 */

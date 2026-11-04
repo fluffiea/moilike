@@ -28,7 +28,7 @@
             >
               <view class="thumb">
                 <image wx:if="{{dish.cover}}" class="thumb__img" src="{{dish.cover}}" mode="aspectFill" />
-                <view wx:else class="thumb__ph"><text class="thumb__txt">暂无封面</text></view>
+                <view wx:else class="thumb__ph" />
               </view>
               <view class="row__main">
                 <text class="row__title">{{dish.name}}</text>

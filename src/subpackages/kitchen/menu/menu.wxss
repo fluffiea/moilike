@@ -48,11 +48,6 @@
   height: 100%;
 }
 
-.thumb__txt {
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
-}
-
 .row__main {
   flex: 1;
   min-width: 0;
@@ -68,7 +63,7 @@
 .row__desc {
   display: block;
   margin-top: 8rpx;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 

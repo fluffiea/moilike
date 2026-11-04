@@ -25,7 +25,7 @@ export function emptyFeed<V>(): FeedData<V> {
 
 /**
  * 列表被清空且还有下一页时，应继续翻页，而不是当成空态。
- * 共鸣「待我回应」在回心移出最后一条后用它，与排序无关。
+ * 共鸣「等我回声」在回心移出最后一条后用它，与排序无关。
  */
 export function shouldContinueDrainedFeed(itemCount: number, hasMore: boolean): boolean {
   return itemCount === 0 && hasMore
@@ -50,12 +50,12 @@ export type FeedOptions<T extends { id: string }, V> = {
   /**
    * 展示顺序与接口分页序不同时提供。
    * 首屏、刷新、翻页、单条更新都按它重排已加载条目，翻页因此重发整表。
-   * 共鸣「我发的」未回优先用这个，不要用 sortKey 代替。
+   * 目前没有列表用到；需要整表重排时用这个，不要用 sortKey 代替。
    */
   order?: (items: T[]) => T[]
   /**
    * 翻页失败且当前一条都没有时，把整页标成 error。
-   * 只给共鸣「待我回应」：那一栏会在本页被回心清空后主动接着拉。
+   * 只给共鸣「等我回声」：那一栏会在本页被回心清空后主动接着拉。
    * 信件、记账、厨房不要开，空列表上的翻页失败仍只标 more:error。
    */
   pageErrorIfEmpty?: boolean
@@ -175,7 +175,7 @@ export class Feed<T extends { id: string }, V> {
     this.raw = this.raw.concat(r.data.items)
     const patch: Record<string, unknown> = {
       [`${this.opts.path}.more`]: more,
-      // 与 order、sortKey 无关。待我回应会先把空列表标成 loading，成功后这里回到 ready 或 empty。
+      // 与 order、sortKey 无关。等我回声会先把空列表标成 loading，成功后这里回到 ready 或 empty。
       [`${this.opts.path}.status`]: this.raw.length ? 'ready' : 'empty',
     }
     this.views(this.raw, start).forEach((v, i) => {

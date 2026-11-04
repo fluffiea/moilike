@@ -104,9 +104,8 @@
 
 .job__line {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 12rpx;
   font-size: 32rpx;
-  font-weight: 600;
   color: var(--mo-text-primary);
 }
 
@@ -121,7 +120,9 @@
   color: var(--mo-text-secondary);
 }
 
-.job__btn {
-  width: 100%;
-  margin-top: 24rpx;
+.job__act {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 20rpx;
 }

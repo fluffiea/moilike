@@ -1,0 +1,38 @@
+<view class="mo-page">
+  <app-nav title="已共鸣" show-back />
+
+  <scroll-view
+    class="mo-scroll"
+    scroll-y
+    type="list"
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{feed.refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="onLoadMore"
+    lower-threshold="{{400}}"
+  >
+    <view class="list-top" />
+    <view wx:for="{{feed.items}}" wx:key="id" class="row">
+      <view wx:if="{{item.month}}" class="mo-day">
+        <text class="mo-day__label">{{item.month}}</text>
+      </view>
+      <report-card post="{{item}}" book bind:open="onOpen" />
+    </view>
+
+    <view class="row">
+      <state-view wx:if="{{feed.status === 'loading'}}" status="loading" />
+      <state-view wx:elif="{{feed.status === 'error'}}" status="error" hint="{{feed.errorText}}" action="重试" bind:action="onRetry" />
+      <state-view
+        wx:elif="{{feed.status === 'empty'}}"
+        status="empty"
+        title="还没有已共鸣的报备"
+        hint="等 Ta 回心后，这里会收下你们的回声"
+      />
+      <state-view wx:elif="{{feed.more === 'loading'}}" status="more-loading" />
+      <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />
+      <state-view wx:elif="{{feed.more === 'end'}}" status="end" />
+    </view>
+    <view class="list-end" />
+  </scroll-view>
+</view>

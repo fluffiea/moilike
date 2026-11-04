@@ -189,6 +189,8 @@ test('报备：打开详情再贴贴纸即回心；改贴覆盖；作者改稿�
   assert.equal(post.partnerOpenedAt, 0)
   assert.equal(post.canRespond, false)
 
+  await failsWith('INVALID', 'A', 'report.create', { body: '明天的火锅', tags: [], images: [], recordAtMs: Date.now() + 3600000 })
+
   const todo = await ok('B', 'report.list', { filter: 'await_me' })
   assert.equal(todo.awaitMeCount, 1)
   assert.equal(todo.items[0].canRespond, true)
@@ -231,7 +233,22 @@ test('报备：打开详情再贴贴纸即回心；改贴覆盖；作者改稿�
   assert.equal(seen.partnerStickerId, 'love')
 })
 
-test('报备：旧的已阅和文字评价按打开/已回应读出，不再进待我回应', async () => {
+test('报备：已共鸣只收已回心的，双方都算且不进待回计数', async () => {
+  await bindCouple()
+  const a = await ok('A', 'report.create', { body: 'A 的小事', tags: [], images: [], recordAtMs: Date.now() })
+  const b = await ok('B', 'report.create', { body: 'B 的小事', tags: [], images: [], recordAtMs: Date.now() })
+  assert.deepEqual((await ok('A', 'report.list', { filter: 'echoed' })).items, [])
+  await ok('B', 'report.respond', { id: a.post.id, stickerId: 'hug' })
+  const one = await ok('A', 'report.list', { filter: 'echoed' })
+  assert.deepEqual(one.items.map((i) => i.id), [a.post.id])
+  assert.equal(one.items[0].partnerStickerId, 'hug')
+  assert.equal(one.awaitMeCount, 0)
+  await ok('A', 'report.respond', { id: b.post.id, stickerId: 'seen' })
+  const both = await ok('B', 'report.list', { filter: 'echoed' })
+  assert.deepEqual(both.items.map((i) => i.id).sort(), [a.post.id, b.post.id].sort())
+})
+
+test('报备：旧的已阅和文字评价按打开/已回应读出，不再进等我回声', async () => {
   await bindCouple()
   const readAt = new Date(Date.now() - 3600_000)
   const evalAt = new Date(Date.now() - 1800_000)
@@ -270,11 +287,14 @@ test('报备：旧的已阅和文字评价按打开/已回应读出，不再进�
   assert.equal(evaluated.partnerRespondedAt, evalAt.getTime())
   assert.equal(opened.state, 'awaiting_response')
   assert.equal(opened.partnerOpenedAt, readAt.getTime())
+  const echoed = await ok('B', 'report.list', { filter: 'echoed' })
+  assert.deepEqual(echoed.items.map((i) => i.id), ['legacy-eval'])
+  assert.equal(echoed.awaitMeCount, 0)
 })
 
-test('偏好：新用户默认待我回应，已存 all/mine 保留，旧待处理并入待我回应', async () => {
+test('偏好：新用户缺省看全部，已存 all / await_me / mine 保留，旧待处理并入等我回声', async () => {
   const { user } = await register('A', '阿杏')
-  assert.equal(user.preferences.resonanceReportFilter, 'await_me')
+  assert.equal(user.preferences.resonanceReportFilter, 'all')
   await failsWith('INVALID', 'A', 'user.savePreferences', { preferences: { resonanceReportFilter: 'action_needed' } })
   const saved = await ok('A', 'user.savePreferences', { preferences: { resonanceReportFilter: 'mine' } })
   assert.equal(saved.user.preferences.resonanceReportFilter, 'mine')

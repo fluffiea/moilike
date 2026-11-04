@@ -49,7 +49,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const now = Date.now()
       this.body = ''
       this.options = [DEFAULT_TAG]
-      this.selected = [DEFAULT_TAG]
+      this.selected = []
       this.partnerResponded = false
       this.setData({ date: dateStr(now), time: timeStr(now), today: dateStr(now) })
       this.renderTags()
@@ -151,7 +151,9 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const body = this.body.trim()
       const { images, date, time } = this.data
       if (!body && images.length === 0 && this.selected.length === 0) return toast('写点内容、选个标签或配张图吧')
-      if (!Number.isFinite(parseDateTime(date, time))) return toast('请选择记录时间')
+      const recordAtMs = parseDateTime(date, time)
+      if (!Number.isFinite(recordAtMs)) return toast('请选择记录时间')
+      if (recordAtMs > Date.now() + 60000) return toast('不能记录未来的时间')
       if (this.data.submitting) return
       if (this.partnerResponded) {
         this.setData({ confirmOpen: true })
@@ -171,6 +173,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       const { images, editId, date, time, submitting } = this.data
       if (submitting) return
       const recordAtMs = parseDateTime(date, time)
+      if (recordAtMs > Date.now() + 60000) return toast('不能记录未来的时间')
       this.setData({ submitting: true })
       let fileIds: string[]
       try {
