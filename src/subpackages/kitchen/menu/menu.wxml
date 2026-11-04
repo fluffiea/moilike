@@ -1,5 +1,5 @@
 <view class="mo-page">
-  <app-nav title="菜单" show-back />
+  <app-nav title="菜单管理" show-back />
   <scroll-view class="mo-scroll" scroll-y show-scrollbar="{{false}}">
     <view class="mo-body">
       <state-view wx:if="{{status === 'loading'}}" status="loading" rows="{{2}}" />
