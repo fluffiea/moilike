@@ -154,12 +154,18 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   await failsWith('INVALID', 'A', 'kitchen.orderCreate', { items: [{ dishId: dish.id, quantity: 1 }] })
   await failsWith('INVALID', 'B', 'kitchen.orderCreate', { items: [] })
   await failsWith('INVALID', 'B', 'kitchen.orderCreate', { items: [{ dishId: dish.id, quantity: 0 }] })
-  await failsWith('INVALID', 'B', 'kitchen.orderCreate', { items: [{ dishId: dish.id, quantity: 1, tags: ['月售'] }] })
+
+  const stray = await ok('B', 'kitchen.orderCreate', {
+    items: [{ dishId: dish.id, quantity: 1, tags: ['月售', '今天就要'] }],
+  })
+  assert.equal('tags' in stray.order.lines[0], false)
+  assert.equal(stray.order.lines[0].quantity, 1)
+  await ok('B', 'kitchen.cancel', { id: stray.order.id })
 
   const created = await ok('B', 'kitchen.orderCreate', {
     items: [
       { dishId: dish.id, quantity: 3, tags: ['想你了', '今天就要', '今天就要'] },
-      { dishId: walk.id, quantity: 1, tags: [] },
+      { dishId: walk.id, quantity: 1 },
     ],
     note: '今天加班有点累，想要抱抱',
   })
@@ -167,7 +173,8 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   assert.equal(created.order.canCancel, true)
   assert.equal(created.order.canReorder, false)
   assert.equal(created.order.note, '今天加班有点累，想要抱抱')
-  assert.deepEqual(created.order.lines[0].tags, ['今天就要', '想你了'])
+  assert.equal('tags' in created.order.lines[0], false)
+  assert.equal('tags' in created.order.lines[1], false)
   assert.equal(created.order.lines[0].quantity, 3)
   assert.equal(created.order.lines[0].name, '抱抱')
   assert.equal('cover' in created.order, false)
@@ -180,7 +187,7 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   assert.equal(pendingOps.items[0].names, '抱抱、散步')
   assert.equal(pendingOps.items[0].lines[0].name, '抱抱')
   assert.equal(pendingOps.items[0].lines[0].quantity, 3)
-  assert.deepEqual(pendingOps.items[0].lines[0].tags, ['今天就要', '想你了'])
+  assert.equal('tags' in pendingOps.items[0].lines[0], false)
   assert.equal(pendingOps.items[0].lines[1].name, '散步')
   assert.equal(pendingOps.items[0].lines[1].quantity, 1)
   assert.equal(pendingOps.items[0].canAccept, true)
@@ -206,6 +213,7 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
     items: [{ dishId: dish.id, quantity: 4, tags: ['周末'] }],
     note: '不要带进再来一单',
   })
+  assert.equal('tags' in again.order.lines[0], false)
   const accepted = await ok('A', 'kitchen.accept', { id: again.order.id })
   assert.equal(accepted.order.status, 'in_progress')
   assert.equal(accepted.order.canComplete, true)

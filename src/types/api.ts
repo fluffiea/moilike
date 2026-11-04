@@ -266,8 +266,8 @@ export type PartnerMenu = {
 export type OrderStatus = 'pending' | 'in_progress' | 'done' | 'cancelled'
 export type OpsStatus = 'pending' | 'in_progress' | 'done'
 
-export type OrderLine = { dishId: string; name: string; quantity: number; tags: string[] }
-export type OrderDraft = { dishId: string; quantity: number; tags?: string[] }
+export type OrderLine = { dishId: string; name: string; quantity: number }
+export type OrderDraft = { dishId: string; quantity: number }
 
 export type MyOrder = {
   id: string

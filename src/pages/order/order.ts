@@ -1,17 +1,19 @@
 import type { KitchenCategory, KitchenDish, MenuDish, PartnerMenu } from '../../types/api'
 import { call } from '../../core/api'
 import { addLine, cartState, clearCart, consumeOpenCart, setLineQty, useKitchen } from '../../core/cart'
-import { QUICK_TAGS } from '../../core/kitchen'
-import { PAGE_KITCHEN_CHECKOUT, PAGE_KITCHEN_ORDERS, PAGE_LOGIN } from '../../core/paths'
+import { PAGE_KITCHEN_CHECKOUT, PAGE_KITCHEN_MENU, PAGE_KITCHEN_ORDERS, PAGE_LOGIN, PAGE_PARTNER_HUB } from '../../core/paths'
 import { getUser, isRegistered } from '../../core/store'
 import { confirm, toast } from '../../core/ui'
 
 type Scene = 'loading' | 'error' | PartnerMenu['scene']
 type Cat = { id: string; name: string; on: boolean }
-type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; categoryId: string }
-type SpecTag = { name: string; on: boolean }
-type CartRow = { key: string; name: string; cover: string; quantity: number; tagText: string }
-type Spec = { id: string; name: string; desc: string; cover: string; quantity: number; tags: SpecTag[] }
+type DishRow = { id: string; name: string; desc: string; cover: string; sales: string }
+type Section = { id: string; name: string; dishes: DishRow[]; empty: boolean }
+type CartRow = { key: string; name: string; cover: string; quantity: number }
+type Offset = { id: string; top: number }
+
+/** 点分类后短锁，避免滚动动画中途把左栏高亮抢回去 */
+const SCROLL_LOCK_MS = 300
 
 /** 用自己的上架菜拼成和对方菜单一样的结构，好在点单页里看效果 */
 function menuOfMine(kitchen: { id: string; name: string }, categories: KitchenCategory[], dishes: KitchenDish[]): PartnerMenu {
@@ -34,15 +36,21 @@ function menuOfMine(kitchen: { id: string; name: string }, categories: KitchenCa
   }
 }
 
-function rowsOf(dishes: MenuDish[]): DishRow[] {
-  return dishes.map((d) => ({
+function dishRow(d: MenuDish): DishRow {
+  return {
     id: d.id,
     name: d.name,
     desc: d.desc,
     cover: d.cover ? d.cover.thumb : '',
     sales: d.salesLabel,
-    categoryId: d.categoryId,
-  }))
+  }
+}
+
+function sectionsOf(categories: { id: string; name: string }[], dishes: MenuDish[]): Section[] {
+  return categories.map((c) => {
+    const rows = dishes.filter((d) => d.categoryId === c.id).map(dishRow)
+    return { id: c.id, name: c.name, dishes: rows, empty: rows.length === 0 }
+  })
 }
 
 Component<
@@ -52,18 +60,33 @@ Component<
     refreshing: boolean
     kitchenName: string
     categories: Cat[]
-    dishes: DishRow[]
-    catEmpty: boolean
+    sections: Section[]
+    keyword: string
+    searching: boolean
+    searchHits: DishRow[]
+    searchEmpty: boolean
+    scrollInto: string
+    railInto: string
     cartPortions: number
     cartOpen: boolean
-    specOpen: boolean
-    spec: Spec
     cartLines: CartRow[]
     mine: boolean
   },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { kitchenId: string; allDishes: DishRow[]; activeId: string; mine: boolean },
+  {
+    kitchenId: string
+    allDishes: DishRow[]
+    activeId: string
+    mine: boolean
+    offsets: Offset[]
+    scrollTop: number
+    listHeight: number
+    lockUntil: number
+    keyword: string
+    measuring: boolean
+    measureQueued: boolean
+  },
   true
 >({
   data: {
@@ -72,12 +95,15 @@ Component<
     refreshing: false,
     kitchenName: '',
     categories: [],
-    dishes: [],
-    catEmpty: false,
+    sections: [],
+    keyword: '',
+    searching: false,
+    searchHits: [],
+    searchEmpty: false,
+    scrollInto: '',
+    railInto: '',
     cartPortions: 0,
     cartOpen: false,
-    specOpen: false,
-    spec: { id: '', name: '', desc: '', cover: '', quantity: 1, tags: [] },
     cartLines: [],
     mine: false,
   },
@@ -87,13 +113,23 @@ Component<
       this.allDishes = []
       this.activeId = ''
       this.mine = false
+      this.offsets = []
+      this.scrollTop = 0
+      this.listHeight = 0
+      this.lockUntil = 0
+      this.keyword = ''
+      this.measuring = false
+      this.measureQueued = false
       if (!isRegistered(getUser())) wx.reLaunch({ url: PAGE_LOGIN })
     },
     onShow() {
       if (!isRegistered(getUser())) return
       const openCart = consumeOpenCart()
       if (openCart) this.mine = false
-      if (this.data.mine !== this.mine) this.setData({ mine: this.mine })
+      if (this.data.mine !== this.mine) {
+        this.keyword = ''
+        this.setData({ mine: this.mine, keyword: '', searching: false, searchHits: [], searchEmpty: false })
+      }
       void this.reload(openCart)
     },
     async onRefresh() {
@@ -124,39 +160,190 @@ Component<
     onToggleMine() {
       this.mine = !this.mine
       this.activeId = ''
-      this.setData({ mine: this.mine, specOpen: false, cartOpen: false })
+      this.scrollTop = 0
+      this.offsets = []
+      this.keyword = ''
+      this.setData({
+        mine: this.mine,
+        cartOpen: false,
+        keyword: '',
+        searching: false,
+        searchHits: [],
+        searchEmpty: false,
+        scrollInto: '',
+      })
       void this.reload(false)
     },
     apply(menu: PartnerMenu, openCart: boolean) {
       if (menu.scene === 'unpaired' || menu.scene === 'no_kitchen') clearCart()
       this.kitchenId = menu.kitchen ? menu.kitchen.id : ''
       if (this.kitchenId) useKitchen(this.kitchenId)
-      this.allDishes = rowsOf(menu.dishes)
+      this.allDishes = menu.dishes.map(dishRow)
       const active = this.pickActive(menu)
       this.activeId = active
-      const dishes = this.rowsFor(active)
-      this.setData({
-        scene: menu.scene,
-        errorText: '',
-        refreshing: false,
-        kitchenName: menu.kitchen ? menu.kitchen.name : '',
-        categories: menu.categories.map((c) => ({ id: c.id, name: c.name, on: c.id === active })),
-        dishes,
-        catEmpty: menu.scene === 'menu' && dishes.length === 0,
-        specOpen: openCart ? false : this.data.specOpen,
-      })
+      const categories = menu.categories.map((c) => ({ id: c.id, name: c.name, on: c.id === active }))
+      const index = categories.findIndex((c) => c.on)
+      const keepSearch = menu.scene === 'menu' ? this.keyword : ''
+      this.keyword = keepSearch
+      this.setData(
+        {
+          scene: menu.scene,
+          errorText: '',
+          refreshing: false,
+          kitchenName: menu.kitchen ? menu.kitchen.name : '',
+          categories,
+          sections: menu.scene === 'menu' ? sectionsOf(menu.categories, menu.dishes) : [],
+          keyword: keepSearch,
+          railInto: index >= 0 ? `rail-${index}` : '',
+          scrollInto: '',
+        },
+        () => this.refilter(),
+      )
       this.syncCart(openCart)
     },
     pickActive(menu: PartnerMenu): string {
       if (menu.scene !== 'menu') return ''
       const ids = menu.categories.map((c) => c.id)
       if (this.activeId && ids.includes(this.activeId)) return this.activeId
-      const hit = menu.categories.find((c) => menu.dishes.some((d) => d.categoryId === c.id))
-      return hit ? hit.id : menu.categories.length ? menu.categories[0].id : ''
+      return ids[0] || ''
     },
-    rowsFor(categoryId: string): DishRow[] {
-      if (!this.allDishes) return []
-      return this.allDishes.filter((d) => d.categoryId === categoryId)
+    refilter() {
+      const q = this.keyword.trim().toLowerCase()
+      if (!q || this.data.scene !== 'menu') {
+        this.setData({ searching: false, searchHits: [], searchEmpty: false }, () => this.measureSections())
+        return
+      }
+      const searchHits = this.allDishes.filter((d) => d.name.toLowerCase().includes(q))
+      this.setData({ searching: true, searchHits, searchEmpty: searchHits.length === 0 })
+    },
+    onSearch(e: WechatMiniprogram.Input) {
+      this.keyword = e.detail.value
+      this.setData({ keyword: this.keyword }, () => this.refilter())
+    },
+    onClearSearch() {
+      this.keyword = ''
+      this.setData({ keyword: '' }, () => this.refilter())
+    },
+    measureSections() {
+      if (this.data.searching || this.data.scene !== 'menu') {
+        this.offsets = []
+        this.measureQueued = false
+        return
+      }
+      if (this.measuring) {
+        this.measureQueued = true
+        return
+      }
+      this.measuring = true
+      wx.nextTick(() => {
+        const query = this.createSelectorQuery()
+        query.select('.list').boundingClientRect()
+        query.select('.list').scrollOffset()
+        query.selectAll('.sec').boundingClientRect()
+        query.exec((res: unknown[]) => {
+          this.measuring = false
+          if (this.measureQueued) {
+            this.measureQueued = false
+            this.measureSections()
+            return
+          }
+          if (this.data.searching || this.data.scene !== 'menu') return
+          const box = res[0] as WechatMiniprogram.BoundingClientRectCallbackResult | null
+          const scrolled = res[1] as WechatMiniprogram.ScrollOffsetCallbackResult | null
+          const secs = Array.isArray(res[2]) ? (res[2] as WechatMiniprogram.BoundingClientRectCallbackResult[]) : []
+          if (!box || !secs.length) {
+            this.offsets = []
+            return
+          }
+          const scrollTop = scrolled ? scrolled.scrollTop : 0
+          this.scrollTop = scrollTop
+          this.listHeight = box.height
+          const sections = this.data.sections
+          this.offsets = secs
+            .map((r, i) => ({
+              id: sections[i] ? sections[i].id : '',
+              top: scrollTop + r.top - box.top,
+            }))
+            .filter((o) => o.id)
+          if (Date.now() < this.lockUntil) return
+          this.syncActive(scrollTop)
+        })
+      })
+    },
+    syncActive(scrollTop: number) {
+      const offsets = this.offsets
+      if (!offsets.length) return
+      const y = scrollTop + 16
+      let active = offsets[0].id
+      for (const o of offsets) {
+        if (y >= o.top) active = o.id
+        else break
+      }
+      this.markActive(active)
+    },
+    markActive(id: string) {
+      if (!id || id === this.activeId) return
+      this.activeId = id
+      const categories = this.data.categories.map((c) => ({ ...c, on: c.id === id }))
+      const index = categories.findIndex((c) => c.on)
+      this.setData({ categories, railInto: index >= 0 ? `rail-${index}` : '' })
+    },
+    onPickCat(e: WechatMiniprogram.TouchEvent) {
+      if (this.data.searching) return
+      const id = String(e.currentTarget.dataset.id || '')
+      const index = this.data.categories.findIndex((c) => c.id === id)
+      if (index < 0) return
+      this.activeId = id
+      const token = `sec-${index}`
+      const arm = () => {
+        this.lockUntil = Date.now() + SCROLL_LOCK_MS
+      }
+      arm()
+      this.setData(
+        {
+          categories: this.data.categories.map((c) => ({ ...c, on: c.id === id })),
+          railInto: `rail-${index}`,
+          scrollInto: this.data.scrollInto === token ? '' : token,
+        },
+        () => {
+          arm()
+          if (this.data.scrollInto !== token) this.setData({ scrollInto: token })
+        },
+      )
+    },
+    onListScroll(e: WechatMiniprogram.ScrollViewScroll) {
+      const scrollTop = e.detail.scrollTop
+      this.scrollTop = scrollTop
+      if (!this.offsets.length) {
+        this.measureSections()
+        return
+      }
+      if (Date.now() < this.lockUntil) return
+      const height = this.listHeight
+      const maxScroll = e.detail.scrollHeight - height
+      if (height > 0 && maxScroll > 8 && scrollTop >= maxScroll - 8) {
+        const last = this.offsets[this.offsets.length - 1]
+        if (last) this.markActive(last.id)
+        return
+      }
+      this.syncActive(scrollTop)
+    },
+    onAdd(e: WechatMiniprogram.TouchEvent) {
+      const id = String(e.currentTarget.dataset.id || '')
+      const dish = this.allDishes.find((d) => d.id === id)
+      if (!dish || !this.kitchenId) return
+      const added = addLine({
+        kitchenId: this.kitchenId,
+        dishId: dish.id,
+        name: dish.name,
+        cover: dish.cover,
+        quantity: 1,
+      })
+      if (!added) {
+        toast('一次最多 30 行')
+        return
+      }
+      this.syncCart()
     },
     syncCart(forceOpen = false) {
       const cart = cartState()
@@ -170,69 +357,13 @@ Component<
           name: l.name,
           cover: l.cover,
           quantity: l.quantity,
-          tagText: l.tags.join('、'),
         })),
         cartOpen: portions > 0 && (forceOpen || this.data.cartOpen),
       })
     },
-    onPickCat(e: WechatMiniprogram.TouchEvent) {
-      const id = String(e.currentTarget.dataset.id || '')
-      this.activeId = id
-      const dishes = this.rowsFor(id)
-      this.setData({
-        categories: this.data.categories.map((c) => ({ ...c, on: c.id === id })),
-        dishes,
-        catEmpty: dishes.length === 0,
-      })
-    },
-    onOpenSpec(e: WechatMiniprogram.TouchEvent) {
-      const id = String(e.currentTarget.dataset.id || '')
-      const dish = this.allDishes.find((d) => d.id === id)
-      if (!dish) return
-      this.setData({
-        specOpen: true,
-        cartOpen: false,
-        spec: {
-          id: dish.id,
-          name: dish.name,
-          desc: dish.desc,
-          cover: dish.cover,
-          quantity: 1,
-          tags: QUICK_TAGS.map((name) => ({ name, on: false })),
-        },
-      })
-    },
-    onSpecStep(e: WechatMiniprogram.TouchEvent) {
-      const dir = Number(e.currentTarget.dataset.dir) || 0
-      const quantity = Math.min(99, Math.max(1, this.data.spec.quantity + dir))
-      this.setData({ 'spec.quantity': quantity })
-    },
-    onToggleTag(e: WechatMiniprogram.TouchEvent) {
-      const name = String(e.currentTarget.dataset.name || '')
-      this.setData({
-        'spec.tags': this.data.spec.tags.map((t) => (t.name === name ? { name: t.name, on: !t.on } : t)),
-      })
-    },
-    onAddSpec() {
-      const spec = this.data.spec
-      const added = addLine({
-        kitchenId: this.kitchenId,
-        dishId: spec.id,
-        name: spec.name,
-        cover: spec.cover,
-        quantity: spec.quantity,
-        tags: spec.tags.filter((t) => t.on).map((t) => t.name),
-      })
-      if (!added) {
-        toast('一次最多 30 行')
-        return
-      }
-      this.setData({ specOpen: false })
-      this.syncCart()
-    },
     onOpenCart() {
       if (!this.data.cartPortions) return
-      this.setData({ cartOpen: true, specOpen: false })
+      this.setData({ cartOpen: true })
     },
     onCartStep(e: WechatMiniprogram.TouchEvent) {
       const key = String(e.currentTarget.dataset.key || '')
@@ -251,14 +382,17 @@ Component<
     },
     onCheckout() {
       if (!cartState().lines.length) return
-      this.setData({ cartOpen: false, specOpen: false })
+      this.setData({ cartOpen: false })
       wx.navigateTo({ url: this.mine ? `${PAGE_KITCHEN_CHECKOUT}?preview=1` : PAGE_KITCHEN_CHECKOUT })
     },
     onOrders() {
       wx.navigateTo({ url: PAGE_KITCHEN_ORDERS })
     },
-    onCloseSpec() {
-      this.setData({ specOpen: false })
+    onPartner() {
+      wx.navigateTo({ url: PAGE_PARTNER_HUB })
+    },
+    onManageMenu() {
+      wx.navigateTo({ url: PAGE_KITCHEN_MENU })
     },
     onCloseCart() {
       this.setData({ cartOpen: false })

@@ -112,9 +112,9 @@
 | 字段 | 说明 |
 |------|------|
 | `kitchenId` / `ownerOpenId` / `ordererOpenId` | 厨房、接单方、下单方 |
-| `status` | `pending` 待接单 → `in_progress` 进行中 → `done` 已完成；下单方在 `pending` 可改为 `cancelled`。没有拒单 |
+| `status` | `pending` 待接单 → `in_progress` 进行中 → `done` 完成；下单方在 `pending` 可改为 `cancelled`。没有拒单 |
 | `note` | 整单备注，最多 80 字，可空。再来一单不读取这个字段 |
-| `items` | `{ dishId, name, quantity, tags }[]`。名称是下单时的快照。`quantity` 为 1–99。`tags` 只允许「今天就要」「周末」「想你了」，最多 3 个 |
+| `items` | `{ dishId, name, quantity }[]`。名称是下单时的快照。`quantity` 为 1–99。不再读写快捷标签 |
 | `createdAt` / `updatedAt` | 写入时间 |
 | `acceptedAt` / `completedAt` / `cancelledAt` | 对应动作的时间，未发生为 null |
 

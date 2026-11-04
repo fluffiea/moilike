@@ -5,7 +5,7 @@ import { toast } from '../../../core/ui'
 
 const LEAVE = '备注还没提交，离开后会丢掉这句。'
 
-type Row = { key: string; name: string; quantity: number; tagText: string }
+type Row = { key: string; name: string; cover: string; quantity: number }
 
 function alertLeave(on: boolean) {
   if (on) {
@@ -39,8 +39,8 @@ Component<
         rows: lines.map((l) => ({
           key: l.key,
           name: l.name,
+          cover: l.cover,
           quantity: l.quantity,
-          tagText: l.tags.join('、'),
         })),
       })
     },
@@ -76,7 +76,7 @@ Component<
       }
       this.setData({ submitting: true })
       const r = await callOrToast('kitchen.orderCreate', {
-        items: lines.map((l) => ({ dishId: l.dishId, quantity: l.quantity, tags: l.tags })),
+        items: lines.map((l) => ({ dishId: l.dishId, quantity: l.quantity })),
         note: this.data.note.trim(),
       })
       this.setData({ submitting: false })

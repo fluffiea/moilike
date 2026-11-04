@@ -20,12 +20,12 @@ type View = {
 }
 
 function linesOf(item: OpsOrder): string[] {
-  if (item.lines && item.lines.length) return item.lines.map((l) => lineText(l.name, l.quantity, l.tags))
+  if (item.lines && item.lines.length) return item.lines.map((l) => lineText(l.name, l.quantity))
   return item.names ? [item.names] : []
 }
 
 const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
-  pending: { title: '还没有待接单', hint: '对方点的心意会出现在这里' },
+  pending: { title: '暂无待接单', hint: '对方点单后会出现在这里' },
   in_progress: { title: '没有进行中的心意', hint: '接单之后会到这里' },
   done: { title: '还没有完成的心意', hint: '完成后留在这里' },
 }
@@ -33,7 +33,7 @@ const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
 const TABS: Tab[] = [
   { key: 'pending', name: '待接单', on: true },
   { key: 'in_progress', name: '进行中', on: false },
-  { key: 'done', name: '已完成', on: false },
+  { key: 'done', name: '完成', on: false },
 ]
 
 Component<

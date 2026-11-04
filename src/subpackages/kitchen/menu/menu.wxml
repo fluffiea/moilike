@@ -12,8 +12,7 @@
         </view>
         <view wx:if="{{empty}}" class="mo-card mo-guide">
           <text class="mo-guide__title">还没有菜品</text>
-          <text class="mo-hint mo-guide__hint">从右下角加一道菜。</text>
-          <text class="mo-hint mo-guide__hint">没有分类的话，新建时可以一起起一个。</text>
+          <text class="mo-hint mo-guide__hint">从右下角加一道菜；没有分类可先起一个</text>
         </view>
         <block wx:else>
           <view wx:for="{{groups}}" wx:key="id" class="group">
@@ -34,9 +33,8 @@
               <view class="row__main">
                 <text class="row__title">{{dish.name}}</text>
                 <text wx:if="{{dish.desc}}" class="row__desc">{{dish.desc}}</text>
-                <text class="tag">{{item.name}}</text>
               </view>
-              <text class="row__shelf">{{dish.shelf}}</text>
+              <text class="row__shelf {{dish.off ? 'row__shelf--off' : ''}}">{{dish.shelf}}</text>
               <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
             </view>
           </view>

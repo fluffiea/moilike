@@ -34,7 +34,7 @@ Component<
         fetch: (cursor) => call('kitchen.myOrders', { cursor }),
         view: (item) => ({
           id: item.id,
-          lines: item.lines.map((l) => lineText(l.name, l.quantity, l.tags)),
+          lines: item.lines.map((l) => lineText(l.name, l.quantity)),
           noteText: item.note ? `备注：${item.note}` : '',
           time: dateTime(item.createdAtMs),
           statusLabel: item.statusLabel,
@@ -79,7 +79,7 @@ Component<
         return
       }
       const available = new Map(menu.dishes.map((d) => [d.id, d]))
-      const next: { dishId: string; name: string; cover: string; quantity: number; tags: string[] }[] = []
+      const next: { dishId: string; name: string; cover: string; quantity: number }[] = []
       let skipped = 0
       for (const line of order.lines) {
         const dish = available.get(line.dishId)
@@ -92,7 +92,6 @@ Component<
           name: dish.name,
           cover: dish.cover ? dish.cover.thumb : '',
           quantity: line.quantity,
-          tags: line.tags,
         })
       }
       if (!next.length) {

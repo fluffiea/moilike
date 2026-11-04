@@ -6,7 +6,7 @@
       <state-view wx:elif="{{status === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="reload" />
       <view wx:elif="{{rows.length === 0}}" class="mo-card mo-guide">
         <text class="mo-guide__title">还没有分类</text>
-        <text class="mo-hint mo-guide__hint">菜会放在分类下面，先起一个名字。</text>
+        <text class="mo-hint mo-guide__hint">菜会放在分类下面，先起一个名字</text>
       </view>
       <block wx:else>
         <view wx:for="{{rows}}" wx:key="id" class="mo-card row">

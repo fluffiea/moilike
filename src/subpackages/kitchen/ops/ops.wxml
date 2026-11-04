@@ -54,10 +54,8 @@
             </view>
             <text wx:for="{{item.lines}}" wx:for-item="line" wx:key="index" class="job__line">{{line}}</text>
             <text wx:if="{{item.note}}" class="job__note">{{item.note}}</text>
-            <view wx:if="{{item.action}}" class="job__act">
-              <view class="mo-btn mo-btn--small" data-id="{{item.id}}" bind:tap="onAction" aria-role="button">
-                <text>{{item.action}}</text>
-              </view>
+            <view wx:if="{{item.action}}" class="mo-btn job__btn" data-id="{{item.id}}" bind:tap="onAction" aria-role="button">
+              <text>{{item.action}}</text>
             </view>
           </view>
           <state-view wx:if="{{feed.more === 'loading'}}" status="more-loading" />
