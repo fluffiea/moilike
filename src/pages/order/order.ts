@@ -30,8 +30,8 @@ function menuOfMine(kitchen: { id: string; name: string }, categories: KitchenCa
       name: d.name,
       desc: d.desc,
       cover: d.cover,
-      doneCount: 0,
-      salesLabel: '',
+      doneCount: d.doneCount || 0,
+      salesLabel: d.salesLabel || '',
     })),
   }
 }
@@ -86,6 +86,7 @@ Component<
     keyword: string
     measuring: boolean
     measureQueued: boolean
+    loadSeq: number
   },
   true
 >({
@@ -120,6 +121,7 @@ Component<
       this.keyword = ''
       this.measuring = false
       this.measureQueued = false
+      this.loadSeq = 0
       if (!isRegistered(getUser())) wx.reLaunch({ url: PAGE_LOGIN })
     },
     onShow() {
@@ -137,25 +139,38 @@ Component<
       await this.reload(false)
     },
     async reload(openCart: boolean) {
+      const seq = this.loadSeq + 1
+      this.loadSeq = seq
+      const stale = () => seq !== this.loadSeq
       if (this.mine) {
-        const r = await call('kitchen.dishes', {})
+        const r = await call('kitchen.dishes', { withSales: true })
+        if (stale()) return
         if (!r.ok) {
           if (r.code === 'NO_KITCHEN') {
             this.apply({ scene: 'no_kitchen', kitchen: null, categories: [], dishes: [] }, false)
             return
           }
-          this.setData({ scene: 'error', errorText: r.message, refreshing: false })
+          this.showLoadError(r.message)
           return
         }
         this.apply(menuOfMine(r.data.kitchen, r.data.categories, r.data.dishes), openCart)
         return
       }
       const r = await call('kitchen.partner', {})
+      if (stale()) return
       if (!r.ok) {
-        this.setData({ scene: 'error', errorText: r.message, refreshing: false })
+        this.showLoadError(r.message)
         return
       }
       this.apply(r.data, openCart)
+    },
+    showLoadError(message: string) {
+      if (this.data.scene === 'menu' || this.data.scene === 'empty') {
+        this.setData({ refreshing: false })
+        toast(message)
+        return
+      }
+      this.setData({ scene: 'error', errorText: message, refreshing: false })
     },
     onToggleMine() {
       this.mine = !this.mine
@@ -183,8 +198,8 @@ Component<
       this.activeId = active
       const categories = menu.categories.map((c) => ({ id: c.id, name: c.name, on: c.id === active }))
       const index = categories.findIndex((c) => c.on)
-      const keepSearch = menu.scene === 'menu' ? this.keyword : ''
-      this.keyword = keepSearch
+      if (menu.scene !== 'menu') this.keyword = ''
+      const search = this.searchState(menu.scene)
       this.setData(
         {
           scene: menu.scene,
@@ -193,11 +208,14 @@ Component<
           kitchenName: menu.kitchen ? menu.kitchen.name : '',
           categories,
           sections: menu.scene === 'menu' ? sectionsOf(menu.categories, menu.dishes) : [],
-          keyword: keepSearch,
+          keyword: this.keyword,
           railInto: index >= 0 ? `rail-${index}` : '',
           scrollInto: '',
+          ...search,
         },
-        () => this.refilter(),
+        () => {
+          if (!search.searching) this.measureSections()
+        },
       )
       this.syncCart(openCart)
     },
@@ -207,14 +225,17 @@ Component<
       if (this.activeId && ids.includes(this.activeId)) return this.activeId
       return ids[0] || ''
     },
-    refilter() {
+    searchState(scene: Scene): { searching: boolean; searchHits: DishRow[]; searchEmpty: boolean } {
       const q = this.keyword.trim().toLowerCase()
-      if (!q || this.data.scene !== 'menu') {
-        this.setData({ searching: false, searchHits: [], searchEmpty: false }, () => this.measureSections())
-        return
-      }
+      if (!q || scene !== 'menu') return { searching: false, searchHits: [], searchEmpty: false }
       const searchHits = this.allDishes.filter((d) => d.name.toLowerCase().includes(q))
-      this.setData({ searching: true, searchHits, searchEmpty: searchHits.length === 0 })
+      return { searching: true, searchHits, searchEmpty: searchHits.length === 0 }
+    },
+    refilter() {
+      const search = this.searchState(this.data.scene)
+      this.setData(search, () => {
+        if (!search.searching) this.measureSections()
+      })
     },
     onSearch(e: WechatMiniprogram.Input) {
       this.keyword = e.detail.value
@@ -251,7 +272,7 @@ Component<
           const box = res[0] as WechatMiniprogram.BoundingClientRectCallbackResult | null
           const scrolled = res[1] as WechatMiniprogram.ScrollOffsetCallbackResult | null
           const secs = Array.isArray(res[2]) ? (res[2] as WechatMiniprogram.BoundingClientRectCallbackResult[]) : []
-          if (!box || !secs.length) {
+          if (!box || !box.height || !secs.length) {
             this.offsets = []
             return
           }
@@ -320,10 +341,10 @@ Component<
       }
       if (Date.now() < this.lockUntil) return
       const height = this.listHeight
+      const last = this.offsets[this.offsets.length - 1]
       const maxScroll = e.detail.scrollHeight - height
-      if (height > 0 && maxScroll > 8 && scrollTop >= maxScroll - 8) {
-        const last = this.offsets[this.offsets.length - 1]
-        if (last) this.markActive(last.id)
+      if (last && height > 0 && maxScroll > 0 && last.top > maxScroll && scrollTop >= maxScroll - 8) {
+        this.markActive(last.id)
         return
       }
       this.syncActive(scrollTop)

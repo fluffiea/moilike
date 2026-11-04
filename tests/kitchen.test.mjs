@@ -181,6 +181,9 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   assert.equal((await ok('A', 'kitchen.mine')).pendingCount, 1)
   assert.equal((await ok('B', 'kitchen.mine')).pendingCount, 0)
   assert.equal((await ok('B', 'kitchen.partner')).dishes[0].salesLabel, '')
+  const preview = await ok('A', 'kitchen.dishes', { withSales: true })
+  assert.equal(preview.dishes[0].salesLabel, '')
+  assert.equal('salesLabel' in (await ok('A', 'kitchen.dishes')).dishes[0], false)
 
   const pendingOps = await ok('A', 'kitchen.ops', { status: 'pending' })
   assert.equal(pendingOps.items.length, 1)
@@ -252,4 +255,7 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   const often = (await ok('B', 'kitchen.partner')).dishes.find((d) => d.name === '改名后的抱抱')
   assert.equal(often.doneCount, 5)
   assert.equal(often.salesLabel, '常点')
+  const own = (await ok('A', 'kitchen.dishes', { withSales: true })).dishes.find((d) => d.name === '改名后的抱抱')
+  assert.equal(own.doneCount, 5)
+  assert.equal(own.salesLabel, '常点')
 })

@@ -40,7 +40,7 @@ Component<
   { gate: 'loading' | 'error' | 'ready'; errorText: string; kitchenName: string; tabs: Tab[]; emptyTitle: string; emptyHint: string; feed: FeedData<View> },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus },
+  { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus; acting: boolean },
   true
 >({
   data: {
@@ -56,6 +56,7 @@ Component<
     onLoad() {
       this.feedCtl = null
       this.tab = 'pending'
+      this.acting = false
       void this.openKitchen()
     },
     async openKitchen() {
@@ -118,15 +119,18 @@ Component<
       if (this.feedCtl) void this.feedCtl.loadMore()
     },
     async onAction(e: WechatMiniprogram.TouchEvent) {
+      if (this.acting) return
       const id = String(e.currentTarget.dataset.id || '')
       const item = this.feedCtl ? this.feedCtl.find(id) : undefined
       if (!item || !this.feedCtl) return
+      this.acting = true
       const r = item.canAccept
         ? await callOrToast('kitchen.accept', { id })
         : item.canComplete
           ? await callOrToast('kitchen.complete', { id })
           : null
-      if (r) this.feedCtl.remove(id)
+      this.acting = false
+      if (r && this.feedCtl) this.feedCtl.remove(id)
     },
     onMenu() {
       wx.navigateTo({ url: PAGE_KITCHEN_MENU })

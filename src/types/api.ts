@@ -202,7 +202,7 @@ export interface Routes {
   'kitchen.renameCategory': [{ id: string; name: string }, { category: KitchenCategory }]
   'kitchen.removeCategory': [{ id: string }, null]
   /** 厨方菜单一屏：厨房名、分类（含空分类和道数）、全部菜品 */
-  'kitchen.dishes': [{}, { kitchen: Kitchen; categories: KitchenCategory[]; dishes: KitchenDish[] }]
+  'kitchen.dishes': [{ withSales?: boolean }, { kitchen: Kitchen; categories: KitchenCategory[]; dishes: KitchenDish[] }]
   'kitchen.dish': [{ id: string }, { dish: KitchenDish }]
   'kitchen.createDish': [DishWrite, { dish: KitchenDish }]
   'kitchen.updateDish': [DishWrite & { id: string }, { dish: KitchenDish }]
@@ -231,6 +231,9 @@ export type KitchenDish = {
   cover: DishCover | null
   onShelf: boolean
   createdAtMs: number
+  /** 仅 kitchen.dishes 传入 withSales 时返回，算法与对方菜单一致 */
+  doneCount?: number
+  salesLabel?: string
 }
 
 export type DishWrite = {

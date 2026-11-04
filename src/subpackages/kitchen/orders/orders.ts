@@ -22,12 +22,13 @@ Component<
   { feed: FeedData<View> },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { feedCtl: Feed<MyOrder, View> | null },
+  { feedCtl: Feed<MyOrder, View> | null; cancelling: boolean },
   true
 >({
   data: { feed: emptyFeed<View>() },
   methods: {
     onLoad() {
+      this.cancelling = false
       this.feedCtl = new Feed<MyOrder, View>({
         host: this,
         path: 'feed',
@@ -58,16 +59,22 @@ Component<
       if (this.feedCtl) void this.feedCtl.loadMore()
     },
     async onCancel(e: WechatMiniprogram.TouchEvent) {
+      if (this.cancelling) return
       const id = String(e.currentTarget.dataset.id || '')
+      this.cancelling = true
       const yes = await confirm({
         title: '取消这份订单？',
         content: '还没接单，取消后对方就看不到了。',
         confirmText: '取消订单',
         danger: true,
       })
-      if (!yes || !this.feedCtl) return
+      if (!yes || !this.feedCtl) {
+        this.cancelling = false
+        return
+      }
       const r = await callOrToast('kitchen.cancel', { id })
-      if (r) this.feedCtl.upsert(r.order)
+      this.cancelling = false
+      if (r && this.feedCtl) this.feedCtl.upsert(r.order)
     },
     async onReorder(e: WechatMiniprogram.TouchEvent) {
       const id = String(e.currentTarget.dataset.id || '')

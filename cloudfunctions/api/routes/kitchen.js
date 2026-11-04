@@ -209,16 +209,25 @@ async function paintDish(ctx, doc, categoryName) {
   return dishView(doc, categoryName, urls)
 }
 
-/** 菜单页一次拿齐，避免厨房、分类、菜品各打一轮 */
-async function dishes(ctx) {
+/** 菜单页一次拿齐，避免厨房、分类、菜品各打一轮。withSales 只给点单预览自己的厨房用 */
+async function dishes(ctx, e) {
   const kitchen = await ownKitchen(ctx)
   const [cats, rows] = await Promise.all([categoriesOf(ctx, kitchen._id), dishesOf(ctx, kitchen._id)])
   const names = new Map(cats.map((c) => [c._id, c.name || '']))
-  const urls = await media.sign(ctx.cloud, rows.map((d) => d.coverFileId))
+  const withSales = !!(e && e.withSales === true)
+  const [urls, counts] = await Promise.all([
+    media.sign(ctx.cloud, rows.map((d) => d.coverFileId)),
+    withSales ? doneCountMap(ctx, kitchen._id) : Promise.resolve(null),
+  ])
   return {
     kitchen: kitchenView(kitchen),
     categories: withCounts(cats, rows),
-    dishes: rows.map((d) => dishView(d, names.get(d.categoryId) || '', urls)),
+    dishes: rows.map((d) => {
+      const view = dishView(d, names.get(d.categoryId) || '', urls)
+      if (!counts) return view
+      const doneCount = counts.get(d._id) || 0
+      return { ...view, doneCount, salesLabel: salesLabel(doneCount) }
+    }),
   }
 }
 
