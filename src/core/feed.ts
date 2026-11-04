@@ -33,7 +33,10 @@ export type FeedOptions<T extends { id: string }, V> = {
   fetch: (cursor: string) => Promise<Result<Page<T>>>
   /** prev 为列表中的上一条，用于决定是否显示日期分隔 */
   view: (item: T, prev: T | undefined) => V
-  /** 排序字段可被编辑时提供（倒序），新增/编辑后按它重新排位 */
+  /**
+   * 排序字段（倒序）。提供后，缓存首屏、刷新、翻页和单条更新都按它重排，
+   * 不再只把下一页接在末尾。共鸣「我发的」靠它把未回心放到已回心前面。
+   */
   sortKey?: (item: T) => number
 }
 
@@ -65,6 +68,13 @@ export class Feed<T extends { id: string }, V> {
     return list.slice(from).map((item, i) => this.opts.view(item, list[from + i - 1]))
   }
 
+  /** 有 sortKey 时复制后再排，避免改到缓存里的原数组 */
+  private arrange(list: T[]): T[] {
+    const sortKey = this.opts.sortKey
+    if (!sortKey) return list
+    return list.slice().sort((a, b) => sortKey(b) - sortKey(a))
+  }
+
   private renderAll(): void {
     this.set({ items: this.views(this.raw), status: this.raw.length ? 'ready' : 'empty' })
   }
@@ -73,7 +83,7 @@ export class Feed<T extends { id: string }, V> {
   start(): void {
     const cached = this.opts.cacheName ? readCache<Page<T>>(this.opts.cacheName) : null
     if (cached && cached.items.length) {
-      this.raw = cached.items
+      this.raw = this.arrange(cached.items)
       this.cursor = cached.nextCursor
       this.renderAll()
       this.set({ more: this.cursor ? 'idle' : 'end' })
@@ -104,7 +114,7 @@ export class Feed<T extends { id: string }, V> {
       }
       return
     }
-    this.raw = r.data.items
+    this.raw = this.arrange(r.data.items)
     this.cursor = r.data.nextCursor
     this.loadedAt = Date.now()
     this.set({
@@ -123,12 +133,24 @@ export class Feed<T extends { id: string }, V> {
     const r = await this.opts.fetch(this.cursor)
     this.busy = false
     if (!r.ok) {
-      this.set({ more: 'error' })
+      if (this.raw.length) this.set({ more: 'error' })
+      else this.set({ more: 'idle', status: 'error', errorText: r.message })
+      return
+    }
+    const appended = this.raw.concat(r.data.items)
+    this.cursor = r.data.nextCursor
+    // 排序键和接口顺序不一致时（我发的未回优先），整表重排，日期分隔才不会断在错误的邻居上
+    if (this.opts.sortKey) {
+      this.raw = this.arrange(appended)
+      this.set({
+        items: this.views(this.raw),
+        status: this.raw.length ? 'ready' : 'empty',
+        more: this.cursor ? 'idle' : 'end',
+      })
       return
     }
     const start = this.raw.length
-    this.raw = this.raw.concat(r.data.items)
-    this.cursor = r.data.nextCursor
+    this.raw = appended
     const patch: Record<string, unknown> = { [`${this.opts.path}.more`]: this.cursor ? 'idle' : 'end' }
     this.views(this.raw, start).forEach((v, i) => {
       patch[`${this.opts.path}.items[${start + i}]`] = v
@@ -147,7 +169,7 @@ export class Feed<T extends { id: string }, V> {
     }
     if (i >= 0) this.raw[i] = item
     else this.raw.unshift(item)
-    if (sortKey) this.raw.sort((a, b) => sortKey(b) - sortKey(a))
+    if (sortKey) this.raw = this.arrange(this.raw)
     this.renderAll()
   }
 
@@ -164,5 +186,10 @@ export class Feed<T extends { id: string }, V> {
 
   find(id: string): T | undefined {
     return this.raw.find((x) => x.id === id)
+  }
+
+  /** 还有下一页。列表被回心清空时，页面用它决定要不要接着拉，而不是直接显示空态 */
+  get hasMore(): boolean {
+    return !!this.cursor
   }
 }

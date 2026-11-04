@@ -1,0 +1,15 @@
+<view class="stickers {{busy ? 'stickers--busy' : ''}}">
+  <view
+    wx:for="{{stickers}}"
+    wx:key="id"
+    class="sticker {{currentId === item.id ? 'sticker--on' : ''}} {{busy === item.id ? 'sticker--busy' : ''}}"
+    data-id="{{item.id}}"
+    bind:tap="onPick"
+    aria-role="button"
+  >
+    <view class="sticker__art">
+      <image class="sticker__img" src="{{item.src}}" mode="aspectFit" />
+    </view>
+    <text class="sticker__label">{{item.label}}</text>
+  </view>
+</view>

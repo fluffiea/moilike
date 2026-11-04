@@ -5,6 +5,11 @@
   background-color: var(--mo-l1-card);
 }
 
+.card--row {
+  margin-bottom: 16rpx;
+  padding: 20rpx 32rpx;
+}
+
 .card__head {
   position: relative;
   display: flex;
@@ -116,7 +121,7 @@
   background-color: var(--mo-l0-bg);
 }
 
-/* 贴纸是浅色插画，必须垫在白底上，灰底会把云朵和信封吃掉 */
+/* 贴纸是浅色插画，垫在白底上，灰底会把浅色吃掉 */
 .reply__plate {
   display: flex;
   align-items: center;
@@ -154,4 +159,106 @@
   font-size: 26rpx;
   line-height: 1.5;
   color: var(--mo-text-secondary);
+}
+
+.line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.line__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.line__title-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.line__signal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.line__chip {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.line__pending {
+  font-size: 24rpx;
+  color: var(--mo-status-pending-text);
+}
+
+.line__done,
+.line__when,
+.line__clock {
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.line__when {
+  margin-left: 8rpx;
+}
+
+.line__clock {
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.line__reply {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 48rpx;
+  margin-left: 16rpx;
+  padding: 0 20rpx;
+  border-radius: var(--mo-radius-chip);
+  background-color: var(--mo-l0-bg);
+  flex-shrink: 0;
+}
+
+.line__reply-text {
+  font-size: 26rpx;
+  color: var(--mo-brand-slate);
+}
+
+.line__more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  margin-left: 8rpx;
+  flex-shrink: 0;
+}
+
+.line__more-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.line__opened {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+/* 全部栏已闭环：字色降下来，贴纸仍认得出来 */
+.card--closed .line__title-text {
+  color: var(--mo-text-secondary);
+}
+
+.card--closed .line__chip {
+  opacity: 0.8;
 }

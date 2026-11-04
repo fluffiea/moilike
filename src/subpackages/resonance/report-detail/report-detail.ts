@@ -56,7 +56,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
 
     render(post: ReportPost) {
       this.raw = post
-      this.setData({ post: reportView(post, undefined, true), status: 'ready' })
+      this.setData({ post: reportView(post, undefined, 'detail'), status: 'ready' })
     },
 
     /** 状态变化同步到共鸣列表（待我回应会据此移出） */
@@ -65,8 +65,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
       emit('report:upsert', post)
     },
 
-    async onSticker(e: WechatMiniprogram.TouchEvent) {
-      const stickerId = String(e.currentTarget.dataset.id || '')
+    async onSticker(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+      const stickerId = e.detail.id || ''
       if (!stickerId || this.data.busy) return
       if (this.raw && this.raw.partnerStickerId === stickerId) return
       this.setData({ busy: stickerId })

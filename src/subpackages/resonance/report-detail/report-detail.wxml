@@ -11,21 +11,7 @@
         <view wx:if="{{post.canRespond}}" class="mo-card action">
           <text class="mo-section-title">回一颗心</text>
           <text class="mo-hint">点一个贴纸，对方就知道你看过了。</text>
-          <view class="stickers {{busy ? 'stickers--busy' : ''}}">
-            <view
-              wx:for="{{stickers}}"
-              wx:key="id"
-              class="sticker {{post.partnerStickerId === item.id ? 'sticker--on' : ''}} {{busy === item.id ? 'sticker--busy' : ''}}"
-              data-id="{{item.id}}"
-              bind:tap="onSticker"
-              aria-role="button"
-            >
-              <view class="sticker__art">
-                <image class="sticker__img" src="{{item.src}}" mode="aspectFit" />
-              </view>
-              <text class="sticker__label">{{item.label}}</text>
-            </view>
-          </view>
+          <sticker-grid stickers="{{stickers}}" current-id="{{post.partnerStickerId}}" busy="{{busy}}" bind:pick="onSticker" />
         </view>
       </block>
     </view>

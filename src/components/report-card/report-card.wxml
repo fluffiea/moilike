@@ -1,4 +1,4 @@
-<view class="card {{detail ? 'card--detail' : ''}}" bind:tap="onOpen" bind:longpress="onMore">
+<view wx:if="{{detail}}" class="card card--detail" bind:longpress="onMore">
   <view class="card__head {{post.isMine ? 'card__head--mine' : ''}}">
     <text class="card__name">{{post.headline}}</text>
     <view wx:if="{{post.isMine}}" class="more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
@@ -29,4 +29,26 @@
     <text class="reply__when">{{post.respondedWhen}}</text>
   </view>
   <text wx:elif="{{post.openedHint}}" class="opened">{{post.openedHint}}</text>
+</view>
+
+<view wx:else class="card card--row {{post.dimmed ? 'card--closed' : ''}}" bind:tap="onOpen" bind:longpress="onLongPress" aria-role="button">
+  <view class="line">
+    <view class="line__title">
+      <text class="line__title-text" overflow="ellipsis" max-lines="1">{{post.headline}}</text>
+    </view>
+    <view class="line__signal">
+      <image wx:if="{{post.sticker}}" class="line__chip" src="{{post.sticker.src}}" mode="aspectFit" />
+      <text wx:elif="{{post.state === 'responded'}}" class="line__done">已回心</text>
+      <text wx:else class="line__pending">待回应</text>
+      <text wx:if="{{post.showRespondedWhen && post.respondedWhen}}" class="line__when">{{post.respondedWhen}}</text>
+    </view>
+    <text class="line__clock">{{post.time}}</text>
+    <view wx:if="{{post.quickReply}}" class="line__reply" catch:tap="onQuick" aria-role="button" aria-label="回心">
+      <text class="line__reply-text">回心</text>
+    </view>
+    <view wx:if="{{post.isMine}}" class="line__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+      <image class="line__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+    </view>
+  </view>
+  <text wx:if="{{post.listOpened}}" class="line__opened">{{post.listOpened}}</text>
 </view>
