@@ -35,10 +35,11 @@ function noon(daysAgo = 0) {
 
 function post(patch = {}) {
   const now = noon(0)
+  const isMine = !!patch.isMine
   return {
     id: 'p',
-    isMine: false,
-    author: { name: '', avatarUrl: '' },
+    isMine,
+    author: { name: isMine ? '阿杏' : '阿桃', avatarUrl: 'https://example.test/avatars/a.png' },
     body: '午餐',
     tags: [],
     images: [],
@@ -57,7 +58,7 @@ function mapViews(items, mode = 'all') {
   return items.map((item, i) => views.reportView(item, items[i - 1], mode))
 }
 
-test('一条流按记录时间排，同一天只在第一条带日期；署名为我 / Ta', () => {
+test('一条流按记录时间排，同一天只在第一条带日期；署名用头像和昵称', () => {
   const rows = mapViews([
     post({ id: 'today' }),
     post({ id: 'yesterday', recordAtMs: noon(1) }),
@@ -67,10 +68,14 @@ test('一条流按记录时间排，同一天只在第一条带日期；署名�
     ['today', 'yesterday'],
   )
   assert.equal(rows[0].day, '今天')
-  assert.equal(rows[0].who, 'Ta')
+  assert.equal(rows[0].authorName, '阿桃')
+  assert.equal(rows[0].authorInitial, '阿')
   assert.equal(rows[0].clock, '12:00')
   assert.equal(rows[1].day, '昨天')
-  assert.equal(views.reportView(post({ isMine: true }), undefined, 'all').who, '我')
+  assert.equal(views.reportView(post({ isMine: true }), undefined, 'all').authorName, '阿杏')
+  const anonymous = views.reportView(post({ author: { name: '', avatarUrl: '' } }), undefined, 'all')
+  assert.equal(anonymous.authorName, 'Ta')
+  assert.equal(anonymous.authorInitial, 'T')
 })
 
 test('对方发的还没回心：等你的回声 + 回心入口', () => {
@@ -135,18 +140,22 @@ test('列表正文压成一段，详情保留换行和完整日期', () => {
   assert.match(detail.clock, /^今天 12:00$/)
 })
 
-test('列表只给首图封面和剩余张数；标签拼成一行', () => {
+test('列表只给首图封面和 +N；署名只放两个标签，余量折成 +N', () => {
   const images = [
     { id: 'a', thumb: 'thumb-a', url: 'url-a' },
     { id: 'b', thumb: 'thumb-b', url: 'url-b' },
   ]
   const row = views.reportView(post({ images, tags: ['干饭', '日常'] }), undefined, 'all')
   assert.equal(row.cover, 'thumb-a')
-  assert.equal(row.moreShots, '还有 1 张')
-  assert.equal(row.tagLine, '干饭 · 日常')
+  assert.equal(row.moreShotsLabel, '+1')
+  assert.deepEqual(row.tagChips, ['干饭', '日常'])
+  assert.equal(row.tagMore, '')
   const single = views.reportView(post({ images: [images[0]] }), undefined, 'all')
-  assert.equal(single.moreShots, '')
-  assert.equal(views.reportView(post(), undefined, 'all').tagLine, '')
+  assert.equal(single.moreShotsLabel, '')
+  const many = views.reportView(post({ tags: ['干饭', '日常', '想念', '下班'] }), undefined, 'all')
+  assert.deepEqual(many.tagChips, ['干饭', '日常'])
+  assert.equal(many.tagMore, '+2')
+  assert.equal(views.reportView(post(), undefined, 'all').tagChips.length, 0)
 })
 
 test('已共鸣：按年月分组，卡片写「4日 21:04」，回声只写谁回的心', () => {
@@ -232,25 +241,37 @@ test('共鸣模板：两条文字筛选、单条流、回声槽和未结伴引�
   assert.equal(source.includes('disposeFeed'), true)
 })
 
-test('报备卡：列表用回声槽，详情用整组图片', () => {
+test('报备卡：照片刊头 + 真人署名 + 页脚回声带，详情用整组图片', () => {
   const wxml = readFileSync(join(root, 'src/components/report-card/report-card.wxml'), 'utf8')
-  const list = wxml.slice(wxml.indexOf('wx:else'))
+  const listStart = wxml.indexOf('<view wx:else class="card')
+  assert.ok(listStart > 0)
+  const list = wxml.slice(listStart)
   assert.ok(list.length > 0)
   assert.equal(list.includes('image-grid'), false)
   assert.equal(list.includes('post.cover'), true)
-  assert.equal(list.includes('post.moreShots'), true)
+  assert.equal(list.includes('photo__img'), true)
+  assert.equal(list.includes('post.moreShotsLabel'), true)
+  assert.equal(list.includes('photo__count'), true)
   assert.equal(list.includes('post.preview'), true)
   assert.equal(list.includes('max-lines="4"'), true)
+  assert.equal(list.includes('post.author.avatarUrl'), true)
+  assert.equal(list.includes('post.authorName'), true)
+  assert.equal(list.includes('post.tagChips'), true)
   assert.equal(list.includes('post.echo.wait'), true)
   assert.equal(list.includes('post.echo.action'), true)
   assert.equal(list.includes('post.echo.label'), true)
   assert.equal(list.includes('post.echo.meta'), true)
+  assert.equal(list.includes('byline__ava'), true)
   assert.equal(list.includes('回心'), true)
   assert.equal(list.includes('post.rest'), false)
   assert.equal(list.includes('dimmed'), false)
-  const detail = wxml.slice(0, wxml.indexOf('wx:else'))
+  assert.equal(list.includes('post.who'), false)
+  assert.equal(list.includes('post.tagLine'), false)
+  const detail = wxml.slice(0, listStart)
   assert.equal(detail.includes('image-grid'), true)
   assert.equal(detail.includes('post.preview'), true)
+  assert.equal(detail.includes('post.author.avatarUrl'), true)
+  assert.equal(detail.includes('post.tagChips'), true)
   assert.equal(detail.includes('post.echo'), true)
   assert.equal(detail.includes('post.echo.action'), false)
 })

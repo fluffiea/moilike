@@ -56,18 +56,28 @@ export function reportView(post: ReportPost, prev?: ReportPost, mode: ReportView
         meta: post.isMine && post.partnerOpenedAt > 0 ? 'Ta 已打开' : '',
         action: !inDetail && !inArchive && !post.isMine,
       }
+  /** 旧缓存可能没有 author；名字用来代替「我 / Ta」做署名 */
+  const author = post.author || { name: '', avatarUrl: '' }
+  const authorName = author.name || (post.isMine ? '我' : 'Ta')
+  const tags = post.tags || []
+  const tagChips = tags.slice(0, 2)
   return {
     ...post,
     day: inDetail || inArchive ? '' : daySeparator(post.recordAtMs, prev && prev.recordAtMs),
     /** 已共鸣按年月分组，其余列表按日分组 */
     month: inArchive ? monthSeparator(post.recordAtMs, prev && prev.recordAtMs) : '',
-    who: post.isMine ? '我' : 'Ta',
+    authorName,
+    /** emoji 昵称按码点取首字，避免半个代理对 */
+    authorInitial: Array.from(authorName)[0] || '',
     /** 列表只给钟点；已共鸣在月份下给「4日 21:04」；详情给完整日期 */
     clock: inArchive ? dayClock(post.recordAtMs) : inDetail ? dateTime(post.recordAtMs) : clock(post.recordAtMs),
     preview: inDetail ? post.body : listText(post.body),
-    tagLine: post.tags.length ? post.tags.join(' · ') : '',
+    /** 署名行只放两个标签，余量折成 +N，不另起一行灰字 */
+    tagChips,
+    tagMore: tags.length > tagChips.length ? `+${tags.length - tagChips.length}` : '',
     cover: shots[0] ? shots[0].thumb : '',
-    moreShots: shots.length > 1 ? `还有 ${shots.length - 1} 张` : '',
+    /** 多图时在封面右下角标 +N */
+    moreShotsLabel: shots.length > 1 ? `+${shots.length - 1}` : '',
     echo,
   }
 }

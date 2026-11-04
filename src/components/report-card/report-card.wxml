@@ -1,16 +1,33 @@
 <view wx:if="{{detail}}" class="card card--detail" bind:longpress="onLongPress">
-  <view class="head">
-    <text class="head__who {{post.isMine ? 'head__who--mine' : ''}}">{{post.who}}</text>
-    <view class="head__fill" />
-    <text class="head__clock">{{post.clock}}</text>
-    <view wx:if="{{post.isMine}}" class="head__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <image class="head__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+  <view class="copy">
+    <view class="byline">
+      <image
+        wx:if="{{post.author.avatarUrl && !avatarError}}"
+        class="byline__ava"
+        src="{{post.author.avatarUrl}}"
+        mode="aspectFill"
+        binderror="onAvatarError"
+      />
+      <view wx:else class="byline__ava byline__ava--empty">
+        <text class="byline__initial">{{post.authorInitial}}</text>
+      </view>
+      <text class="byline__name" overflow="ellipsis" max-lines="1">{{post.authorName}}</text>
+      <view wx:if="{{post.tagChips.length}}" class="byline__tags">
+        <view wx:for="{{post.tagChips}}" wx:key="*this" class="byline__tag">
+          <text class="byline__tag-text" overflow="ellipsis" max-lines="1">{{item}}</text>
+        </view>
+        <text wx:if="{{post.tagMore}}" class="byline__tag-more">{{post.tagMore}}</text>
+      </view>
+      <view class="byline__fill" />
+      <text class="byline__time">{{post.clock}}</text>
+      <view wx:if="{{post.isMine}}" class="byline__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+        <image class="byline__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+      </view>
     </view>
-  </view>
 
-  <text class="body body--full">{{post.preview}}</text>
-  <text wx:if="{{post.tagLine}}" class="tags">{{post.tagLine}}</text>
-  <image-grid wx:if="{{post.images.length}}" images="{{post.images}}" />
+    <text wx:if="{{post.preview}}" class="body body--full">{{post.preview}}</text>
+    <image-grid wx:if="{{post.images.length}}" images="{{post.images}}" />
+  </view>
 
   <view wx:if="{{post.isMine}}" class="echo">
     <image wx:if="{{post.echo.sticker}}" class="echo__art" src="{{post.echo.sticker.src}}" mode="aspectFit" />
@@ -22,19 +39,41 @@
 </view>
 
 <view wx:else class="card {{book ? 'card--book' : ''}}" bind:tap="onOpen" bind:longpress="onLongPress" aria-role="button">
-  <view class="head">
-    <text class="head__who {{post.isMine ? 'head__who--mine' : ''}}">{{post.who}}</text>
-    <view class="head__fill" />
-    <text class="head__clock">{{post.clock}}</text>
-    <view wx:if="{{post.isMine && !book}}" class="head__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
-      <image class="head__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+  <view wx:if="{{post.cover}}" class="photo">
+    <image class="photo__img" src="{{post.cover}}" mode="aspectFill" />
+    <view wx:if="{{post.moreShotsLabel}}" class="photo__count">
+      <text class="photo__count-text">{{post.moreShotsLabel}}</text>
     </view>
   </view>
 
-  <text class="body" overflow="ellipsis" max-lines="4">{{post.preview}}</text>
-  <text wx:if="{{post.tagLine}}" class="tags">{{post.tagLine}}</text>
-  <image wx:if="{{post.cover}}" class="cover" src="{{post.cover}}" mode="aspectFill" />
-  <text wx:if="{{post.moreShots}}" class="shots">{{post.moreShots}}</text>
+  <view class="copy">
+    <view class="byline">
+      <image
+        wx:if="{{post.author.avatarUrl && !avatarError}}"
+        class="byline__ava"
+        src="{{post.author.avatarUrl}}"
+        mode="aspectFill"
+        binderror="onAvatarError"
+      />
+      <view wx:else class="byline__ava byline__ava--empty">
+        <text class="byline__initial">{{post.authorInitial}}</text>
+      </view>
+      <text class="byline__name" overflow="ellipsis" max-lines="1">{{post.authorName}}</text>
+      <view wx:if="{{post.tagChips.length}}" class="byline__tags">
+        <view wx:for="{{post.tagChips}}" wx:key="*this" class="byline__tag">
+          <text class="byline__tag-text" overflow="ellipsis" max-lines="1">{{item}}</text>
+        </view>
+        <text wx:if="{{post.tagMore}}" class="byline__tag-more">{{post.tagMore}}</text>
+      </view>
+      <view class="byline__fill" />
+      <text class="byline__time">{{post.clock}}</text>
+      <view wx:if="{{post.isMine && !book}}" class="byline__more" catch:tap="onMore" aria-role="button" aria-label="编辑或删除">
+        <image class="byline__more-icon" src="/images/icons/more.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <text wx:if="{{post.preview}}" class="body" overflow="ellipsis" max-lines="4">{{post.preview}}</text>
+  </view>
 
   <view class="echo">
     <image wx:if="{{post.echo.sticker}}" class="echo__art" src="{{post.echo.sticker.src}}" mode="aspectFit" />

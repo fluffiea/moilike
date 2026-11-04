@@ -46,7 +46,7 @@
   width: 36rpx;
   height: 36rpx;
   border-radius: 50%;
-  background: rgba(28, 28, 30, 0.45);
+  background: var(--mo-fill-overlay);
 }
 
 .cell__x-icon {

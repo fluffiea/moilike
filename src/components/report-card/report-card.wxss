@@ -1,57 +1,137 @@
 .card {
   margin-bottom: 36rpx;
-  padding: 32rpx;
   border-radius: var(--mo-radius-card);
   background-color: var(--mo-l1-card);
+  overflow: hidden;
 }
 
-.head {
+/* 照片做刊头，直接顶到卡片边缘 */
+.photo {
+  position: relative;
+}
+
+.photo__img {
+  display: block;
+  width: 100%;
+  height: 380rpx;
+  background-color: var(--mo-l0-bg);
+}
+
+.photo__count {
+  position: absolute;
+  right: 16rpx;
+  bottom: 16rpx;
+  padding: 4rpx 16rpx;
+  border-radius: var(--mo-radius-chip);
+  background: var(--mo-fill-overlay);
+}
+
+.photo__count-text {
+  font-size: 24rpx;
+  color: var(--mo-text-inverse);
+}
+
+.copy {
+  padding: var(--mo-pad-h);
+}
+
+/* 署名行：头像 + 昵称 + 标签胶囊 + 时间 */
+.byline {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.head__who {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: var(--mo-brand-teal);
+.byline__ava {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background-color: var(--mo-l0-bg);
   flex-shrink: 0;
 }
 
-.head__who--mine {
-  color: var(--mo-brand-rose-ink);
+.byline__ava--empty {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
-.head__fill {
+.byline__initial {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--mo-text-secondary);
+}
+
+.byline__name {
+  max-width: 140rpx;
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+  flex-shrink: 0;
+}
+
+.byline__tags {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 12rpx;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.byline__tag {
+  max-width: 120rpx;
+  margin-right: 8rpx;
+  padding: 4rpx 16rpx;
+  border-radius: var(--mo-radius-chip);
+  background-color: var(--mo-l0-bg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.byline__tag-text {
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
+}
+
+.byline__tag-more {
+  font-size: 24rpx;
+  color: var(--mo-text-muted);
+}
+
+.byline__fill {
   flex: 1;
-  min-width: 16rpx;
+  min-width: 12rpx;
 }
 
-.head__clock {
+.byline__time {
   font-size: 24rpx;
   color: var(--mo-text-muted);
   flex-shrink: 0;
 }
 
-.head__more {
+.byline__more {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
-  margin: -12rpx -12rpx -12rpx 4rpx;
+  width: 64rpx;
+  height: 64rpx;
+  margin: -8rpx -12rpx -8rpx 4rpx;
   flex-shrink: 0;
 }
 
-.head__more-icon {
+.byline__more-icon {
   width: 36rpx;
   height: 36rpx;
 }
 
 .body {
   display: block;
-  margin-top: 16rpx;
+  margin-top: 20rpx;
   font-size: 32rpx;
   line-height: 1.6;
   color: var(--mo-text-primary);
@@ -59,53 +139,26 @@
 }
 
 .body--full {
-  margin-top: 20rpx;
   line-height: 1.7;
 }
 
-.tags {
-  display: block;
-  margin-top: 16rpx;
-  font-size: 24rpx;
-  line-height: 1.5;
-  color: var(--mo-text-muted);
-}
-
-.cover {
-  display: block;
-  width: 100%;
-  height: 320rpx;
-  margin-top: 20rpx;
-  border-radius: var(--mo-radius-inner);
-  background-color: var(--mo-l0-bg);
-}
-
-.shots {
-  display: block;
-  margin-top: 12rpx;
-  font-size: 24rpx;
-  color: var(--mo-text-muted);
-}
-
-/* 回声槽：未回心是等待和入口，已回心是贴纸和回心的人 */
+/* 页脚回声带：横贯整张卡。沿用骨架灰，比页面底深一档，卡片底边和圆角才收得住 */
 .echo {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 20rpx;
-  padding: 16rpx 20rpx;
-  border-radius: var(--mo-radius-inner);
-  background-color: var(--mo-l0-bg);
+  padding: 20rpx var(--mo-pad-h);
+  background-color: var(--mo-skeleton);
 }
 
 .echo__art {
-  width: 64rpx;
-  height: 64rpx;
+  width: 56rpx;
+  height: 56rpx;
   flex-shrink: 0;
 }
 
 .echo__label {
-  margin-left: 16rpx;
+  margin-left: 12rpx;
   font-size: 28rpx;
   color: var(--mo-text-primary);
   flex-shrink: 0;
@@ -131,8 +184,9 @@
 .echo__action {
   display: flex;
   align-items: center;
-  margin-left: 24rpx;
-  padding: 12rpx 0;
+  min-height: 64rpx;
+  margin-left: 8rpx;
+  padding: 12rpx 0 12rpx 16rpx;
   flex-shrink: 0;
 }
 
@@ -142,12 +196,12 @@
 }
 
 /* 已共鸣档案：只读回看，贴纸是主视觉 */
-.card--book .cover {
-  height: 280rpx;
+.card--book .photo__img {
+  height: 320rpx;
 }
 
 .card--book .echo {
-  padding: 20rpx 24rpx;
+  padding: 24rpx var(--mo-pad-h);
 }
 
 .card--book .echo__art {

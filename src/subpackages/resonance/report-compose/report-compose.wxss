@@ -37,8 +37,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 72rpx;
-  padding: 0 20rpx;
+  height: 80rpx;
+  padding: 0 28rpx;
 }
 
 .when__item--last .when__field {
@@ -47,7 +47,7 @@
 
 .when__text {
   font-size: 26rpx;
-  line-height: 72rpx;
+  line-height: 80rpx;
   color: var(--mo-text-primary);
 }
 
@@ -106,7 +106,7 @@
   align-items: center;
   justify-content: center;
   padding: 64rpx;
-  background: rgba(28, 28, 30, 0.4);
+  background: var(--mo-fill-overlay);
 }
 
 .dialog {

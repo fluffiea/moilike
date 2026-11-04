@@ -4,8 +4,8 @@
   flex-direction: row;
   height: 80rpx;
   padding: 6rpx;
-  border-radius: 24rpx;
-  background-color: rgba(118, 118, 128, 0.12);
+  border-radius: var(--mo-radius-inner);
+  background-color: var(--mo-l0-bg);
 }
 
 .segment__thumb {
@@ -14,9 +14,8 @@
   top: 6rpx;
   bottom: 6rpx;
   width: calc((100% - 12rpx) / 2);
-  border-radius: 18rpx;
+  border-radius: var(--mo-radius-inner);
   background-color: var(--mo-l1-card);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: transform 0.26s ease;
 }
 

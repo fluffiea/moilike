@@ -26,6 +26,8 @@ page {
   --mo-l1-paper: #f4efe8;
   --mo-fill-brand: #4a6670;
   --mo-skeleton: #ececf1;
+  /* 图片上的计数 / 删除圆底：沿用既有遮罩，不新起色系 */
+  --mo-fill-overlay: rgba(28, 28, 30, 0.45);
 
   --mo-border-field: 1rpx solid rgba(0, 0, 0, 0.06);
 
