@@ -4,7 +4,7 @@ import { renameKitchen } from '../../../core/kitchen'
 import { PAGE_KITCHEN_CATEGORIES, PAGE_KITCHEN_CREATE, PAGE_KITCHEN_DISH } from '../../../core/paths'
 import { toast } from '../../../core/ui'
 
-type Row = { id: string; name: string; desc: string; cover: string; shelf: string }
+type Row = { id: string; name: string; desc: string; cover: string; shelf: string; off: boolean }
 type Group = { id: string; name: string; dishes: Row[] }
 type Status = 'loading' | 'error' | 'ready'
 
@@ -14,7 +14,8 @@ function toRow(d: KitchenDish): Row {
     name: d.name,
     desc: d.desc,
     cover: d.cover ? d.cover.thumb : '',
-    shelf: d.onShelf ? '上架' : '下架',
+    shelf: d.onShelf ? '上架中' : '已下架',
+    off: !d.onShelf,
   }
 }
 

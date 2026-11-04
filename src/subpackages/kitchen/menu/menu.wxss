@@ -68,23 +68,18 @@
 .row__desc {
   display: block;
   margin-top: 8rpx;
-  font-size: 26rpx;
-  color: var(--mo-text-secondary);
-}
-
-.tag {
-  display: inline-block;
-  margin-top: 12rpx;
-  padding: 4rpx 14rpx;
-  border-radius: var(--mo-radius-chip);
-  background-color: var(--mo-l0-bg);
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: var(--mo-text-secondary);
 }
 
 .row__shelf {
   margin-right: 8rpx;
+  margin-left: 16rpx;
   font-size: 26rpx;
-  color: var(--mo-text-secondary);
+  color: var(--mo-text-primary);
   flex-shrink: 0;
+}
+
+.row__shelf--off {
+  color: var(--mo-text-muted);
 }

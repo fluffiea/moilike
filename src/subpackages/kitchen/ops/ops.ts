@@ -20,12 +20,12 @@ type View = {
 }
 
 function linesOf(item: OpsOrder): string[] {
-  if (item.lines && item.lines.length) return item.lines.map((l) => lineText(l.name, l.quantity, l.tags))
+  if (item.lines && item.lines.length) return item.lines.map((l) => lineText(l.name, l.quantity))
   return item.names ? [item.names] : []
 }
 
 const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
-  pending: { title: '还没有待接单', hint: '对方点的心意会出现在这里' },
+  pending: { title: '暂无待接单', hint: '对方点单后会出现在这里' },
   in_progress: { title: '没有进行中的心意', hint: '接单之后会到这里' },
   done: { title: '还没有完成的心意', hint: '完成后留在这里' },
 }
@@ -33,14 +33,14 @@ const EMPTY: Record<OpsStatus, { title: string; hint: string }> = {
 const TABS: Tab[] = [
   { key: 'pending', name: '待接单', on: true },
   { key: 'in_progress', name: '进行中', on: false },
-  { key: 'done', name: '已完成', on: false },
+  { key: 'done', name: '完成', on: false },
 ]
 
 Component<
   { gate: 'loading' | 'error' | 'ready'; errorText: string; kitchenName: string; tabs: Tab[]; emptyTitle: string; emptyHint: string; feed: FeedData<View> },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus },
+  { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus; acting: boolean },
   true
 >({
   data: {
@@ -56,6 +56,7 @@ Component<
     onLoad() {
       this.feedCtl = null
       this.tab = 'pending'
+      this.acting = false
       void this.openKitchen()
     },
     async openKitchen() {
@@ -118,15 +119,18 @@ Component<
       if (this.feedCtl) void this.feedCtl.loadMore()
     },
     async onAction(e: WechatMiniprogram.TouchEvent) {
+      if (this.acting) return
       const id = String(e.currentTarget.dataset.id || '')
       const item = this.feedCtl ? this.feedCtl.find(id) : undefined
       if (!item || !this.feedCtl) return
+      this.acting = true
       const r = item.canAccept
         ? await callOrToast('kitchen.accept', { id })
         : item.canComplete
           ? await callOrToast('kitchen.complete', { id })
           : null
-      if (r) this.feedCtl.remove(id)
+      this.acting = false
+      if (r && this.feedCtl) this.feedCtl.remove(id)
     },
     onMenu() {
       wx.navigateTo({ url: PAGE_KITCHEN_MENU })

@@ -18,7 +18,7 @@
             bindinput="onName"
           />
         </view>
-        <text class="mo-hint create__note">创建之后先是空的，分类和菜可以再慢慢加。</text>
+        <text class="mo-hint create__note">创建之后是空厨房，先加分类，再挂菜。</text>
         <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onCreate" aria-role="button">
           <view wx:if="{{submitting}}" class="mo-spinner" />
           <text>创建厨房</text>

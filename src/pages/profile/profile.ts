@@ -77,7 +77,7 @@ Component<
       this.kitchenKnown = true
       this.setData({
         hasKitchen: Boolean(r.data.kitchen),
-        pendingLabel: n > 99 ? '99+' : n > 0 ? String(n) : '',
+        pendingLabel: n > 99 ? '99+ 待接' : n > 0 ? `${n} 待接` : '',
       })
     },
 

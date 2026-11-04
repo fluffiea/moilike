@@ -22,19 +22,20 @@ Component<
   { feed: FeedData<View> },
   {},
   WechatMiniprogram.Component.MethodOption,
-  { feedCtl: Feed<MyOrder, View> | null },
+  { feedCtl: Feed<MyOrder, View> | null; cancelling: boolean },
   true
 >({
   data: { feed: emptyFeed<View>() },
   methods: {
     onLoad() {
+      this.cancelling = false
       this.feedCtl = new Feed<MyOrder, View>({
         host: this,
         path: 'feed',
         fetch: (cursor) => call('kitchen.myOrders', { cursor }),
         view: (item) => ({
           id: item.id,
-          lines: item.lines.map((l) => lineText(l.name, l.quantity, l.tags)),
+          lines: item.lines.map((l) => lineText(l.name, l.quantity)),
           noteText: item.note ? `备注：${item.note}` : '',
           time: dateTime(item.createdAtMs),
           statusLabel: item.statusLabel,
@@ -58,16 +59,22 @@ Component<
       if (this.feedCtl) void this.feedCtl.loadMore()
     },
     async onCancel(e: WechatMiniprogram.TouchEvent) {
+      if (this.cancelling) return
       const id = String(e.currentTarget.dataset.id || '')
+      this.cancelling = true
       const yes = await confirm({
         title: '取消这份订单？',
         content: '还没接单，取消后对方就看不到了。',
         confirmText: '取消订单',
         danger: true,
       })
-      if (!yes || !this.feedCtl) return
+      if (!yes || !this.feedCtl) {
+        this.cancelling = false
+        return
+      }
       const r = await callOrToast('kitchen.cancel', { id })
-      if (r) this.feedCtl.upsert(r.order)
+      this.cancelling = false
+      if (r && this.feedCtl) this.feedCtl.upsert(r.order)
     },
     async onReorder(e: WechatMiniprogram.TouchEvent) {
       const id = String(e.currentTarget.dataset.id || '')
@@ -79,7 +86,7 @@ Component<
         return
       }
       const available = new Map(menu.dishes.map((d) => [d.id, d]))
-      const next: { dishId: string; name: string; cover: string; quantity: number; tags: string[] }[] = []
+      const next: { dishId: string; name: string; cover: string; quantity: number }[] = []
       let skipped = 0
       for (const line of order.lines) {
         const dish = available.get(line.dishId)
@@ -92,7 +99,6 @@ Component<
           name: dish.name,
           cover: dish.cover ? dish.cover.thumb : '',
           quantity: line.quantity,
-          tags: line.tags,
         })
       }
       if (!next.length) {

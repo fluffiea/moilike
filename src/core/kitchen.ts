@@ -1,14 +1,12 @@
 import { callOrToast } from './api'
 import { promptText, toast } from './ui'
 
-/** 与 cloudfunctions/api/routes/kitchen.js 的 QUICK_TAGS、名字长度保持一致 */
-export const QUICK_TAGS = ['今天就要', '周末', '想你了'] as const
+/** 与 cloudfunctions/api/routes/kitchen.js 的名字长度保持一致 */
 export const KITCHEN_NAME_MAX = 20
 export const CATEGORY_NAME_MAX = 8
 
-export function lineText(name: string, quantity: number, tags: string[]): string {
-  const base = `${name} ×${quantity}`
-  return tags.length ? `${base} · ${tags.join('、')}` : base
+export function lineText(name: string, quantity: number): string {
+  return `${name} ×${quantity}`
 }
 
 /** 订单状态只对应字色，不另做色块 */

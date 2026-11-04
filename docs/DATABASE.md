@@ -112,13 +112,13 @@
 | 字段 | 说明 |
 |------|------|
 | `kitchenId` / `ownerOpenId` / `ordererOpenId` | 厨房、接单方、下单方 |
-| `status` | `pending` 待接单 → `in_progress` 进行中 → `done` 已完成；下单方在 `pending` 可改为 `cancelled`。没有拒单 |
+| `status` | `pending` 待接单 → `in_progress` 进行中 → `done` 完成；下单方在 `pending` 可改为 `cancelled`。没有拒单 |
 | `note` | 整单备注，最多 80 字，可空。再来一单不读取这个字段 |
-| `items` | `{ dishId, name, quantity, tags }[]`。名称是下单时的快照。`quantity` 为 1–99。`tags` 只允许「今天就要」「周末」「想你了」，最多 3 个 |
+| `items` | `{ dishId, name, quantity }[]`。名称是下单时的快照。`quantity` 为 1–99。不再读写快捷标签 |
 | `createdAt` / `updatedAt` | 写入时间 |
 | `acceptedAt` / `completedAt` / `cancelledAt` | 对应动作的时间，未发生为 null |
 
-点单页的「常点 / 我们点过 N 次」只统计 `status = done` 的订单：同一单里同一道菜只计 1 次，不管份数。没有完成记录时不返回文案。满 5 次显示「常点」，否则「我们点过 N 次」。待接单数只计 `ownerOpenId + pending`，展示在独白「我的厨房」入口，不打在点单 Tab 上。
+点单页的「常点 / 我们点过 N 次」只统计 `status = done` 的订单：同一单里同一道菜只计 1 次，不管份数。没有完成记录时不返回文案。满 5 次显示「常点」，否则「我们点过 N 次」。经营菜单默认不带这组字段；点单预览自己的厨房时传 `withSales`，算法与对方菜单相同。订单状态在界面上写成待接单、进行中、完成、已取消。待接单数只计 `ownerOpenId + pending`，展示在独白「我的厨房」入口，不打在点单 Tab 上。
 
 ### bind_requests
 

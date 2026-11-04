@@ -3,7 +3,7 @@
  * 谁建厨谁接单；伴侣只点已上架的菜。
  * 状态 pending → in_progress → done；下单方仅待接单可取消。没有拒单。
  *
- * 快捷标签与 src/core/kitchen.ts 的 QUICK_TAGS 保持一致。
+ * 订单不保存快捷标签。份量在购物车和确认页调整。
  * 「常点」只在真实完成次数达到 OFTEN_AT 时出现，没有记录就不返回文案。
  */
 const { fail, text, id, toMs, cloudFileIds, getDoc } = require('../lib/util')
@@ -21,12 +21,11 @@ const MAX_NOTE = 80
 const MAX_QTY = 99
 const MAX_LINES = 30
 const OFTEN_AT = 5
-const QUICK_TAGS = ['今天就要', '周末', '想你了']
 
 const STATUS_LABEL = {
   pending: '待接单',
   in_progress: '进行中',
-  done: '已完成',
+  done: '完成',
   cancelled: '已取消',
 }
 
@@ -210,16 +209,25 @@ async function paintDish(ctx, doc, categoryName) {
   return dishView(doc, categoryName, urls)
 }
 
-/** 菜单页一次拿齐，避免厨房、分类、菜品各打一轮 */
-async function dishes(ctx) {
+/** 菜单页一次拿齐，避免厨房、分类、菜品各打一轮。withSales 只给点单预览自己的厨房用 */
+async function dishes(ctx, e) {
   const kitchen = await ownKitchen(ctx)
   const [cats, rows] = await Promise.all([categoriesOf(ctx, kitchen._id), dishesOf(ctx, kitchen._id)])
   const names = new Map(cats.map((c) => [c._id, c.name || '']))
-  const urls = await media.sign(ctx.cloud, rows.map((d) => d.coverFileId))
+  const withSales = !!(e && e.withSales === true)
+  const [urls, counts] = await Promise.all([
+    media.sign(ctx.cloud, rows.map((d) => d.coverFileId)),
+    withSales ? doneCountMap(ctx, kitchen._id) : Promise.resolve(null),
+  ])
   return {
     kitchen: kitchenView(kitchen),
     categories: withCounts(cats, rows),
-    dishes: rows.map((d) => dishView(d, names.get(d.categoryId) || '', urls)),
+    dishes: rows.map((d) => {
+      const view = dishView(d, names.get(d.categoryId) || '', urls)
+      if (!counts) return view
+      const doneCount = counts.get(d._id) || 0
+      return { ...view, doneCount, salesLabel: salesLabel(doneCount) }
+    }),
   }
 }
 
@@ -326,19 +334,6 @@ async function partner(ctx) {
   }
 }
 
-function readTags(raw) {
-  if (raw == null) return []
-  if (!Array.isArray(raw)) fail('INVALID', '快捷标签无效')
-  const clean = []
-  for (const t of raw) {
-    const s = text(t, 8)
-    if (!QUICK_TAGS.includes(s)) fail('INVALID', '快捷标签无效')
-    if (!clean.includes(s)) clean.push(s)
-  }
-  clean.sort((a, b) => QUICK_TAGS.indexOf(a) - QUICK_TAGS.indexOf(b))
-  return clean
-}
-
 function readItems(raw) {
   if (!Array.isArray(raw) || raw.length === 0) fail('INVALID', '先选一份心意')
   if (raw.length > MAX_LINES) fail('INVALID', '一次最多 30 行')
@@ -347,7 +342,7 @@ function readItems(raw) {
     const quantity = row && row.quantity
     if (!dishId) fail('INVALID', '菜品无效')
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QTY) fail('INVALID', '份量要在 1 到 99 之间')
-    return { dishId, quantity, tags: readTags(row.tags) }
+    return { dishId, quantity }
   })
 }
 
@@ -356,7 +351,6 @@ function linesOf(doc) {
     dishId: it.dishId || '',
     name: it.name || '',
     quantity: it.quantity || 0,
-    tags: Array.isArray(it.tags) ? it.tags : [],
   }))
 }
 
@@ -406,7 +400,7 @@ async function orderCreate(ctx, e) {
   const snapshots = items.map((it) => {
     const row = byId.get(it.dishId)
     if (!row || row.kitchenId !== kitchen._id || row.onShelf === false) fail('INVALID', '菜单里没有这道心意')
-    return { dishId: row._id, name: row.name || '', quantity: it.quantity, tags: it.tags }
+    return { dishId: row._id, name: row.name || '', quantity: it.quantity }
   })
   const now = new Date()
   const data = {
