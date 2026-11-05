@@ -8,7 +8,7 @@
 .bar__name {
   flex: 1;
   min-width: 0;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
@@ -19,10 +19,19 @@
   color: var(--mo-brand-slate);
 }
 
+.group__card {
+  padding: 8rpx 32rpx;
+}
+
 .row {
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding: 24rpx 0;
+}
+
+.row--line {
+  border-top: var(--mo-border-field);
 }
 
 .thumb {
@@ -70,8 +79,8 @@
 .row__shelf {
   margin-right: 8rpx;
   margin-left: 16rpx;
-  font-size: 26rpx;
-  color: var(--mo-text-primary);
+  font-size: 24rpx;
+  color: var(--mo-text-secondary);
   flex-shrink: 0;
 }
 

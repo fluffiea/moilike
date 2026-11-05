@@ -7,9 +7,9 @@ import { confirm, toast } from '../../core/ui'
 
 type Scene = 'loading' | 'error' | PartnerMenu['scene']
 type Cat = { id: string; name: string; on: boolean }
-type DishRow = { id: string; name: string; desc: string; cover: string; sales: string }
+type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; initial: string }
 type Section = { id: string; name: string; dishes: DishRow[]; empty: boolean }
-type CartRow = { key: string; name: string; cover: string; quantity: number }
+type CartRow = { key: string; name: string; cover: string; quantity: number; initial: string }
 type Offset = { id: string; top: number }
 
 /** 点分类后短锁，避免滚动动画中途把左栏高亮抢回去 */
@@ -43,6 +43,7 @@ function dishRow(d: MenuDish): DishRow {
     desc: d.desc,
     cover: d.cover ? d.cover.thumb : '',
     sales: d.salesLabel,
+    initial: Array.from(d.name)[0] || '',
   }
 }
 
@@ -378,6 +379,7 @@ Component<
           name: l.name,
           cover: l.cover,
           quantity: l.quantity,
+          initial: Array.from(l.name)[0] || '',
         })),
         cartOpen: portions > 0 && (forceOpen || this.data.cartOpen),
       })

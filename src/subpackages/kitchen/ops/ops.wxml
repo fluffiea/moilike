@@ -23,14 +23,14 @@
             <text>改名</text>
           </view>
         </view>
-        <view class="seg">
+        <view class="tabs">
           <view
             wx:for="{{tabs}}"
             wx:key="key"
-            class="seg__item {{item.on ? 'seg__item--on' : ''}}"
+            class="tabs__item {{item.on ? 'tabs__item--on' : ''}}"
             data-key="{{item.key}}"
             bind:tap="onPickTab"
-            aria-role="button"
+            aria-role="tab"
           >
             <text>{{item.name}}</text>
           </view>

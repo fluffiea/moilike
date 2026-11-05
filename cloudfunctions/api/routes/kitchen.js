@@ -4,7 +4,7 @@
  * 状态 pending → in_progress → done；下单方仅待接单可取消。没有拒单。
  *
  * 订单不保存快捷标签。份量在购物车和确认页调整。
- * 「常点」只在真实完成次数达到 OFTEN_AT 时出现，没有记录就不返回文案。
+ * 已完成的份数相加：同一单两份记 2，文案是「我们点过 N 份」。没有记录不返回文案。
  */
 const { fail, text, id, toMs, cloudFileIds, getDoc } = require('../lib/util')
 const { pageByTime } = require('../lib/paging')
@@ -20,7 +20,6 @@ const MAX_DESC = 40
 const MAX_NOTE = 80
 const MAX_QTY = 99
 const MAX_LINES = 30
-const OFTEN_AT = 5
 
 const STATUS_LABEL = {
   pending: '待接单',
@@ -285,20 +284,18 @@ async function removeDish(ctx, e) {
 
 function salesLabel(count) {
   if (!count) return ''
-  if (count >= OFTEN_AT) return '常点'
-  return `我们点过 ${count} 次`
+  return `我们点过 ${count} 份`
 }
 
 async function doneCountMap(ctx, kitchenId) {
   const res = await ctx.col.kOrders.where({ kitchenId, status: 'done' }).limit(ORDER_SCAN).get()
   const map = new Map()
   for (const order of res.data || []) {
-    const seen = new Set()
     for (const it of order.items || []) {
       const dishId = it && it.dishId
-      if (!dishId || seen.has(dishId)) continue
-      seen.add(dishId)
-      map.set(dishId, (map.get(dishId) || 0) + 1)
+      const qty = it && it.quantity
+      if (!dishId || !Number.isInteger(qty) || qty < 1) continue
+      map.set(dishId, (map.get(dishId) || 0) + qty)
     }
   }
   return map

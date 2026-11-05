@@ -8,7 +8,7 @@
 .bar__name {
   flex: 1;
   min-width: 0;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
@@ -21,30 +21,26 @@
   flex-shrink: 0;
 }
 
-.seg {
+.tabs {
   display: flex;
   flex-direction: row;
+  align-items: center;
   height: 80rpx;
-  margin-bottom: 32rpx;
-  padding: 6rpx;
-  border-radius: var(--mo-radius-btn);
-  background-color: var(--mo-l1-card);
+  margin-bottom: 8rpx;
 }
 
-.seg__item {
+.tabs__item {
   display: flex;
-  flex: 1;
   align-items: center;
-  justify-content: center;
-  border-radius: var(--mo-radius-btn);
+  height: 80rpx;
+  margin-right: 40rpx;
   font-size: 26rpx;
   color: var(--mo-text-secondary);
 }
 
-.seg__item--on {
-  background-color: var(--mo-fill-brand);
-  color: var(--mo-text-inverse);
+.tabs__item--on {
   font-weight: 600;
+  color: var(--mo-text-primary);
 }
 
 .job__top {
@@ -84,7 +80,7 @@
 
 .job__name {
   display: block;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }

@@ -255,9 +255,9 @@ export type MenuDish = {
   name: string
   desc: string
   cover: DishCover | null
-  /** 出现在已完成订单里的次数；同一单多份只计 1，未完成和已取消不计 */
+  /** 已完成订单里的份数合计；未完成和已取消不计 */
   doneCount: number
-  /** 无记录为空串；满 5 次为「常点」，否则「我们点过 N 次」 */
+  /** 没有完成过的份数为空串，否则「我们点过 N 份」 */
   salesLabel: string
 }
 
