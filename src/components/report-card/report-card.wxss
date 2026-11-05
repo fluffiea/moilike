@@ -5,34 +5,69 @@
   overflow: hidden;
 }
 
-/* 照片做刊头，直接顶到卡片边缘 */
-.photo {
-  position: relative;
+/* 整张卡都是白的。照片、文字、回声共用这一圈内边距，页面灰只出现在卡片外面 */
+.sheet {
+  padding: var(--mo-pad-h);
 }
 
-.photo__img {
-  display: block;
-  width: 100%;
-  height: 380rpx;
+/* 相册嵌在白卡片上，底用页面灰，浅色照片也不会和卡片外的背景糊在一起 */
+.album {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 24rpx;
+}
+
+.album__cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--mo-radius-inner);
   background-color: var(--mo-l0-bg);
 }
 
-.photo__count {
+.album__img {
   position: absolute;
-  right: 16rpx;
-  bottom: 16rpx;
-  padding: 4rpx 16rpx;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.album--one .album__cell {
+  width: 100%;
+  height: 320rpx;
+}
+
+.album--two .album__cell {
+  width: calc((100% - 16rpx) / 2);
+  aspect-ratio: 1;
+}
+
+.album--two .album__cell:first-child {
+  margin-right: 16rpx;
+}
+
+.album--three .album__cell {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  margin-right: 16rpx;
+}
+
+.album--three .album__cell:last-child {
+  margin-right: 0;
+}
+
+.album__count {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  padding: 4rpx 12rpx;
   border-radius: var(--mo-radius-chip);
   background: var(--mo-fill-overlay);
 }
 
-.photo__count-text {
+.album__count-text {
   font-size: 24rpx;
   color: var(--mo-text-inverse);
-}
-
-.copy {
-  padding: var(--mo-pad-h);
 }
 
 /* 署名行：头像 + 昵称 + 标签胶囊 + 时间 */
@@ -64,7 +99,7 @@
 }
 
 .byline__name {
-  max-width: 140rpx;
+  max-width: 192rpx;
   margin-left: 16rpx;
   font-size: 28rpx;
   font-weight: 600;
@@ -120,7 +155,7 @@
   justify-content: center;
   width: 64rpx;
   height: 64rpx;
-  margin: -8rpx -12rpx -8rpx 4rpx;
+  margin: -4rpx -8rpx -4rpx 4rpx;
   flex-shrink: 0;
 }
 
@@ -131,7 +166,7 @@
 
 .body {
   display: block;
-  margin-top: 20rpx;
+  margin-top: 16rpx;
   font-size: 32rpx;
   line-height: 1.6;
   color: var(--mo-text-primary);
@@ -139,16 +174,16 @@
 }
 
 .body--full {
+  margin-top: 20rpx;
   line-height: 1.7;
 }
 
-/* 页脚回声带：横贯整张卡。沿用骨架灰，比页面底深一档，卡片底边和圆角才收得住 */
+/* 回声跟正文留在同一张白卡片上，不再铺一条接近页面底的灰 */
 .echo {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 20rpx var(--mo-pad-h);
-  background-color: var(--mo-skeleton);
+  margin-top: 24rpx;
 }
 
 .echo__art {
@@ -184,9 +219,9 @@
 .echo__action {
   display: flex;
   align-items: center;
-  min-height: 64rpx;
+  min-height: 56rpx;
   margin-left: 8rpx;
-  padding: 12rpx 0 12rpx 16rpx;
+  padding-left: 16rpx;
   flex-shrink: 0;
 }
 
@@ -196,21 +231,12 @@
 }
 
 /* 已共鸣档案：只读回看，贴纸是主视觉 */
-.card--book .photo__img {
-  height: 320rpx;
-}
-
-.card--book .echo {
-  padding: 24rpx var(--mo-pad-h);
-}
-
 .card--book .echo__art {
   width: 96rpx;
   height: 96rpx;
 }
 
 .card--book .echo__label {
-  margin-left: 20rpx;
-  font-size: 32rpx;
+  margin-left: 16rpx;
   font-weight: 600;
 }

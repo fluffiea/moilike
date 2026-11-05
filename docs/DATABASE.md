@@ -41,14 +41,14 @@
 | 字段 | 说明 |
 |------|------|
 | `partnerOpenedAt` | 对方打开详情的时间；空表示还没打开。旧数据没有该字段时，接口用 `partnerReadAt` 顶上 |
-| `partnerStickerId` | 对方最新一张贴纸：`care` 收到啦、`seen` 看见了、`eat` 记得吃饭、`miss` 想你、`ok` 好的、`hug` 抱抱、`proud` 辛苦了、`love` 爱你。空表示还没回心 |
+| `partnerStickerId` | 对方最新一张贴纸：`care` 收到啦、`seen` 看见了、`eat` 记得吃饭、`miss` 想你、`ok` 好的、`hug` 抱抱、`proud` 辛苦了、`love` 爱你。空表示还没回声 |
 | `partnerRespondedAt` | 最近一次贴贴纸的时间。再贴会覆盖贴纸和这个时间 |
-| `partnerReadAt` | 旧「标记已阅」。新数据在打开或回心时顺手写上，用来和旧字段对齐；界面不再单独展示已阅 |
+| `partnerReadAt` | 旧「标记已阅」。新数据在打开或回声时顺手写上，用来和旧字段对齐；界面不再单独展示已阅 |
 | `partnerEvaluatedAt` / `partnerEvalText` | 旧文字评价。本期不再写入、也不再下发评价正文。已经有 `partnerEvaluatedAt` 的帖子视为已回应，不进「等我回声」 |
 
 状态只有两个：没有贴纸、也没有旧评价 → `awaiting_response`；否则 `responded`。只打开详情不单独成一种状态。
 
-列表筛选 `all` / `await_me` / `echoed`；`mine` 仅为旧客户端兼容保留，界面已不再使用。`await_me` 就是界面上的「等我回声」：对方发出、且 `partnerStickerId` 与 `partnerEvaluatedAt` 都为空的帖子。`echoed` 是「已共鸣」档案：任一方向已回心的帖子（有效贴纸或旧文字评价任一存在；每条报备只有一方回心），该筛选省掉计数查询，`awaitMeCount` 固定为 0。`report.list` 同时返回 `awaitMeCount`（等我回声的条数，跟当前这一页无关）。`report.open` 在进详情时写下打开时间，已打开则不改。`report.respond({ id, stickerId })` 覆盖贴纸。作者 `report.update` 只改正文、图片、标签和记录时间，不清贴纸。`report.markRead` 与 `report.evaluate` 已移除。
+列表筛选 `all` / `await_me` / `echoed`；`mine` 仅为旧客户端兼容保留，界面已不再使用。`await_me` 就是界面上的「等我回声」：对方发出、且 `partnerStickerId` 与 `partnerEvaluatedAt` 都为空的帖子。`echoed` 是「已共鸣」档案：任一方向已回声的帖子（有效贴纸或旧文字评价任一存在；每条报备只有一方回声），该筛选省掉计数查询，`awaitMeCount` 固定为 0。`report.list` 同时返回 `awaitMeCount`（等我回声的条数，跟当前这一页无关）。`report.open` 在进详情时写下打开时间，已打开则不改。`report.respond({ id, stickerId })` 覆盖贴纸。作者 `report.update` 只改正文、图片、标签和记录时间，不清贴纸。`report.markRead` 与 `report.evaluate` 已移除。
 
 ### letters
 

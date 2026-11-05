@@ -124,7 +124,7 @@ export function dayClock(ms: number): string {
   return `${new Date(ms).getDate()}日 ${clock(ms)}`
 }
 
-/** 回心时间：刚刚 / N分钟前 / N小时前，再早则落到日期 */
+/** 回声时间：刚刚 / N分钟前 / N小时前，再早则落到日期 */
 export function relativeTime(ms: number, now = Date.now()): string {
   if (!ms) return ''
   const min = Math.floor(Math.max(0, now - ms) / 60000)

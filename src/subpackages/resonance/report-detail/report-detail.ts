@@ -14,7 +14,7 @@ type Data = {
   stickers: { id: string; label: string; src: string }[]
   respondTitle: string
   respondHint: string
-  /** 已回心时的一行「现在是「抱抱」· 2小时前」；没回心或时间缺失时为空串，模板不渲染 */
+  /** 已回声时的一行「现在是「抱抱」· 2小时前」；没回声或时间缺失时为空串，模板不渲染 */
   currentLine: string
   busy: string
 }
@@ -62,8 +62,8 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
     },
 
     /**
-     * 详情信息卡给全文、全部图片和日期时刻；对方发的报备再用一张贴纸卡回心。
-     * 已经贴过贴纸时标题是「换一颗心」，标题下补一行当前贴纸和相对时间；两个值都拿到才显示。
+     * 详情信息卡给全文、全部图片和日期时刻；对方发的报备再用一张贴纸卡回声。
+     * 已经贴过贴纸时标题是「换一个回声」，标题下补一行当前贴纸和相对时间；两个值都拿到才显示。
      */
     render(post: ReportPost) {
       this.raw = post
@@ -94,7 +94,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, { postId: string; 
       applyResonanceBadge(r.data.awaitMeCount)
       emit('report:await-count', r.data.awaitMeCount)
       this.apply(r.data.post)
-      toastDone('已回心')
+      toastDone('已回声')
     },
 
     async onMore() {

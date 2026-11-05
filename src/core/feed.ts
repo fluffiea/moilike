@@ -25,7 +25,7 @@ export function emptyFeed<V>(): FeedData<V> {
 
 /**
  * 列表被清空且还有下一页时，应继续翻页，而不是当成空态。
- * 共鸣「等我回声」在回心移出最后一条后用它，与排序无关。
+ * 共鸣「等我回声」在回声移出最后一条后用它，与排序无关。
  */
 export function shouldContinueDrainedFeed(itemCount: number, hasMore: boolean): boolean {
   return itemCount === 0 && hasMore
@@ -55,7 +55,7 @@ export type FeedOptions<T extends { id: string }, V> = {
   order?: (items: T[]) => T[]
   /**
    * 翻页失败且当前一条都没有时，把整页标成 error。
-   * 只给共鸣「等我回声」：那一栏会在本页被回心清空后主动接着拉。
+   * 只给共鸣「等我回声」：那一栏会在本页被回声清空后主动接着拉。
    * 信件、记账、厨房不要开，空列表上的翻页失败仍只标 more:error。
    */
   pageErrorIfEmpty?: boolean
@@ -221,7 +221,7 @@ export class Feed<T extends { id: string }, V> {
     return this.raw.find((x) => x.id === id)
   }
 
-  /** 还有下一页。列表被回心清空时，页面用它决定要不要接着拉 */
+  /** 还有下一页。列表被回声清空时，页面用它决定要不要接着拉 */
   get hasMore(): boolean {
     return !!this.cursor
   }

@@ -23,16 +23,20 @@
 
         <view class="mo-card when">
           <text class="when__label">记录时间</text>
-          <picker class="when__item" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
-            <view class="mo-field when__field">
-              <text class="when__text">{{date}}</text>
-            </view>
-          </picker>
-          <picker class="when__item when__item--last" mode="time" value="{{time}}" bindchange="onTime">
-            <view class="mo-field when__field">
-              <text class="when__text">{{time}}</text>
-            </view>
-          </picker>
+          <view class="when__item">
+            <picker class="when__picker" mode="date" value="{{date}}" end="{{today}}" bindchange="onDate">
+              <view class="mo-field when__field">
+                <text class="when__text">{{date}}</text>
+              </view>
+            </picker>
+          </view>
+          <view class="when__item when__item--time">
+            <picker class="when__picker" mode="time" value="{{time}}" bindchange="onTime">
+              <view class="mo-field when__field">
+                <text class="when__text">{{time}}</text>
+              </view>
+            </picker>
+          </view>
         </view>
 
         <view class="mo-card">
@@ -81,8 +85,8 @@
 
   <view wx:if="{{confirmOpen}}" class="mask" catch:tap="onCancelConfirm">
     <view class="dialog" catch:tap="onHold">
-      <text class="dialog__title">对方曾回心</text>
-      <text class="dialog__text">改后对方的贴纸与回心时间仍会保留，不会清空。</text>
+      <text class="dialog__title">对方回过声</text>
+      <text class="dialog__text">改后对方的贴纸和回声时间仍会保留，不会清空。</text>
       <view class="mo-btn dialog__ok" bind:tap="onConfirmSave" aria-role="button">
         <text>仍要保存</text>
       </view>

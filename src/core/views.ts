@@ -26,9 +26,9 @@ function listText(body: string): string {
 
 /**
  * 报备 → 卡片。每条都带一个「回声」槽：
- * 对方发的还没回心时是「等你的回声」+ 回心；我发的还没回心时是「等 Ta 的回声」；
- * 已回心时是贴纸 + 谁回的心 + 相对时间。列表和详情共用，详情不给快捷回心。
- * 已共鸣档案里不写相对时间，只写谁回的心，靠卡片上的日期回看。
+ * 对方发的还没回声时是「等你的回声」+ 回声；我发的还没回声时是「等 Ta 的回声」；
+ * 已回声时是贴纸 + 谁的回声 + 相对时间。列表和详情共用，详情不给快捷回声。
+ * 已共鸣档案里不写相对时间，只写谁的回声，靠卡片上的日期回看。
  */
 export function reportView(post: ReportPost, prev?: ReportPost, mode: ReportViewMode = 'all') {
   const inDetail = mode === 'detail'
@@ -38,11 +38,11 @@ export function reportView(post: ReportPost, prev?: ReportPost, mode: ReportView
   const when = post.partnerRespondedAt ? relativeTime(post.partnerRespondedAt) : ''
   const responded = post.state === 'responded'
   /** 「Ta」是拉丁字母，后面留空格；「我」后面不留 */
-  const echoBy = post.isMine ? 'Ta 回心' : '我回心'
+  const echoBy = post.isMine ? 'Ta 回声' : '我回声'
   const echo = responded
     ? {
         sticker: sticker ? { id: sticker.id, label: sticker.label, src: sticker.src } : null,
-        label: sticker ? sticker.label : '已回心',
+        label: sticker ? sticker.label : '已回声',
         wait: '',
         when,
         meta: inArchive ? echoBy : when ? `${echoBy} · ${when}` : echoBy,

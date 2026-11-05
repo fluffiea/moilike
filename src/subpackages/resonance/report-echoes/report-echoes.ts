@@ -8,8 +8,8 @@ import { reportView, type ReportView } from '../../../core/views'
 const STALE_MS = 60 * 1000
 
 /**
- * 已共鸣：只收两个人已经回心的报备，按年月归档，贴纸放大。
- * 只读回看，不在这里回心；点开仍进报备详情。
+ * 已共鸣：只收两个人已经回声的报备，按年月归档，贴纸放大。
+ * 只读回看，不在这里回声；点开仍进报备详情。
  */
 type Data = {
   feed: FeedData<ReportView>

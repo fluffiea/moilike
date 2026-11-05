@@ -96,7 +96,7 @@ async function ownPost(ctx, postId) {
   return r
 }
 
-/** 对方发的报备，打开和回心都走这里 */
+/** 对方发的报备，打开和回声都走这里 */
 async function partnerPost(ctx, postId) {
   const r = await visiblePost(ctx, postId)
   if (r.doc.authorOpenId === ctx.openid || r.doc.authorOpenId !== r.partnerId) {
@@ -105,7 +105,7 @@ async function partnerPost(ctx, postId) {
   return r
 }
 
-/** 已共鸣：已回心的报备（有效贴纸或旧文字评价任一存在），只读档案用 */
+/** 已共鸣：已回声的报备（有效贴纸或旧文字评价任一存在），只读档案用 */
 function echoedOr(_) {
   return [{ partnerStickerId: _.in(STICKER_IDS) }, { partnerEvaluatedAt: _.neq(null) }]
 }

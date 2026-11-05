@@ -27,7 +27,7 @@
         wx:elif="{{feed.status === 'empty'}}"
         status="empty"
         title="还没有已共鸣的报备"
-        hint="等 Ta 回心后，这里会收下你们的回声"
+        hint="回过声的报备，会收在这里"
       />
       <state-view wx:elif="{{feed.more === 'loading'}}" status="more-loading" />
       <state-view wx:elif="{{feed.more === 'error'}}" status="more-error" bind:action="onLoadMore" />

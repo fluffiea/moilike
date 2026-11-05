@@ -78,7 +78,7 @@ test('一条流按记录时间排，同一天只在第一条带日期；署名�
   assert.equal(anonymous.authorInitial, 'T')
 })
 
-test('对方发的还没回心：等你的回声 + 回心入口', () => {
+test('对方发的还没回声：等你的回声 + 回声入口', () => {
   const row = views.reportView(post(), undefined, 'all')
   assert.equal(row.echo.wait, '等你的回声')
   assert.equal(row.echo.action, true)
@@ -87,7 +87,7 @@ test('对方发的还没回心：等你的回声 + 回心入口', () => {
   assert.equal(row.echo.label, '')
 })
 
-test('我发的还没回心：等 Ta 的回声；打开过就标 Ta 已打开', () => {
+test('我发的还没回声：等 Ta 的回声；打开过就标 Ta 已打开', () => {
   const waiting = views.reportView(post({ isMine: true }), undefined, 'all')
   assert.equal(waiting.echo.wait, '等 Ta 的回声')
   assert.equal(waiting.echo.meta, '')
@@ -96,7 +96,7 @@ test('我发的还没回心：等 Ta 的回声；打开过就标 Ta 已打开', 
   assert.equal(opened.echo.meta, 'Ta 已打开')
 })
 
-test('已回心：贴纸、谁回的心和相对时间', () => {
+test('已回声：贴纸、谁的回声和相对时间', () => {
   const mine = views.reportView(
     post({ isMine: true, state: 'responded', partnerStickerId: 'hug', partnerRespondedAt: noon(0) }),
     undefined,
@@ -105,7 +105,7 @@ test('已回心：贴纸、谁回的心和相对时间', () => {
   assert.equal(mine.echo.sticker.id, 'hug')
   assert.equal(mine.echo.sticker.label, '抱抱')
   assert.equal(mine.echo.label, '抱抱')
-  assert.match(mine.echo.meta, /^Ta 回心 · /)
+  assert.match(mine.echo.meta, /^Ta 回声 · /)
   assert.ok(mine.echo.when)
   assert.equal(mine.echo.wait, '')
   assert.equal(mine.echo.action, false)
@@ -115,18 +115,18 @@ test('已回心：贴纸、谁回的心和相对时间', () => {
     undefined,
     'all',
   )
-  assert.match(partner.echo.meta, /^我回心 · /)
+  assert.match(partner.echo.meta, /^我回声 · /)
 })
 
-test('旧数据只有文字评价时，回声槽给「已回心」兜底', () => {
+test('旧数据只有文字评价时，回声槽给「已回声」兜底', () => {
   const row = views.reportView(
     post({ isMine: true, state: 'responded', partnerStickerId: '', partnerRespondedAt: noon(1) }),
     undefined,
     'all',
   )
   assert.equal(row.echo.sticker, null)
-  assert.equal(row.echo.label, '已回心')
-  assert.match(row.echo.meta, /^Ta 回心 · /)
+  assert.equal(row.echo.label, '已回声')
+  assert.match(row.echo.meta, /^Ta 回声 · /)
 })
 
 test('列表正文压成一段，详情保留换行和完整日期', () => {
@@ -158,7 +158,7 @@ test('列表只给首图封面和 +N；署名只放两个标签，余量折成 +
   assert.equal(views.reportView(post(), undefined, 'all').tagChips.length, 0)
 })
 
-test('已共鸣：按年月分组，卡片写「4日 21:04」，回声只写谁回的心', () => {
+test('已共鸣：按年月分组，卡片写「4日 21:04」，回声只写是谁的', () => {
   const now = new Date()
   const thisMonth = `${now.getFullYear()}年${now.getMonth() + 1}月`
   const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 15, 12, 0, 0, 0)
@@ -181,15 +181,15 @@ test('已共鸣：按年月分组，卡片写「4日 21:04」，回声只写谁�
   assert.equal(rows[2].month, lastMonth)
   assert.equal(rows[0].day, '')
   assert.equal(rows[0].clock, `${new Date(noon(0)).getDate()}日 12:00`)
-  assert.equal(rows[0].echo.meta, 'Ta 回心')
-  assert.equal(rows[1].echo.meta, '我回心')
+  assert.equal(rows[0].echo.meta, 'Ta 回声')
+  assert.equal(rows[1].echo.meta, '我回声')
   assert.equal(rows[0].echo.sticker.id, 'hug')
   assert.equal(rows[0].echo.action, false)
   assert.equal(rows[1].echo.action, false)
   assert.equal(rows[0].preview, '午餐')
 })
 
-test('已共鸣入口与档案页：只读、按年月、不能回心', () => {
+test('已共鸣入口与档案页：只读、按年月、不能回声', () => {
   const app = JSON.parse(readFileSync(join(root, 'src/app.json'), 'utf8'))
   const pack = app.subpackages.find((p) => p.root === 'subpackages/resonance')
   assert.equal(pack.pages.includes('report-echoes/report-echoes'), true)
@@ -214,7 +214,7 @@ test('已共鸣入口与档案页：只读、按年月、不能回心', () => {
   assert.equal(paths.includes('PAGE_REPORT_ECHOES'), true)
 })
 
-test('详情不给快捷回心；列表两种筛选都给', () => {
+test('详情不给快捷回声；列表两种筛选都给', () => {
   assert.equal(views.reportView(post(), undefined, 'detail').echo.action, false)
   assert.equal(views.reportView(post(), undefined, 'all').echo.action, true)
   assert.equal(views.reportView(post(), undefined, 'await_me').echo.action, true)
@@ -241,19 +241,17 @@ test('共鸣模板：两条文字筛选、单条流、回声槽和未结伴引�
   assert.equal(source.includes('disposeFeed'), true)
 })
 
-test('报备卡：照片刊头 + 真人署名 + 页脚回声带，详情用整组图片', () => {
+test('报备卡：相册嵌在白卡片里，署名和回声同一张卡，详情用整组图片', () => {
   const wxml = readFileSync(join(root, 'src/components/report-card/report-card.wxml'), 'utf8')
   const listStart = wxml.indexOf('<view wx:else class="card')
   assert.ok(listStart > 0)
   const list = wxml.slice(listStart)
   assert.ok(list.length > 0)
   assert.equal(list.includes('image-grid'), false)
-  assert.equal(list.includes('post.cover'), true)
-  assert.equal(list.includes('photo__img'), true)
-  assert.equal(list.includes('post.moreShotsLabel'), true)
-  assert.equal(list.includes('photo__count'), true)
+  assert.equal(list.includes('album'), true)
+  assert.equal(list.includes('shots'), true)
   assert.equal(list.includes('post.preview'), true)
-  assert.equal(list.includes('max-lines="4"'), true)
+  assert.equal(list.includes('max-lines="3"'), true)
   assert.equal(list.includes('post.author.avatarUrl'), true)
   assert.equal(list.includes('post.authorName'), true)
   assert.equal(list.includes('post.tagChips'), true)
@@ -262,7 +260,8 @@ test('报备卡：照片刊头 + 真人署名 + 页脚回声带，详情用整�
   assert.equal(list.includes('post.echo.label'), true)
   assert.equal(list.includes('post.echo.meta'), true)
   assert.equal(list.includes('byline__ava'), true)
-  assert.equal(list.includes('回心'), true)
+  assert.equal(list.includes('回声'), true)
+  assert.equal(list.includes('回心'), false)
   assert.equal(list.includes('post.rest'), false)
   assert.equal(list.includes('dimmed'), false)
   assert.equal(list.includes('post.who'), false)
@@ -276,7 +275,7 @@ test('报备卡：照片刊头 + 真人署名 + 页脚回声带，详情用整�
   assert.equal(detail.includes('post.echo.action'), false)
 })
 
-test('详情仍是一步贴纸，可以换一颗心，没有文字评价', () => {
+test('详情仍是一步贴纸，可以换一个回声，没有文字评价', () => {
   const wxml = readFileSync(join(root, 'src/subpackages/resonance/report-detail/report-detail.wxml'), 'utf8')
   assert.equal(wxml.includes('{{respondTitle}}'), true)
   assert.equal(wxml.includes('{{currentLine}}'), true)
@@ -338,8 +337,8 @@ test('贴纸沿用改版前的 256 透明底线稿', () => {
   )
   assert.equal(ts.includes('收到啦'), true)
   assert.equal(ts.includes('爱你'), true)
-  assert.equal(ts.includes("RESPOND_TITLE = '回一颗心'"), true)
-  assert.equal(ts.includes("RESPOND_AGAIN_TITLE = '换一颗心'"), true)
+  assert.equal(ts.includes("RESPOND_TITLE = '给 Ta 回声'"), true)
+  assert.equal(ts.includes("RESPOND_AGAIN_TITLE = '换一个回声'"), true)
   assert.equal(ts.includes('点一个贴纸，就是给 Ta 的回声。'), true)
   for (const [id, size] of Object.entries(sizes)) {
     const data = readFileSync(join(root, 'src/images/stickers', `${id}.png`))

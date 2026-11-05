@@ -69,7 +69,7 @@ export type ReportPost = {
   partnerOpenedAt: number
   /** 对方最新贴纸；空串表示还没贴 */
   partnerStickerId: string
-  /** 最近一次回心时间；0 表示还没回 */
+  /** 最近一次回声时间；0 表示还没回 */
   partnerRespondedAt: number
   /** 对方可以贴或改贴 */
   canRespond: boolean

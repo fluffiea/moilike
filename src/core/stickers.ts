@@ -16,8 +16,8 @@ export type StickerId = (typeof STICKERS)[number]['id']
 export type StickerChoice = { id: string; label: string; src: string }
 
 /** 列表快捷贴和详情共用的一句说明 */
-export const RESPOND_TITLE = '回一颗心'
-export const RESPOND_AGAIN_TITLE = '换一颗心'
+export const RESPOND_TITLE = '给 Ta 回声'
+export const RESPOND_AGAIN_TITLE = '换一个回声'
 export const RESPOND_HINT = '点一个贴纸，就是给 Ta 的回声。'
 
 /** setData 需要普通数组，不能直接塞 readonly 元组 */

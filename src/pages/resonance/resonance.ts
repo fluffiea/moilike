@@ -19,8 +19,8 @@ const EMPTIES: Record<Filter, { title: string; hint: string; action: string }> =
 }
 
 /**
- * 一条时间线装下双方的报备：卡片底部固定一个回声槽，未回心时是「等你的回声」和回心入口，
- * 已回心时是贴纸、谁回的心和相对时间。筛选只控制拿哪一页数据，不另拆「我发的」。
+ * 一条时间线装下双方的报备：卡片底部固定一个回声槽，未回声时是「等你的回声」和回声入口，
+ * 已回声时是贴纸、谁的回声和相对时间。筛选只控制拿哪一页数据，不另拆「我发的」。
  * 翻页仍按接口的记录时间顺序追加；单条变化按记录时间插回原位（sortKey）。
  */
 
@@ -139,7 +139,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       }
     },
 
-    /** 新发、编辑、回心都从这里进列表；「等我回声」栏里回心后移出 */
+    /** 新发、编辑、回声都从这里进列表；「等我回声」栏里回声后移出 */
     applyPost(post: ReportPost) {
       if (!this.feed || !this.data.bound) return
       if (this.data.filter === 'await_me' && (post.isMine || post.state === 'responded')) {
@@ -247,7 +247,7 @@ Component<Data, {}, WechatMiniprogram.Component.MethodOption, Custom, true>({
       emit('report:await-count', r.data.awaitMeCount)
       emit('report:upsert', r.data.post)
       if (this.data.quickId === postId) this.closeQuick()
-      toastDone('已回心')
+      toastDone('已回声')
     },
 
     onCompose() {

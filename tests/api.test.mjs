@@ -180,7 +180,7 @@ test('游标分页：同一时刻多条也不重复不遗漏', async () => {
   assert.equal(new Set(seen).size, 23)
 })
 
-test('报备：打开详情再贴贴纸即回心；改贴覆盖；作者改稿保留贴纸', async () => {
+test('报备：打开详情再贴贴纸即回声；改贴覆盖；作者改稿保留贴纸', async () => {
   await bindCouple()
   const { post } = await ok('A', 'report.create', { body: '吃了火锅', tags: ['干饭', '干饭', '聚餐'], recordAtMs: Date.now() })
   assert.deepEqual(post.tags, ['干饭', '聚餐'])
@@ -233,7 +233,7 @@ test('报备：打开详情再贴贴纸即回心；改贴覆盖；作者改稿�
   assert.equal(seen.partnerStickerId, 'love')
 })
 
-test('报备：已共鸣只收已回心的，双方都算且不进待回计数', async () => {
+test('报备：已共鸣只收已回声的，双方都算且不进待回计数', async () => {
   await bindCouple()
   const a = await ok('A', 'report.create', { body: 'A 的小事', tags: [], images: [], recordAtMs: Date.now() })
   const b = await ok('B', 'report.create', { body: 'B 的小事', tags: [], images: [], recordAtMs: Date.now() })
