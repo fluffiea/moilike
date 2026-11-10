@@ -9,13 +9,15 @@
         <text class="mo-hint mo-guide__hint">菜会放在分类下面，先起一个名字</text>
       </view>
       <block wx:else>
-        <view wx:for="{{rows}}" wx:key="id" class="mo-card row">
-          <view class="row__main">
-            <text class="row__title">{{item.name}}</text>
-            <text class="row__meta">{{item.meta}}</text>
+        <view class="mo-card manage">
+          <view wx:for="{{rows}}" wx:key="id" class="mrow {{index ? 'mrow--line' : ''}}">
+            <view class="mrow__main">
+              <text class="mrow__title">{{item.name}}</text>
+              <text class="mrow__meta">{{item.meta}}</text>
+            </view>
+            <text class="mrow__act" data-id="{{item.id}}" bind:tap="onRename" aria-role="button">改名</text>
+            <text class="mrow__act mrow__act--danger" data-id="{{item.id}}" bind:tap="onRemove" aria-role="button">删除</text>
           </view>
-          <text class="row__act" data-id="{{item.id}}" bind:tap="onRename" aria-role="button">改名</text>
-          <text class="row__act row__act--danger" data-id="{{item.id}}" bind:tap="onRemove" aria-role="button">删除</text>
         </view>
         <text class="mo-hint hint">仅可删除无菜品的分类。</text>
       </block>

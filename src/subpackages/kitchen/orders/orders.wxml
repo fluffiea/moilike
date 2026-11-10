@@ -28,7 +28,7 @@
             </view>
           </view>
           <view wx:elif="{{item.canReorder}}" class="order__foot">
-            <view class="order__act" data-id="{{item.id}}" bind:tap="onReorder" aria-role="button">
+            <view class="mo-btn mo-btn--ghost mo-btn--small" data-id="{{item.id}}" bind:tap="onReorder" aria-role="button">
               <text>再来一单</text>
             </view>
           </view>

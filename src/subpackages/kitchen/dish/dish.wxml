@@ -38,15 +38,18 @@
           <switch checked="{{onShelf}}" color="#4a6670" bindchange="onToggleShelf" />
         </view>
       </view>
+
+      <view wx:if="{{editId}}" class="mo-card remove" bind:tap="onRemove" aria-role="button">
+        <text class="remove__text">删除菜品</text>
+      </view>
     </view>
   </scroll-view>
 
-  <view wx:if="{{ready}}" class="mo-footer foot">
+  <view wx:if="{{ready}}" class="mo-footer">
     <view class="mo-btn {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSave" aria-role="button">
       <view wx:if="{{submitting}}" class="mo-spinner" />
       <text>保存</text>
     </view>
-    <text wx:if="{{editId}}" class="danger" bind:tap="onRemove" aria-role="button">删除菜品</text>
   </view>
 
   <view wx:if="{{catOpen}}" class="mo-mask" bind:tap="onCloseCat">

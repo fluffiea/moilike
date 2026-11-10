@@ -241,7 +241,7 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   assert.equal(finished.lines[0].name, '抱抱')
   const counted = (await ok('B', 'kitchen.partner')).dishes.find((d) => d.id === dish.id)
   assert.equal(counted.doneCount, 4, '这一单点了 4 份，销量按份数计；取消的那单不计')
-  assert.equal(counted.salesLabel, '我们点过 4 份')
+  assert.equal(counted.salesLabel, '点过 4 份')
 
   await ok('A', 'kitchen.updateDish', { id: dish.id, name: '改名后的抱抱', categoryId: dish.categoryId, onShelf: true })
   const kept = (await ok('B', 'kitchen.myOrders')).items.find((o) => o.id === again.order.id)
@@ -254,8 +254,8 @@ test('下单状态机：待接单可取消，接单后完成；不能拒单；�
   }
   const often = (await ok('B', 'kitchen.partner')).dishes.find((d) => d.name === '改名后的抱抱')
   assert.equal(often.doneCount, 8, '后面 4 单各 1 份，加在前面那单 4 份上')
-  assert.equal(often.salesLabel, '我们点过 8 份')
+  assert.equal(often.salesLabel, '点过 8 份')
   const own = (await ok('A', 'kitchen.dishes', { withSales: true })).dishes.find((d) => d.name === '改名后的抱抱')
   assert.equal(own.doneCount, 8)
-  assert.equal(own.salesLabel, '我们点过 8 份')
+  assert.equal(own.salesLabel, '点过 8 份')
 })

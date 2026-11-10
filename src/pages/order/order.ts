@@ -7,12 +7,12 @@ import { confirm, toast } from '../../core/ui'
 
 type Scene = 'loading' | 'error' | PartnerMenu['scene']
 type Cat = { id: string; name: string; on: boolean }
-type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; initial: string }
+type DishRow = { id: string; name: string; desc: string; cover: string; sales: string; initial: string; qty: number }
 type Section = { id: string; name: string; dishes: DishRow[]; empty: boolean }
 type CartRow = { key: string; name: string; cover: string; quantity: number; initial: string }
 type Offset = { id: string; top: number }
 
-/** 点分类后短锁，避免滚动动画中途把左栏高亮抢回去 */
+/** 点分类后短锁，避免滚动动画中途把分类高亮抢回去 */
 const SCROLL_LOCK_MS = 300
 
 /** 用自己的上架菜拼成和对方菜单一样的结构，好在点单页里看效果 */
@@ -44,6 +44,7 @@ function dishRow(d: MenuDish): DishRow {
     cover: d.cover ? d.cover.thumb : '',
     sales: d.salesLabel,
     initial: Array.from(d.name)[0] || '',
+    qty: 0,
   }
 }
 
@@ -62,12 +63,8 @@ Component<
     kitchenName: string
     categories: Cat[]
     sections: Section[]
-    keyword: string
-    searching: boolean
-    searchHits: DishRow[]
-    searchEmpty: boolean
     scrollInto: string
-    railInto: string
+    chipInto: string
     cartPortions: number
     cartOpen: boolean
     cartLines: CartRow[]
@@ -84,7 +81,6 @@ Component<
     scrollTop: number
     listHeight: number
     lockUntil: number
-    keyword: string
     measuring: boolean
     measureQueued: boolean
     loadSeq: number
@@ -98,12 +94,8 @@ Component<
     kitchenName: '',
     categories: [],
     sections: [],
-    keyword: '',
-    searching: false,
-    searchHits: [],
-    searchEmpty: false,
     scrollInto: '',
-    railInto: '',
+    chipInto: '',
     cartPortions: 0,
     cartOpen: false,
     cartLines: [],
@@ -119,7 +111,6 @@ Component<
       this.scrollTop = 0
       this.listHeight = 0
       this.lockUntil = 0
-      this.keyword = ''
       this.measuring = false
       this.measureQueued = false
       this.loadSeq = 0
@@ -129,10 +120,7 @@ Component<
       if (!isRegistered(getUser())) return
       const openCart = consumeOpenCart()
       if (openCart) this.mine = false
-      if (this.data.mine !== this.mine) {
-        this.keyword = ''
-        this.setData({ mine: this.mine, keyword: '', searching: false, searchHits: [], searchEmpty: false })
-      }
+      if (this.data.mine !== this.mine) this.setData({ mine: this.mine })
       void this.reload(openCart)
     },
     async onRefresh() {
@@ -173,25 +161,19 @@ Component<
       }
       this.setData({ scene: 'error', errorText: message, refreshing: false })
     },
-    onToggleMine() {
-      this.mine = !this.mine
+    onPickSide(e: WechatMiniprogram.TouchEvent) {
+      const mine = String(e.currentTarget.dataset.side || '') === 'mine'
+      if (mine === this.mine) return
+      this.mine = mine
+      this.kitchenId = ''
       this.activeId = ''
       this.scrollTop = 0
       this.offsets = []
-      this.keyword = ''
-      this.setData({
-        mine: this.mine,
-        cartOpen: false,
-        keyword: '',
-        searching: false,
-        searchHits: [],
-        searchEmpty: false,
-        scrollInto: '',
-      })
+      this.setData({ mine, cartOpen: false, scrollInto: '', chipInto: '' })
       void this.reload(false)
     },
     apply(menu: PartnerMenu, openCart: boolean) {
-      if (menu.scene === 'unpaired' || menu.scene === 'no_kitchen') clearCart()
+      if (menu.scene !== 'menu') clearCart()
       this.kitchenId = menu.kitchen ? menu.kitchen.id : ''
       if (this.kitchenId) useKitchen(this.kitchenId)
       this.allDishes = menu.dishes.map(dishRow)
@@ -199,8 +181,6 @@ Component<
       this.activeId = active
       const categories = menu.categories.map((c) => ({ id: c.id, name: c.name, on: c.id === active }))
       const index = categories.findIndex((c) => c.on)
-      if (menu.scene !== 'menu') this.keyword = ''
-      const search = this.searchState(menu.scene)
       this.setData(
         {
           scene: menu.scene,
@@ -209,14 +189,10 @@ Component<
           kitchenName: menu.kitchen ? menu.kitchen.name : '',
           categories,
           sections: menu.scene === 'menu' ? sectionsOf(menu.categories, menu.dishes) : [],
-          keyword: this.keyword,
-          railInto: index >= 0 ? `rail-${index}` : '',
+          chipInto: index >= 0 ? `cat-${index}` : '',
           scrollInto: '',
-          ...search,
         },
-        () => {
-          if (!search.searching) this.measureSections()
-        },
+        () => this.measureSections(),
       )
       this.syncCart(openCart)
     },
@@ -226,28 +202,8 @@ Component<
       if (this.activeId && ids.includes(this.activeId)) return this.activeId
       return ids[0] || ''
     },
-    searchState(scene: Scene): { searching: boolean; searchHits: DishRow[]; searchEmpty: boolean } {
-      const q = this.keyword.trim().toLowerCase()
-      if (!q || scene !== 'menu') return { searching: false, searchHits: [], searchEmpty: false }
-      const searchHits = this.allDishes.filter((d) => d.name.toLowerCase().includes(q))
-      return { searching: true, searchHits, searchEmpty: searchHits.length === 0 }
-    },
-    refilter() {
-      const search = this.searchState(this.data.scene)
-      this.setData(search, () => {
-        if (!search.searching) this.measureSections()
-      })
-    },
-    onSearch(e: WechatMiniprogram.Input) {
-      this.keyword = e.detail.value
-      this.setData({ keyword: this.keyword }, () => this.refilter())
-    },
-    onClearSearch() {
-      this.keyword = ''
-      this.setData({ keyword: '' }, () => this.refilter())
-    },
     measureSections() {
-      if (this.data.searching || this.data.scene !== 'menu') {
+      if (this.data.scene !== 'menu') {
         this.offsets = []
         this.measureQueued = false
         return
@@ -269,7 +225,7 @@ Component<
             this.measureSections()
             return
           }
-          if (this.data.searching || this.data.scene !== 'menu') return
+          if (this.data.scene !== 'menu') return
           const box = res[0] as WechatMiniprogram.BoundingClientRectCallbackResult | null
           const scrolled = res[1] as WechatMiniprogram.ScrollOffsetCallbackResult | null
           const secs = Array.isArray(res[2]) ? (res[2] as WechatMiniprogram.BoundingClientRectCallbackResult[]) : []
@@ -308,10 +264,9 @@ Component<
       this.activeId = id
       const categories = this.data.categories.map((c) => ({ ...c, on: c.id === id }))
       const index = categories.findIndex((c) => c.on)
-      this.setData({ categories, railInto: index >= 0 ? `rail-${index}` : '' })
+      this.setData({ categories, chipInto: index >= 0 ? `cat-${index}` : '' })
     },
     onPickCat(e: WechatMiniprogram.TouchEvent) {
-      if (this.data.searching) return
       const id = String(e.currentTarget.dataset.id || '')
       const index = this.data.categories.findIndex((c) => c.id === id)
       if (index < 0) return
@@ -324,7 +279,7 @@ Component<
       this.setData(
         {
           categories: this.data.categories.map((c) => ({ ...c, on: c.id === id })),
-          railInto: `rail-${index}`,
+          chipInto: `cat-${index}`,
           scrollInto: this.data.scrollInto === token ? '' : token,
         },
         () => {
@@ -350,10 +305,19 @@ Component<
       }
       this.syncActive(scrollTop)
     },
-    onAdd(e: WechatMiniprogram.TouchEvent) {
+    onDishStep(e: WechatMiniprogram.TouchEvent) {
       const id = String(e.currentTarget.dataset.id || '')
+      const dir = Number(e.currentTarget.dataset.dir) || 1
+      if (!this.kitchenId) return
+      const line = cartState().lines.find((l) => l.key === id)
+      if (line) {
+        setLineQty(line.key, line.quantity + (dir < 0 ? -1 : 1))
+        this.syncCart()
+        return
+      }
+      if (dir < 0) return
       const dish = this.allDishes.find((d) => d.id === id)
-      if (!dish || !this.kitchenId) return
+      if (!dish) return
       const added = addLine({
         kitchenId: this.kitchenId,
         dishId: dish.id,
@@ -372,7 +336,19 @@ Component<
       if (this.kitchenId && cart.kitchenId && cart.kitchenId !== this.kitchenId) clearCart()
       const current = cartState().lines
       const portions = current.reduce((n, l) => n + l.quantity, 0)
+      const qtyOf = new Map(current.map((l) => [l.dishId, l.quantity]))
+      const sections = this.data.sections.map((s) => {
+        let changed = false
+        const dishes = s.dishes.map((d) => {
+          const qty = qtyOf.get(d.id) || 0
+          if (d.qty === qty) return d
+          changed = true
+          return { ...d, qty }
+        })
+        return changed ? { ...s, dishes } : s
+      })
       this.setData({
+        sections,
         cartPortions: portions,
         cartLines: current.map((l) => ({
           key: l.key,

@@ -17,6 +17,10 @@
             <view class="mo-step__btn" data-key="{{item.key}}" data-dir="1" bind:tap="onStep" aria-role="button"><text class="mo-step__mark">＋</text></view>
           </view>
         </view>
+        <view class="row row--line total">
+          <text class="total__label">合计</text>
+          <text class="total__count">共 {{portions}} 份</text>
+        </view>
       </view>
       <view class="mo-card">
         <text class="mo-section-title">备注</text>
@@ -37,12 +41,9 @@
   </scroll-view>
   <view class="mo-footer">
     <text wx:if="{{preview}}" class="mo-hint submit__note">自己的厨房只能预览，不能提交</text>
-    <view class="submit">
-      <text class="submit__count">共 {{portions}} 份</text>
-      <view class="mo-btn {{preview ? 'mo-btn--disabled' : ''}} {{submitting ? 'mo-btn--busy' : ''}} submit__btn" bind:tap="onSubmit" aria-role="button">
-        <view wx:if="{{submitting}}" class="mo-spinner" />
-        <text>提交订单</text>
-      </view>
+    <view class="mo-btn {{preview ? 'mo-btn--disabled' : ''}} {{submitting ? 'mo-btn--busy' : ''}}" bind:tap="onSubmit" aria-role="button">
+      <view wx:if="{{submitting}}" class="mo-spinner" />
+      <text>提交订单</text>
     </view>
   </view>
 </view>

@@ -3,7 +3,7 @@ import { call, callOrToast } from '../../../core/api'
 import { Feed, emptyFeed, type FeedData } from '../../../core/feed'
 import { dateTime } from '../../../core/format'
 import { lineText, orderStatusClass, renameKitchen } from '../../../core/kitchen'
-import { PAGE_KITCHEN_CREATE, PAGE_KITCHEN_MENU } from '../../../core/paths'
+import { PAGE_KITCHEN_CATEGORIES, PAGE_KITCHEN_CREATE, PAGE_KITCHEN_MENU } from '../../../core/paths'
 
 type Tab = { key: OpsStatus; name: string; on: boolean }
 type View = {
@@ -37,7 +37,15 @@ const TABS: Tab[] = [
 ]
 
 Component<
-  { gate: 'loading' | 'error' | 'ready'; errorText: string; kitchenName: string; tabs: Tab[]; emptyTitle: string; emptyHint: string; feed: FeedData<View> },
+  {
+    gate: 'loading' | 'error' | 'ready'
+    errorText: string
+    kitchenName: string
+    tabs: Tab[]
+    emptyTitle: string
+    emptyHint: string
+    feed: FeedData<View>
+  },
   {},
   WechatMiniprogram.Component.MethodOption,
   { feedCtl: Feed<OpsOrder, View> | null; tab: OpsStatus; acting: boolean },
@@ -134,6 +142,9 @@ Component<
     },
     onMenu() {
       wx.navigateTo({ url: PAGE_KITCHEN_MENU })
+    },
+    onCategories() {
+      wx.navigateTo({ url: PAGE_KITCHEN_CATEGORIES })
     },
     async onRename() {
       const name = await renameKitchen(this.data.kitchenName)

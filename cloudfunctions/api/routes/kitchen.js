@@ -4,7 +4,7 @@
  * 状态 pending → in_progress → done；下单方仅待接单可取消。没有拒单。
  *
  * 订单不保存快捷标签。份量在购物车和确认页调整。
- * 已完成的份数相加：同一单两份记 2，文案是「我们点过 N 份」。没有记录不返回文案。
+ * 已完成的份数相加：同一单两份记 2，文案是「点过 N 份」。没有记录不返回文案。
  */
 const { fail, text, id, toMs, cloudFileIds, getDoc } = require('../lib/util')
 const { pageByTime } = require('../lib/paging')
@@ -284,7 +284,7 @@ async function removeDish(ctx, e) {
 
 function salesLabel(count) {
   if (!count) return ''
-  return `我们点过 ${count} 份`
+  return `点过 ${count} 份`
 }
 
 async function doneCountMap(ctx, kitchenId) {

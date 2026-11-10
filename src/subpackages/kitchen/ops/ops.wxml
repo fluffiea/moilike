@@ -14,20 +14,31 @@
       <state-view wx:if="{{gate === 'loading'}}" status="loading" rows="{{2}}" />
       <state-view wx:elif="{{gate === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="openKitchen" />
       <block wx:else>
-        <view class="bar">
-          <text class="bar__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
-          <view class="bar__act" bind:tap="onMenu" aria-role="button">
-            <text>菜单管理</text>
+        <view class="hero">
+          <text class="hero__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
+          <text class="hero__sub">Ta 点的心意会出现在这里</text>
+        </view>
+
+        <view class="mo-card manage">
+          <view class="mrow" bind:tap="onMenu" aria-role="button">
+            <text class="mrow__title">菜单管理</text>
+            <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
-          <view class="bar__act" bind:tap="onRename" aria-role="button">
-            <text>改名</text>
+          <view class="mrow mrow--line" bind:tap="onCategories" aria-role="button">
+            <text class="mrow__title">管理分类</text>
+            <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
+          </view>
+          <view class="mrow mrow--line" bind:tap="onRename" aria-role="button">
+            <text class="mrow__title">厨房改名</text>
+            <image class="mo-chevron" src="/images/icons/chevron.png" mode="aspectFit" />
           </view>
         </view>
-        <view class="tabs">
+
+        <view class="mo-chips tabs">
           <view
             wx:for="{{tabs}}"
             wx:key="key"
-            class="tabs__item {{item.on ? 'tabs__item--on' : ''}}"
+            class="mo-chip {{item.on ? 'mo-chip--on' : ''}}"
             data-key="{{item.key}}"
             bind:tap="onPickTab"
             aria-role="tab"

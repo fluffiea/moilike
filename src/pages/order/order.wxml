@@ -11,8 +11,13 @@
     bindrefresherrefresh="onRefresh"
   >
     <view class="mo-body">
-      <view wx:if="{{scene !== 'loading'}}" class="peek" bind:tap="onToggleMine" aria-role="button">
-        <text>{{mine ? '回到 Ta 的厨房' : '看看自己的厨房'}}</text>
+      <view wx:if="{{scene !== 'loading'}}" class="mo-chips side">
+        <view class="mo-chip {{mine ? '' : 'mo-chip--on'}}" data-side="ta" bind:tap="onPickSide" aria-role="tab">
+          <text>Ta 的厨房</text>
+        </view>
+        <view class="mo-chip {{mine ? 'mo-chip--on' : ''}}" data-side="mine" bind:tap="onPickSide" aria-role="tab">
+          <text>我的厨房</text>
+        </view>
       </view>
       <state-view wx:if="{{scene === 'loading'}}" status="loading" rows="{{2}}" />
       <state-view wx:elif="{{scene === 'error'}}" status="error" hint="{{errorText}}" action="重试" bind:action="onRefresh" />
@@ -36,32 +41,21 @@
 
   <view wx:else class="stage">
     <view class="head">
-      <view class="head__main">
-        <text class="head__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
-        <view class="peek peek--under" bind:tap="onToggleMine" aria-role="button">
-          <text>{{mine ? '回到 Ta 的厨房' : '看看自己的厨房'}}</text>
+      <view class="mo-chips side">
+        <view class="mo-chip {{mine ? '' : 'mo-chip--on'}}" data-side="ta" bind:tap="onPickSide" aria-role="tab">
+          <text>Ta 的厨房</text>
         </view>
-        <text wx:if="{{mine}}" class="preview">预览自己的厨房 · 不能下单</text>
+        <view class="mo-chip {{mine ? 'mo-chip--on' : ''}}" data-side="mine" bind:tap="onPickSide" aria-role="tab">
+          <text>我的厨房</text>
+        </view>
       </view>
-      <view class="head__link" bind:tap="onOrders" aria-role="button">
-        <text>我的订单</text>
+      <view class="head__row">
+        <text class="head__name" overflow="ellipsis" max-lines="1">{{kitchenName}}</text>
+        <view class="head__link" bind:tap="onOrders" aria-role="button">
+          <text>我的订单</text>
+        </view>
       </view>
-    </view>
-
-    <view wx:if="{{scene === 'menu'}}" class="search">
-      <view class="mo-field search__field">
-        <input
-          class="mo-input search__input"
-          value="{{keyword}}"
-          placeholder="搜菜名"
-          placeholder-class="mo-placeholder"
-          confirm-type="search"
-          bindinput="onSearch"
-        />
-      </view>
-      <view wx:if="{{keyword}}" class="search__clear" bind:tap="onClearSearch" aria-role="button">
-        <text class="search__clear-text">清空</text>
-      </view>
+      <text wx:if="{{scene !== 'empty'}}" class="head__sub">{{mine ? '预览自己的厨房 · 不能下单' : '下单后 Ta 会在厨房里接单'}}</text>
     </view>
 
     <scroll-view
@@ -87,60 +81,25 @@
       </view>
     </scroll-view>
 
-    <view wx:else class="board">
-      <scroll-view wx:if="{{!searching}}" class="rail" scroll-y show-scrollbar="{{false}}" scroll-into-view="{{railInto}}" scroll-with-animation>
-        <view
-          wx:for="{{categories}}"
-          wx:key="id"
-          id="rail-{{index}}"
-          class="rail__item {{item.on ? 'rail__item--on' : ''}}"
-          data-id="{{item.id}}"
-          bind:tap="onPickCat"
-          aria-role="tab"
-        >
-          <text class="rail__name">{{item.name}}</text>
-        </view>
-        <view class="rail-end" />
-      </scroll-view>
-
-      <scroll-view
-        wx:if="{{searching}}"
-        class="list"
-        scroll-y
-        show-scrollbar="{{false}}"
-        refresher-enabled
-        refresher-triggered="{{refreshing}}"
-        bindrefresherrefresh="onRefresh"
-      >
-        <state-view
-          wx:if="{{searchEmpty}}"
-          status="empty"
-          title="没有找到相关菜"
-          hint="换个关键词试试"
-          action="清空搜索"
-          bind:action="onClearSearch"
-        />
-        <view wx:else class="hits">
-          <view wx:for="{{searchHits}}" wx:key="id" class="dish {{index ? 'dish--line' : ''}}">
-            <view class="thumb">
-              <image wx:if="{{item.cover}}" class="thumb__img" src="{{item.cover}}" mode="aspectFill" />
-              <view wx:else class="thumb__ph"><text class="thumb__initial">{{item.initial}}</text></view>
-            </view>
-            <view class="dish__main">
-              <text class="dish__name">{{item.name}}</text>
-              <text wx:if="{{item.desc}}" class="sub">{{item.desc}}</text>
-              <view wx:if="{{item.sales}}" class="tag"><text class="tag__txt">{{item.sales}}</text></view>
-            </view>
-            <view class="plus" data-id="{{item.id}}" bind:tap="onAdd" aria-role="button" aria-label="加入">
-              <image class="plus__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
-            </view>
+    <block wx:else>
+      <scroll-view class="cats" scroll-x show-scrollbar="{{false}}" scroll-into-view="{{chipInto}}" scroll-with-animation>
+        <view class="cats__in">
+          <view
+            wx:for="{{categories}}"
+            wx:key="id"
+            id="cat-{{index}}"
+            class="mo-chip cats__chip {{item.on ? 'mo-chip--on' : ''}}"
+            data-id="{{item.id}}"
+            bind:tap="onPickCat"
+            aria-role="tab"
+          >
+            <text>{{item.name}}</text>
           </view>
+          <view class="cats__end" />
         </view>
-        <view class="list-end" />
       </scroll-view>
 
       <scroll-view
-        wx:else
         class="list"
         scroll-y
         show-scrollbar="{{false}}"
@@ -151,36 +110,39 @@
         bindrefresherrefresh="onRefresh"
         bindscroll="onListScroll"
       >
-        <view wx:for="{{sections}}" wx:key="id" id="sec-{{index}}" class="sec" data-id="{{item.id}}">
-          <text class="sec__name">{{item.name}}</text>
-          <text wx:if="{{item.empty}}" class="sec__empty">这个分类还没有心意</text>
-          <view wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="id" class="dish {{index ? 'dish--line' : ''}}">
-            <view class="thumb">
-              <image wx:if="{{dish.cover}}" class="thumb__img" src="{{dish.cover}}" mode="aspectFill" />
-              <view wx:else class="thumb__ph"><text class="thumb__initial">{{dish.initial}}</text></view>
-            </view>
-            <view class="dish__main">
-              <text class="dish__name">{{dish.name}}</text>
-              <text wx:if="{{dish.desc}}" class="sub">{{dish.desc}}</text>
-              <view wx:if="{{dish.sales}}" class="tag"><text class="tag__txt">{{dish.sales}}</text></view>
-            </view>
-            <view class="plus" data-id="{{dish.id}}" bind:tap="onAdd" aria-role="button" aria-label="加入">
-              <image class="plus__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
+        <view class="list__in">
+          <view wx:for="{{sections}}" wx:key="id" id="sec-{{index}}" class="mo-card sec" data-id="{{item.id}}">
+            <text class="sec__name">{{item.name}}</text>
+            <text wx:if="{{item.empty}}" class="sec__empty">这个分类还没有心意</text>
+            <view wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="id" class="dish {{index ? 'dish--line' : ''}}">
+              <view class="thumb">
+                <image wx:if="{{dish.cover}}" class="thumb__img" src="{{dish.cover}}" mode="aspectFill" />
+                <view wx:else class="thumb__ph"><text class="thumb__initial">{{dish.initial}}</text></view>
+              </view>
+              <view class="dish__main">
+                <text class="dish__name">{{dish.name}}</text>
+                <text wx:if="{{dish.desc}}" class="sub">{{dish.desc}}</text>
+                <view wx:if="{{dish.sales}}" class="tag"><text class="tag__txt">{{dish.sales}}</text></view>
+              </view>
+              <view wx:if="{{dish.qty}}" class="mo-step dish__step">
+                <view class="mo-step__btn" data-id="{{dish.id}}" data-dir="-1" bind:tap="onDishStep" aria-role="button"><text class="mo-step__mark">－</text></view>
+                <text class="mo-step__num">{{dish.qty}}</text>
+                <view class="mo-step__btn" data-id="{{dish.id}}" data-dir="1" bind:tap="onDishStep" aria-role="button"><text class="mo-step__mark">＋</text></view>
+              </view>
+              <view wx:else class="plus" data-id="{{dish.id}}" bind:tap="onDishStep" aria-role="button" aria-label="加入">
+                <image class="plus__icon" src="/images/icons/plus-light.png" mode="aspectFit" />
+              </view>
             </view>
           </view>
         </view>
-        <view class="list-end" />
       </scroll-view>
-    </view>
+    </block>
   </view>
 
   <view wx:if="{{cartPortions && !cartOpen}}" class="mo-footer dock">
-    <view class="dock__bag" bind:tap="onOpenCart" aria-role="button" aria-label="购物车">
-      <text class="dock__bag-num">{{cartPortions}}</text>
-    </view>
-    <view class="dock__count" bind:tap="onOpenCart" aria-role="button">
+    <view class="dock__info" bind:tap="onOpenCart" aria-role="button">
       <text class="dock__label">购物车</text>
-      <text class="dock__count-text">共 {{cartPortions}} 份</text>
+      <text class="dock__count">共 {{cartPortions}} 份</text>
     </view>
     <view class="mo-btn dock__btn" bind:tap="onOpenCart" aria-role="button">
       <text>去下单</text>

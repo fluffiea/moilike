@@ -49,6 +49,21 @@
   color: var(--mo-text-primary);
 }
 
+.total {
+  justify-content: space-between;
+}
+
+.total__label {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--mo-text-primary);
+}
+
+.total__count {
+  font-size: 26rpx;
+  color: var(--mo-text-secondary);
+}
+
 .note {
   min-height: 160rpx;
 }
@@ -56,20 +71,4 @@
 .submit__note {
   display: block;
   margin-bottom: 16rpx;
-}
-
-.submit {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.submit__count {
-  flex: 1;
-  font-size: 26rpx;
-  color: var(--mo-text-secondary);
-}
-
-.submit__btn {
-  width: 280rpx;
 }

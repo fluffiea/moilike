@@ -1,35 +1,46 @@
-.row {
+.manage {
+  padding: 8rpx 32rpx;
+}
+
+.mrow {
   display: flex;
   flex-direction: row;
   align-items: center;
+  min-height: 96rpx;
+  padding: 16rpx 0;
 }
 
-.row__main {
+.mrow--line {
+  border-top: var(--mo-border-field);
+}
+
+.mrow__main {
   flex: 1;
   min-width: 0;
 }
 
-.row__title {
+.mrow__title {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
   color: var(--mo-text-primary);
 }
 
-.row__meta {
+.mrow__meta {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 4rpx;
   font-size: 24rpx;
   color: var(--mo-text-muted);
 }
 
-.row__act {
+.mrow__act {
   margin-left: 24rpx;
   font-size: 26rpx;
   color: var(--mo-brand-slate);
+  flex-shrink: 0;
 }
 
-.row__act--danger {
+.mrow__act--danger {
   color: var(--mo-text-danger);
 }
 

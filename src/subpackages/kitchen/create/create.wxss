@@ -27,7 +27,3 @@
   display: block;
   margin-top: 16rpx;
 }
-
-.mo-btn {
-  margin-top: 36rpx;
-}

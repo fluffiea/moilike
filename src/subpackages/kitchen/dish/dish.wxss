@@ -104,15 +104,16 @@
   color: var(--mo-text-secondary);
 }
 
-.foot {
+.remove {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  padding: 0;
 }
 
-.danger {
-  margin-top: 20rpx;
-  font-size: 26rpx;
+.remove__text {
+  font-size: 32rpx;
   color: var(--mo-text-danger);
 }
 

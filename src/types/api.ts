@@ -257,7 +257,7 @@ export type MenuDish = {
   cover: DishCover | null
   /** 已完成订单里的份数合计；未完成和已取消不计 */
   doneCount: number
-  /** 没有完成过的份数为空串，否则「我们点过 N 份」 */
+  /** 没有完成过的份数为空串，否则「点过 N 份」 */
   salesLabel: string
 }
 
